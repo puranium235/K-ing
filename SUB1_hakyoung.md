@@ -23,3 +23,8 @@
 
 ### 인프라 구축 및 개선
 [Notion Link](https://puranium235.notion.site/Docker-17a26dcedda380cba3fde586719aa92c?pvs=73)
+- Docker 기능과 명령어 공부
+- 도커이미지 빌드시 멀티스테이지 빌드를 사용해 불필요한 파일 제거
+- Docker compose를 사용한 컨테이너 오케스트레이션
+- Docker volume을 사용한 프론트엔드 빌드파일 제공 및 초기실행 sql파일 설정, db 정보 영구저장
+- 환경변수 분리를 통해 git을 이용한 자동화 구축시 보안 고려
