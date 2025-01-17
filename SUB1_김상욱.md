@@ -1,8 +1,12 @@
 ## Sub-PJT1 개인 과제 (2025.01.17)
 
+### 공통 현황
 - 상세 페르소나 설정
 - 서비스 기능 기획 및 구체화
 - 기능 우선순위 선정
+- 컨설턴트님 피드백 반영
+- ERD 명세 : 팀 단위 검토
+- Figma : 팀 단위 검토
 
 ### 기능 구체화 (노션 회의록)
 https://young5306.notion.site/0110-89beadd06daa4f4dbe8545b1c259ce8a?pvs=4
@@ -12,3 +16,9 @@ https://young5306.notion.site/API-1732f0f38a4981448388e9740d6201b6?pvs=4
 
 ### ERD 설계
 ![ERD_K-ING](/uploads/ae6c958ef3374e597ca8746a0d4b8460/ERD_K-ING.png)
+
+### 아키텍처 설계
+![image__20_](/uploads/afa9f7d4665b32db9971fa8b48251f04/image__20_.png)
+
+### PM 강의
+- 1/14 ~ 1/15 : PM 강의
