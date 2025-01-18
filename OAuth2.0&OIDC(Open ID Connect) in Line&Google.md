@@ -25,4 +25,19 @@
 #### 참고
 https://hudi.blog/oauth-2.0/
 
+### OpenID Connect(OIDC) 흐름
+#### 개념 용어
+- IdP (Identity Provider) : IdP는 구글, 카카오와 같이 OpenID 서비스를 제공하는 당사자.
+- RP (Relying Party) : 사용자를 인증하기 위해 IdP에 의존하는 주체. 'XXX으로 로그인하기' 등의 기능을 제공하는 서비스
+#### OIDC는 OAuth 2.0의 확장
+- OAuth2.0은 인가(Authorization)을 위한 것이며 OIDC는 인증(Authentication)을 위해 필요한 OAuth2.0위에서 동작하는 ID 계층이다.
+- OAuth2.0도 과정 중에 인증을 제공하지만 핵심 목적은 Access Token을 통한 인가(Authorization)이다.
+- Open ID Connect를 사용하면 클라이언트는 ID 토큰을 획들할 수 있고 이 ID 토큰에는 사용자에 대한 신원 정보가 담겨있다.
+- OIDC 없이 사용자 프로필 정보를 리소스 서버로부터 가져올 수 있으나 OAuth2.0 단독으로 사용자 리소스를 가지고 오기 위해서는 OIDC를 사용할 때의 2배의 통신을 해야한다. 즉, Access Token을 발급 받은 다음 이 토큰을 사용하여 리소스를 다시 요청하여 받아와야하지만, OIDC를 사용하면 Acces Token과 함께 전달받은 ID Token을 복호화하여 사용자 정보를 가져오면 끝이다.
+
+#### OIDC 인증 과정
+- OIDC는 OAuth2.0을 확장하여 동작하는데 이 때 Scope(리소스 서버에 접근할 수 있는 제한 범위에 대한 내용)로 openid 값이 포함되어 들어오면, 액세스 토큰과 함께 사용자 인증에 대한 정보를 ID Token이라고 불리는 JWT로 반환.
+
+
+
 
