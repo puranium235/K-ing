@@ -38,6 +38,9 @@ https://hudi.blog/oauth-2.0/
 #### OIDC 인증 과정
 - OIDC는 OAuth2.0을 확장하여 동작하는데 이 때 Scope(리소스 서버에 접근할 수 있는 제한 범위에 대한 내용)로 openid 값이 포함되어 들어오면, 액세스 토큰과 함께 사용자 인증에 대한 정보를 ID Token이라고 불리는 JWT로 반환.
 
+#### 참고
+https://hudi.blog/open-id/
+
 
 
 
