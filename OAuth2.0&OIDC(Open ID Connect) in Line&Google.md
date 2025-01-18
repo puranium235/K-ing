@@ -1,5 +1,6 @@
 ## 목차
 1. [기본 개념](##-기본-개념)
+2. [로그인 시스템 설계 종류](##-로그인-시스템-설계-종류)
 
 ## 기본 개념
 
@@ -49,7 +50,7 @@ https://hudi.blog/open-id/
 ### API 호출
 - 발급받은 Access Token을 이용하여 Resource Server의 기능을 핸들링하려면 Resource Server에서 제공하는 방식대로 핸들링해야 하는데 이 방식을 API(Application programming Interface)라고 한다.
 
-## 대표적 소셜 로그인 방식 종류
+## 로그인 시스템 설계 종류
 
 ### 하이브리드 인증 방식
 - 가장 소셜 로그인에서 대표적으로 쓰이는 방식
