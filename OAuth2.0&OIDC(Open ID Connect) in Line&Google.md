@@ -1,3 +1,5 @@
+## 기본 개념
+
 ### 기본적인 OAuth2.0 흐름(sequence diagram)
 ![oauth2.0-process](/uploads/5c63fc482fa38bca0e6e526673fc96a3/oauth2.0-process.png)
 
@@ -41,6 +43,8 @@ https://hudi.blog/oauth-2.0/
 #### 참고
 https://hudi.blog/open-id/
 
+### API 호출
+- 발급받은 Access Token을 이용하여 Resource Server의 기능을 핸들링하려면 Resource Server에서 제공하는 방식대로 핸들링해야 하는데 이 방식을 API(Application programming Interface)라고 한다.
 
 
 
