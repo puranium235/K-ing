@@ -39,3 +39,154 @@ GET /api/posts?cursor=20251020235959_1234&limit=20
 - 큐레이팅 SNS와 같은 웹앱에서는 사용자 경험과 데이터 일관성, 그리고 실시간 업데이트에 대한 요구가 높음.
 - **커서 기반 API 설계와 Intersection Observer**를 활용한 무한 로딩 방식이 많이 쓰임
 
+## 최신순 포스트 Cursor 기반 무한 스크롤 설계 예시
+### 엔티티
+```java
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+public class Post {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String content;
+
+    private LocalDateTime createdAt;
+
+    // 기본 생성자, getter/setter 생략
+    public Post() {}
+
+    public Post(String content, LocalDateTime createdAt) {
+        this.content = content;
+        this.createdAt = createdAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+}
+```
+### Repository
+```java
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Repository
+public interface PostRepository extends JpaRepository<Post, Long> {
+
+    // 커서가 null이면 전체 최신순 데이터를 Pageable을 사용해 가져오고,
+    // 커서가 존재하면 createdAt이 해당 커서보다 이전인 데이터를 최신순으로 정렬해서 조회.
+    List<Post> findByCreatedAtBeforeOrderByCreatedAtDesc(LocalDateTime createdAt, Pageable pageable);
+    
+    // 커서가 없는 경우 (최초 요청)에는 전체 최신 데이터를 조회하기 위한 메서드
+    List<Post> findAllByOrderByCreatedAtDesc(Pageable pageable);
+}
+```
+### API 응답 DTO
+```java
+import java.time.LocalDateTime;
+import java.util.List;
+
+public class PostResponse {
+
+    private List<Post> data;
+    private LocalDateTime nextCursor;  // 다음 요청 시 사용할 커서 (마지막 게시글의 createdAt)
+
+    public PostResponse(List<Post> data, LocalDateTime nextCursor) {
+        this.data = data;
+        this.nextCursor = nextCursor;
+    }
+
+    public List<Post> getData() {
+        return data;
+    }
+
+    public LocalDateTime getNextCursor() {
+        return nextCursor;
+    }
+
+    public void setData(List<Post> data) {
+        this.data = data;
+    }
+
+    public void setNextCursor(LocalDateTime nextCursor) {
+        this.nextCursor = nextCursor;
+    }
+}
+```
+### Controller
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/posts")
+public class PostController {
+
+    @Autowired
+    private PostRepository postRepository;
+
+    // limit은 고정(예시: 20개)
+    private static final int PAGE_SIZE = 20;
+    // 날짜 포맷 (예: ISO_LOCAL_DATE_TIME 형식으로 전송)
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+    /**
+     * 커서 기반으로 게시글 목록을 조회합니다.
+     * @param cursor 문자열 형태의 LocalDateTime (예: "2025-01-18T23:59:59")
+     * @return PostResponse
+     */
+    @GetMapping
+    public PostResponse getPosts(@RequestParam(required = false) String cursor) {
+        List<Post> posts;
+        PageRequest pageable = PageRequest.of(0, PAGE_SIZE);
+
+        // 최초 요청이면 cursor가 없으므로 전체 최신 데이터를 조회
+        if (cursor == null || cursor.isEmpty()) {
+            posts = postRepository.findAllByOrderByCreatedAtDesc(pageable);
+        } else {
+            // 문자열을 LocalDateTime으로 변환
+            LocalDateTime cursorTime = LocalDateTime.parse(cursor, formatter);
+            posts = postRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(cursorTime, pageable);
+        }
+
+        // 다음 커서를 결정: 조회된 목록의 마지막 항목의 createdAt 값을 사용
+        LocalDateTime nextCursor = posts.isEmpty() ? null : posts.get(posts.size() - 1).getCreatedAt();
+
+        return new PostResponse(posts, nextCursor);
+    }
+}
+```
+
