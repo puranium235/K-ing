@@ -1,3 +1,11 @@
 spring:
   application:
-    name: test
+    name: king-backend
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: info
+    org.springframework: DEBUG
