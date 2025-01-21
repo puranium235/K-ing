@@ -1,0 +1,57 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ${MYSQL_HOST}
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command:
+      --skip-character-set-client-handshake
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3305:3306"
+    networks:
+      - king
+
+  springboot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: springboot
+    restart: always
+    environment:
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8080:8080"
+    networks:
+      - king
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "6378:6379"
+    networks:
+      - king
+
+volumes:
+  mysql-data:
+
+networks:
+  king:
+    driver: bridge
