@@ -1,8 +1,11 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 
-const PlaceDetail = () => {
+const PlaceDetailPage = () => {
+  const { placeId } = useParams();
   return (
     <div style={{ fontFamily: "Arial, sans-serif", padding: "20px" }}>
+      <p>Place ID: {placeId}</p>
       <header style={{ display: "flex", alignItems: "center", paddingBottom: "10px" }}>
         <button style={{ border: "none", background: "none", fontSize: "16px", cursor: "pointer" }}>
           &lt;
@@ -91,4 +94,4 @@ const PlaceDetail = () => {
   );
 };
 
-export default PlaceDetail;
+export default PlaceDetailPage;

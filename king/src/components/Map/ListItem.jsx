@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 // 주소를 "서울시 마포구"까지만 추출
@@ -10,11 +11,16 @@ const getShortAddress = (fullAddress) => {
   return fullAddress; // 주소가 짧거나 비정상적인 경우 원본 반환
 };
 
-const ListItem = ({ name, type, address, phone, openHours, breakTime, closedDays, placeImage }) => {
+const ListItem = ({ placeId, name, type, address, openHours, closedDays, placeImage }) => {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate(`/place/${placeId}`); // 상세 페이지로 이동
+  };
+
   const isAlwaysOpen = closedDays === "연중무휴"; // 연중무휴 여부 확인
 
   return (
-    <ItemContainer>
+    <ItemContainer onClick={handleClick}>
       <TitleRow>
         <Title>{name}</Title>
         <Desc>{type}</Desc>
@@ -57,6 +63,7 @@ const ItemContainer = styled.div`
   flex-direction: column;
   background-color: #fff;
   border-radius: 14px;
+  cursor: pointer;
 `;
 
 const TitleRow = styled.div`

@@ -5,6 +5,7 @@ import { RecoilRoot } from "recoil";
 import ErrorPage from "./pages/ErrorPage";
 import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
+import PlaceDetailPage from "./pages/PlaceDetailPage";
 
 const Router = () => {
   return (
@@ -15,7 +16,7 @@ const Router = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="*" element={<ErrorPage />} />
             <Route path="/map" element={<MapPage />} />
-            <Route path="/place/:placeId" element={<PlaceDetail />} />
+            <Route path="/place/:placeId" element={<PlaceDetailPage />} />
           </Routes>
         </Suspense>
       </RecoilRoot>
