@@ -1,16 +1,16 @@
-import kingLogo from '/logo.svg'
-import './App.css'
+import { ThemeProvider } from "styled-components";
 
-function App() {
+import Router from "./Router";
+import GlobalStyle from "./styles/GlobalStyle";
+import theme from "./styles/theme";
 
+const App = () => {
   return (
-    <>
-      <div>
-        <img src={kingLogo} className="logo" alt="Vite logo" />
-      </div>
-      <h1>촬영배경지 큐레이션 서비스, K-ing</h1>
-    </>
-  )
-}
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <Router />
+    </ThemeProvider>
+  );
+};
 
-export default App
+export default App;
