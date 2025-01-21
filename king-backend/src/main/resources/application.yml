@@ -28,5 +28,5 @@ server:
 logging:
   level:
     root: info
-#    org:
-#      springframework: DEBUG
+    org:
+      springframework: DEBUG
