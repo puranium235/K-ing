@@ -87,7 +87,7 @@ export const reset = css`
     margin: 0;
     padding: 0;
     border: 0;
-    font-size: 62.5%;
+    font-size: 70%;
     vertical-align: baseline;
   }
 
@@ -142,8 +142,6 @@ export const reset = css`
 
 export const GlobalStyle = createGlobalStyle`
 ${reset}
-
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
 
 #root, body, html,main {
     /* width: 39rem; */
