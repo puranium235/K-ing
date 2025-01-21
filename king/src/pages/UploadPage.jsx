@@ -1,9 +1,9 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
-import Home from "../components/Home/Home";
+import Home from '../components/Home/Home';
 
-const HomePage = () => {
+const UploadPage = () => {
   return (
     <>
       <Home />
@@ -11,7 +11,7 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default UploadPage;
 
 const St = {
   Wrapper: styled.article`
