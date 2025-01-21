@@ -1,29 +1,29 @@
 package com.king.backend.global.response;
+import lombok.Getter;
 
-public class ApiResponse<T> { // Void
-    private boolean success;
-    private T data;
-    private String code;
-    private String message;
+@Getter
+public class ApiResponse<T> {
 
-    // 성공
-    public static <T> ApiResponse<T> success(T data){
-        ApiResponse<T> response = new ApiResponse<>();
-        response.success = true;
-        response.data = data;
-        response.code = "SUCCESS";
-        response.message = "요청 성공";
-        return response;
+    private final boolean success;
+    private final T data;
+    private final String code;
+    private final String message;
+
+    // 생성자를 통해 초기화
+    private ApiResponse(boolean success, T data, String code, String message) {
+        this.success = success;
+        this.data = data;
+        this.code = code;
+        this.message = message;
+    }
+
+    // 성공 응답
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(true, data, "SUCCESS", "요청 성공");
     }
 
     // 실패 응답
     public static <T> ApiResponse<T> error(String code, String message) {
-        ApiResponse<T> response = new ApiResponse<>();
-        response.success = false;
-        response.code = code;
-        response.message = message;
-        return response;
+        return new ApiResponse<>(false, null, code, message);
     }
-
-
 }

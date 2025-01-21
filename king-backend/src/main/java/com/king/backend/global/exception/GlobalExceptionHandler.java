@@ -12,7 +12,7 @@ import java.net.BindException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse<?>> handleCustomException(CustomException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException ex) {
         ErrorCode errorCode = ex.getErrorCode();
         return ResponseEntity
                 .status(errorCode.getStatus()) // ErrorCode에서 상태 코드 가져오기
