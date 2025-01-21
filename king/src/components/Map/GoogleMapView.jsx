@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+
 import dummyData from "../../assets/dummy/dummyData";
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -138,10 +139,10 @@ const GoogleMapView = () => {
       <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={libraries} version="beta">
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={center || { lat: 37.5665, lng: 126.978 }} // center가 null일 경우 기본값 사용
+          center={center || { lat: 37.5665, lng: 126.978 }}
           zoom={14}
           options={mapOptions}
-          onLoad={(map) => setMapInstance(map)} // 지도 로드 후 인스턴스 저장
+          onLoad={(map) => setMapInstance(map)}
         />
       </LoadScript>
 
@@ -155,8 +156,8 @@ const GoogleMapView = () => {
 
 // 플로팅 버튼 스타일
 const HereButton = styled.button`
-  position: fixed;
-  bottom: 380px;
+  position: absolute;
+  bottom: 40px;
   right: 20px;
   background-color: #fff;
   color: white;

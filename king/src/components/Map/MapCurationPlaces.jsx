@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import GoogleMapView from "./GoogleMapView";
-import ListItem from "./ListItem";
+
 import dummyData from "../../assets/dummy/dummyData";
 import FilterButtons from "./FilterButtons";
+import GoogleMapView from "./GoogleMapView";
+import ListItem from "./ListItem";
 
 const MapCurationPlaces = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -20,6 +22,11 @@ const MapCurationPlaces = () => {
     setActiveFilter((prevFilter) => (prevFilter === filter ? null : filter));
   };
 
+  const navigate = useNavigate();
+  const handleClose = () => {
+    navigate(-1);
+  };
+
   return (
     <Container>
       {/* Map Section */}
@@ -33,8 +40,8 @@ const MapCurationPlaces = () => {
         <FilterContainer>
           <FilterButtons
             filters={filters}
-            activeFilter={activeFilter} // 현재 선택된 필터 전달
-            onFilterChange={handleFilterChange} // 선택 상태 변경 함수 전달
+            activeFilter={activeFilter}
+            onFilterChange={handleFilterChange}
           />
         </FilterContainer>
         <ListContainer>
@@ -43,7 +50,7 @@ const MapCurationPlaces = () => {
           ))}
         </ListContainer>
       </ContentSection>
-      <ClosedButton>
+      <ClosedButton onClick={handleClose}>
         <img src="src/assets/icons/close.png" alt="close" />
       </ClosedButton>
     </Container>
@@ -59,7 +66,7 @@ const Container = styled.div`
 
 const MapSection = styled.div`
   position: relative;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 380px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,7 +95,7 @@ const ContentSection = styled.div`
   background-color: #ffffff;
   height: 100%;
   position: absolute;
-  bottom: ${(props) => (props.$isExpanded ? "-80px" : "-450px")};
+  ${(props) => (props.$isExpanded ? "top: 90px;" : "top: calc(100vh - 400px);")}
   left: 0;
   right: 0;
   transition: bottom 0.3s ease;
