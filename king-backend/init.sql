@@ -1,0 +1,13 @@
+DROP DATABASE IF EXISTS king;
+CREATE DATABASE king;
+
+USE king;
+
+CREATE TABLE messages (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    created DATETIME DEFAULT NOW(),
+    content VARCHAR(255) NOT NULL
+);
+
+INSERT INTO messages (content)
+VALUES ('테스트용데이터1');
