@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Home from "../components/Home/Home";
 
-const HomePage = () => {
+const LandingPage = () => {
   return (
     <>
       <Home />
@@ -11,7 +11,7 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default LandingPage;
 
 const St = {
   Wrapper: styled.article`

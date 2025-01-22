@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Home from "../components/Home/Home";
 
-const HomePage = () => {
+const ChatbotPage = () => {
   return (
     <>
       <Home />
@@ -11,7 +11,7 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default ChatbotPage;
 
 const St = {
   Wrapper: styled.article`
