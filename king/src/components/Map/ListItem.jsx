@@ -1,10 +1,10 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 // 주소를 "서울시 마포구"까지만 추출
 const getShortAddress = (fullAddress) => {
-  const parts = fullAddress.split(" "); // 공백을 기준으로 나누기
+  const parts = fullAddress.split(' '); // 공백을 기준으로 나누기
   if (parts.length >= 2) {
     return `${parts[0]} ${parts[1]}`; // 첫 번째와 두 번째 부분만 반환
   }
@@ -17,7 +17,7 @@ const ListItem = ({ placeId, name, type, address, openHours, closedDays, placeIm
     navigate(`/place/${placeId}`); // 상세 페이지로 이동
   };
 
-  const isAlwaysOpen = closedDays === "연중무휴"; // 연중무휴 여부 확인
+  const isAlwaysOpen = closedDays === '연중무휴'; // 연중무휴 여부 확인
 
   return (
     <ItemContainer onClick={handleClick}>
@@ -31,10 +31,10 @@ const ListItem = ({ placeId, name, type, address, openHours, closedDays, placeIm
             <img
               src={
                 isAlwaysOpen
-                  ? "src/assets/icons/good.png" // 연중무휴 아이콘
-                  : "src/assets/icons/bad.png" // 기본 휴무 아이콘
+                  ? 'src/assets/icons/good.png' // 연중무휴 아이콘
+                  : 'src/assets/icons/bad.png' // 기본 휴무 아이콘
               }
-              alt={isAlwaysOpen ? "Always Open" : "Closed"}
+              alt={isAlwaysOpen ? 'Always Open' : 'Closed'}
             />
             {closedDays}
           </ImportantInfoItem>
@@ -75,11 +75,11 @@ const TitleRow = styled.div`
 
 const Title = styled.h2`
   margin: 0;
-  font: ${(theme) => theme.fonts.Title5};
+  ${({ theme }) => theme.fonts.Title5};
 `;
 
 const Desc = styled.p`
-  font: ${(theme) => theme.fonts.Body5};
+  ${({ theme }) => theme.fonts.Body5};
   color: rgba(37, 37, 37, 0.7);
 `;
 
@@ -94,7 +94,7 @@ const InfoItem = styled.span`
   display: flex;
   align-items: center;
   gap: 6px;
-  font: ${(theme) => theme.fonts.Body5};
+  ${({ theme }) => theme.fonts.Body5};
   color: rgba(37, 37, 37, 0.7);
 
   img {
@@ -107,9 +107,9 @@ const ImportantInfoItem = styled.span`
   display: flex;
   align-items: center;
   gap: 6px;
-  font: ${(theme) => theme.fonts.Body2};
-  color: ${(props, theme) =>
-    props.$isAlwaysOpen ? "#17A600" : theme.colors.Red}; /* 연중무휴일 때 색상 변경 */
+  ${({ theme }) => theme.fonts.Body2};
+  color: ${(props) =>
+    props.$isAlwaysOpen ? '#17A600' : props.theme.colors.Red}; /* 연중무휴일 때 색상 변경 */
 
   img {
     width: 16px;

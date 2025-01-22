@@ -1,18 +1,18 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 const filterIcons = {
   식당: {
-    default: "src/assets/icons/restaurant_dark.png",
-    active: "src/assets/icons/restaurant.png",
+    default: 'src/assets/icons/restaurant_dark.png',
+    active: 'src/assets/icons/restaurant.png',
   },
-  카페: { default: "src/assets/icons/cafe_dark.png", active: "src/assets/icons/cafe.png" },
+  카페: { default: 'src/assets/icons/cafe_dark.png', active: 'src/assets/icons/cafe.png' },
   관광: {
-    default: "src/assets/icons/playground_dark.png",
-    active: "src/assets/icons/playground.png",
+    default: 'src/assets/icons/playground_dark.png',
+    active: 'src/assets/icons/playground.png',
   },
-  상점: { default: "src/assets/icons/shop_dark.png", active: "src/assets/icons/shop.png" },
-  숙박: { default: "src/assets/icons/stay_dark.png", active: "src/assets/icons/stay.png" },
+  상점: { default: 'src/assets/icons/shop_dark.png', active: 'src/assets/icons/shop.png' },
+  숙박: { default: 'src/assets/icons/stay_dark.png', active: 'src/assets/icons/stay.png' },
 };
 
 const FilterButtons = ({ filters, activeFilter, onFilterChange }) => {
@@ -58,12 +58,12 @@ const FilterButton = styled.button`
   height: 32px;
   white-space: nowrap;
   padding: 8px;
-  font: ${(theme) => theme.fonts.Body3};
-  border: 1px solid ${(props, theme) => (props.$active ? theme.colors.MainBlue : "#CAC4D0")};
+  ${({ theme }) => theme.fonts.Body3};
+  border: 1px solid ${(props) => (props.$active ? props.theme.colors.MainBlue : '#CAC4D0')};
   border-radius: 8px;
   cursor: pointer;
-  color: ${(props, theme) => (props.$active ? "#fff" : theme.colors.Grey1)};
-  background-color: ${(props, theme) => (props.$active ? theme.colors.MainBlue : "#fff")};
+  color: ${(props) => (props.$active ? '#fff' : props.theme.colors.Grey1)};
+  background-color: ${(props) => (props.$active ? props.theme.colors.MainBlue : '#fff')};
   transition:
     background-color 0.3s,
     color 0.3s;
