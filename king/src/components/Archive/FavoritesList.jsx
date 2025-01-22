@@ -7,6 +7,8 @@ import FavoriteItem from './FavoriteItem';
 const FavoritesList = ({ title, data }) => {
   // 최대 5개까지만 렌더링
   const previewData = data.slice(0, 5);
+  // 단위 계산 ('개' 또는 '명')
+  const unit = title === '작품' ? '개' : '명';
 
   return (
     <St.Section>
@@ -14,7 +16,8 @@ const FavoritesList = ({ title, data }) => {
         <St.Left>
           <St.Title>{title}</St.Title>
           <St.Count>
-            {data.length}개의 {title}
+            {data.length}
+            {unit}의 {title}
           </St.Count>
         </St.Left>
         {data.length > 0 && (
