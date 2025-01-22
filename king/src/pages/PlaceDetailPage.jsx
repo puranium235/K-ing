@@ -40,7 +40,7 @@ const PlaceDetailPage = () => {
   };
 
   const handleRoute = () => {
-    navigate(`/reviewfeed/${placeId}`); // 상세 페이지로 이동
+    navigate(`/reviewfeed/${placeId}`);
   };
 
   const openModal = () => {

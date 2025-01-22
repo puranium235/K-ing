@@ -4,6 +4,7 @@ import { RecoilRoot } from 'recoil';
 
 import ArchivePage from './pages/ArchivePage';
 import ChatbotPage from './pages/ChatbotPage';
+import CurationDetailPage from './pages/CurationDetailPage';
 import CurationPage from './pages/CurationPage';
 import DramaDetailPage from './pages/DramaDetailPage';
 import DramaPage from './pages/DramaPage';
@@ -30,6 +31,7 @@ const Router = () => {
             <Route path="/archive" element={<ArchivePage />} />
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/curation" element={<CurationPage />} />
+            <Route path="/curation/:curationId" element={<CurationDetailPage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/drama" element={<DramaPage />} />
             <Route path="/drama/details" element={<DramaDetailPage />} />
