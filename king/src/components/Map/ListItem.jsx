@@ -13,14 +13,14 @@ const getShortAddress = (fullAddress) => {
 
 const ListItem = ({ placeId, name, type, address, openHours, closedDays, placeImage }) => {
   const navigate = useNavigate();
-  const handleClick = () => {
+  const handleRoute = () => {
     navigate(`/place/${placeId}`); // 상세 페이지로 이동
   };
 
   const isAlwaysOpen = closedDays === '연중무휴'; // 연중무휴 여부 확인
 
   return (
-    <ItemContainer onClick={handleClick}>
+    <ItemContainer onClick={handleRoute}>
       <TitleRow>
         <Title>{name}</Title>
         <Desc>{type}</Desc>
@@ -107,7 +107,7 @@ const ImportantInfoItem = styled.span`
   display: flex;
   align-items: center;
   gap: 6px;
-  ${({ theme }) => theme.fonts.Body2};
+  ${({ theme }) => theme.fonts.Title6};
   color: ${(props) =>
     props.$isAlwaysOpen ? '#17A600' : props.theme.colors.Red}; /* 연중무휴일 때 색상 변경 */
 

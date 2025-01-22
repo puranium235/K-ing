@@ -14,6 +14,7 @@ import LandingPage from './pages/LandingPage';
 import MapPage from './pages/MapPage';
 import MyPage from './pages/MyPage';
 import PlaceDetailPage from './pages/PlaceDetailPage';
+import ReviewFeedPage from './pages/ReviewFeedPage';
 import UploadPage from './pages/UploadPage';
 
 const Router = () => {
@@ -35,6 +36,7 @@ const Router = () => {
             <Route path="/archive" element={<ArchivePage />} />
             <Route path="/map" element={<MapPage />} />
             <Route path="/place/:placeId" element={<PlaceDetailPage />} />
+            <Route path="/reviewfeed/:placeId" element={<ReviewFeedPage />} />
             <Route path="*" element={<ErrorPage />} />
           </Routes>
         </Suspense>
