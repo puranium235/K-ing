@@ -1,26 +1,24 @@
 package com.king.backend.connection;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/message")
 @RequiredArgsConstructor
-public class MessageController {
+public class ConnectionController {
     private final MessageRepository messageRepository;
     private final LogRepository logRepository;
     private final RedisUtil redisUtil;
 
-    @GetMapping
+    @GetMapping("/mysql-get")
     public List<Message> getAllMessages() {
         return messageRepository.findAll();
     }
 
-    @PostMapping
+    @PostMapping("/mysql-set")
     public Message postMessage(@RequestBody Message message) {
         return messageRepository.save(message);
     }
@@ -44,7 +42,7 @@ public class MessageController {
         }
     }
 
-    @GetMapping("/es-getall")
+    @GetMapping("/es-get")
     public Iterable<Log> getAllLogs() {
         return logRepository.findAll();
     }
