@@ -21,7 +21,7 @@ public class PlaceController {
         log.info("GET /place/success 요청 처리 시작");
         ResponseEntity<ApiResponse<String>> response = ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success("Place found successfully!"));
+                .body(ApiResponse.success("장소 조회 성공"));
         log.info("GET /place/success 요청 처리 완료: {}", response.getBody());
         return response;
     }
