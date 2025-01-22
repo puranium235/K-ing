@@ -87,7 +87,7 @@ const Home = () => {
               {['실시간', '일별', '주간별'].map(type => (
                 <StyledButton
                   key={type}
-                  isActive={activeButton === type}
+                  $isActive={activeButton === type}
                   onClick={() => setActiveButton(type)}
                 >
                   {type}

@@ -1,7 +1,6 @@
-import React from "react";
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 import {
   IcArchive,
@@ -14,15 +13,15 @@ import {
   IcMypageSelected,
   IcUpload,
   IcUploadSelected,
-} from "../../assets/icons";
+} from '../../assets/icons';
 
 const Nav = () => {
   const location = useLocation();
-
-  const [selectedButton, setSelectedButton] = useState(location.pathname);
   const navigate = useNavigate();
 
-  const handleButtonClick = (buttonName) => {
+  const [selectedButton, setSelectedButton] = useState(location.pathname);
+
+  const handleButtonClick = buttonName => {
     setSelectedButton(buttonName);
     navigate(`/${buttonName}`);
   };
@@ -30,48 +29,48 @@ const Nav = () => {
   return (
     <StNavWrapper>
       <button
-        className={selectedButton === "/home" ? "selected" : ""}
+        className={selectedButton === '/home' ? 'selected' : ''}
         type="button"
-        onClick={() => handleButtonClick("home")}
+        onClick={() => handleButtonClick('home')}
       >
-        {selectedButton === "/home" ? <IcHomeSelected /> : <IcHome />}
+        {selectedButton === '/home' ? <IcHomeSelected /> : <IcHome />}
 
         <p>Home</p>
       </button>
 
       <button
-        className={selectedButton === "/chatbot" ? "selected" : ""}
+        // className={selectedButton === '/chatbot' ? 'selected' : ''}
         type="button"
-        onClick={() => handleButtonClick("chatbot")}
+        onClick={() => handleButtonClick('chatbot')}
       >
-        {selectedButton === "/chatbot" ? <IcChatbotSelected /> : <IcChatbot />}
+        {selectedButton === '/chatbot' ? <IcChatbotSelected /> : <IcChatbot />}
 
         <p>K-ing</p>
       </button>
       <button
-        className={selectedButton === "/upload" ? "selected" : ""}
+        className={selectedButton === '/upload' ? 'selected' : ''}
         type="button"
-        onClick={() => handleButtonClick("upload")}
+        onClick={() => handleButtonClick('upload')}
       >
-        {selectedButton === "/upload" ? <IcUploadSelected /> : <IcUpload />}
+        {selectedButton === '/upload' ? <IcUploadSelected /> : <IcUpload />}
 
         <p>Upload</p>
       </button>
       <button
-        className={selectedButton === "/archive" ? "selected" : ""}
+        className={selectedButton === '/archive' ? 'selected' : ''}
         type="button"
-        onClick={() => handleButtonClick("archive")}
+        onClick={() => handleButtonClick('archive')}
       >
-        {selectedButton === "/archive" ? <IcArchiveSelected /> : <IcArchive />}
+        {selectedButton === '/archive' ? <IcArchiveSelected /> : <IcArchive />}
 
         <p>Archive</p>
       </button>
       <button
-        className={selectedButton === "/mypage" ? "selected" : ""}
+        className={selectedButton === '/mypage' ? 'selected' : ''}
         type="button"
-        onClick={() => handleButtonClick("mypage")}
+        onClick={() => handleButtonClick('mypage')}
       >
-        {selectedButton === "/mypage" ? <IcMypageSelected /> : <IcMypage />}
+        {selectedButton === '/mypage' ? <IcMypageSelected /> : <IcMypage />}
 
         <p>MyPage</p>
       </button>
