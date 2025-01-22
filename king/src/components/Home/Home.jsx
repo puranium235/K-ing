@@ -51,8 +51,8 @@ const Home = () => {
           <p>"해인아..!" 눈물의 여왕 31곳.zip</p>
         </CurationPreview>
         <GenreWrapper>
-          <IconWrapper onClick={navigate(`/drama`)}>
-            <Icons>
+          <IconWrapper>
+            <Icons onClick={() => navigate('/drama')}>
               <IcDrama />
             </Icons>
             <p>드라마</p>
@@ -84,7 +84,7 @@ const Home = () => {
           <div className="filter">
             <p>25.01.01 ~ 25.01.08</p>
             <FilterControls>
-              {['실시간', '일별', '주간별'].map(type => (
+              {['실시간', '일별', '주간별'].map((type) => (
                 <StyledButton
                   key={type}
                   $isActive={activeButton === type}
@@ -197,7 +197,7 @@ const IconWrapper = styled.div`
   }
 `;
 
-const Icons = styled.div`
+const Icons = styled.button`
   height: 60px;
   width: 60px;
   display: flex;
