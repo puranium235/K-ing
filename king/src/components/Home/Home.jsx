@@ -87,7 +87,7 @@ const Home = () => {
               {['실시간', '일별', '주간별'].map((type) => (
                 <StyledButton
                   key={type}
-                  $isActive={activeButton === type}
+                  $active={activeButton === type}
                   onClick={() => setActiveButton(type)}
                 >
                   {type}
@@ -96,10 +96,10 @@ const Home = () => {
             </FilterControls>
           </div>
           <div className="rankings">
-            <p>1. 노을의 여왕</p>
+            <p>1. 눈물의 여왕</p>
             <p>2. 부산</p>
             <p>3. BTS</p>
-            <p>4. 놀라운 도움일</p>
+            <p>4. 놀라운 토요일</p>
           </div>
         </TrendingKeyword>
         <CurationWrapper>
@@ -236,7 +236,7 @@ const TrendingKeyword = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-left: 1.5rem;
+    padding: 0 1.5rem;
 
     p {
       margin: 0;
@@ -268,7 +268,7 @@ const StyledButton = styled.button`
   padding: 5px 10px;
   border-radius: 70px;
 
-  background-color: ${({ isActive }) => (isActive ? '#D0E3FF' : '')};
+  background-color: ${({ $active }) => ($active ? '#D0E3FF' : '')};
   color: ${({ theme }) => theme.colors.Navy};
 `;
 
