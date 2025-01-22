@@ -12,6 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageController {
     private final MessageRepository messageRepository;
+    private final LogRepository logRepository;
     private final RedisUtil redisUtil;
 
     @GetMapping
@@ -41,5 +42,10 @@ public class MessageController {
         } catch (Exception e) {
             return "값이 없습니다";
         }
+    }
+
+    @GetMapping("/es-getall")
+    public Iterable<Log> getAllLogs() {
+        return logRepository.findAll();
     }
 }
