@@ -13,6 +13,8 @@ import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
 import MyPage from "./pages/MyPage";
 import UploadPage from "./pages/UploadPage";
+import MapPage from "./pages/MapPage";
+import PlaceDetailPage from "./pages/PlaceDetailPage";
 
 const Router = () => {
   return (
@@ -30,6 +32,9 @@ const Router = () => {
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/drama" element={<DramaPage />} />
             <Route path="/drama/details" element={<DramaDetailPage />} />
+            <Route path="/archive" element={<ArchivePage />} />
+            <Route path="/map" element={<MapPage />} />
+            <Route path="/place/:placeId" element={<PlaceDetailPage />} />
             <Route path="*" element={<ErrorPage />} />
           </Routes>
         </Suspense>
