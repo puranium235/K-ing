@@ -15,30 +15,6 @@ services:
     networks:
       - king
 
-  redis:
-    image: redis:alpine
-    container_name: redis
-    restart: always
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-    ports:
-      - "6378:6379"
-    networks:
-      - king
-
-  elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
-    container_name: elastic
-    environment:
-      discovery.type: single-node
-      xpack.security.enabled: false
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    networks:
-      - king
-
   springboot:
     build:
       context: .
@@ -49,21 +25,27 @@ services:
       MYSQL_HOST: ${MYSQL_HOST}
       MYSQL_PORT: ${MYSQL_PORT}
       MYSQL_DB: ${MYSQL_DB}
-      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      ELASTIC_HOST: ${ELASTIC_HOST}
-      ELASTIC_PORT: ${ELASTIC_PORT}
-      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     depends_on:
       - mysql
       - redis
-      - elastic
     ports:
       - "8080:8080"
+    networks:
+      - king
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "6378:6379"
     networks:
       - king
 
