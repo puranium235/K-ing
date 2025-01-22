@@ -20,9 +20,7 @@ const ArchivePage = () => {
 
   return (
     <St.Page>
-      <St.Header>
-        <St.Header>Archive</St.Header>
-      </St.Header>
+      <St.Header>Archive</St.Header>
       <ArchiveTabMenu onTabChange={(tab) => setActiveTab(tab)} />
       {activeTab === 'Curations' && <CurationsList data={curationsData} />}
       {activeTab === 'Favorites' && (
@@ -48,7 +46,7 @@ const St = {
     top: 0;
     background-color: ${({ theme }) => theme.colors.White};
     z-index: 10;
-    padding: 10px;
+    padding: 20px;
     color: ${({ theme }) => theme.colors.Gray0};
     ${({ theme }) => theme.fonts.Title4};
   `,
