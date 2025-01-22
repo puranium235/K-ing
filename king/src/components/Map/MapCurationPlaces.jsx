@@ -58,7 +58,6 @@ const MapCurationPlaces = () => {
 };
 
 const Container = styled.div`
-  font-family: Arial, sans-serif;
   height: 100vh;
   display: flex;
   flex-direction: column;
