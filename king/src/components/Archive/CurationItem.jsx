@@ -44,11 +44,11 @@ const St = {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* 텍스트 가독성 향상 */
   `,
   Author: styled.p`
-    font-size: 12px;
+    ${({ theme }) => theme.fonts.Body6};
     margin: 0;
   `,
   Title: styled.h3`
-    font-size: 14px;
+    ${({ theme }) => theme.fonts.Body4};
     font-weight: bold;
     margin: 4px 0 0;
   `,
@@ -58,7 +58,6 @@ const St = {
     right: 8px;
     background: none;
     border: none;
-    font-size: 20px;
     color: ${({ theme }) => theme.colors.White};
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     cursor: pointer;

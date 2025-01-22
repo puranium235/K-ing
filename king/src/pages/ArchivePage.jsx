@@ -58,7 +58,7 @@ const ArchivePage = () => {
     <>
       <St.Page>
         <St.Header>
-          <ArchiveHeader />
+          <St.Header>Archive</St.Header>
         </St.Header>
         <ArchiveTabMenu onTabChange={tab => setActiveTab(tab)} />
         {activeTab === "Curations" && <CurationsList data={curationsData} />}
@@ -71,11 +71,6 @@ const ArchivePage = () => {
 export default ArchivePage;
 
 const St = {
-  //   Wrapper: styled.div`
-  //     background-color: ${({ theme }) => theme.colors.White};
-  //     color: ${({ theme }) => theme.colors.Gray0};
-  //     ${({ theme }) => theme.fonts.Title3};
-  //   `,
   Page: styled.div`
     display: flex;
     flex-direction: column;
@@ -87,5 +82,7 @@ const St = {
     background-color: ${({ theme }) => theme.colors.White};
     z-index: 10; /* 콘텐츠 위로 올림 */
     padding: 10px;
+    color: ${({ theme }) => theme.colors.Gray0};
+    ${({ theme }) => theme.fonts.Title4};
   `,
 };
