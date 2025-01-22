@@ -36,7 +36,7 @@ export default TopNav;
 const StNavWrapper = styled.nav`
   display: flex;
   justify-content: flex-start;
-  gap: 1rem;
+  gap: 0.5rem;
 
   width: 321px;
   padding: 0 1rem;
@@ -48,7 +48,7 @@ const StNavWrapper = styled.nav`
 
 const StyledButton = styled.button`
   color: ${({ selected, theme }) => (selected ? theme.colors.Gray0 : theme.colors.Gray2)};
-  ${({ theme, selected }) => theme.fonts.Title5}
+  ${({ theme, selected }) => theme.fonts.Title4}
   border: none;
   background: none;
   cursor: pointer;
