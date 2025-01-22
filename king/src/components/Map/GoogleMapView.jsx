@@ -1,16 +1,16 @@
-import { GoogleMap, LoadScript } from "@react-google-maps/api";
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 
-import dummyData from "../../assets/dummy/dummyData";
+import dummyData from '../../assets/dummy/dummyData';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAPS_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
-const libraries = ["marker"];
+const libraries = ['marker'];
 
 const containerStyle = {
-  width: "100%",
-  height: "100%",
+  width: '100%',
+  height: '100%',
 };
 
 // 맵 옵션 설정
@@ -22,17 +22,21 @@ const mapOptions = {
 
 // 마커 타입별 이미지 경로
 const markerImages = {
-  cafe: "src/assets/marker/cafe-marker.png",
-  playground: "src/assets/marker/playground-marker.png",
-  restaurant: "src/assets/marker/restaurant-marker.png",
-  station: "src/assets/marker/station-marker.png",
-  stay: "src/assets/marker/stay-marker.png",
-  store: "src/assets/marker/store-marker.png",
+  cafe: 'src/assets/marker/cafe-marker.png',
+  playground: 'src/assets/marker/playground-marker.png',
+  restaurant: 'src/assets/marker/restaurant-marker.png',
+  station: 'src/assets/marker/station-marker.png',
+  stay: 'src/assets/marker/stay-marker.png',
+  store: 'src/assets/marker/store-marker.png',
 };
 
 const GoogleMapView = () => {
   const [center, setCenter] = useState({ lat: 37.5665, lng: 126.978 });
   const [mapInstance, setMapInstance] = useState(null);
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
 
   // 현재 위치로 지도 이동 함수
   const moveToCurrentLocation = () => {
@@ -51,7 +55,7 @@ const GoogleMapView = () => {
             });
 
             // HTML 커스텀 마커
-            markerElement.content = document.createElement("div");
+            markerElement.content = document.createElement('div');
             markerElement.content.style.cssText = `
                 background-color: #007bff;
                 color: white;
@@ -61,17 +65,17 @@ const GoogleMapView = () => {
                 text-align: center;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
               `;
-            markerElement.content.innerText = "현재 위치";
+            markerElement.content.innerText = '현재 위치';
 
             mapInstance.panTo(newCenter); // 지도 중심 이동
           }
         },
         (error) => {
-          console.error("Error fetching location:", error);
-        }
+          console.error('Error fetching location:', error);
+        },
       );
     } else {
-      console.error("Geolocation is not supported by this browser.");
+      console.error('Geolocation is not supported by this browser.');
     }
   };
 
@@ -89,7 +93,7 @@ const GoogleMapView = () => {
         });
 
         // 커스텀 마커 HTML
-        const container = document.createElement("div");
+        const container = document.createElement('div');
         container.style.cssText = `
           display: flex;
           flex-direction: column;
@@ -98,8 +102,8 @@ const GoogleMapView = () => {
         `;
 
         // 마커 이미지
-        const image = document.createElement("img");
-        image.src = markerImages[marker.type] || markerImages["store"]; // 타입별 이미지
+        const image = document.createElement('img');
+        image.src = markerImages[marker.type] || markerImages['store']; // 타입별 이미지
         image.style.cssText = `
           width: 20px;
           height: 20px;
@@ -110,7 +114,7 @@ const GoogleMapView = () => {
         `;
 
         // 마커 라벨
-        const label = document.createElement("div");
+        const label = document.createElement('div');
         label.style.cssText = `
           font-size: 12px;
           color: black;
@@ -134,17 +138,18 @@ const GoogleMapView = () => {
     }
   }, [mapInstance]);
 
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading...</div>;
+
   return (
     <>
-      <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={libraries} version="beta">
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={center || { lat: 37.5665, lng: 126.978 }}
-          zoom={14}
-          options={mapOptions}
-          onLoad={(map) => setMapInstance(map)}
-        />
-      </LoadScript>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center || { lat: 37.5665, lng: 126.978 }}
+        zoom={14}
+        options={mapOptions}
+        onLoad={(map) => setMapInstance(map)}
+      />
 
       {/* 플로팅 버튼 */}
       <HereButton onClick={moveToCurrentLocation}>

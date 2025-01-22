@@ -11,7 +11,7 @@ const getShortAddress = (fullAddress) => {
   return fullAddress; // 주소가 짧거나 비정상적인 경우 원본 반환
 };
 
-const ListItem = ({ placeId, name, type, address, openHours, closedDays, placeImage }) => {
+const CardListItem = ({ placeId, name, type, address, openHours, closedDays, placeImage }) => {
   const navigate = useNavigate();
   const handleRoute = () => {
     navigate(`/place/${placeId}`); // 상세 페이지로 이동
@@ -124,4 +124,4 @@ const Image = styled.img`
   margin-top: 8px;
 `;
 
-export default ListItem;
+export default CardListItem;
