@@ -102,6 +102,9 @@ const Header = styled.div`
     position: absolute;
     right: 0;
     top: 0;
+
+    width: 30px;
+    height: 30px;
   }
 `;
 
@@ -191,7 +194,7 @@ const ActionButton = styled.button`
   margin-top: 3rem;
 
   border-radius: 20px;
-  padding: 1rem 2rem;
+  padding: 0.8rem 2rem;
 
   text-align: center;
 

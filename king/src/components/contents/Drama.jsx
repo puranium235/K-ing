@@ -45,7 +45,7 @@ const Drama = () => {
             <Card key={drama.id} onClick={() => handleDramaClick(drama.id)}>
               <CardImageContainer>
                 <CardImage src={drama.image} alt={drama.title} />
-                <IcStar id="favor" />
+                <IcStar className="favor" />
               </CardImageContainer>
               <CardTitle>{drama.title}</CardTitle>
             </Card>
@@ -104,10 +104,13 @@ const CardImageContainer = styled.div`
   width: 100%;
   position: relative;
 
-  #favor {
+  .favor {
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
+
+    width: 10px;
+    height: 10px;
   }
 `;
 
