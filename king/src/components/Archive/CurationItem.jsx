@@ -1,19 +1,26 @@
-import styled from "styled-components";
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 const CurationItem = ({ item }) => {
+  const navigate = useNavigate();
+
   const handleBookmarkClick = () => {
-    console.log(`${item.title} 북마크 상태 변경`);
+    // console.log(`${item.title} 북마크 상태 변경`);
+  };
+
+  const handleCurationClick = (id) => {
+    navigate(`/curation/${id}`);
   };
 
   return (
-    <St.Item>
+    <St.Item onClick={() => handleCurationClick(item.id)}>
       <St.Image src={item.image} alt={item.title} />
       <St.Info>
         <St.Author>@{item.author}</St.Author>
         <St.Title>{item.title}</St.Title>
       </St.Info>
       <St.BookmarkButton onClick={handleBookmarkClick}>
-        {item.bookmarked ? "★" : "☆"}
+        {item.bookmarked ? '★' : '☆'}
       </St.BookmarkButton>
     </St.Item>
   );
@@ -24,8 +31,8 @@ export default CurationItem;
 const St = {
   Item: styled.div`
     position: relative;
-    width: 180px;
-    height: 240px;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 카드 그림자 */
     background-color: ${({ theme }) => theme.colors.White};
@@ -37,20 +44,21 @@ const St = {
     display: block; /* 기본 여백 제거 */
   `,
   Info: styled.div`
+    text-align: left;
     position: absolute;
     bottom: 8px;
     left: 8px;
     color: ${({ theme }) => theme.colors.White};
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* 텍스트 가독성 향상 */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   `,
   Author: styled.p`
     ${({ theme }) => theme.fonts.Body6};
     margin: 0;
   `,
   Title: styled.h3`
-    ${({ theme }) => theme.fonts.Body4};
-    font-weight: bold;
     margin: 4px 0 0;
+    padding-right: 0.5rem;
+    ${({ theme }) => theme.fonts.Title7};
   `,
   BookmarkButton: styled.button`
     position: absolute;
