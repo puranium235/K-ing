@@ -6,7 +6,6 @@ import {
   favoritePeopleDummyData,
   favoriteWorksDummyData,
 } from '../assets/dummy/dummyDataArchive';
-import ArchiveHeader from '../components/Archive/ArchiveHeader';
 import ArchiveTabMenu from '../components/Archive/ArchiveTabMenu';
 import CurationsList from '../components/Archive/CurationsList';
 import FavoritesList from '../components/Archive/FavoritesList';
