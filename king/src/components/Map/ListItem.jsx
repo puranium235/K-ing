@@ -75,11 +75,11 @@ const TitleRow = styled.div`
 
 const Title = styled.h2`
   margin: 0;
-  font: ${(props) => props.theme.fonts.Title5};
+  font: ${(theme) => theme.fonts.Title5};
 `;
 
 const Desc = styled.p`
-  font: ${(props) => props.theme.fonts.Body5};
+  font: ${(theme) => theme.fonts.Body5};
   color: rgba(37, 37, 37, 0.7);
 `;
 
@@ -94,7 +94,7 @@ const InfoItem = styled.span`
   display: flex;
   align-items: center;
   gap: 6px;
-  font: ${(props) => props.theme.fonts.Body5};
+  font: ${(theme) => theme.fonts.Body5};
   color: rgba(37, 37, 37, 0.7);
 
   img {
@@ -107,9 +107,9 @@ const ImportantInfoItem = styled.span`
   display: flex;
   align-items: center;
   gap: 6px;
-  font: ${(props) => props.theme.fonts.Body2};
-  color: ${(props) =>
-    props.$isAlwaysOpen ? "#17A600" : props.theme.colors.Red}; /* 연중무휴일 때 색상 변경 */
+  font: ${(theme) => theme.fonts.Body2};
+  color: ${(props, theme) =>
+    props.$isAlwaysOpen ? "#17A600" : theme.colors.Red}; /* 연중무휴일 때 색상 변경 */
 
   img {
     width: 16px;

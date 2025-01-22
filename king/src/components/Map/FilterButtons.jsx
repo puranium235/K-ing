@@ -58,12 +58,12 @@ const FilterButton = styled.button`
   height: 32px;
   white-space: nowrap;
   padding: 8px;
-  font: ${(props) => props.theme.fonts.Body3};
-  border: 1px solid ${(props) => (props.$active ? props.theme.colors.MainBlue : "#CAC4D0")};
+  font: ${(theme) => theme.fonts.Body3};
+  border: 1px solid ${(props, theme) => (props.$active ? theme.colors.MainBlue : "#CAC4D0")};
   border-radius: 8px;
   cursor: pointer;
-  color: ${(props) => (props.$active ? "#fff" : props.theme.colors.Grey1)};
-  background-color: ${(props) => (props.$active ? props.theme.colors.MainBlue : "#fff")};
+  color: ${(props, theme) => (props.$active ? "#fff" : theme.colors.Grey1)};
+  background-color: ${(props, theme) => (props.$active ? theme.colors.MainBlue : "#fff")};
   transition:
     background-color 0.3s,
     color 0.3s;
