@@ -24,10 +24,10 @@ const ArchivePage = () => {
       <ArchiveTabMenu onTabChange={(tab) => setActiveTab(tab)} />
       {activeTab === 'Curations' && <CurationsList data={curationsData} />}
       {activeTab === 'Favorites' && (
-        <>
+        <ListWrapper>
           <FavoritesList title="작품" data={favoriteWorksData} />
           <FavoritesList title="인물" data={favoritePeopleData} />
-        </>
+        </ListWrapper>
       )}
     </St.Page>
   );
@@ -51,3 +51,7 @@ const St = {
     ${({ theme }) => theme.fonts.Title4};
   `,
 };
+
+const ListWrapper = styled.div`
+  padding: 16px;
+`;
