@@ -58,7 +58,7 @@ const CurationDetail = () => {
 
 const Container = styled.div`
   width: 100%;
-  height: calc(100vh + 90px);
+  height: 100%;
 `;
 
 const Content = styled.div`

@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 
+import ScrollToTop from './components/common/ScrollToTop';
 import ArchivePage from './pages/ArchivePage';
 import ChatbotPage from './pages/ChatbotPage';
 import CurationDetailPage from './pages/CurationDetailPage';
@@ -22,6 +23,7 @@ import UploadPage from './pages/UploadPage';
 const Router = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <RecoilRoot>
         <Suspense>
           <Routes>
