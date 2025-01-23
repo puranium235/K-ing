@@ -14,15 +14,28 @@ const MapCurationPlaces = () => {
   const [activeFilter, setActiveFilter] = useState(null);
   const [places, setPlaces] = useState(dummyData);
 
+  const filters = ['식당', '카페', '관광', '상점', '숙박'];
+
+  const filterToTypeMap = {
+    식당: 'restaurant',
+    카페: 'cafe',
+    관광: 'playground',
+    상점: 'store',
+    숙박: 'stay',
+  };
+
   const toggleBox = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const filters = ['식당', '카페', '관광', '상점', '숙박'];
-
   const handleFilterChange = (filter) => {
     setActiveFilter((prevFilter) => (prevFilter === filter ? null : filter));
   };
+
+  // 필터링된 장소 데이터
+  const filteredPlaces = activeFilter
+    ? dummyData.filter((place) => place.type === filterToTypeMap[activeFilter])
+    : dummyData;
 
   const handleClose = () => {
     navigate(-1);
@@ -32,7 +45,7 @@ const MapCurationPlaces = () => {
     <Container>
       {/* Map Section */}
       <MapSection>
-        <GoogleMapView />
+        <GoogleMapView places={filteredPlaces} />
       </MapSection>
 
       {/* Content Section */}
@@ -47,7 +60,7 @@ const MapCurationPlaces = () => {
         </FilterContainer>
 
         <ListContainer>
-          {places.map((place) => (
+          {filteredPlaces.map((place) => (
             <ListItem key={place.placeId} {...place} />
           ))}
         </ListContainer>

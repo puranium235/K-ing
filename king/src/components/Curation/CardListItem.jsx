@@ -15,7 +15,6 @@ const CardListItem = ({ place }) => {
   const navigate = useNavigate();
 
   const handleCurationClick = (id) => {
-    window.scrollTo(0, 0);
     navigate(`/place/${id}`);
   };
 

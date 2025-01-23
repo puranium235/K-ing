@@ -2,8 +2,6 @@ import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import dummyData from '../../assets/dummy/dummyData';
-
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAPS_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
 const libraries = ['marker'];
@@ -30,9 +28,11 @@ const markerImages = {
   store: 'src/assets/marker/store-marker.png',
 };
 
-const GoogleMapView = () => {
+const GoogleMapView = ({ places }) => {
   const [center, setCenter] = useState({ lat: 37.5665, lng: 126.978 });
   const [mapInstance, setMapInstance] = useState(null);
+  const [markers, setMarkers] = useState([]);
+
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
@@ -79,14 +79,17 @@ const GoogleMapView = () => {
     }
   };
 
-  // 장소 마커 기준
+  // 지도와 마커 업데이트
   useEffect(() => {
-    if (mapInstance && dummyData.length > 0) {
-      // 지도 경계 (bounds) 객체 생성
+    if (mapInstance && places.length > 0) {
+      // 이전 마커 제거
+      markers.forEach((marker) => marker.setMap(null));
+      setMarkers([]);
+
+      // 새 마커 추가
       const bounds = new google.maps.LatLngBounds();
 
-      dummyData.forEach((marker) => {
-        // 마커 추가
+      const newMarkers = places.map((marker) => {
         const markerElement = new google.maps.marker.AdvancedMarkerElement({
           position: { lat: marker.lat, lng: marker.lng },
           map: mapInstance,
@@ -107,10 +110,10 @@ const GoogleMapView = () => {
         image.style.cssText = `
           width: 20px;
           height: 20px;
-          border-radius: 50%; /* 원형으로 설정 */
-          object-fit: cover; /* 이미지의 왜곡 방지 */
-          border: none; /* 테두리 제거 */
-          background-color: transparent; /* 배경색 제거 */
+          border-radius: 50%;
+          object-fit: cover;
+          border: none;
+          background-color: transparent;
         `;
 
         // 마커 라벨
@@ -129,17 +132,29 @@ const GoogleMapView = () => {
 
         markerElement.content = container;
 
-        // 마커 위치를 bounds에 추가
+        // 위치를 bounds에 추가
         bounds.extend({ lat: marker.lat, lng: marker.lng });
+
+        return markerElement;
       });
 
-      // 지도 중심과 줌 조정
-      mapInstance.fitBounds(bounds, { top: 50, bottom: 50, left: 24, right: 24 });
+      // 새 마커 상태 업데이트
+      setMarkers(newMarkers);
+
+      if (places.length === 1) {
+        // 마커가 1개일 때: 중심 설정 및 줌 레벨 조정
+        const singleMarker = places[0];
+        mapInstance.setCenter({ lat: singleMarker.lat, lng: singleMarker.lng });
+        mapInstance.setZoom(15); // 원하는 줌 레벨
+      } else {
+        // 여러 마커가 있을 때: fitBounds로 지도 맞춤
+        mapInstance.fitBounds(bounds, { top: 50, bottom: 50, left: 24, right: 24 });
+      }
     }
-  }, [mapInstance]);
+  }, [mapInstance, places]); // `places` 의존성 추가
 
   if (loadError) return <div>Error loading maps</div>;
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
     <>
