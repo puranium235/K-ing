@@ -13,7 +13,7 @@ import java.util.List;
 public class PlaceDetailResponseDto {
     private Long placeId;
     private String name;
-    private String type; // cafe,
+    private String type; // cafe, playground, restaurant, shop, station, stay, store
     private String address;
     private String phone;
     private String openHour;
@@ -32,7 +32,7 @@ public class PlaceDetailResponseDto {
     public static class AdditionalInfo {
         private Long contentId;
         private String title;
-        private String type;
+        private String type; // drama, movie, show
         private String description;
     }
 }
