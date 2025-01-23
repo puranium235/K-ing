@@ -5,11 +5,11 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
 @Getter
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Entity
 @ToString
 public class Place {
 
@@ -39,11 +39,11 @@ public class Place {
 
     private String phone;
 
-    private String image_url;
+    private String imageUrl;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private Long views = 0L; // 기본값 설정
+    private Long view = 0L; // 기본값 설정
 
 }
