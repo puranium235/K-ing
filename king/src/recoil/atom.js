@@ -1,10 +1,16 @@
-// import { atom } from 'recoil';
+import { atom } from 'recoil';
 
-// const PromiseId = atom({
-//   key: 'promiseid',
-//   default: '',
-// });
+const FilterOption = atom({
+  key: 'filterOption',
+  default: {
+    categories: {
+      restaurant: false,
+      cafe: false,
+      sight: false,
+    },
+    province: '',
+    district: '',
+  },
+});
 
-// export {
-//     PromiseId
-// };
+export { FilterOption };
