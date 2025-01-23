@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAPS_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
-const libraries = ['marker'];
+const libraries = ['marker', 'geometry'];
 
 const containerStyle = {
   width: '100%',
@@ -32,11 +32,42 @@ const GoogleMapView = ({ places }) => {
   const [center, setCenter] = useState({ lat: 37.5665, lng: 126.978 });
   const [mapInstance, setMapInstance] = useState(null);
   const [markers, setMarkers] = useState([]);
+  const [showSearchButton, setShowSearchButton] = useState(false);
+  const [isMapInitialized, setIsMapInitialized] = useState(false);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
   });
+
+  const handleIdle = () => {
+    if (!isMapInitialized) {
+      setIsMapInitialized(true); // 초기화 완료 설정
+      return;
+    }
+
+    // 지도 이동 후 검색 버튼 표시
+    setShowSearchButton(true);
+  };
+
+  const handleSearch = () => {
+    if (!mapInstance) return;
+
+    const center = mapInstance.getCenter();
+    const bounds = mapInstance.getBounds();
+
+    const radius =
+      google.maps.geometry.spherical.computeDistanceBetween(
+        bounds.getNorthEast(),
+        bounds.getSouthWest(),
+      ) / 2;
+
+    const latlng = { lat: center.lat(), lng: center.lng() };
+    console.log('검색 중심 좌표:', latlng);
+    console.log('검색 반지름 (미터):', radius);
+
+    setShowSearchButton(false); // 버튼 숨기기
+  };
 
   // 현재 위치로 지도 이동 함수
   const moveToCurrentLocation = () => {
@@ -151,7 +182,7 @@ const GoogleMapView = ({ places }) => {
         mapInstance.fitBounds(bounds, { top: 50, bottom: 50, left: 24, right: 24 });
       }
     }
-  }, [mapInstance, places]); // `places` 의존성 추가
+  }, [mapInstance, places]);
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading maps...</div>;
@@ -164,17 +195,24 @@ const GoogleMapView = ({ places }) => {
         zoom={14}
         options={mapOptions}
         onLoad={(map) => setMapInstance(map)}
+        onIdle={handleIdle} // 지도 이동 후 이벤트
       />
 
-      {/* 플로팅 버튼 */}
+      {/* 현재 위치 버튼 */}
       <HereButton onClick={moveToCurrentLocation}>
         <img src="src/assets/icons/here.png" alt="here" />
       </HereButton>
+
+      {/* 이 지역에서 다시 검색 */}
+      {showSearchButton && (
+        <SearchButton onClick={handleSearch}>
+          <img src="src/assets/icons/refresh.png" alt="here" />이 지역에서 검색
+        </SearchButton>
+      )}
     </>
   );
 };
 
-// 플로팅 버튼 스타일
 const HereButton = styled.button`
   position: absolute;
   bottom: 40px;
@@ -188,13 +226,41 @@ const HereButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   z-index: 1000;
 
   &:hover {
     background-color: #ccc;
+  }
+
+  img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain; /* 이미지가 왜곡되지 않도록 설정 */
+  }
+`;
+
+const SearchButton = styled.button`
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  ${({ theme }) => theme.fonts.Body3};
+  border: none;
+  border-radius: 20px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #f0f0f0;
   }
 
   img {
