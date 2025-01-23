@@ -1,6 +1,7 @@
 export { ReactComponent as IcArchive } from './ic_archive.svg';
 export { ReactComponent as IcArchiveSelected } from './ic_archive_selected.svg';
 export { ReactComponent as IcBack } from './ic_back.svg';
+export { ReactComponent as IcBookmark } from './ic_bookmark.svg';
 export { ReactComponent as IcCeleb } from './ic_celeb.svg';
 export { ReactComponent as IcChatbot } from './ic_chatbot.svg';
 export { ReactComponent as IcChatbotSelected } from './ic_chatbot_selected.svg';
@@ -13,6 +14,7 @@ export { ReactComponent as IcMarker } from './ic_marker.svg';
 export { ReactComponent as IcMovie } from './ic_movie.svg';
 export { ReactComponent as IcMypage } from './ic_mypage.svg';
 export { ReactComponent as IcMypageSelected } from './ic_mypage_selected.svg';
+export { ReactComponent as IcNavigateNext } from './ic_navigate_next.svg';
 export { ReactComponent as IcOne } from './ic_one.svg';
 export { ReactComponent as IcSearch } from './ic_search.svg';
 export { ReactComponent as IcShow } from './ic_show.svg';

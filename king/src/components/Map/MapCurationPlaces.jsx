@@ -1,13 +1,15 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
-import dummyData from "../../assets/dummy/dummyData";
-import FilterButtons from "./FilterButtons";
-import GoogleMapView from "./GoogleMapView";
-import ListItem from "./ListItem";
+import dummyData from '../../assets/dummy/dummyData';
+import Nav from '../common/Nav';
+import FilterButtons from './FilterButtons';
+import GoogleMapView from './GoogleMapView';
+import ListItem from './ListItem';
 
 const MapCurationPlaces = () => {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeFilter, setActiveFilter] = useState(null);
   const [places, setPlaces] = useState(dummyData);
@@ -16,13 +18,12 @@ const MapCurationPlaces = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const filters = ["식당", "카페", "관광", "상점", "숙박"];
+  const filters = ['식당', '카페', '관광', '상점', '숙박'];
 
   const handleFilterChange = (filter) => {
     setActiveFilter((prevFilter) => (prevFilter === filter ? null : filter));
   };
 
-  const navigate = useNavigate();
   const handleClose = () => {
     navigate(-1);
   };
@@ -53,6 +54,7 @@ const MapCurationPlaces = () => {
       <ClosedButton onClick={handleClose}>
         <img src="src/assets/icons/close.png" alt="close" />
       </ClosedButton>
+      <Nav />
     </Container>
   );
 };
@@ -94,7 +96,7 @@ const ContentSection = styled.div`
   background-color: #ffffff;
   height: 100%;
   position: absolute;
-  ${(props) => (props.$isExpanded ? "top: 90px;" : "top: calc(100vh - 400px);")}
+  ${(props) => (props.$isExpanded ? 'top: 90px;' : 'top: calc(100vh - 400px);')}
   left: 0;
   right: 0;
   transition: bottom 0.3s ease;
