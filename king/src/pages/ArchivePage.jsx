@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import {
@@ -11,22 +12,32 @@ import CurationsList from '../components/Archive/CurationsList';
 import FavoritesList from '../components/Archive/FavoritesList';
 
 const ArchivePage = () => {
-  const [activeTab, setActiveTab] = useState('Curations');
+  const location = useLocation();
 
-  // dummy data (assets/dummy/dummyDataArchive.js)
-  const [curationsData, setCurationsData] = useState(curationsDummyData);
-  const [favoriteWorksData, setFavoriteWorksData] = useState(favoriteWorksDummyData);
-  const [favoritePeopleData, setFavoritePeopleData] = useState(favoritePeopleDummyData);
+  // 새로고침 상태 확인 및 기본값 설정
+  const initialTab = location.state?.activeTab || 'Curations';
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem('activeTab') || initialTab;
+  });
+
+  useEffect(() => {
+    // activeTab을 세션 스토리지에 저장
+    sessionStorage.setItem('activeTab', activeTab);
+  }, [activeTab]);
+
+  const [curationsData] = useState(curationsDummyData);
+  const [favoriteWorksData] = useState(favoriteWorksDummyData);
+  const [favoritePeopleData] = useState(favoritePeopleDummyData);
 
   return (
     <St.Page>
       <St.Header>Archive</St.Header>
-      <ArchiveTabMenu onTabChange={(tab) => setActiveTab(tab)} />
+      <ArchiveTabMenu activeTab={activeTab} onTabChange={setActiveTab} />
       {activeTab === 'Curations' && <CurationsList data={curationsData} />}
       {activeTab === 'Favorites' && (
         <>
-          <FavoritesList title="작품" data={favoriteWorksData} />
-          <FavoritesList title="인물" data={favoritePeopleData} />
+          <FavoritesList title="작품" data={favoriteWorksData} onTabChange={setActiveTab} />
+          <FavoritesList title="인물" data={favoritePeopleData} onTabChange={setActiveTab} />
         </>
       )}
     </St.Page>
