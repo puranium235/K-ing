@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,6 +20,9 @@ public class Place {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
+    private String type;
 
     @Column(nullable = false)
     private String description;
@@ -45,5 +49,8 @@ public class Place {
 
     @Column(nullable = false)
     private Long view = 0L; // 기본값 설정
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlaceContent> placeContents;
 
 }

@@ -1,5 +1,6 @@
 package com.king.backend.domain.content.entity;
 
+import com.king.backend.domain.place.entity.PlaceContent;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,9 @@ public class Content {
 
     @Column(nullable = false)
     private Integer tmdbId;
+
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlaceContent> placeContents;
 
     // 1:1 관계 - 한국어 번역
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
