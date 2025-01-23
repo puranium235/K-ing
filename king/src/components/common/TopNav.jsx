@@ -1,7 +1,7 @@
-import React from "react";
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import React from 'react';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 const TopNav = () => {
   const location = useLocation();
@@ -14,23 +14,17 @@ const TopNav = () => {
   };
 
   return (
-    <StNavWrapper selectedButton={selectedButton}>
-      <StyledButton
-        selected={selectedButton === "/home"}
-        onClick={() => handleButtonClick("home")}
-      >
+    <StNavWrapper $selectedButton={selectedButton}>
+      <StyledButton selected={selectedButton === '/home'} onClick={() => handleButtonClick('home')}>
         Trend
       </StyledButton>
       <StyledButton
-        selected={selectedButton === "/curation"}
-        onClick={() => handleButtonClick("curation")}
+        selected={selectedButton === '/curation'}
+        onClick={() => handleButtonClick('curation')}
       >
         Curation
       </StyledButton>
-      <StyledButton
-        selected={selectedButton === "/feed"}
-        onClick={() => handleButtonClick("feed")}
-      >
+      <StyledButton selected={selectedButton === '/feed'} onClick={() => handleButtonClick('feed')}>
         Feed
       </StyledButton>
     </StNavWrapper>
@@ -42,7 +36,7 @@ export default TopNav;
 const StNavWrapper = styled.nav`
   display: flex;
   justify-content: flex-start;
-  gap: 1rem;
+  gap: 0.5rem;
 
   width: 321px;
   padding: 0 1rem;
@@ -53,13 +47,12 @@ const StNavWrapper = styled.nav`
 `;
 
 const StyledButton = styled.button`
-  color: ${({ selected, theme }) =>
-    selected ? theme.colors.Gray0 : theme.colors.Gray2};
-  ${({ theme, selected }) => theme.fonts.Title5}
+  color: ${({ selected, theme }) => (selected ? theme.colors.Gray0 : theme.colors.Gray2)};
+  ${({ theme, selected }) => theme.fonts.Title4}
   border: none;
   background: none;
   cursor: pointer;
 
   border-bottom: ${({ selected, theme }) =>
-    selected ? `2px solid ${theme.colors.Gray0}` : "none"};
+    selected ? `2px solid ${theme.colors.Gray0}` : 'none'};
 `;

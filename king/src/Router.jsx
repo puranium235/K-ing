@@ -37,7 +37,8 @@ const Router = () => {
             <Route path="/curation/:curationId" element={<CurationDetailPage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/drama" element={<DramaPage />} />
-            <Route path="/drama/details" element={<DramaDetailPage />} />
+            <Route path="/drama/:dramaId" element={<DramaDetailPage />} />
+            <Route path="/archive" element={<ArchivePage />} />
             <Route path="/map" element={<MapPage />} />
             <Route path="/place/:placeId" element={<PlaceDetailPage />} />
             <Route path="/reviewfeed/:placeId" element={<ReviewFeedPage />} />

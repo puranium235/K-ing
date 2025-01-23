@@ -1,39 +1,51 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
-import Nav from "../common/Nav";
-import SearchBar from "../common/SearchBar";
+import { IcStar } from '../../assets/icons';
+import BackButton from '../common/BackButton';
+import Nav from '../common/Nav';
+import SearchBar from '../common/SearchBar';
 
 const Drama = () => {
   const dramas = [
     {
       id: 1,
-      title: "도깨비",
-      image: "/src/assets/dummy/poster1.png",
+      title: '도깨비',
+      image: '/src/assets/dummy/poster1.png',
     },
     {
       id: 2,
-      title: "도깨비",
-      image: "/src/assets/dummy/poster1.png",
+      title: '도깨비',
+      image: '/src/assets/dummy/poster1.png',
     },
     {
       id: 3,
-      title: "도깨비",
-      image: "/src/assets/dummy/poster1.png",
+      title: '도깨비',
+      image: '/src/assets/dummy/poster1.png',
     },
   ];
+
+  const navigate = useNavigate();
+
+  const handleDramaClick = (id) => {
+    navigate(`/drama/${id}`);
+  };
 
   return (
     <>
       <StHomeWrapper>
-        <h3>{"<"} 드라마</h3>
+        <IconText>
+          <BackButton />
+          <h3> 드라마</h3>
+        </IconText>
         <SearchBar />
         <GridContainer>
           {dramas.map((drama) => (
-            <Card key={drama.id}>
+            <Card key={drama.id} onClick={() => handleDramaClick(drama.id)}>
               <CardImageContainer>
                 <CardImage src={drama.image} alt={drama.title} />
-                <Stars>⭐</Stars>
+                <IcStar className="favor" />
               </CardImageContainer>
               <CardTitle>{drama.title}</CardTitle>
             </Card>
@@ -51,15 +63,23 @@ const StHomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: start;
   text-align: center;
 
   padding: 2rem;
   margin-bottom: 7rem;
+`;
+
+const IconText = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7rem;
 
   h3 {
     width: 100%;
-    padding: 1rem 2rem;
+    padding: 0.5rem 0;
     text-align: left;
     ${({ theme }) => theme.fonts.Title3};
   }
@@ -83,6 +103,15 @@ const Card = styled.div`
 const CardImageContainer = styled.div`
   width: 100%;
   position: relative;
+
+  .favor {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+
+    width: 10px;
+    height: 10px;
+  }
 `;
 
 const CardImage = styled.img`
@@ -95,11 +124,4 @@ const CardTitle = styled.h4`
   margin-top: 5px;
   ${({ theme }) => theme.fonts.Body4};
   color: ${({ theme }) => theme.colors.Gray0};
-`;
-
-const Stars = styled.div`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  color: #ffc107;
 `;

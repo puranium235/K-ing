@@ -21,55 +21,35 @@ const Nav = () => {
 
   const [selectedButton, setSelectedButton] = useState(location.pathname);
 
-  const handleButtonClick = buttonName => {
+  const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
     navigate(`/${buttonName}`);
   };
 
   return (
     <StNavWrapper>
-      <button
-        className={selectedButton === '/home' ? 'selected' : ''}
-        type="button"
-        onClick={() => handleButtonClick('home')}
-      >
+      <button type="button" onClick={() => handleButtonClick('home')}>
         {selectedButton === '/home' ? <IcHomeSelected /> : <IcHome />}
 
         <p>Home</p>
       </button>
 
-      <button
-        // className={selectedButton === '/chatbot' ? 'selected' : ''}
-        type="button"
-        onClick={() => handleButtonClick('chatbot')}
-      >
+      <button type="button" onClick={() => handleButtonClick('chatbot')}>
         {selectedButton === '/chatbot' ? <IcChatbotSelected /> : <IcChatbot />}
 
         <p>K-ing</p>
       </button>
-      <button
-        className={selectedButton === '/upload' ? 'selected' : ''}
-        type="button"
-        onClick={() => handleButtonClick('upload')}
-      >
+      <button type="button" onClick={() => handleButtonClick('upload')}>
         {selectedButton === '/upload' ? <IcUploadSelected /> : <IcUpload />}
 
         <p>Upload</p>
       </button>
-      <button
-        className={selectedButton === '/archive' ? 'selected' : ''}
-        type="button"
-        onClick={() => handleButtonClick('archive')}
-      >
+      <button type="button" onClick={() => handleButtonClick('archive')}>
         {selectedButton === '/archive' ? <IcArchiveSelected /> : <IcArchive />}
 
         <p>Archive</p>
       </button>
-      <button
-        className={selectedButton === '/mypage' ? 'selected' : ''}
-        type="button"
-        onClick={() => handleButtonClick('mypage')}
-      >
+      <button type="button" onClick={() => handleButtonClick('mypage')}>
         {selectedButton === '/mypage' ? <IcMypageSelected /> : <IcMypage />}
 
         <p>MyPage</p>
