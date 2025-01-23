@@ -2,50 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import dummyData from '../assets/dummy/dummyData';
-import placeImage from '../assets/dummy/place.png';
-import BackIcon from '../assets/icons/icon-back.png';
-import OptionIcon from '../assets/icons/option.png';
-import ShareIcon from '../assets/icons/send-outline.png';
-import OptionModal from '../components/common/OptionModal';
-import CardListItem from '../components/Curation/CardListItem';
+import dummyData from '/src/assets/dummy/dummyData';
+import ShareIcon from '/src/assets/icons/send-outline.png';
+
+import DetailHeader from '../common/DetailHeader';
+import CardListItem from './CardListItem';
 
 const CurationDetail = () => {
   const navigate = useNavigate();
   const { curationId } = useParams();
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [places, setPlaces] = useState(dummyData);
-
-  const handleClose = () => {
-    navigate(-1);
-  };
-
-  const openModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setIsModalVisible(false);
-  };
 
   const handleRoute = () => {
     navigate(`/place/${placeId}`);
   };
   return (
     <Container>
-      {/* 헤더 */}
-      <Header>
-        <BackButton onClick={handleClose}>
-          <img src={BackIcon} alt="Back" />
-        </BackButton>
-        <Title>최애의 흔적을 찾아서</Title>
-        <OptionButton onClick={openModal}>
-          <img src={OptionIcon} alt="Option" />
-        </OptionButton>
-      </Header>
-      <ImageContainer>
-        <img src={placeImage} alt="MainImage" />
-      </ImageContainer>
+      <DetailHeader
+        title={'최애의 흔적을 찾아서'}
+        isOption={true}
+        imageSrc={'/src/assets/dummy/place.png'}
+        imageAltText={'CurationImage'}
+      />
 
       {/* 큐레이션 설명 */}
       <Content>
@@ -69,9 +47,6 @@ const CurationDetail = () => {
           ))}
         </ListContainer>
       </Content>
-
-      {/* 모달 */}
-      <OptionModal isModalVisible={isModalVisible} onClick={closeModal} />
     </Container>
   );
 };
@@ -79,50 +54,6 @@ const CurationDetail = () => {
 const Container = styled.div`
   width: 100%;
   height: calc(100vh + 90px);
-`;
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 14px 10px;
-  gap: 10px;
-`;
-
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  img {
-    width: 8px;
-  }
-`;
-
-const OptionButton = styled.button`
-  position: absolute;
-  right: 12px;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  img {
-    height: 18px;
-  }
-`;
-
-const Title = styled.h1`
-  ${({ theme }) => theme.fonts.Title3};
-`;
-
-const ImageContainer = styled.div`
-  position: relative;
-  border-radius: 0px 0px 16px 16px;
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 250px;
-  }
 `;
 
 const Content = styled.div`

@@ -12,9 +12,10 @@ const dummyData = [
     lng: 126.978,
     createdAt: '2025-01-13 12:34:56',
     updatedAt: '2025-01-13 12:34:56',
-    placeImage: 'src/assets/dummy/place.png',
+    placeImage: '/src/assets/dummy/place.png',
     additionalInfo: [
       {
+        contentId: 1,
         name: '갯마을 차차차',
         type: '드라마',
         description: '신민아가 김선호에게 사랑 고백한 카페',
@@ -34,9 +35,10 @@ const dummyData = [
     lng: 126.982,
     createdAt: '2025-01-13 10:20:30',
     updatedAt: '2025-01-13 11:00:00',
-    placeImage: 'src/assets/dummy/place.png',
+    placeImage: '/src/assets/dummy/place.png',
     additionalInfo: [
       {
+        contentId: 2,
         name: '아이들의 꿈',
         type: '영화',
         description: '주인공이 어린 시절 친구들과 뛰놀던 장소',
@@ -56,14 +58,16 @@ const dummyData = [
     lng: 126.975,
     createdAt: '2025-01-12 10:20:30',
     updatedAt: '2025-01-12 11:00:00',
-    placeImage: 'src/assets/dummy/place.png',
+    placeImage: '/src/assets/dummy/place.png',
     additionalInfo: [
       {
+        contentId: 3,
         name: '방탄소년단',
         type: '연예인',
         description: '트위터에 올린 식당',
       },
       {
+        contentId: 4,
         name: '푸드 페스티벌',
         type: '행사',
         description: '다양한 요리 경연이 펼쳐진 대표 맛집',
@@ -83,9 +87,10 @@ const dummyData = [
     lng: 126.984,
     createdAt: '2025-01-11 08:10:10',
     updatedAt: '2025-01-11 08:20:00',
-    placeImage: 'src/assets/dummy/place.png',
+    placeImage: '/src/assets/dummy/place.png',
     additionalInfo: [
       {
+        contentId: 5,
         name: '역사 탐방',
         type: '다큐',
         description: '서울의 역사를 조명한 다큐멘터리 촬영지',
@@ -105,9 +110,10 @@ const dummyData = [
     lng: 126.973,
     createdAt: '2025-01-10 09:20:30',
     updatedAt: '2025-01-10 10:00:00',
-    placeImage: 'src/assets/dummy/place.png',
+    placeImage: '/src/assets/dummy/place.png',
     additionalInfo: [
       {
+        contentId: 6,
         name: '별들의 숙소',
         type: '인터뷰',
         description: '유명 배우들이 머물렀던 촬영지',
@@ -127,14 +133,16 @@ const dummyData = [
     lng: 126.97,
     createdAt: '2025-01-09 12:30:00',
     updatedAt: '2025-01-09 12:45:00',
-    placeImage: 'src/assets/dummy/place.png',
+    placeImage: '/src/assets/dummy/place.png',
     additionalInfo: [
       {
+        contentId: 7,
         name: '패션의 중심',
         type: '쇼핑',
         description: '다양한 패션 브랜드가 소개된 장소',
       },
       {
+        contentId: 8,
         name: '관광 명소',
         type: '여행',
         description: '명동을 대표하는 관광 명소',

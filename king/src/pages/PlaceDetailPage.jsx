@@ -1,6 +1,6 @@
 import React from 'react';
 
-import PlaceDetail from '../components/Map/PlaceDetail';
+import PlaceDetail from '../components/PlaceDetail/PlaceDetail';
 
 const PlaceDetailPage = () => {
   return <PlaceDetail />;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import ReviewFeed from '../components/Map/ReviewFeed';
+import ReviewFeed from '../components/Review/ReviewFeed';
 
 const ReviewFeedPage = () => {
   return <ReviewFeed />;
