@@ -84,7 +84,6 @@ const PlaceList = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.2rem;
-  overflow-y: auto;
   padding: 0 0.5rem;
 `;
 

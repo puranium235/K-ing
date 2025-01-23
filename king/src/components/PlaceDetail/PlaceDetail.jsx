@@ -8,7 +8,7 @@ import Nav from '/src/components/common/Nav';
 import DetailHeader from '../common/DetailHeader';
 import ContentsInfo from './ContentsInfo';
 import FunctionButton from './FunctionButton';
-import PlaceDetailInfo from './PlaceInfo';
+import PlaceInfo from './PlaceInfo';
 
 const PlaceDetail = () => {
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ const PlaceDetail = () => {
         <FunctionButton />
 
         {/* 장소 상세 정보 */}
-        <PlaceDetailInfo placeData={placeData} />
+        <PlaceInfo placeData={placeData} />
 
         <BottomContainer>
           <ActionButton onClick={handleRoute}>다른 팬의 인증샷이 궁금하다면?</ActionButton>

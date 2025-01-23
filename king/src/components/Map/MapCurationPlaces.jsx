@@ -45,15 +45,18 @@ const MapCurationPlaces = () => {
             onFilterChange={handleFilterChange}
           />
         </FilterContainer>
+
         <ListContainer>
           {places.map((place) => (
             <ListItem key={place.placeId} {...place} />
           ))}
         </ListContainer>
       </ContentSection>
+
       <ClosedButton onClick={handleClose}>
         <img src="src/assets/icons/close.png" alt="close" />
       </ClosedButton>
+
       <Nav />
     </Container>
   );
