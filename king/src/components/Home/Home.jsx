@@ -176,8 +176,8 @@ const CurationPreview = styled.div`
 `;
 
 const GenreWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
 
   & > div {
