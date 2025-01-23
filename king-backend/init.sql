@@ -12,12 +12,11 @@ CREATE TABLE messages (
 INSERT INTO messages (content)
 VALUES ('테스트용데이터1');
 
-
 -- 1. user 테이블
 CREATE TABLE `user` (
                         `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                         `email` VARCHAR(255) NOT NULL,
-                        `nickname` VARCHAR(255) NOT NULL UNIQUE,
+                        `nickname` VARCHAR(255) UNIQUE,
                         `image_url` VARCHAR(500) NOT NULL,
                         `google_id` VARCHAR(255),
                         `line_id` VARCHAR(255),
@@ -25,8 +24,9 @@ CREATE TABLE `user` (
                         `description` TEXT NULL,
                         `content_alarm_on` BOOLEAN NULL,
                         `language` VARCHAR(10) NULL, -- en, ja, zh, ko 등
-                        `is_deleted` BOOLEAN NOT NULL,
-                        CHECK (`google_id` IS NOT NULL OR `line_id` IS NOT NULL)
+                        `status` VARCHAR(10) NOT NULL, -- pending, registered, deleted
+                        CHECK (`google_id` IS NOT NULL OR `line_id` IS NOT NULL),
+                        CHECK (`status` = 'pending' OR `nickname` IS NOT NULL)
 );
 
 -- 2. place 테이블
@@ -50,7 +50,7 @@ CREATE TABLE `place` (
 -- 3. content 테이블
 CREATE TABLE `content` (
                            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                           `content_type` VARCHAR(50) NOT NULL, -- DRAMA, MOVIE, SHOW
+                           `type` VARCHAR(50) NOT NULL, -- drama, movie, show
                            `broadcast` VARCHAR(255),
                            `created_at` DATETIME DEFAULT NOW(),
                            `image_url` VARCHAR(500),
@@ -96,9 +96,8 @@ CREATE TABLE `content_zh` (
 -- 8. cast 테이블
 CREATE TABLE `cast` (
                         `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                        `name` VARCHAR(100) NOT NULL,
                         `image_url` VARCHAR(500),
-                        `birth_date` DATETIME,
+                        `birth_date` VARCHAR(100),
                         `birth_place` VARCHAR(200),
                         `participating_work` INT UNSIGNED,
                         `created_at` DATETIME DEFAULT NOW(),
@@ -225,7 +224,7 @@ CREATE TABLE `curation_list_item` (
                                       `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                       `curation_list_id` INT UNSIGNED NOT NULL,
                                       `place_id` INT UNSIGNED NOT NULL,
-                                      FOREIGN KEY (`curation_list_id`) REFERENCES `curation_list`(`id`),
+                                      FOREIGN KEY (`curation_list_id`) REFERENCES `curation_list`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
                                       FOREIGN KEY (`place_id`) REFERENCES `place`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -281,14 +280,6 @@ CREATE TABLE `search_ranking` (
                                   `date` DATETIME DEFAULT NOW()
 );
 
-
--- fk 참조무결성 조건
--- 1) user 삭제 시 post, 임시post, comment, like도 삭제
--- 2) post 삭제 시 post_image, comment, like도 삭제 (임시post 삭제시 임시post_image삭제)
--- 3) place 삭제 시 post, 임시post도 삭제
-
-
-
 -- 더미데이터
 -- 1. user 테이블
 INSERT INTO `user` (`email`, `nickname`, `image_url`, `google_id`, `line_id`, `created_at`, `description`, `content_alarm_on`, `language`, `is_deleted`)
@@ -308,7 +299,7 @@ VALUES
     ('청남대', 'playground', '청남대입니다.', '09:00 - 18:00', '정보없음', '월요일', '충청북도 청주시 상당구 문의면 청남대길 646', 36.46255, 127.4906, '043-257-5080', 'http://example.com/cheongnamdae.jpg', 500);
 
 -- 3. content 테이블
-INSERT INTO `content` (`content_type`, `broadcast`, `created_at`, `image_url`, `tmdb_id`)
+INSERT INTO `content` (`type`, `broadcast`, `created_at`, `image_url`, `tmdb_id`)
 VALUES
     ('DRAMA', 'KBS', NOW(), 'http://example.com/drama.jpg', 101),
     ('MOVIE', 'CJ Entertainment', NOW(), 'http://example.com/movie.jpg', 102),
