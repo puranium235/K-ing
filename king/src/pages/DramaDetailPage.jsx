@@ -1,7 +1,7 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
-import DramaDetails from "../components/contents/DramaDetails";
+import DramaDetails from '../components/Contents/DramaDetails';
 
 const DramaDetailPage = () => {
   return (

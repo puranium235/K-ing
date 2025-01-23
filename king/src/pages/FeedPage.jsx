@@ -1,12 +1,12 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
-import Home from "../components/Home/Home";
+import Feed from '../components/Feed/Feed';
 
 const FeedPage = () => {
   return (
     <>
-      <Home />
+      <Feed />
     </>
   );
 };
