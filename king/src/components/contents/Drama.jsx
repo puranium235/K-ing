@@ -2,29 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import { DramaDummyData } from '../../assets/dummy/dummyDataContents';
 import { IcStar } from '../../assets/icons';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 
 const Drama = () => {
-  const dramas = [
-    {
-      id: 1,
-      title: '도깨비',
-      image: '/src/assets/dummy/poster1.png',
-    },
-    {
-      id: 2,
-      title: '도깨비',
-      image: '/src/assets/dummy/poster1.png',
-    },
-    {
-      id: 3,
-      title: '도깨비',
-      image: '/src/assets/dummy/poster1.png',
-    },
-  ];
+  const dramas = DramaDummyData;
 
   const navigate = useNavigate();
 
