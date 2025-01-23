@@ -1,5 +1,5 @@
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -40,137 +40,110 @@ const GoogleMapView = ({ places }) => {
     libraries,
   });
 
-  const handleIdle = () => {
+  // 마커 생성 로직
+  const createMarker = useCallback((map, place) => {
+    const markerElement = new google.maps.marker.AdvancedMarkerElement({
+      position: { lat: place.lat, lng: place.lng },
+      map,
+    });
+
+    const container = document.createElement('div');
+    container.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      `;
+
+    const image = document.createElement('img');
+    image.src = markerImages[place.type] || markerImages['store'];
+    image.style.cssText = `
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        object-fit: cover;
+      `;
+
+    const label = document.createElement('div');
+    label.style.cssText = `
+        font-size: 12px;
+        color: black;
+        background-color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+      `;
+    label.innerText = place.name;
+
+    container.appendChild(image);
+    container.appendChild(label);
+
+    markerElement.content = container;
+    return markerElement;
+  }, []);
+
+  // 지도 이동 후 검색 버튼 표시
+  const handleIdle = useCallback(() => {
     if (!isMapInitialized) {
-      setIsMapInitialized(true); // 초기화 완료 설정
+      setIsMapInitialized(true);
       return;
     }
-
-    // 지도 이동 후 검색 버튼 표시
     setShowSearchButton(true);
-  };
+  }, [isMapInitialized]);
 
-  const handleSearch = () => {
+  // 검색 버튼 동작
+  const handleSearch = useCallback(() => {
     if (!mapInstance) return;
 
     const center = mapInstance.getCenter();
     const bounds = mapInstance.getBounds();
-
     const radius =
       google.maps.geometry.spherical.computeDistanceBetween(
         bounds.getNorthEast(),
         bounds.getSouthWest(),
       ) / 2;
 
-    const latlng = { lat: center.lat(), lng: center.lng() };
-    console.log('검색 중심 좌표:', latlng);
+    console.log('검색 중심 좌표:', { lat: center.lat(), lng: center.lng() });
     console.log('검색 반지름 (미터):', radius);
+    setShowSearchButton(false);
+  }, [mapInstance]);
 
-    setShowSearchButton(false); // 버튼 숨기기
-  };
+  // 현재 위치로 이동
+  const moveToCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
 
-  // 현재 위치로 지도 이동 함수
-  const moveToCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const newCenter = { lat: latitude, lng: longitude };
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const newCenter = { lat: latitude, lng: longitude };
+        setCenter(newCenter);
 
-          setCenter(newCenter); // 중심 업데이트
+        if (mapInstance) {
+          mapInstance.panTo(newCenter);
+        }
+      },
+      (error) => console.error('Error fetching location:', error),
+    );
+  }, [mapInstance]);
 
-          if (mapInstance) {
-            const markerElement = new google.maps.marker.AdvancedMarkerElement({
-              position: { lat: latitude, lng: longitude },
-              map: mapInstance,
-            });
-
-            // HTML 커스텀 마커
-            markerElement.content = document.createElement('div');
-            markerElement.content.style.cssText = `
-                background-color: #007bff;
-                color: white;
-                padding: 8px 12px;
-                border-radius: 8px;
-                font-size: 14px;
-                text-align: center;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-              `;
-            markerElement.content.innerText = '현재 위치';
-
-            mapInstance.panTo(newCenter); // 지도 중심 이동
-          }
-        },
-        (error) => {
-          console.error('Error fetching location:', error);
-        },
-      );
-    } else {
-      console.error('Geolocation is not supported by this browser.');
-    }
-  };
-
-  // 지도와 마커 업데이트
+  // 마커 업데이트
   useEffect(() => {
     if (mapInstance && places.length > 0) {
       // 이전 마커 제거
       markers.forEach((marker) => marker.setMap(null));
-      setMarkers([]);
 
-      // 새 마커 추가
+      // 새 마커 생성 및 추가
       const bounds = new google.maps.LatLngBounds();
 
-      const newMarkers = places.map((marker) => {
-        const markerElement = new google.maps.marker.AdvancedMarkerElement({
-          position: { lat: marker.lat, lng: marker.lng },
-          map: mapInstance,
-        });
-
-        // 커스텀 마커 HTML
-        const container = document.createElement('div');
-        container.style.cssText = `
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        `;
-
-        // 마커 이미지
-        const image = document.createElement('img');
-        image.src = markerImages[marker.type] || markerImages['store']; // 타입별 이미지
-        image.style.cssText = `
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: none;
-          background-color: transparent;
-        `;
-
-        // 마커 라벨
-        const label = document.createElement('div');
-        label.style.cssText = `
-          font-size: 12px;
-          color: black;
-          background-color: white;
-          padding: 2px 6px;
-          border-radius: 4px;
-        `;
-        label.innerText = marker.name;
-
-        container.appendChild(image);
-        container.appendChild(label);
-
-        markerElement.content = container;
+      const newMarkers = places.map((place) => {
+        const markerElement = createMarker(mapInstance, place);
 
         // 위치를 bounds에 추가
-        bounds.extend({ lat: marker.lat, lng: marker.lng });
+        bounds.extend({ lat: place.lat, lng: place.lng });
 
         return markerElement;
       });
 
-      // 새 마커 상태 업데이트
-      setMarkers(newMarkers);
+      setMarkers(newMarkers); // 새 마커 상태 업데이트
 
       if (places.length === 1) {
         // 마커가 1개일 때: 중심 설정 및 줌 레벨 조정
@@ -182,7 +155,7 @@ const GoogleMapView = ({ places }) => {
         mapInstance.fitBounds(bounds, { top: 50, bottom: 50, left: 24, right: 24 });
       }
     }
-  }, [mapInstance, places]);
+  }, [mapInstance, places, createMarker]);
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading maps...</div>;
@@ -243,7 +216,7 @@ const HereButton = styled.button`
 
 const SearchButton = styled.button`
   position: absolute;
-  bottom: 40px;
+  bottom: 45px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #ffffff;

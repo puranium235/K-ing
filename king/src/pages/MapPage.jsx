@@ -1,9 +1,9 @@
-import MapCurationPlaces from "../components/Map/MapCurationPlaces";
+import MapSearchPlaces from '../components/Map/MapSearchPlaces';
 
 const MapPage = () => {
   return (
     <div>
-      <MapCurationPlaces />
+      <MapSearchPlaces />
     </div>
   );
 };

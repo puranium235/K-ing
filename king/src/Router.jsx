@@ -6,6 +6,7 @@ import ScrollToTop from './components/common/ScrollToTop';
 import ArchivePage from './pages/ArchivePage';
 import ChatbotPage from './pages/ChatbotPage';
 import CurationDetailPage from './pages/CurationDetailPage';
+import CurationMapPage from './pages/CurationMapPage';
 import CurationPage from './pages/CurationPage';
 import DramaDetailPage from './pages/DramaDetailPage';
 import DramaPage from './pages/DramaPage';
@@ -37,6 +38,7 @@ const Router = () => {
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/curation" element={<CurationPage />} />
             <Route path="/curation/:curationId" element={<CurationDetailPage />} />
+            <Route path="/curation/map" element={<CurationMapPage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/drama" element={<DramaPage />} />
             <Route path="/drama/:dramaId" element={<DramaDetailPage />} />
