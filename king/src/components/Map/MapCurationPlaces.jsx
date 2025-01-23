@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import dummyData from '../../assets/dummy/dummyData';
+import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
 import FilterButtons from './FilterButtons';
 import GoogleMapView from './GoogleMapView';
 import ListItem from './ListItem';
 
 const MapCurationPlaces = () => {
-  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeFilter, setActiveFilter] = useState(null);
-  const [places, setPlaces] = useState(dummyData);
 
   const filters = ['식당', '카페', '관광', '상점', '숙박'];
 
@@ -36,10 +34,6 @@ const MapCurationPlaces = () => {
   const filteredPlaces = activeFilter
     ? dummyData.filter((place) => place.type === filterToTypeMap[activeFilter])
     : dummyData;
-
-  const handleClose = () => {
-    navigate(-1);
-  };
 
   return (
     <Container>
@@ -66,10 +60,7 @@ const MapCurationPlaces = () => {
         </ListContainer>
       </ContentSection>
 
-      <ClosedButton onClick={handleClose}>
-        <img src="src/assets/icons/close.png" alt="close" />
-      </ClosedButton>
-
+      <CloseButton />
       <Nav />
     </Container>
   );
@@ -133,35 +124,6 @@ const ListContainer = styled.div`
     flex-direction: column;
     background-color: #fff;
     border-radius: 0px 0px 14px 14px;
-  }
-`;
-
-const ClosedButton = styled.button`
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background-color: #fff;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  z-index: 1000;
-
-  &:hover {
-    background-color: #ccc;
-  }
-
-  img {
-    width: 25px;
-    height: 25px;
-    object-fit: contain; /* 이미지가 왜곡되지 않도록 설정 */
   }
 `;
 
