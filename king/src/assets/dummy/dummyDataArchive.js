@@ -1,6 +1,6 @@
 import sampleImage from './curationimg.png';
 
-export const curationsDummyData = [
+export const CurationsDummyData = [
   {
     id: 1,
     image: sampleImage,
@@ -66,7 +66,7 @@ export const curationsDummyData = [
   },
 ];
 
-export const favoriteWorksDummyData = [
+export const FavoriteWorksDummyData = [
   { id: 1, image: sampleImage, title: '검은 사제들', bookmarked: false },
   { id: 2, image: sampleImage, title: '1987', bookmarked: true },
   { id: 3, image: sampleImage, title: '갯마을 차차차', bookmarked: true },
@@ -79,7 +79,7 @@ export const favoriteWorksDummyData = [
   { id: 10, image: sampleImage, title: '극한직업', bookmarked: true },
   { id: 11, image: sampleImage, title: '극한직업', bookmarked: true },
 ];
-export const favoritePeopleDummyData = [
+export const FavoritePeopleDummyData = [
   { id: 1, image: sampleImage, name: '공유', bookmarked: true },
   { id: 2, image: sampleImage, name: '배두나', bookmarked: true },
   { id: 3, image: sampleImage, name: '박소담', bookmarked: true },

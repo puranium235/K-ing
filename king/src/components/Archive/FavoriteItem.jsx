@@ -7,7 +7,7 @@ import { IcStarBlank } from '../../assets/icons';
 
 const FavoritesItem = ({ item, type }) => {
   const navigate = useNavigate();
-  const handleBookmarkClick = () => {
+  const handleBookmarkClick = (event) => {
     event.stopPropagation(); // 부모 클릭 이벤트 방지
     console.log(`${type === 'works' ? item.title : item.name} 북마크 상태 변경`);
   };

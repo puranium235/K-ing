@@ -1,12 +1,12 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
-import Home from "../components/Home/Home";
+import Landing from '../components/Landing/Landing';
 
 const LandingPage = () => {
   return (
     <>
-      <Home />
+      <Landing />
     </>
   );
 };

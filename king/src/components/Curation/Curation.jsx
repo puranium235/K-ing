@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { curationsDummyData } from '../../assets/dummy/dummyDataArchive';
+import { CurationsDummyData } from '../../assets/dummy/dummyDataArchive';
 import CurationsList from '../Archive/CurationsList';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
 
 const Curation = () => {
-  const curations = curationsDummyData;
+  const curations = CurationsDummyData;
 
   return (
     <>
