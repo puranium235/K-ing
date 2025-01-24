@@ -1,14 +1,8 @@
-import React from "react";
-import styled from "styled-components";
-
-import Home from "../components/Home/Home";
+import React from 'react';
+import styled from 'styled-components';
 
 const ChatbotPage = () => {
-  return (
-    <>
-      <Home />
-    </>
-  );
+  return <>챗봇페이지</>;
 };
 
 export default ChatbotPage;
