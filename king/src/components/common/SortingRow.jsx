@@ -6,6 +6,7 @@ import SortingModal from '../../components/common/SortingModal';
 
 const SortingRow = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [value, setValue] = useState('인기순');
 
   const openModal = () => {
     setIsModalVisible(true);
@@ -14,15 +15,25 @@ const SortingRow = () => {
   const closeModal = () => {
     setIsModalVisible(false);
   };
+
+  const handleOptionClick = (option) => {
+    setValue(option); // 선택된 옵션 업데이트
+    closeModal(); // 모달 닫기
+  };
+
   return (
     <>
       <SortingContainer>
         <SortingButton onClick={openModal}>
           <img src={SortingIcon} alt="Sorting" />
-          <SortingTitle>인기순</SortingTitle>
+          <SortingTitle>{value}</SortingTitle>
         </SortingButton>
       </SortingContainer>
-      <SortingModal isModalVisible={isModalVisible} onClick={closeModal} />
+      <SortingModal
+        isModalVisible={isModalVisible}
+        onClick={closeModal}
+        onOptionClick={handleOptionClick}
+      />
     </>
   );
 };
