@@ -28,6 +28,6 @@ public class ContentDetailResponseDto {
         private Long castId;
         private String name;
         private String imageUrl;
-        private String isFavorite;
+        private boolean isFavorite;
     }
 }

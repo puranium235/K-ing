@@ -1,7 +1,7 @@
 package com.king.backend.domain.content.controller;
 
+import com.king.backend.domain.content.dto.response.ContentDetailResponseDto;
 import com.king.backend.domain.content.service.ContentService;
-import com.king.backend.domain.place.dto.response.PlaceDetailResponseDto;
 import com.king.backend.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
