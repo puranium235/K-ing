@@ -1,7 +1,7 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
-import { IcSearch } from "../../assets/icons";
+import { IcSearch } from '../../assets/icons';
 
 const SearchBar = () => {
   return (
@@ -17,21 +17,20 @@ export default SearchBar;
 const SWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
 
-  height: 40px;
+  height: 4rem;
   width: 100%;
   box-sizing: border-box;
-  gap: 1rem;
   margin: 1rem 0;
+  padding: 0 1.5rem;
 
   border-radius: 10px;
   background-color: #f3f3f3;
 
   & > input {
     all: unset;
-    width: 70%;
     text-align: left;
     ${({ theme }) => theme.fonts.Body2};
   }
