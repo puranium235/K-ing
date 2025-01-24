@@ -8,7 +8,7 @@ import FilterButtons from './FilterButtons';
 import GoogleMapView from './GoogleMapView';
 import ListItem from './ListItem';
 
-const MapCurationPlaces = () => {
+const MapSearchPlaces = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeFilter, setActiveFilter] = useState(null);
 
@@ -45,13 +45,6 @@ const MapCurationPlaces = () => {
       {/* Content Section */}
       <ContentSection $isExpanded={isExpanded}>
         <SlideBar onClick={toggleBox} />
-        <FilterContainer>
-          <FilterButtons
-            filters={filters}
-            activeFilter={activeFilter}
-            onFilterChange={handleFilterChange}
-          />
-        </FilterContainer>
 
         <ListContainer>
           {filteredPlaces.map((place) => (
@@ -127,4 +120,4 @@ const ListContainer = styled.div`
   }
 `;
 
-export default MapCurationPlaces;
+export default MapSearchPlaces;

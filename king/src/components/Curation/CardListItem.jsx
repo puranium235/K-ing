@@ -2,126 +2,84 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-// 주소를 "서울시 마포구"까지만 추출
+// 주소를 "경기 양평군"처럼 간단히 표시
 const getShortAddress = (fullAddress) => {
-  const parts = fullAddress.split(' '); // 공백을 기준으로 나누기
+  const parts = fullAddress.split(' ');
   if (parts.length >= 2) {
-    return `${parts[0]} ${parts[1]}`; // 첫 번째와 두 번째 부분만 반환
+    return `${parts[0]} ${parts[1]}`;
   }
-  return fullAddress; // 주소가 짧거나 비정상적인 경우 원본 반환
+  return fullAddress;
 };
 
-const CardListItem = ({ placeId, name, type, address, openHours, closedDays, placeImage }) => {
+const CardListItem = ({ place }) => {
   const navigate = useNavigate();
-  const handleRoute = () => {
-    navigate(`/place/${placeId}`); // 상세 페이지로 이동
-  };
 
-  const isAlwaysOpen = closedDays === '연중무휴'; // 연중무휴 여부 확인
+  const handleCurationClick = (id) => {
+    navigate(`/place/${id}`);
+  };
+  const { placeId, placeImage, name, address } = place;
 
   return (
-    <ItemContainer onClick={handleRoute}>
-      <TitleRow>
+    <CardContainer onClick={() => handleCurationClick(placeId)}>
+      {/* 이미지 컨테이너 */}
+      <ImageContainer>
+        <Image src={placeImage} alt={name} />
+      </ImageContainer>
+
+      {/* 텍스트 컨테이너 */}
+      <TextContainer>
         <Title>{name}</Title>
-        <Desc>{type}</Desc>
-      </TitleRow>
-      <InfoRow>
-        {closedDays && (
-          <ImportantInfoItem $isAlwaysOpen={isAlwaysOpen}>
-            <img
-              src={
-                isAlwaysOpen
-                  ? 'src/assets/icons/good.png' // 연중무휴 아이콘
-                  : 'src/assets/icons/bad.png' // 기본 휴무 아이콘
-              }
-              alt={isAlwaysOpen ? 'Always Open' : 'Closed'}
-            />
-            {closedDays}
-          </ImportantInfoItem>
-        )}
-        {address && (
-          <InfoItem>
-            <img src="src/assets/icons/location.png" alt="Location" />
-            {getShortAddress(address)}
-          </InfoItem>
-        )}
-        {openHours && (
-          <InfoItem>
-            <img src="src/assets/icons/clock.png" alt="Open Hours" />
-            {openHours}
-          </InfoItem>
-        )}
-      </InfoRow>
-      {placeImage && <Image src={placeImage} alt={name} />}
-    </ItemContainer>
+        <Address>
+          <img src="/src/assets/icons/location.png" alt="location" />
+          {getShortAddress(address)}
+        </Address>
+      </TextContainer>
+    </CardContainer>
   );
 };
 
-const ItemContainer = styled.div`
-  padding: 25px;
+export default CardListItem;
+
+const CardContainer = styled.div`
+  background-color: #fff;
   display: flex;
   flex-direction: column;
-  background-color: #fff;
-  border-radius: 14px;
-  cursor: pointer;
 `;
 
-const TitleRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-bottom: 4px;
-`;
-
-const Title = styled.h2`
-  margin: 0;
-  ${({ theme }) => theme.fonts.Title5};
-`;
-
-const Desc = styled.p`
-  ${({ theme }) => theme.fonts.Body5};
-  color: rgba(37, 37, 37, 0.7);
-`;
-
-const InfoRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 4px 0px;
-`;
-
-const InfoItem = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  ${({ theme }) => theme.fonts.Body5};
-  color: rgba(37, 37, 37, 0.7);
-
-  img {
-    width: 16px;
-    height: 16px;
-  }
-`;
-
-const ImportantInfoItem = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  ${({ theme }) => theme.fonts.Title6};
-  color: ${(props) =>
-    props.$isAlwaysOpen ? '#17A600' : props.theme.colors.Red}; /* 연중무휴일 때 색상 변경 */
-
-  img {
-    width: 16px;
-    height: 16px;
-  }
+const ImageContainer = styled.div`
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+  border-radius: 10px;
 `;
 
 const Image = styled.img`
   width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin-top: 8px;
+  height: 100%;
+  object-fit: cover;
 `;
 
-export default CardListItem;
+const TextContainer = styled.div`
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Title = styled.h3`
+  ${({ theme }) => theme.fonts.Title6};
+  color: ${({ theme }) => theme.colors.Gray0};
+`;
+
+const Address = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  ${({ theme }) => theme.fonts.Body4};
+  color: ${({ theme }) => theme.colors.Gray1};
+
+  img {
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+  }
+`;

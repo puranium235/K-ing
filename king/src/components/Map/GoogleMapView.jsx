@@ -1,12 +1,10 @@
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-
-import dummyData from '../../assets/dummy/dummyData';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAPS_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
-const libraries = ['marker'];
+const libraries = ['marker', 'geometry'];
 
 const containerStyle = {
   width: '100%',
@@ -30,116 +28,137 @@ const markerImages = {
   store: 'src/assets/marker/store-marker.png',
 };
 
-const GoogleMapView = () => {
+const GoogleMapView = ({ places }) => {
   const [center, setCenter] = useState({ lat: 37.5665, lng: 126.978 });
   const [mapInstance, setMapInstance] = useState(null);
+  const [markers, setMarkers] = useState([]);
+  const [showSearchButton, setShowSearchButton] = useState(false);
+  const [isMapInitialized, setIsMapInitialized] = useState(false);
+
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
   });
 
-  // 현재 위치로 지도 이동 함수
-  const moveToCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const newCenter = { lat: latitude, lng: longitude };
+  // 마커 생성 로직
+  const createMarker = useCallback((map, place) => {
+    const markerElement = new google.maps.marker.AdvancedMarkerElement({
+      position: { lat: place.lat, lng: place.lng },
+      map,
+    });
 
-          setCenter(newCenter); // 중심 업데이트
+    const container = document.createElement('div');
+    container.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      `;
 
-          if (mapInstance) {
-            const markerElement = new google.maps.marker.AdvancedMarkerElement({
-              position: { lat: latitude, lng: longitude },
-              map: mapInstance,
-            });
+    const image = document.createElement('img');
+    image.src = markerImages[place.type] || markerImages['store'];
+    image.style.cssText = `
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        object-fit: cover;
+      `;
 
-            // HTML 커스텀 마커
-            markerElement.content = document.createElement('div');
-            markerElement.content.style.cssText = `
-                background-color: #007bff;
-                color: white;
-                padding: 8px 12px;
-                border-radius: 8px;
-                font-size: 14px;
-                text-align: center;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-              `;
-            markerElement.content.innerText = '현재 위치';
+    const label = document.createElement('div');
+    label.style.cssText = `
+        font-size: 12px;
+        color: black;
+        background-color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+      `;
+    label.innerText = place.name;
 
-            mapInstance.panTo(newCenter); // 지도 중심 이동
-          }
-        },
-        (error) => {
-          console.error('Error fetching location:', error);
-        },
-      );
-    } else {
-      console.error('Geolocation is not supported by this browser.');
+    container.appendChild(image);
+    container.appendChild(label);
+
+    markerElement.content = container;
+    return markerElement;
+  }, []);
+
+  // 지도 이동 후 검색 버튼 표시
+  const handleIdle = useCallback(() => {
+    if (!isMapInitialized) {
+      setIsMapInitialized(true);
+      return;
     }
-  };
+    setShowSearchButton(true);
+  }, [isMapInitialized]);
 
-  // 장소 마커 기준
-  useEffect(() => {
-    if (mapInstance && dummyData.length > 0) {
-      // 지도 경계 (bounds) 객체 생성
-      const bounds = new google.maps.LatLngBounds();
+  // 검색 버튼 동작
+  const handleSearch = useCallback(() => {
+    if (!mapInstance) return;
 
-      dummyData.forEach((marker) => {
-        // 마커 추가
-        const markerElement = new google.maps.marker.AdvancedMarkerElement({
-          position: { lat: marker.lat, lng: marker.lng },
-          map: mapInstance,
-        });
+    const center = mapInstance.getCenter();
+    const bounds = mapInstance.getBounds();
+    const radius =
+      google.maps.geometry.spherical.computeDistanceBetween(
+        bounds.getNorthEast(),
+        bounds.getSouthWest(),
+      ) / 2;
 
-        // 커스텀 마커 HTML
-        const container = document.createElement('div');
-        container.style.cssText = `
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        `;
-
-        // 마커 이미지
-        const image = document.createElement('img');
-        image.src = markerImages[marker.type] || markerImages['store']; // 타입별 이미지
-        image.style.cssText = `
-          width: 20px;
-          height: 20px;
-          border-radius: 50%; /* 원형으로 설정 */
-          object-fit: cover; /* 이미지의 왜곡 방지 */
-          border: none; /* 테두리 제거 */
-          background-color: transparent; /* 배경색 제거 */
-        `;
-
-        // 마커 라벨
-        const label = document.createElement('div');
-        label.style.cssText = `
-          font-size: 12px;
-          color: black;
-          background-color: white;
-          padding: 2px 6px;
-          border-radius: 4px;
-        `;
-        label.innerText = marker.name;
-
-        container.appendChild(image);
-        container.appendChild(label);
-
-        markerElement.content = container;
-
-        // 마커 위치를 bounds에 추가
-        bounds.extend({ lat: marker.lat, lng: marker.lng });
-      });
-
-      // 지도 중심과 줌 조정
-      mapInstance.fitBounds(bounds, { top: 50, bottom: 50, left: 24, right: 24 });
-    }
+    console.log('검색 중심 좌표:', { lat: center.lat(), lng: center.lng() });
+    console.log('검색 반지름 (미터):', radius);
+    setShowSearchButton(false);
   }, [mapInstance]);
 
+  // 현재 위치로 이동
+  const moveToCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const newCenter = { lat: latitude, lng: longitude };
+        setCenter(newCenter);
+
+        if (mapInstance) {
+          mapInstance.panTo(newCenter);
+        }
+      },
+      (error) => console.error('Error fetching location:', error),
+    );
+  }, [mapInstance]);
+
+  // 마커 업데이트
+  useEffect(() => {
+    if (mapInstance && places.length > 0) {
+      // 이전 마커 제거
+      markers.forEach((marker) => marker.setMap(null));
+
+      // 새 마커 생성 및 추가
+      const bounds = new google.maps.LatLngBounds();
+
+      const newMarkers = places.map((place) => {
+        const markerElement = createMarker(mapInstance, place);
+
+        // 위치를 bounds에 추가
+        bounds.extend({ lat: place.lat, lng: place.lng });
+
+        return markerElement;
+      });
+
+      setMarkers(newMarkers); // 새 마커 상태 업데이트
+
+      if (places.length === 1) {
+        // 마커가 1개일 때: 중심 설정 및 줌 레벨 조정
+        const singleMarker = places[0];
+        mapInstance.setCenter({ lat: singleMarker.lat, lng: singleMarker.lng });
+        mapInstance.setZoom(15); // 원하는 줌 레벨
+      } else {
+        // 여러 마커가 있을 때: fitBounds로 지도 맞춤
+        mapInstance.fitBounds(bounds, { top: 50, bottom: 50, left: 24, right: 24 });
+      }
+    }
+  }, [mapInstance, places, createMarker]);
+
   if (loadError) return <div>Error loading maps</div>;
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
     <>
@@ -149,17 +168,24 @@ const GoogleMapView = () => {
         zoom={14}
         options={mapOptions}
         onLoad={(map) => setMapInstance(map)}
+        onIdle={handleIdle} // 지도 이동 후 이벤트
       />
 
-      {/* 플로팅 버튼 */}
+      {/* 현재 위치 버튼 */}
       <HereButton onClick={moveToCurrentLocation}>
         <img src="src/assets/icons/here.png" alt="here" />
       </HereButton>
+
+      {/* 이 지역에서 다시 검색 */}
+      {showSearchButton && (
+        <SearchButton onClick={handleSearch}>
+          <img src="src/assets/icons/refresh.png" alt="here" />이 지역에서 검색
+        </SearchButton>
+      )}
     </>
   );
 };
 
-// 플로팅 버튼 스타일
 const HereButton = styled.button`
   position: absolute;
   bottom: 40px;
@@ -173,13 +199,41 @@ const HereButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   z-index: 1000;
 
   &:hover {
     background-color: #ccc;
+  }
+
+  img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain; /* 이미지가 왜곡되지 않도록 설정 */
+  }
+`;
+
+const SearchButton = styled.button`
+  position: absolute;
+  bottom: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  ${({ theme }) => theme.fonts.Body3};
+  border: none;
+  border-radius: 20px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #f0f0f0;
   }
 
   img {

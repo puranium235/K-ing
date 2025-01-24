@@ -21,4 +21,7 @@ const BackButton = () => {
 
 export default BackButton;
 
-const BtnWrapper = styled.button``;
+const BtnWrapper = styled.button`
+  display: flex;
+  align-items: center;
+`;
