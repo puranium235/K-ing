@@ -16,16 +16,18 @@ import PlaceCard from '../Home/PlaceCard';
 const SearchKeyword = () => {
   const navigate = useNavigate();
   const cardsData = placeDummyData;
-  const filter = useRecoilState(FilterOption);
+  const [filter, setFilter] = useRecoilState(FilterOption);
 
   const [isProvinceActive, setIsProvinceActive] = useState(false);
   const [isCategoryActive, setIsCategoryActive] = useState(false);
 
   useEffect(() => {
-    if (filter && Object.keys(filter).length > 0) {
+    if (filter && filter.categories) {
       setIsProvinceActive(filter.province !== '');
 
       setIsCategoryActive(Object.values(filter.categories).some((value) => value));
+
+      // console.log(filter);
     }
   }, [filter]);
 
@@ -53,8 +55,8 @@ const SearchKeyword = () => {
               onClickMethod={handleOpenFilter}
               $isActive={isProvinceActive || isCategoryActive}
             />
-            <FilterButton buttonName="지역" $isActive={isProvinceActive} />
             <FilterButton buttonName="장소 유형" $isActive={isCategoryActive} />
+            <FilterButton buttonName="지역" $isActive={isProvinceActive} />
           </FilterWrapper>
           <Options>
             <IcMap onClick={handleOpenMap} />

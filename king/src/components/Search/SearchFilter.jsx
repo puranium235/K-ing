@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
@@ -23,6 +24,12 @@ function FilterScreen() {
   const [selectedDistrict, setSelectedDistrict] = useState('');
 
   const [filterOption, setFilterOption] = useRecoilState(FilterOption);
+
+  useEffect(() => {
+    setSelectedCategories(filterOption.categories);
+    setSelectedProvince(filterOption.province);
+    setSelectedDistrict(filterOption.district);
+  }, [filterOption]);
 
   const handleCheckedState = (category) => {
     setSelectedCategories((prev) => ({ ...prev, [category]: !prev[category] }));
