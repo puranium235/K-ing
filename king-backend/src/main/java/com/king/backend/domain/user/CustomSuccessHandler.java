@@ -1,0 +1,55 @@
+package com.king.backend.domain.user;
+
+import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
+import com.king.backend.domain.user.jwt.JWTUtil;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+
+@Component
+@RequiredArgsConstructor
+public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    private final JWTUtil jwtUtil;
+
+    @Value("${client.url}")
+    private String CLIENT_URL;
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+
+        OAuth2UserDTO oAuth2UserDTO = (OAuth2UserDTO) authentication.getPrincipal();
+
+        String name = oAuth2UserDTO.getName();
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority authority = iterator.next();
+        String role = authority.getAuthority();
+
+        String token = jwtUtil.createJwt(name, role, 60*60*60L);
+
+        response.addCookie(createCookie("AccessToken", token));
+        response.sendRedirect(CLIENT_URL);
+    }
+
+    private Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60*60);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
+}
