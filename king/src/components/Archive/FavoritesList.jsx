@@ -1,14 +1,23 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcNavigateNext } from '../../assets/icons';
 import FavoriteItem from './FavoriteItem';
 
-const FavoritesList = ({ title, data }) => {
+const FavoritesList = ({ title, data, onTabChange }) => {
+  const navigate = useNavigate();
   // 최대 5개까지만 렌더링
   const previewData = data.slice(0, 5);
   // 단위 계산 ('개' 또는 '명')
   const unit = title === '작품' ? '개' : '명';
+
+  // 전체보기 클릭 시 이동 처리
+  const handleFavoriteClick = () => {
+    const type = title === '작품' ? 'works' : 'people'; // title에 따라 type 설정
+    onTabChange('Favorites'); // activeTab을 Favorites로 설정
+    navigate(`/favorites/${type}`, { state: { type } });
+  };
 
   return (
     <St.Section>
@@ -21,7 +30,7 @@ const FavoritesList = ({ title, data }) => {
           </St.Count>
         </St.Left>
         {data.length > 0 && (
-          <St.ShowAllButton>
+          <St.ShowAllButton onClick={handleFavoriteClick}>
             전체보기 <IcNavigateNext />
           </St.ShowAllButton>
         )}
@@ -42,7 +51,7 @@ const FavoritesList = ({ title, data }) => {
         )}
 
         {data.length > 0 && (
-          <St.ShowAllButton2>
+          <St.ShowAllButton2 onClick={handleFavoriteClick}>
             <IcNavigateNext />
             <br />
             전체보기
@@ -132,8 +141,8 @@ const St = {
     text-decoration: none;
     gap: 4px; /* 텍스트와 아이콘 간 간격 */
 
-    &:hover {
+    /* &:hover {
       color: ${({ theme }) => theme.colors.MainBlue};
-    }
+    } */
   `,
 };

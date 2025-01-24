@@ -1,11 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import { IcBookmarkBlank } from '../../assets/icons';
+import { IcBookmarkFill } from '../../assets/icons';
+
 const CurationItem = ({ item }) => {
   const navigate = useNavigate();
 
-  const handleBookmarkClick = () => {
-    // console.log(`${item.title} 북마크 상태 변경`);
+  const handleBookmarkClick = (event) => {
+    event.stopPropagation(); // 부모 클릭 이벤트 방지
+    console.log(`${item.title} 북마크 상태 변경`);
   };
 
   const handleCurationClick = (id) => {
@@ -20,7 +24,7 @@ const CurationItem = ({ item }) => {
         <St.Title>{item.title}</St.Title>
       </St.Info>
       <St.BookmarkButton onClick={handleBookmarkClick}>
-        {item.bookmarked ? '★' : '☆'}
+        {item.bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />}
       </St.BookmarkButton>
     </St.Item>
   );
