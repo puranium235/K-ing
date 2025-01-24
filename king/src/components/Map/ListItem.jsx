@@ -11,12 +11,13 @@ const getShortAddress = (fullAddress) => {
   return fullAddress; // 주소가 짧거나 비정상적인 경우 원본 반환
 };
 
-const ListItem = ({ placeId, name, type, address, openHours, closedDays, placeImage }) => {
+const ListItem = ({ place }) => {
   const navigate = useNavigate();
   const handleRoute = () => {
     navigate(`/place/${placeId}`); // 상세 페이지로 이동
   };
 
+  const { placeId, name, type, address, openHours, closedDays, placeImage } = place;
   const isAlwaysOpen = closedDays === '연중무휴'; // 연중무휴 여부 확인
 
   return (
@@ -76,6 +77,14 @@ const TitleRow = styled.div`
 const Title = styled.h2`
   margin: 0;
   ${({ theme }) => theme.fonts.Title5};
+  white-space: nowrap;
+  overflow-x: auto; /* 캐러셀 효과 */
+  scrollbar-width: none; /* 스크롤바 제거 (Firefox) */
+  -ms-overflow-style: none; /* 스크롤바 제거 (IE/Edge) */
+
+  &::-webkit-scrollbar {
+    display: none; /* 스크롤바 제거 (Chrome/Safari) */
+  }
 `;
 
 const Desc = styled.p`

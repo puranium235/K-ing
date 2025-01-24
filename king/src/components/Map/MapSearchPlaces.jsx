@@ -30,7 +30,6 @@ const MapSearchPlaces = () => {
     setActiveFilter((prevFilter) => (prevFilter === filter ? null : filter));
   };
 
-  // 필터링된 장소 데이터
   const filteredPlaces = activeFilter
     ? DummyData.filter((place) => place.type === filterToTypeMap[activeFilter])
     : DummyData;
@@ -39,16 +38,22 @@ const MapSearchPlaces = () => {
     <Container>
       {/* Map Section */}
       <MapSection>
-        <GoogleMapView places={filteredPlaces} />
+        <GoogleMapView places={filteredPlaces} isSearch={true} />
       </MapSection>
 
       {/* Content Section */}
       <ContentSection $isExpanded={isExpanded}>
         <SlideBar onClick={toggleBox} />
-
+        <FilterContainer>
+          <FilterButtons
+            filters={filters}
+            activeFilter={activeFilter}
+            onFilterChange={handleFilterChange}
+          />
+        </FilterContainer>
         <ListContainer>
           {filteredPlaces.map((place) => (
-            <ListItem key={place.placeId} {...place} />
+            <ListItem key={place.placeId} place={place} />
           ))}
         </ListContainer>
       </ContentSection>

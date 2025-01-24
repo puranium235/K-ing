@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import CloseIcon from '../../assets/icons/close.png';
+
 const BackButton = () => {
   const navigate = useNavigate();
 
@@ -11,7 +13,7 @@ const BackButton = () => {
   return (
     <>
       <ClosedButton onClick={handleGoBack}>
-        <img src="src/assets/icons/close.png" alt="close" />
+        <img src={CloseIcon} alt="close" />
       </ClosedButton>
     </>
   );
