@@ -4,13 +4,10 @@ CREATE DATABASE king;
 USE king;
 
 CREATE TABLE messages (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    created DATETIME DEFAULT NOW(),
-    content VARCHAR(255) NOT NULL
+                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          created DATETIME DEFAULT NOW(),
+                          content VARCHAR(255) NOT NULL
 );
-
-INSERT INTO messages (content)
-VALUES ('테스트용데이터1');
 
 -- 1. user 테이블
 CREATE TABLE `user` (
@@ -22,9 +19,9 @@ CREATE TABLE `user` (
                         `line_id` VARCHAR(255),
                         `created_at` DATETIME DEFAULT NOW(),
                         `description` TEXT NULL,
-                        `content_alarm_on` BOOLEAN NULL,
+                        `content_alarm_on` BOOLEAN DEFAULT TRUE,
                         `language` VARCHAR(10) NULL, -- en, ja, zh, ko 등
-                        `status` VARCHAR(10) NOT NULL, -- pending, registered, deleted
+                        `status` VARCHAR(50) NOT NULL, -- pending, registered, deleted
                         CHECK (`google_id` IS NOT NULL OR `line_id` IS NOT NULL),
                         CHECK (`status` = 'pending' OR `nickname` IS NOT NULL)
 );
@@ -284,11 +281,11 @@ CREATE TABLE `search_ranking` (
 -- 1. user 테이블
 INSERT INTO `user` (`email`, `nickname`, `image_url`, `google_id`, `line_id`, `created_at`, `description`, `content_alarm_on`, `language`, `status`)
 VALUES
-    ('user1@example.com', 'user1', 'http://example.com/user1.jpg', 'google1', NULL, NOW(), 'Travel enthusiast.', TRUE, 'en', 'registered'),
+    ('user1@example.com', 'user1', 'http://example.com/user1.jpg', 'google1', NULL, NOW(), 'Travel enthusiast.', TRUE, 'en', 'registered1'),
     ('user2@example.com', 'user2', 'http://example.com/user2.jpg', NULL, 'line1', NOW(), 'Loves movies and coffee.', FALSE, 'ko', 'registered'),
     ('user3@example.com', 'user3', 'http://example.com/user3.jpg', 'google3', NULL, NOW(), 'Passionate about art.', TRUE, 'zh', 'registered'),
-    ('user4@example.com', 'user4', 'http://example.com/user4.jpg', NULL, 'line2', NOW(), 'Tech geek and foodie.', FALSE, 'ja', 'registered'),
-    ('user5@example.com', 'user5', 'http://example.com/user5.jpg', 'google5', NULL, NOW(), 'History buff.', TRUE, 'en', 'registered');
+    ('user4@example.com', 'user4', 'http://example.com/user4.jpg', NULL, 'line2', NOW(), 'Tech geek and foodie.', FALSE, 'ja', TRUE),
+    ('user5@example.com', 'user5', 'http://example.com/user5.jpg', 'google5', NULL, NOW(), 'History buff.', TRUE, 'en', FALSE);
 
 -- 2. place 테이블
 INSERT INTO `place` (`name`, `type`, `description`, `open_hour`, `break_time`, `closed_day`, `address`, `lat`, `lng`, `phone`, `image_url`, `view`)
@@ -330,8 +327,8 @@ VALUES
 INSERT INTO `cast_ko` (`name`, `cast_id`)
 VALUES
     ('한예리', 1),
-    ('김태호', 2),place
-               ('조인성', 3);
+    ('김태호', 2),
+    ('조인성', 3);
 
 -- 13. place_content 테이블
 INSERT INTO `place_content` (`place_id`, `content_id`, `description`)
@@ -428,4 +425,3 @@ VALUES
     ('서울의 카페', '2025-01', 1, 500, NOW()),
     ('최고의 놀이터', '2025-01', 2, 300, NOW()),
     ('인기 있는 한국 드라마', '2025-01', 3, 250, NOW());
-
