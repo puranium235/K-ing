@@ -32,7 +32,8 @@ const StCurationWrapper = styled.div`
   justify-content: center;
   align-items: center;
 
-  /* padding: 2rem; */
+  padding: 2rem 0.4rem;
+  padding-top: 0rem;
   margin-bottom: 7rem;
 `;
 
@@ -41,6 +42,7 @@ const FixedContainer = styled.div`
   top: 0;
   z-index: 1000;
 
-  padding-top: 2rem;
+  padding: 2rem;
+  padding-bottom: 0;
   background-color: ${({ theme }) => theme.colors.White};
 `;

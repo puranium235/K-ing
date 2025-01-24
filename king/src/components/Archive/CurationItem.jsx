@@ -63,6 +63,12 @@ const St = {
     margin: 4px 0 0;
     padding-right: 0.5rem;
     ${({ theme }) => theme.fonts.Title7};
+
+    width: 100%;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   `,
   BookmarkButton: styled.button`
     position: absolute;
