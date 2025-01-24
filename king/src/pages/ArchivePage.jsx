@@ -3,9 +3,9 @@ import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import {
-  curationsDummyData,
-  favoritePeopleDummyData,
-  favoriteWorksDummyData,
+  CurationsDummyData,
+  FavoritePeopleDummyData,
+  FavoriteWorksDummyData,
 } from '../assets/dummy/dummyDataArchive';
 import ArchiveTabMenu from '../components/Archive/ArchiveTabMenu';
 import CurationsList from '../components/Archive/CurationsList';
@@ -25,9 +25,9 @@ const ArchivePage = () => {
     sessionStorage.setItem('activeTab', activeTab);
   }, [activeTab]);
 
-  const [curationsData] = useState(curationsDummyData);
-  const [favoriteWorksData] = useState(favoriteWorksDummyData);
-  const [favoritePeopleData] = useState(favoritePeopleDummyData);
+  const [curationsData] = useState(CurationsDummyData);
+  const [favoriteWorksData] = useState(FavoriteWorksDummyData);
+  const [favoritePeopleData] = useState(FavoritePeopleDummyData);
 
   return (
     <St.Page>
