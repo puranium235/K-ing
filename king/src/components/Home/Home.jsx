@@ -49,9 +49,9 @@ const Home = () => {
       <StHomeWrapper>
         <TopNav />
         <Carousel carouselList={carouselList} />
-        <CurationPreview>
+        {/* <CurationPreview>
           <p>"해인아..!" 눈물의 여왕 31곳.zip</p>
-        </CurationPreview>
+        </CurationPreview> */}
         <GenreWrapper>
           <IconWrapper>
             <Icons onClick={() => navigate('/drama')}>
@@ -139,52 +139,12 @@ const StHomeWrapper = styled.div`
   margin-bottom: 7rem;
 `;
 
-const CurationPreview = styled.div`
-  position: relative;
-  align-items: center;
-
-  height: 186px;
-  width: 100%;
-
-  border-radius: 20px;
-  padding: 1rem 0;
-  margin: 1rem 0;
-
-  background-image: url(${curationImg});
-  background-size: cover;
-  background-position: center;
-
-  color: white;
-  ${({ theme }) => theme.fonts.Title4};
-
-  &:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    background-color: rgba(0, 0, 0, 0.3); // 검정색 반투명 레이어
-    border-radius: 20px;
-  }
-
-  p {
-    position: absolute;
-    bottom: 2rem;
-    left: 2rem;
-    ${({ theme }) => theme.fonts.Title6}
-  }
-`;
-
 const GenreWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
+  gap: auto;
 
-  & > div {
-    width: 60px;
-  }
+  width: 100%;
 `;
 
 const IconWrapper = styled.div`
@@ -200,8 +160,9 @@ const IconWrapper = styled.div`
 `;
 
 const Icons = styled.button`
-  height: 60px;
-  width: 60px;
+  width: 80%;
+  aspect-ratio: 1/1;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,6 +170,11 @@ const Icons = styled.button`
   margin: 1rem 0;
   border-radius: 16px;
   background-color: ${({ theme }) => theme.colors.Beige};
+
+  svg {
+    width: 70%;
+    height: 70%;
+  }
 `;
 
 const TrendingKeyword = styled.div`
