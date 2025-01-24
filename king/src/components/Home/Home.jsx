@@ -2,19 +2,26 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import curationImg from '../../assets/dummy/curation.png';
+import { curationsDummyData } from '../../assets/dummy/dummyDataArchive';
 import { placeDummyData } from '../../assets/dummy/dummyDataPlace';
 import { IcCeleb, IcDrama, IcMovie, IcShow } from '../../assets/icons';
-import FavoritesList from '../Archive/FavoritesList';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
 import Carousel from './Carousel';
+import GenreButton from './GenreButton';
 import PlaceCard from './PlaceCard';
 
 const Home = () => {
-  const [activeButton, setActiveButton] = useState('');
+  const [activeButton, setActiveButton] = useState('실시간');
   const navigate = useNavigate();
+
+  const genreIcons = [
+    { icon: IcDrama, label: '드라마', link: '/drama' },
+    { icon: IcMovie, label: '영화', link: '/movies' },
+    { icon: IcShow, label: '예능', link: '/shows' },
+    { icon: IcCeleb, label: '연예인', link: '/celebs' },
+  ];
 
   const handleSearch = () => {
     // // 검색 유형이 선택되고 키워드도 있는 경우
@@ -27,20 +34,7 @@ const Home = () => {
     // }
   };
 
-  const carouselList = [
-    {
-      image: '/src/assets/dummy/curation.png',
-      text: '해인아..! 눈물의 여왕 31곳.zip',
-    },
-    {
-      image: '/src/assets/dummy/curation.png',
-      text: '해인22',
-    },
-    {
-      image: '/src/assets/dummy/curation.png',
-      text: '해인33',
-    },
-  ];
+  const carouselList = curationsDummyData;
 
   const cardsData = placeDummyData;
 
@@ -49,34 +43,10 @@ const Home = () => {
       <StHomeWrapper>
         <TopNav />
         <Carousel carouselList={carouselList} />
-        {/* <CurationPreview>
-          <p>"해인아..!" 눈물의 여왕 31곳.zip</p>
-        </CurationPreview> */}
         <GenreWrapper>
-          <IconWrapper>
-            <Icons onClick={() => navigate('/drama')}>
-              <IcDrama />
-            </Icons>
-            <p>드라마</p>
-          </IconWrapper>
-          <IconWrapper>
-            <Icons>
-              <IcMovie />
-            </Icons>
-            <p>영화</p>
-          </IconWrapper>
-          <IconWrapper>
-            <Icons>
-              <IcShow />
-            </Icons>
-            <p>예능</p>
-          </IconWrapper>
-          <IconWrapper>
-            <Icons>
-              <IcCeleb />
-            </Icons>
-            <p>연예인</p>
-          </IconWrapper>
+          {genreIcons.map((item) => (
+            <GenreButton key={item.label} buttonInfo={item} />
+          ))}
         </GenreWrapper>
         <SearchBar onClick={handleSearch} />
         <TrendingKeyword>

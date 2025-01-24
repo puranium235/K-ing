@@ -81,7 +81,7 @@ const Carousel = ({ carouselList }) => {
           {currList.map((item, idx) => (
             <CarouselItem key={`${item.image}-${idx}`}>
               <img src={item.image} alt="carousel-img" />
-              <p>{item.text}</p>
+              <p>{item.title}</p>
             </CarouselItem>
           ))}
         </CarouselList>
@@ -97,6 +97,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
+  margin: 1rem 0;
 `;
 
 const CarouselWrapper = styled.div`
@@ -123,7 +124,6 @@ const CarouselItem = styled.li`
 
   img {
     width: 100%;
-    height: 100%;
     object-fit: cover;
   }
 
