@@ -20,9 +20,9 @@ CREATE TABLE `user` (
                         `description` TEXT NULL,
                         `content_alarm_on` BOOLEAN NULL,
                         `language` VARCHAR(10) NULL, -- en, ja, zh, ko 등
-                        `status` VARCHAR(50) NOT NULL, -- pending, registered, deleted
+                        `status` VARCHAR(50) NOT NULL, -- ROLE_PENDING, ROLE_REGISTERED, ROLE_DELETED
                         CHECK (`google_id` IS NOT NULL OR `line_id` IS NOT NULL),
-                        CHECK (`status` = 'pending' OR `nickname` IS NOT NULL)
+                        CHECK (`status` = 'ROLE_PENDING' OR `nickname` IS NOT NULL)
 );
 
 -- 2. place 테이블
