@@ -43,8 +43,8 @@ const Router = () => {
             <Route path="/curation/:curationId" element={<CurationDetailPage />} />
             <Route path="/curation/map" element={<CurationMapPage />} />
             <Route path="/feed" element={<FeedPage />} />
-            <Route path="/drama" element={<DramaPage />} />
-            <Route path="/drama/:dramaId" element={<DramaDetailPage />} />
+            <Route path="/content/:contentType" element={<DramaPage />} />
+            <Route path="/content/:contentType/:dramaId" element={<DramaDetailPage />} />
             {/* 카테고리 설정시 */}
             <Route path="/search/keyword" element={<SearchKeywordpage />} />
             <Route path="/search/keyword/filter" element={<SearchFilterPage />} />

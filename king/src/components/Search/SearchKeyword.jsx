@@ -44,7 +44,7 @@ const SearchKeyword = () => {
       <StHomeWrapper>
         <IconText>
           <BackButton />
-          <h3> 장소조회</h3>
+          <h3> 장소 조회</h3>
         </IconText>
         <SearchBar />
         <OptionHeader>

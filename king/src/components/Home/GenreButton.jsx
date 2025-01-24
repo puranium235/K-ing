@@ -1,14 +1,23 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
+
+import { ContentType } from '../../recoil/atom';
 
 const GenreButton = ({ buttonInfo }) => {
   const { icon: Icon, label, link } = buttonInfo;
+  const [contentType, setContentType] = useRecoilState(ContentType);
 
   const navigate = useNavigate();
 
   return (
-    <IconWrapper onClick={() => navigate(link)}>
+    <IconWrapper
+      onClick={() => {
+        setContentType(label);
+        navigate(`/content${link}`);
+      }}
+    >
       <Icons>
         <Icon />
       </Icons>

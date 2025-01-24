@@ -21,9 +21,9 @@ const Home = () => {
 
   const genreIcons = [
     { icon: IcDrama, label: '드라마', link: '/drama' },
-    { icon: IcMovie, label: '영화', link: '/movies' },
-    { icon: IcShow, label: '예능', link: '/shows' },
-    { icon: IcCeleb, label: '연예인', link: '/celebs' },
+    { icon: IcMovie, label: '영화', link: '/movie' },
+    { icon: IcShow, label: '예능', link: '/show' },
+    { icon: IcCeleb, label: '연예인', link: '/celeb' },
   ];
 
   const carouselList = curationsDummyData;

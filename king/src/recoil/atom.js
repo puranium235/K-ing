@@ -13,4 +13,9 @@ const FilterOption = atom({
   },
 });
 
-export { FilterOption };
+const ContentType = atom({
+  key: 'contentType',
+  default: '',
+});
+
+export { ContentType, FilterOption };
