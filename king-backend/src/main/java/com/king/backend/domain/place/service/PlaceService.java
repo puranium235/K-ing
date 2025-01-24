@@ -23,8 +23,8 @@ public class PlaceService {
     public PlaceDetailResponseDto getPlaceDetail(Long id){
         Place place = placeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("여기부터 안됨"));
-        List<PlaceDetailResponseDto.AdditionalInfo> additionalInfo = place.getPlaceContents().stream()
-                .map(this::mapToAdditionalInfo)
+        List<PlaceDetailResponseDto.RelatedContent> relatedContents = place.getPlaceContents().stream()
+                .map(this::mapToRelatedContent)
                 .collect(Collectors.toList());
 
         return new PlaceDetailResponseDto(
@@ -40,15 +40,15 @@ public class PlaceService {
                 (double) place.getLng(),
                 place.getCreatedAt(),
                 place.getImageUrl(),
-                additionalInfo
+                relatedContents
 
         );
 
     }
 
-    private PlaceDetailResponseDto.AdditionalInfo mapToAdditionalInfo(PlaceContent placeContent) {
+    private PlaceDetailResponseDto.RelatedContent mapToRelatedContent(PlaceContent placeContent) {
         Content content = placeContent.getContent();
-        return new PlaceDetailResponseDto.AdditionalInfo(
+        return new PlaceDetailResponseDto.RelatedContent(
                 content.getId(),
                 content.getTranslationKo().getTitle(),
                 content.getType(),

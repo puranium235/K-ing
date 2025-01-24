@@ -22,13 +22,13 @@ public class PlaceDetailResponseDto {
     private Double lat;
     private Double lng;
     private LocalDateTime createdAt;
-    private String placeImage;
-    private List<AdditionalInfo> additionalInfo;
+    private String imageUrl;
+    private List<RelatedContent> relatedContents;
 
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class AdditionalInfo {
+    public static class RelatedContent {
         private Long contentId;
         private String title;
         private String type; // drama, movie, show
