@@ -33,6 +33,9 @@ public class Content {
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlaceContent> placeContents;
 
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContentCast> contentCasts;
+
     // 1:1 관계 - 한국어 번역
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContentKo translationKo;

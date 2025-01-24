@@ -1,5 +1,6 @@
 package com.king.backend.domain.cast.entity;
 
+import com.king.backend.domain.content.entity.ContentCast;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,6 +31,9 @@ public class Cast {
 
     @Column(nullable = false)
     private Long tmdbId;
+
+    @OneToMany(mappedBy = "cast", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContentCast> contentCasts;
 
     @OneToOne(mappedBy = "cast", cascade = CascadeType.ALL, orphanRemoval = true)
     private CastKo translationKo;
