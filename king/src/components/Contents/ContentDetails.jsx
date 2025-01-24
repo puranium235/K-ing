@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { IcMarker, IcStar } from '../../assets/icons';
 import BackButton from '../common/BackButton';
 
-const DramaDetails = () => {
+const ContentDetails = () => {
   return (
     <DramaPageContainer>
       <IconText>
@@ -68,7 +68,7 @@ const DramaDetails = () => {
   );
 };
 
-export default DramaDetails;
+export default ContentDetails;
 
 const DramaPageContainer = styled.div`
   display: flex;

@@ -5,11 +5,11 @@ import { RecoilRoot } from 'recoil';
 import ScrollToTop from './components/common/ScrollToTop';
 import ArchivePage from './pages/ArchivePage';
 import ChatbotPage from './pages/ChatbotPage';
+import ContentDetailPage from './pages/ContentDetailPage';
+import ContentPage from './pages/ContentPage';
 import CurationDetailPage from './pages/CurationDetailPage';
 import CurationMapPage from './pages/CurationMapPage';
 import CurationPage from './pages/CurationPage';
-import DramaDetailPage from './pages/DramaDetailPage';
-import DramaPage from './pages/DramaPage';
 import ErrorPage from './pages/ErrorPage';
 import FavoritesDetailPage from './pages/FavoritesDetailPage';
 import FeedPage from './pages/FeedPage';
@@ -43,8 +43,8 @@ const Router = () => {
             <Route path="/curation/:curationId" element={<CurationDetailPage />} />
             <Route path="/curation/map/:curationId" element={<CurationMapPage />} />
             <Route path="/feed" element={<FeedPage />} />
-            <Route path="/content/:contentType" element={<DramaPage />} />
-            <Route path="/content/:contentType/:dramaId" element={<DramaDetailPage />} />
+            <Route path="/content/:contentType" element={<ContentPage />} />
+            <Route path="/content/:contentType/:dramaId" element={<ContentDetailPage />} />
             {/* 카테고리 설정시 */}
             <Route path="/search/keyword" element={<SearchKeywordpage />} />
             <Route path="/search/keyword/filter" element={<SearchFilterPage />} />

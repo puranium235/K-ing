@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { curationsDummyData } from '../../assets/dummy/dummyDataArchive';
+import { CurationsDummyData } from '../../assets/dummy/dummyDataArchive';
 import { placeDummyData } from '../../assets/dummy/dummyDataPlace';
 import { IcCeleb, IcDrama, IcMovie, IcShow } from '../../assets/icons';
 import Nav from '../common/Nav';
@@ -26,7 +26,7 @@ const Home = () => {
     { icon: IcCeleb, label: '연예인', link: '/celeb' },
   ];
 
-  const carouselList = curationsDummyData;
+  const carouselList = CurationsDummyData;
 
   const cardsData = placeDummyData;
 

@@ -1,17 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import DramaDetails from '../components/Contents/DramaDetails';
+import ContentDetails from '../components/Contents/ContentDetails';
 
-const DramaDetailPage = () => {
+const ContentDetailPage = () => {
   return (
     <>
-      <DramaDetails />
+      y
+      <ContentDetails />
     </>
   );
 };
 
-export default DramaDetailPage;
+export default ContentDetailPage;
 
 const St = {
   Wrapper: styled.article`
