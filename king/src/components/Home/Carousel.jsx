@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+import React, { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 
 const Carousel = ({ carouselList }) => {
   const [currIndex, setCurrIndex] = useState(1);
@@ -18,31 +18,25 @@ const Carousel = ({ carouselList }) => {
   useEffect(() => {
     const handleTransitionEnd = () => {
       if (currIndex === 0) {
-        carouselRef.current.style.transition = "none";
+        carouselRef.current.style.transition = 'none';
         setCurrIndex(carouselList.length);
         carouselRef.current.style.transform = `translateX(-${carouselList.length * 100}%)`;
       } else if (currIndex === carouselList.length + 1) {
-        carouselRef.current.style.transition = "none";
+        carouselRef.current.style.transition = 'none';
         setCurrIndex(1);
         carouselRef.current.style.transform = `translateX(-100%)`;
       }
     };
 
     if (carouselRef.current) {
-      carouselRef.current.style.transition = "transform 0.5s ease-in-out";
+      carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
       carouselRef.current.style.transform = `translateX(-${currIndex * 100}%)`;
-      carouselRef.current.addEventListener(
-        "transitionend",
-        handleTransitionEnd
-      );
+      carouselRef.current.addEventListener('transitionend', handleTransitionEnd);
     }
 
     return () => {
       if (carouselRef.current) {
-        carouselRef.current.removeEventListener(
-          "transitionend",
-          handleTransitionEnd
-        );
+        carouselRef.current.removeEventListener('transitionend', handleTransitionEnd);
       }
     };
   }, [currIndex, carouselList.length]);
@@ -67,12 +61,12 @@ const Carousel = ({ carouselList }) => {
       } else if (touchEndX - startX > threshold) {
         handleSwipe(-1);
       }
-      document.removeEventListener("touchmove", move);
-      document.removeEventListener("touchend", end);
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('touchend', end);
     };
 
-    document.addEventListener("touchmove", move);
-    document.addEventListener("touchend", end);
+    document.addEventListener('touchmove', move);
+    document.addEventListener('touchend', end);
   };
 
   const handleTouchStart = (e) => {
@@ -120,13 +114,11 @@ const CarouselItem = styled.li`
   display: flex;
   align-items: center;
   justify-content: center;
-
   position: relative;
   flex: none;
   width: 100%;
   height: 186px;
   overflow: hidden;
-
   border-radius: 20px;
 
   img {
@@ -135,15 +127,25 @@ const CarouselItem = styled.li`
     object-fit: cover;
   }
 
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+  }
+
   p {
     position: absolute;
     bottom: 10px;
     left: 10px;
     color: white;
-    background-color: rgba(0, 0, 0, 0.5);
     padding: 5px 10px;
     border-radius: 5px;
-    ${({ theme }) => theme.fonts.Body2}
-    z-index: 1;
+    ${({ theme }) => theme.fonts.Title6}
+    z-index: 2;
   }
 `;
