@@ -10,7 +10,7 @@ import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 
-const Drama = () => {
+const Content = () => {
   const dramas = DramaDummyData;
   const [contentType, setContentType] = useRecoilState(ContentType);
 
@@ -45,7 +45,7 @@ const Drama = () => {
   );
 };
 
-export default Drama;
+export default Content;
 
 const StHomeWrapper = styled.div`
   display: flex;
