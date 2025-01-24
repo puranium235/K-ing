@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import dummyData from '/src/assets/dummy/dummyData';
+import DummyData from '/src/assets/dummy/dummyData';
 import Nav from '/src/components/common/Nav';
 
 import DetailHeader from '../common/DetailHeader';
@@ -17,7 +17,7 @@ const PlaceDetail = () => {
 
   useEffect(() => {
     const fetchPlaceData = () => {
-      const data = dummyData.find((place) => place.placeId === parseInt(placeId));
+      const data = DummyData.find((place) => place.placeId === parseInt(placeId));
       setPlaceData(data);
     };
 

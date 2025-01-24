@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import dummyData from '/src/assets/dummy/dummyData';
+import DummyData from '/src/assets/dummy/dummyData';
 
 import DetailHeader from '../common/DetailHeader';
 import CardListItem from './CardListItem';
@@ -12,7 +12,7 @@ import UserProfile from './UserProfile';
 const CurationDetail = () => {
   const navigate = useNavigate();
   const { curationId } = useParams();
-  const [places, setPlaces] = useState(dummyData);
+  const [places, setPlaces] = useState(DummyData);
 
   const curationData = {
     id: 1,

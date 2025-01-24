@@ -17,20 +17,21 @@ const CardListItem = ({ place }) => {
   const handleCurationClick = (id) => {
     navigate(`/place/${id}`);
   };
+  const { placeId, placeImage, name, address } = place;
 
   return (
-    <CardContainer onClick={() => handleCurationClick(place.placeId)}>
+    <CardContainer onClick={() => handleCurationClick(placeId)}>
       {/* 이미지 컨테이너 */}
       <ImageContainer>
-        <Image src={place.placeImage} alt={place.name} />
+        <Image src={placeImage} alt={name} />
       </ImageContainer>
 
       {/* 텍스트 컨테이너 */}
       <TextContainer>
-        <Title>{place.name}</Title>
+        <Title>{name}</Title>
         <Address>
           <img src="/src/assets/icons/location.png" alt="location" />
-          {getShortAddress(place.address)}
+          {getShortAddress(address)}
         </Address>
       </TextContainer>
     </CardContainer>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import dummyData from '../../assets/dummy/dummyData';
+import DummyData from '../../assets/dummy/dummyData';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
 import FilterButtons from './FilterButtons';
@@ -32,8 +32,8 @@ const MapSearchPlaces = () => {
 
   // 필터링된 장소 데이터
   const filteredPlaces = activeFilter
-    ? dummyData.filter((place) => place.type === filterToTypeMap[activeFilter])
-    : dummyData;
+    ? DummyData.filter((place) => place.type === filterToTypeMap[activeFilter])
+    : DummyData;
 
   return (
     <Container>
