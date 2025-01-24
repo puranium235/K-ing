@@ -4,11 +4,10 @@ CREATE DATABASE king;
 USE king;
 
 CREATE TABLE messages (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    created DATETIME DEFAULT NOW(),
-    content VARCHAR(255) NOT NULL
+                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          created DATETIME DEFAULT NOW(),
+                          content VARCHAR(255) NOT NULL
 );
-
 -- 1. user 테이블
 CREATE TABLE `user` (
                         `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -19,7 +18,7 @@ CREATE TABLE `user` (
                         `line_id` VARCHAR(255),
                         `created_at` DATETIME DEFAULT NOW(),
                         `description` TEXT NULL,
-                        `content_alarm_on` BOOLEAN DEFAULT TRUE,
+                        `content_alarm_on` BOOLEAN NULL,
                         `language` VARCHAR(10) NULL, -- en, ja, zh, ko 등
                         `status` VARCHAR(50) NOT NULL, -- pending, registered, deleted
                         CHECK (`google_id` IS NOT NULL OR `line_id` IS NOT NULL),
@@ -95,7 +94,6 @@ CREATE TABLE `cast` (
                         `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                         `image_url` VARCHAR(500),
                         `birth_date` VARCHAR(100),
-                        `birth_place` VARCHAR(200),
                         `participating_work` INT UNSIGNED,
                         `created_at` DATETIME DEFAULT NOW(),
                         `tmdb_id` INT UNSIGNED NOT NULL
@@ -105,6 +103,7 @@ CREATE TABLE `cast` (
 CREATE TABLE `cast_ko` (
                            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                            `name` VARCHAR(100) NOT NULL,
+                           `birth_place` VARCHAR(200),
                            `cast_id` INT UNSIGNED NOT NULL,
                            FOREIGN KEY (`cast_id`) REFERENCES `cast`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -113,6 +112,7 @@ CREATE TABLE `cast_ko` (
 CREATE TABLE `cast_en` (
                            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                            `name` VARCHAR(100) NOT NULL,
+                           `birth_place` VARCHAR(200),
                            `cast_id` INT UNSIGNED NOT NULL,
                            FOREIGN KEY (`cast_id`) REFERENCES `cast`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -121,6 +121,7 @@ CREATE TABLE `cast_en` (
 CREATE TABLE `cast_ja` (
                            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                            `name` VARCHAR(100) NOT NULL,
+                           `birth_place` VARCHAR(200),
                            `cast_id` INT UNSIGNED NOT NULL,
                            FOREIGN KEY (`cast_id`) REFERENCES `cast`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -129,6 +130,7 @@ CREATE TABLE `cast_ja` (
 CREATE TABLE `cast_zh` (
                            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                            `name` VARCHAR(100) NOT NULL,
+                           `birth_place` VARCHAR(200),
                            `cast_id` INT UNSIGNED NOT NULL,
                            FOREIGN KEY (`cast_id`) REFERENCES `cast`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -317,18 +319,18 @@ VALUES
     ('2 Days 1 Night', 'A show highlighting Koreas beauty.', 3);
 
 -- 8. cast 테이블
-INSERT INTO `cast` (`image_url`, `birth_date`, `birth_place`, `participating_work`, `created_at`, `tmdb_id`)
+INSERT INTO `cast` (`image_url`, `birth_date`, `participating_work`, `created_at`, `tmdb_id`)
 VALUES
-    ('http://example.com/hanyeri.jpg', '1990-01-01', 'Seoul, South Korea', 5, NOW(), 201),
-    ('http://example.com/kimtaeho.jpg', '1985-05-12', 'Busan, South Korea', 3, NOW(), 202),
-    ('http://example.com/joinseong.jpg', '1981-07-28', 'Seoul, South Korea', 10, NOW(), 203);
+    ('http://example.com/hanyeri.jpg', '1990-01-01', 5, NOW(), 201),
+    ('http://example.com/kimtaeho.jpg', '1985-05-12', 3, NOW(), 202),
+    ('http://example.com/joinseong.jpg', '1981-07-28', 10, NOW(), 203);
 
 -- 9. cast_ko 테이블
-INSERT INTO `cast_ko` (`name`, `cast_id`)
+INSERT INTO `cast_ko` (`name`, `birth_place`, `cast_id`)
 VALUES
-    ('한예리', 1),
-    ('김태호', 2),
-    ('조인성', 3);
+    ('한예리', 'Seoul, South Korea', 1),
+    ('김태호', 'Seoul, South Korea', 2),
+    ('조인성', 'Seoul, South Korea', 3);
 
 -- 13. place_content 테이블
 INSERT INTO `place_content` (`place_id`, `content_id`, `description`)
