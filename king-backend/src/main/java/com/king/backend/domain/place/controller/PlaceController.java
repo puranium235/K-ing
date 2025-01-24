@@ -44,7 +44,6 @@ public class PlaceController {
     public ResponseEntity<ApiResponse<PlaceDetailResponseDto>> getPlaceDetail(@PathVariable Long placeId){
         log.info("GET /api/place/{} 요청 처리 시작", placeId);
         PlaceDetailResponseDto dto = placeService.getPlaceDetail(placeId);
-//        log.info("***************GET /api/place/{} 요청 처리 dto : {}************", placeId, dto);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(dto));
     }
 

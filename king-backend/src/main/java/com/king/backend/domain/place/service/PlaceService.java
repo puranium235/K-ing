@@ -4,7 +4,9 @@ import com.king.backend.domain.content.entity.Content;
 import com.king.backend.domain.place.dto.response.PlaceDetailResponseDto;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.entity.PlaceContent;
+import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
+import com.king.backend.global.exception.CustomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +24,7 @@ public class PlaceService {
     @Transactional
     public PlaceDetailResponseDto getPlaceDetail(Long id){
         Place place = placeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("여기부터 안됨"));
+                .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
         List<PlaceDetailResponseDto.RelatedContent> relatedContents = place.getPlaceContents().stream()
                 .map(this::mapToRelatedContent)
                 .collect(Collectors.toList());
