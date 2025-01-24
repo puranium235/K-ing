@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode {
-    OAUTH2_LOGIN_FAILED(HttpStatus.BAD_REQUEST, "소셜로그인 사용자를 받아올 수 없습니다.");
+    OAUTH2_LOGIN_FAILED(HttpStatus.BAD_REQUEST, "소셜로그인 사용자를 받아올 수 없습니다."),
+    ACCESSTOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다."),
+    UNVALID_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다.");
 
     private final HttpStatus status;
     private final String message;

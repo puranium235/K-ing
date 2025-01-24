@@ -5,6 +5,8 @@ spring:
     name: king-backend
   jwt:
     secret: ${JWT_SECRET}
+    accesstoken-expires-in: ${ACCESSTOKEN_EXPIRES_IN}
+    refreshtoken-expires-in: ${REFRESHTOKEN_EXPIRES_IN}
   security:
     oauth2:
       client:
