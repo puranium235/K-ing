@@ -6,6 +6,7 @@ const Carousel = ({ carouselList }) => {
   const [currList, setCurrList] = useState([]);
   const carouselRef = useRef(null);
 
+  // 초기 데이터 설정
   useEffect(() => {
     if (carouselList.length) {
       const startData = carouselList[carouselList.length - 1];
@@ -14,6 +15,15 @@ const Carousel = ({ carouselList }) => {
       setCurrList(list);
     }
   }, [carouselList]);
+
+  // 자동 슬라이딩 로직
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrIndex((prevIndex) => (prevIndex === currList.length - 2 ? 1 : prevIndex + 1));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [currList]);
 
   useEffect(() => {
     const handleTransitionEnd = () => {
