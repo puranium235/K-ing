@@ -60,12 +60,16 @@ const St = {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    padding: 16px;
+
+    width: 100%;
+    margin-bottom: 2rem;
+    /* padding: 16px; */
   `,
   Header: styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
   `,
   Left: styled.div`
     display: flex;
@@ -86,12 +90,18 @@ const St = {
   `,
   Count: styled.span`
     ${({ theme }) => theme.fonts.Body6};
-    color: ${({ theme }) => theme.colors.Gray3};
+    color: ${({ theme }) => theme.colors.Gray2};
   `,
   List: styled.div`
     display: flex;
     overflow-x: auto;
     gap: 8px;
+
+    width: 100%;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   `,
   ShowAllButton: styled.button`
     ${({ theme }) => theme.fonts.Body5};

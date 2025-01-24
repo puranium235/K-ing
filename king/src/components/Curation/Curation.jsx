@@ -1,71 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import sampleImage from '../../assets/dummy/curationimg.png';
+import { curationsDummyData } from '../../assets/dummy/dummyDataArchive';
 import CurationsList from '../Archive/CurationsList';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
 
 const Curation = () => {
-  const curations = [
-    {
-      id: 1,
-      image: sampleImage,
-      author: 'k-ing_Official',
-      title: '최애의 흔적을 찾아서 : BTS의 RM편',
-      bookmarked: true,
-    },
-    {
-      id: 2,
-      image: sampleImage,
-      author: 'hsmoon101',
-      title: '바닷가 근처 드라마 촬영지.zip',
-      bookmarked: true,
-    },
-    {
-      id: 3,
-      image: sampleImage,
-      author: 'hsmoon101',
-      title: '바닷가 근처 드라마 촬영지.zip',
-      bookmarked: true,
-    },
-    {
-      id: 4,
-      image: sampleImage,
-      author: 'hsmoon101',
-      title: '바닷가 근처 드라마 촬영지.zip',
-      bookmarked: true,
-    },
-    {
-      id: 5,
-      image: sampleImage,
-      author: 'hsmoon101',
-      title: '바닷가 근처 드라마 촬영지.zip',
-      bookmarked: true,
-    },
-    {
-      id: 6,
-      image: sampleImage,
-      author: 'hsmoon101',
-      title: '바닷가 근처 드라마 촬영지.zip',
-      bookmarked: true,
-    },
-    {
-      id: 7,
-      image: sampleImage,
-      author: 'hsmoon101',
-      title: '바닷가 근처 드라마 촬영지.zip',
-      bookmarked: true,
-    },
-    {
-      id: 8,
-      image: sampleImage,
-      author: 'hsmoon101',
-      title: '바닷가 근처 드라마 촬영지.zip',
-      bookmarked: true,
-    },
-  ];
+  const curations = curationsDummyData;
 
   return (
     <>
