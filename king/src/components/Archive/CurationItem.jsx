@@ -36,7 +36,7 @@ const St = {
   Item: styled.div`
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 240px;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 카드 그림자 */
     background-color: ${({ theme }) => theme.colors.White};

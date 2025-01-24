@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { curationsDummyData } from '../../assets/dummy/dummyDataArchive';
@@ -30,15 +30,17 @@ const StCurationWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: start;
-  text-align: center;
+  align-items: center;
 
-  padding: 2rem;
+  /* padding: 2rem; */
   margin-bottom: 7rem;
 `;
 
 const FixedContainer = styled.div`
-  /* position: sticky;
+  position: sticky;
   top: 0;
-  z-index: 1000; */
+  z-index: 1000;
+
+  padding-top: 2rem;
+  background-color: ${({ theme }) => theme.colors.White};
 `;

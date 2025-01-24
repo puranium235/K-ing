@@ -10,6 +10,7 @@ import {
 import ArchiveTabMenu from '../components/Archive/ArchiveTabMenu';
 import CurationsList from '../components/Archive/CurationsList';
 import FavoritesList from '../components/Archive/FavoritesList';
+import Nav from '../components/common/Nav';
 
 const ArchivePage = () => {
   const location = useLocation();
@@ -40,6 +41,7 @@ const ArchivePage = () => {
           <FavoritesList title="인물" data={favoritePeopleData} onTabChange={setActiveTab} />
         </>
       )}
+      <Nav />
     </St.Page>
   );
 };
