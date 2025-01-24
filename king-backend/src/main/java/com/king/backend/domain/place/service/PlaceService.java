@@ -26,7 +26,7 @@ public class PlaceService {
         Place place = placeRepository.findById(id)
                 .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
         List<PlaceDetailResponseDto.RelatedContent> relatedContents = place.getPlaceContents().stream()
-                .map(this::mapToRelatedContent)
+                .map(this::mapToRelatedContents)
                 .collect(Collectors.toList());
 
         return new PlaceDetailResponseDto(
@@ -48,7 +48,7 @@ public class PlaceService {
 
     }
 
-    private PlaceDetailResponseDto.RelatedContent mapToRelatedContent(PlaceContent placeContent) {
+    private PlaceDetailResponseDto.RelatedContent mapToRelatedContents(PlaceContent placeContent) {
         Content content = placeContent.getContent();
         return new PlaceDetailResponseDto.RelatedContent(
                 content.getId(),
