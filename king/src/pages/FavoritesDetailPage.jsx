@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { favoritePeopleDummyData, favoriteWorksDummyData } from '../assets/dummy/dummyDataArchive';
+import { FavoritePeopleDummyData, FavoriteWorksDummyData } from '../assets/dummy/dummyDataArchive';
 import { IcBack } from '../assets/icons';
 import FavoriteItem from '../components/Archive/FavoriteItem';
 
@@ -14,8 +14,8 @@ const FavoritesDetail = ({ type }) => {
     navigate('/archive', { state: { activeTab: 'Favorites' } });
   };
 
-  const [favoriteWorksData] = useState(favoriteWorksDummyData);
-  const [favoritePeopleData] = useState(favoritePeopleDummyData);
+  const [favoriteWorksData] = useState(FavoriteWorksDummyData);
+  const [favoritePeopleData] = useState(FavoritePeopleDummyData);
 
   const data = type === 'works' ? favoriteWorksData : favoritePeopleData;
 

@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {
-  favoritePeopleDummyData,
-  favoriteWorksDummyData,
+  FavoritePeopleDummyData,
+  FavoriteWorksDummyData,
 } from '../../assets/dummy/dummyDataArchive';
 import FavoritesList from '../Archive/FavoritesList';
 import BackButton from '../common/BackButton';
@@ -11,9 +11,9 @@ import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 
 const SearchResult = () => {
-  const contentList = favoriteWorksDummyData;
-  const celebList = favoritePeopleDummyData;
-  const placeList = favoriteWorksDummyData;
+  const contentList = FavoriteWorksDummyData;
+  const celebList = FavoritePeopleDummyData;
+  const placeList = FavoriteWorksDummyData;
 
   return (
     <>
