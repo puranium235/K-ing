@@ -9,9 +9,6 @@ CREATE TABLE messages (
     content VARCHAR(255) NOT NULL
 );
 
-INSERT INTO messages (content)
-VALUES ('테스트용데이터1');
-
 -- 1. user 테이블
 CREATE TABLE `user` (
                         `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -22,9 +19,9 @@ CREATE TABLE `user` (
                         `line_id` VARCHAR(255),
                         `created_at` DATETIME DEFAULT NOW(),
                         `description` TEXT NULL,
-                        `content_alarm_on` BOOLEAN NULL,
+                        `content_alarm_on` BOOLEAN DEFAULT TRUE,
                         `language` VARCHAR(10) NULL, -- en, ja, zh, ko 등
-                        `status` VARCHAR(10) NOT NULL, -- pending, registered, deleted
+                        `status` VARCHAR(50) NOT NULL, -- pending, registered, deleted
                         CHECK (`google_id` IS NOT NULL OR `line_id` IS NOT NULL),
                         CHECK (`status` = 'pending' OR `nickname` IS NOT NULL)
 );
@@ -282,11 +279,11 @@ CREATE TABLE `search_ranking` (
 
 -- 더미데이터
 -- 1. user 테이블
-INSERT INTO `user` (`email`, `nickname`, `image_url`, `google_id`, `line_id`, `created_at`, `description`, `content_alarm_on`, `language`, `is_deleted`)
+INSERT INTO `user` (`email`, `nickname`, `image_url`, `google_id`, `line_id`, `created_at`, `description`, `content_alarm_on`, `language`, `status`)
 VALUES
-    ('user1@example.com', 'user1', 'http://example.com/user1.jpg', 'google1', NULL, NOW(), 'Travel enthusiast.', TRUE, 'en', FALSE),
-    ('user2@example.com', 'user2', 'http://example.com/user2.jpg', NULL, 'line1', NOW(), 'Loves movies and coffee.', FALSE, 'ko', FALSE),
-    ('user3@example.com', 'user3', 'http://example.com/user3.jpg', 'google3', NULL, NOW(), 'Passionate about art.', TRUE, 'zh', FALSE),
+    ('user1@example.com', 'user1', 'http://example.com/user1.jpg', 'google1', NULL, NOW(), 'Travel enthusiast.', TRUE, 'en', 'registered1'),
+    ('user2@example.com', 'user2', 'http://example.com/user2.jpg', NULL, 'line1', NOW(), 'Loves movies and coffee.', FALSE, 'ko', 'registered'),
+    ('user3@example.com', 'user3', 'http://example.com/user3.jpg', 'google3', NULL, NOW(), 'Passionate about art.', TRUE, 'zh', 'registered'),
     ('user4@example.com', 'user4', 'http://example.com/user4.jpg', NULL, 'line2', NOW(), 'Tech geek and foodie.', FALSE, 'ja', TRUE),
     ('user5@example.com', 'user5', 'http://example.com/user5.jpg', 'google5', NULL, NOW(), 'History buff.', TRUE, 'en', FALSE);
 
@@ -320,11 +317,11 @@ VALUES
     ('2 Days 1 Night', 'A show highlighting Koreas beauty.', 3);
 
 -- 8. cast 테이블
-INSERT INTO `cast` (`name`, `image_url`, `birth_date`, `birth_place`, `participating_work`, `created_at`, `tmdb_id`)
+INSERT INTO `cast` (`image_url`, `birth_date`, `birth_place`, `participating_work`, `created_at`, `tmdb_id`)
 VALUES
-    ('한예리', 'http://example.com/hanyeri.jpg', '1990-01-01', 'Seoul, South Korea', 5, NOW(), 201),
-    ('김태호', 'http://example.com/kimtaeho.jpg', '1985-05-12', 'Busan, South Korea', 3, NOW(), 202),
-    ('조인성', 'http://example.com/joinseong.jpg', '1981-07-28', 'Seoul, South Korea', 10, NOW(), 203);
+    ('http://example.com/hanyeri.jpg', '1990-01-01', 'Seoul, South Korea', 5, NOW(), 201),
+    ('http://example.com/kimtaeho.jpg', '1985-05-12', 'Busan, South Korea', 3, NOW(), 202),
+    ('http://example.com/joinseong.jpg', '1981-07-28', 'Seoul, South Korea', 10, NOW(), 203);
 
 -- 9. cast_ko 테이블
 INSERT INTO `cast_ko` (`name`, `cast_id`)

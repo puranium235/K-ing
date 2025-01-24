@@ -22,7 +22,6 @@ public class PlaceDetailResponseDto {
     private Double lat;
     private Double lng;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private String placeImage;
     private List<AdditionalInfo> additionalInfo;
 
