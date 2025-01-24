@@ -45,34 +45,42 @@ const St = {
     flex-direction: column;
   `,
   Header: styled.header`
-    position: sticky;
-    top: 0;
+    /* position: sticky; */
+    /* top: 0; */
     background-color: ${({ theme }) => theme.colors.White};
     z-index: 10;
-    padding: 20px;
+
+    padding: 2rem 2rem 0 2rem;
     color: ${({ theme }) => theme.colors.Gray0};
     ${({ theme }) => theme.fonts.Title4};
   `,
   Title: styled.div`
     ${({ theme }) => theme.fonts.Title6};
     font-weight: bold;
-    padding: 0em 20px;
     display: flex;
     align-items: center;
 
-    position: sticky;
-    top: 66.21px;
+    padding: 1rem 2rem 1rem 2rem;
+
+    /* position: sticky; */
+    /* top: 66.21px; */
     background-color: ${({ theme }) => theme.colors.White};
     z-index: 9;
-    height: 40px;
-    line-height: 60px;
+    /* height: 40px; */
+    /* line-height: 60px; */
   `,
   List: styled.div`
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.1rem;
+    gap: 0.5rem;
     overflow-y: auto;
-    padding: 0 0.5rem;
+    padding: 0 1rem;
+
+    height: calc(100vh - 10rem);
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   `,
   Icon: styled.div`
     padding: 0.7em 0.5em 0 0;

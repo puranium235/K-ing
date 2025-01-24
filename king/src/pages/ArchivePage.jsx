@@ -59,7 +59,7 @@ const St = {
     top: 0;
     background-color: ${({ theme }) => theme.colors.White};
     z-index: 10;
-    padding: 20px;
+    padding: 2rem;
     color: ${({ theme }) => theme.colors.Gray0};
     ${({ theme }) => theme.fonts.Title4};
   `,
