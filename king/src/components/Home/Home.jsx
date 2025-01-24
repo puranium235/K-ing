@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -14,6 +15,8 @@ import PlaceCard from './PlaceCard';
 
 const Home = () => {
   const [activeButton, setActiveButton] = useState('실시간');
+  const [currentRankSet, setCurrentRankSet] = useState(0);
+
   const navigate = useNavigate();
 
   const genreIcons = [
@@ -23,20 +26,41 @@ const Home = () => {
     { icon: IcCeleb, label: '연예인', link: '/celebs' },
   ];
 
-  const handleSearch = () => {
-    // // 검색 유형이 선택되고 키워드도 있는 경우
-    // if (type && keyword) {
-    //   navigate(`/search/results?type=${type}&keyword=${keyword}`);
-    // }
-    // // 검색 유형이 선택되지 않고 키워드만 있는 경우
-    // else if (keyword) {
-    //   navigate(`/search/keyword?keyword=${keyword}`);
-    // }
-  };
-
   const carouselList = curationsDummyData;
 
   const cardsData = placeDummyData;
+
+  const rankingsData = [
+    '눈물의 여왕',
+    '부산',
+    'BTS',
+    '놀라운 토요일',
+    '변우석',
+    '제주도',
+    '로제',
+    '나의 완벽한 비서',
+  ];
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentRankSet((prev) => (prev === 0 ? 1 : 0)); // 0이면 1로, 1이면 0으로 토글
+    }, 3000);
+
+    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 정리
+  }, []);
+
+  const displayedRankings = rankingsData.slice(currentRankSet * 4, currentRankSet * 4 + 4);
+
+  const handleSearch = () => {
+    // // 검색 유형이 선택되고 키워드도 있는 경우
+    // if (type && keyword) {
+    //   navigate(/search/results?type=${type}&keyword=${keyword});
+    // }
+    // // 검색 유형이 선택되지 않고 키워드만 있는 경우
+    // else if (keyword) {
+    //   navigate(/search/keyword?keyword=${keyword});
+    // }
+  };
 
   return (
     <>
@@ -68,10 +92,11 @@ const Home = () => {
             </FilterControls>
           </div>
           <div className="rankings">
-            <p>1. 눈물의 여왕</p>
-            <p>2. 부산</p>
-            <p>3. BTS</p>
-            <p>4. 놀라운 토요일</p>
+            {displayedRankings.map((rank, index) => (
+              <p key={index}>
+                {index + 1 + currentRankSet * 4}. {rank}
+              </p>
+            ))}
           </div>
         </TrendingKeyword>
         <CurationWrapper>
@@ -108,7 +133,6 @@ const StHomeWrapper = styled.div`
   padding: 2rem;
   margin-bottom: 7rem;
 `;
-
 const GenreWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -116,37 +140,6 @@ const GenreWrapper = styled.div`
 
   width: 100%;
 `;
-
-const IconWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-
-  & > p {
-    ${({ theme }) => theme.fonts.Title7}
-  }
-`;
-
-const Icons = styled.button`
-  width: 80%;
-  aspect-ratio: 1/1;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin: 1rem 0;
-  border-radius: 16px;
-  background-color: ${({ theme }) => theme.colors.Beige};
-
-  svg {
-    width: 70%;
-    height: 70%;
-  }
-`;
-
 const TrendingKeyword = styled.div`
   display: flex;
   flex-direction: column;
@@ -197,11 +190,9 @@ const TrendingKeyword = styled.div`
     }
   }
 `;
-
 const FilterControls = styled.div`
   display: flex;
 `;
-
 const StyledButton = styled.button`
   padding: 5px 10px;
   border-radius: 70px;
@@ -209,7 +200,6 @@ const StyledButton = styled.button`
   background-color: ${({ $active }) => ($active ? '#D0E3FF' : '')};
   color: ${({ theme }) => theme.colors.Navy};
 `;
-
 const CurationWrapper = styled.div`
   & > h3 {
     text-align: left;
@@ -221,10 +211,21 @@ const CurationWrapper = styled.div`
     }
   }
 `;
-
 const CardContainer = styled.div`
+  display: flex;
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  flex-wrap: nowrap;
+  overflow-x: scroll;
+
   gap: 1rem;
+
+  padding: 0.5rem 0;
+
+  & > * {
+    flex: 0 0 50%; // 최대 50% 차지
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
