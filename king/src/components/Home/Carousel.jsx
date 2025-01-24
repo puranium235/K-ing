@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+import React, { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 
 const Carousel = ({ carouselList }) => {
   const [currIndex, setCurrIndex] = useState(1);
   const [currList, setCurrList] = useState([]);
   const carouselRef = useRef(null);
 
+  // 초기 데이터 설정
   useEffect(() => {
     if (carouselList.length) {
       const startData = carouselList[carouselList.length - 1];
@@ -15,34 +16,37 @@ const Carousel = ({ carouselList }) => {
     }
   }, [carouselList]);
 
+  // 자동 슬라이딩 로직
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrIndex((prevIndex) => (prevIndex === currList.length - 2 ? 1 : prevIndex + 1));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [currList]);
+
   useEffect(() => {
     const handleTransitionEnd = () => {
       if (currIndex === 0) {
-        carouselRef.current.style.transition = "none";
+        carouselRef.current.style.transition = 'none';
         setCurrIndex(carouselList.length);
         carouselRef.current.style.transform = `translateX(-${carouselList.length * 100}%)`;
       } else if (currIndex === carouselList.length + 1) {
-        carouselRef.current.style.transition = "none";
+        carouselRef.current.style.transition = 'none';
         setCurrIndex(1);
         carouselRef.current.style.transform = `translateX(-100%)`;
       }
     };
 
     if (carouselRef.current) {
-      carouselRef.current.style.transition = "transform 0.5s ease-in-out";
+      carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
       carouselRef.current.style.transform = `translateX(-${currIndex * 100}%)`;
-      carouselRef.current.addEventListener(
-        "transitionend",
-        handleTransitionEnd
-      );
+      carouselRef.current.addEventListener('transitionend', handleTransitionEnd);
     }
 
     return () => {
       if (carouselRef.current) {
-        carouselRef.current.removeEventListener(
-          "transitionend",
-          handleTransitionEnd
-        );
+        carouselRef.current.removeEventListener('transitionend', handleTransitionEnd);
       }
     };
   }, [currIndex, carouselList.length]);
@@ -67,12 +71,12 @@ const Carousel = ({ carouselList }) => {
       } else if (touchEndX - startX > threshold) {
         handleSwipe(-1);
       }
-      document.removeEventListener("touchmove", move);
-      document.removeEventListener("touchend", end);
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('touchend', end);
     };
 
-    document.addEventListener("touchmove", move);
-    document.addEventListener("touchend", end);
+    document.addEventListener('touchmove', move);
+    document.addEventListener('touchend', end);
   };
 
   const handleTouchStart = (e) => {
@@ -87,7 +91,7 @@ const Carousel = ({ carouselList }) => {
           {currList.map((item, idx) => (
             <CarouselItem key={`${item.image}-${idx}`}>
               <img src={item.image} alt="carousel-img" />
-              <p>{item.text}</p>
+              <p>{item.title}</p>
             </CarouselItem>
           ))}
         </CarouselList>
@@ -103,6 +107,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
+  margin: 1rem 0;
 `;
 
 const CarouselWrapper = styled.div`
@@ -120,19 +125,27 @@ const CarouselItem = styled.li`
   display: flex;
   align-items: center;
   justify-content: center;
-
   position: relative;
   flex: none;
   width: 100%;
   height: 186px;
   overflow: hidden;
-
   border-radius: 20px;
 
   img {
     width: 100%;
-    height: 100%;
     object-fit: cover;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1;
   }
 
   p {
@@ -140,10 +153,9 @@ const CarouselItem = styled.li`
     bottom: 10px;
     left: 10px;
     color: white;
-    background-color: rgba(0, 0, 0, 0.5);
     padding: 5px 10px;
     border-radius: 5px;
-    ${({ theme }) => theme.fonts.Body2}
-    z-index: 1;
+    ${({ theme }) => theme.fonts.Title6}
+    z-index: 2;
   }
 `;

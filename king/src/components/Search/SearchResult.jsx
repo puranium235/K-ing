@@ -18,11 +18,13 @@ const SearchResult = () => {
   return (
     <>
       <StHomeWrapper>
-        <IconText>
-          <BackButton />
-          <h3> 통합검색</h3>
-        </IconText>
-        <SearchBar />
+        <Header>
+          <IconText>
+            <BackButton />
+            <h3> 통합검색</h3>
+          </IconText>
+          <SearchBar />
+        </Header>
         <ResultWrapper>
           <FavoritesList title="작품" data={contentList} />
           <FavoritesList title="인물" data={celebList} />
@@ -43,8 +45,15 @@ const StHomeWrapper = styled.div`
   align-items: start;
   text-align: center;
 
-  padding: 2rem;
+  /* width: 100%; */
+  /* padding: 2rem; */
   margin-bottom: 7rem;
+`;
+
+const Header = styled.div`
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2rem 2rem 0 2rem;
 `;
 
 const IconText = styled.div`
@@ -63,6 +72,6 @@ const IconText = styled.div`
 `;
 
 const ResultWrapper = styled.div`
-  width: 100%;
-  padding: 1rem 0;
+  margin: 0 1rem;
+  /* width: 100%; */
 `;

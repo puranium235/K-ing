@@ -45,8 +45,6 @@ export default FavoritesItem;
 const St = {
   Item: styled.div`
     position: relative;
-    /* width: 120px; */
-    width: 100%;
     height: 180px;
     flex-shrink: 0;
     background-color: ${({ theme }) => theme.colors.White};

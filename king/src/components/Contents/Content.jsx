@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { DramaDummyData } from '../../assets/dummy/dummyDataContents';
 import { IcStar } from '../../assets/icons';
+import { ContentType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 
 const Drama = () => {
   const dramas = DramaDummyData;
+  const [contentType, setContentType] = useRecoilState(ContentType);
 
   const navigate = useNavigate();
 
@@ -22,7 +25,7 @@ const Drama = () => {
       <StHomeWrapper>
         <IconText>
           <BackButton />
-          <h3> 드라마</h3>
+          <h3> {contentType}</h3>
         </IconText>
         <SearchBar />
         <GridContainer>

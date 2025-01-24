@@ -1,14 +1,8 @@
-import React from "react";
-import styled from "styled-components";
-
-import Home from "../components/Home/Home";
+import React from 'react';
+import styled from 'styled-components';
 
 const MyPage = () => {
-  return (
-    <>
-      <Home />
-    </>
-  );
+  return <>마이페이지</>;
 };
 
 export default MyPage;

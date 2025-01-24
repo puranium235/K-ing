@@ -70,15 +70,13 @@ const St = {
     flex-direction: column;
     gap: 16px;
 
-    width: 100%;
-    margin-bottom: 2rem;
-    /* padding: 16px; */
+    /* margin-bottom: 2rem; */
+    padding: 16px;
   `,
   Header: styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
   `,
   Left: styled.div`
     display: flex;
@@ -136,7 +134,7 @@ const St = {
     border: none;
     color: ${({ theme }) => theme.colors.Gray0};
     cursor: pointer;
-    min-width: 60px; /* 버튼 최소 너비 */
+    min-width: 60px;
     text-align: center; /* 텍스트 가운데 정렬 */
     text-decoration: none;
     gap: 4px; /* 텍스트와 아이콘 간 간격 */
