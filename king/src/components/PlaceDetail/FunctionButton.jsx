@@ -36,13 +36,13 @@ const FunctionButton = () => {
       {/* 길찾기 모달 */}
       <DeepLinkModal isModalVisible={isDeepLinkModalVisible} onClick={closeDeepLinkModal} />
 
-      <ShareButton onClick={openShareModal}>
+      {/* <ShareButton onClick={openShareModal}>
         <img src={ShareIcon} alt="Share" />
         공유
-      </ShareButton>
+      </ShareButton> */}
 
       {/* 공유 모달 */}
-      <ShareModal isModalVisible={isShareModalVisible} onClick={closeShareModal} />
+      {/* <ShareModal isModalVisible={isShareModalVisible} onClick={closeShareModal} /> */}
     </ButtonContainer>
   );
 };

@@ -1,9 +1,9 @@
 import React from 'react';
 
-import MapSearchPlaces from '../components/Map/MapSearchPlaces';
+import MapCurationPlaces from '../components/Map/MapCurationPlaces';
 
 const CurationDetailPage = () => {
-  return <MapSearchPlaces />;
+  return <MapCurationPlaces />;
 };
 
 export default CurationDetailPage;

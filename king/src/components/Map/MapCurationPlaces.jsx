@@ -1,63 +1,75 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import DummyData from '../../assets/dummy/dummyData';
+import UpIcon from '../../assets/icons/up.png';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
-import FilterButtons from './FilterButtons';
+import ContentsInfo from '../PlaceDetail/ContentsInfo';
+import FunctionButton from '../PlaceDetail/FunctionButton';
+import PlaceInfo from '../PlaceDetail/PlaceInfo';
 import GoogleMapView from './GoogleMapView';
-import ListItem from './ListItem';
 
 const MapCurationPlaces = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeFilter, setActiveFilter] = useState(null);
-
-  const filters = ['식당', '카페', '관광', '상점', '숙박'];
-
-  const filterToTypeMap = {
-    식당: 'restaurant',
-    카페: 'cafe',
-    관광: 'playground',
-    상점: 'store',
-    숙박: 'stay',
-  };
+  const { curationId } = useParams();
+  const [places, setPlaces] = useState(DummyData);
 
   const toggleBox = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const handleFilterChange = (filter) => {
-    setActiveFilter((prevFilter) => (prevFilter === filter ? null : filter));
-  };
+  const [placeId, setPlaceId] = useState(places[0].placeId);
+  const [placeData, setPlaceData] = useState(null);
 
-  // 필터링된 장소 데이터
-  const filteredPlaces = activeFilter
-    ? DummyData.filter((place) => place.type === filterToTypeMap[activeFilter])
-    : DummyData;
+  useEffect(() => {
+    const fetchPlaceData = () => {
+      const data = places.find((place) => place.placeId === parseInt(placeId));
+      setPlaceData(data);
+    };
+
+    fetchPlaceData();
+  }, [placeId]);
+
+  if (!placeData) {
+    return <Container>Loading...</Container>;
+  }
+
+  const { name, placeImage } = placeData;
+
+  const handleMarkerClick = (placeId) => {
+    setPlaceId(placeId);
+  };
 
   return (
     <Container>
       {/* Map Section */}
       <MapSection>
-        <GoogleMapView places={filteredPlaces} />
+        <GoogleMapView places={places} isSearch={false} onMarkerClick={handleMarkerClick} />
       </MapSection>
 
       {/* Content Section */}
       <ContentSection $isExpanded={isExpanded}>
-        <SlideBar onClick={toggleBox} />
-        <FilterContainer>
-          <FilterButtons
-            filters={filters}
-            activeFilter={activeFilter}
-            onFilterChange={handleFilterChange}
-          />
-        </FilterContainer>
+        <UpButton onClick={toggleBox}>
+          <img src={UpIcon} />
+        </UpButton>
 
-        <ListContainer>
-          {filteredPlaces.map((place) => (
-            <ListItem key={place.placeId} {...place} />
+        <Content>
+          <Title>{name}</Title>
+
+          {placeImage && <Image src={placeImage} alt={name} />}
+          {/* 장소 관련 작품 정보 */}
+          {placeData.additionalInfo.map((info) => (
+            <ContentsInfo key={info.contentId} info={info} />
           ))}
-        </ListContainer>
+
+          {/* 길찾기, 공유 버튼 */}
+          <FunctionButton />
+
+          {/* 장소 상세 정보 */}
+          <PlaceInfo placeData={placeData} />
+        </Content>
       </ContentSection>
 
       <CloseButton />
@@ -90,13 +102,19 @@ const SlideBar = styled.div`
   cursor: pointer;
 `;
 
-const FilterContainer = styled.div`
-  padding: 1px 20px;
-  position: relative;
-  height: 40px;
+const UpButton = styled.button`
+  border: none;
+  margin: 10px auto;
+  margin-bottom: 20px;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  img {
+    width: 60px;
+    height: 20px;
+  }
 `;
 
 const ContentSection = styled.div`
@@ -112,19 +130,28 @@ const ContentSection = styled.div`
   z-index: 1001;
 `;
 
-const ListContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  background-color: #f2f2f2;
+const Content = styled.div`
+  padding: 10px 20px;
+  position: relative;
+`;
 
-  & > div:first-child {
-    padding: 25px;
-    display: flex;
-    flex-direction: column;
-    background-color: #fff;
-    border-radius: 0px 0px 14px 14px;
+const Title = styled.div`
+  ${({ theme }) => theme.fonts.Title3};
+  white-space: nowrap;
+  overflow-x: auto; /* 캐러셀 효과 */
+  scrollbar-width: none; /* 스크롤바 제거 (Firefox) */
+  -ms-overflow-style: none; /* 스크롤바 제거 (IE/Edge) */
+
+  &::-webkit-scrollbar {
+    display: none; /* 스크롤바 제거 (Chrome/Safari) */
   }
+`;
+
+const Image = styled.img`
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 20px 0px;
 `;
 
 export default MapCurationPlaces;

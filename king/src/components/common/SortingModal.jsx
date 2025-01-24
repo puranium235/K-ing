@@ -16,15 +16,19 @@ const closeModal = () => {
 <SortingModal isModalVisible={isModalVisible} onClick={closeModal} />
 */
 
-const SortingModal = ({ isModalVisible, onClick }) => {
+const SortingModal = ({ isModalVisible, onCloseClick, onOptionClick }) => {
+  const options = ['인기순', '가나다순', '최신순'];
+
   return (
     <>
-      <ModalBackground $isVisible={isModalVisible} onClick={onClick} />
+      <ModalBackground $isVisible={isModalVisible} onClick={onCloseClick} />
 
       <ModalContainer $isVisible={isModalVisible}>
-        <OptionButton>인기순</OptionButton>
-        <OptionButton>가나다순</OptionButton>
-        <OptionButton>최신순</OptionButton>
+        {options.map((option) => (
+          <OptionButton key={option} onClick={() => onOptionClick(option)}>
+            {option}
+          </OptionButton>
+        ))}
       </ModalContainer>
     </>
   );

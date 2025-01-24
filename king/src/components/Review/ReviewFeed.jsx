@@ -5,9 +5,25 @@ import styled from 'styled-components';
 import Nav from '../../components/common/Nav';
 import Header from '../common/Header';
 import SortingRow from '../common/SortingRow';
+import ImageGrid from './ImageGrid';
 
 const ReviewFeed = () => {
   const { placeId } = useParams();
+
+  const images = [
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+    '/src/assets/dummy/place.png',
+  ];
+
   return (
     <>
       <Header title={'Review Title'} isOption={false} />
@@ -16,8 +32,7 @@ const ReviewFeed = () => {
         <SortingRow />
       </LineContainer>
 
-      {/* 사진 그리드 */}
-      <Title>여기에 장소ID {placeId} 에 해당하는 인증샷 게시글이 다 보여야 함</Title>
+      <ImageGrid images={images} />
       <Nav />
     </>
   );

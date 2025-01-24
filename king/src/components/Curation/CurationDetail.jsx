@@ -26,7 +26,7 @@ const CurationDetail = () => {
   };
 
   const handleRoute = () => {
-    navigate(`/curation/map`);
+    navigate(`/curation/map/${curationId}`);
   };
 
   return (
