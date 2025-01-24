@@ -62,3 +62,7 @@ const St = {
     ${({ theme }) => theme.fonts.Title4};
   `,
 };
+
+const ListWrapper = styled.div`
+  padding: 16px;
+`;

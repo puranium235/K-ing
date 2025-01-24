@@ -2,7 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import sampleImage from '../../assets/dummy/curationimg.png';
+import { PostsDummyData } from '../../assets/dummy/dummyDataPosts';
 import { IcOne, IcTwo } from '../../assets/icons';
 import Nav from '../common/Nav';
 import TopNav from '../common/TopNav';
@@ -15,80 +15,7 @@ const Feed = () => {
     setColumns(num);
   };
 
-  const posts = [
-    {
-      id: 1,
-      image: sampleImage,
-      author: 'k-ing_Official',
-      title: 'BTS 뮤비 촬영지 드디어 왔다.!!! 생각보다 별거없네ㅠㅜ ㅋㅋㅋㅋ',
-      date: '24.01.07',
-      likes: 30,
-      comments: 12,
-    },
-    {
-      id: 2,
-      image: sampleImage,
-      author: 'k-ing_Official',
-      title: 'BTS 뮤비 촬영지 드디어 왔다.!!! 생각보다 별거없네ㅠㅜ ㅋㅋㅋㅋ',
-      date: '24.01.07',
-      likes: 30,
-      comments: 12,
-    },
-    {
-      id: 3,
-      image: sampleImage,
-      author: 'k-ing_Official',
-      title: 'BTS 뮤비 촬영지 드디어 왔다.!!! 생각보다 별거없네ㅠㅜ ㅋㅋㅋㅋ',
-      date: '24.01.07',
-      likes: 30,
-      comments: 12,
-    },
-    {
-      id: 4,
-      image: sampleImage,
-      author: 'k-ing_Official',
-      title: 'BTS 뮤비 촬영지 드디어 왔다.!!! 생각보다 별거없네ㅠㅜ ㅋㅋㅋㅋ',
-      date: '24.01.07',
-      likes: 30,
-      comments: 12,
-    },
-    {
-      id: 5,
-      image: sampleImage,
-      author: 'k-ing_Official',
-      title: 'BTS 뮤비 촬영지 드디어 왔다.!!! 생각보다 별거없네ㅠㅜ ㅋㅋㅋㅋ',
-      date: '24.01.07',
-      likes: 30,
-      comments: 12,
-    },
-    {
-      id: 6,
-      image: sampleImage,
-      author: 'k-ing_Official',
-      title: 'BTS 뮤비 촬영지 드디어 왔다.!!! 생각보다 별거없네ㅠㅜ ㅋㅋㅋㅋ',
-      date: '24.01.07',
-      likes: 30,
-      comments: 12,
-    },
-    {
-      id: 7,
-      image: sampleImage,
-      author: 'k-ing_Official',
-      title: 'BTS 뮤비 촬영지 드디어 왔다.!!! 생각보다 별거없네ㅠㅜ ㅋㅋㅋㅋ',
-      date: '24.01.07',
-      likes: 30,
-      comments: 12,
-    },
-    {
-      id: 8,
-      image: sampleImage,
-      author: 'k-ing_Official',
-      title: 'BTS 뮤비 촬영지 드디어 왔다.!!! 생각보다 별거없네ㅠㅜ ㅋㅋㅋㅋ',
-      date: '24.01.07',
-      likes: 30,
-      comments: 12,
-    },
-  ];
+  const posts = PostsDummyData;
 
   return (
     <>

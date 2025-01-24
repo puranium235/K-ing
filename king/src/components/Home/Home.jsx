@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import curationImg from '../../assets/dummy/curation.png';
+import { placeDummyData } from '../../assets/dummy/dummyDataPlace';
 import { IcCeleb, IcDrama, IcMovie, IcShow } from '../../assets/icons';
+import FavoritesList from '../Archive/FavoritesList';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
@@ -13,6 +15,17 @@ import PlaceCard from './PlaceCard';
 const Home = () => {
   const [activeButton, setActiveButton] = useState('');
   const navigate = useNavigate();
+
+  const handleSearch = () => {
+    // // 검색 유형이 선택되고 키워드도 있는 경우
+    // if (type && keyword) {
+    //   navigate(`/search/results?type=${type}&keyword=${keyword}`);
+    // }
+    // // 검색 유형이 선택되지 않고 키워드만 있는 경우
+    // else if (keyword) {
+    //   navigate(`/search/keyword?keyword=${keyword}`);
+    // }
+  };
 
   const carouselList = [
     {
@@ -29,18 +42,7 @@ const Home = () => {
     },
   ];
 
-  const cardsData = [
-    {
-      image: '/src/assets/dummy/place1.png',
-      title: '내음새 마을관광',
-      description: '자연 속 용문리 마을관광',
-    },
-    {
-      image: '/src/assets/dummy/place2.png',
-      title: '사유원',
-      description: '피크닉의 쉬는터',
-    },
-  ];
+  const cardsData = placeDummyData;
 
   return (
     <>
@@ -76,7 +78,7 @@ const Home = () => {
             <p>연예인</p>
           </IconWrapper>
         </GenreWrapper>
-        <SearchBar />
+        <SearchBar onClick={handleSearch} />
         <TrendingKeyword>
           <h3>
             트렌딩 검색어 <span>TOP 8</span>
@@ -176,8 +178,8 @@ const CurationPreview = styled.div`
 `;
 
 const GenreWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
 
   & > div {
@@ -285,7 +287,8 @@ const CurationWrapper = styled.div`
 `;
 
 const CardContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 `;

@@ -65,6 +65,7 @@ export const curationsDummyData = [
     bookmarked: true,
   },
 ];
+
 export const favoriteWorksDummyData = [
   { id: 1, image: sampleImage, title: '검은 사제들', bookmarked: false },
   { id: 2, image: sampleImage, title: '1987', bookmarked: true },
