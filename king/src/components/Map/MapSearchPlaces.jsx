@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import DummyData from '../../assets/dummy/dummyData';
+import UpIcon from '../../assets/icons/up.png';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
 import FilterButtons from './FilterButtons';
@@ -43,7 +44,10 @@ const MapSearchPlaces = () => {
 
       {/* Content Section */}
       <ContentSection $isExpanded={isExpanded}>
-        <SlideBar onClick={toggleBox} />
+        <UpButton onClick={toggleBox}>
+          <img src={UpIcon} />
+        </UpButton>
+
         <FilterContainer>
           <FilterButtons
             filters={filters}
@@ -86,6 +90,21 @@ const SlideBar = styled.div`
   margin: 10px auto;
   margin-bottom: 20px;
   cursor: pointer;
+`;
+
+const UpButton = styled.button`
+  border: none;
+  margin: 10px auto;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  img {
+    width: 60px;
+    height: 20px;
+  }
 `;
 
 const FilterContainer = styled.div`

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import DummyData from '../../assets/dummy/dummyData';
+import UpIcon from '../../assets/icons/up.png';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
 import ContentsInfo from '../PlaceDetail/ContentsInfo';
@@ -50,7 +51,9 @@ const MapCurationPlaces = () => {
 
       {/* Content Section */}
       <ContentSection $isExpanded={isExpanded}>
-        <SlideBar onClick={toggleBox} />
+        <UpButton onClick={toggleBox}>
+          <img src={UpIcon} />
+        </UpButton>
 
         <Content>
           <Title>{name}</Title>
@@ -97,6 +100,21 @@ const SlideBar = styled.div`
   margin: 10px auto;
   margin-bottom: 20px;
   cursor: pointer;
+`;
+
+const UpButton = styled.button`
+  border: none;
+  margin: 10px auto;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  img {
+    width: 60px;
+    height: 20px;
+  }
 `;
 
 const ContentSection = styled.div`
