@@ -1,38 +1,31 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 
-const ArchiveTabMenu = ({ onTabChange }) => {
-  const [activeTab, setActiveTab] = useState("Curations");
+import { IcArchiveBox } from '../../assets/icons';
+import { IcStar2 } from '../../assets/icons';
 
-  const handleTabClick = tab => {
+const ArchiveTabMenu = ({ activeTab, onTabChange }) => {
+  const handleTabClick = (tab) => {
     console.log(`Tab clicked: ${tab}`); // 클릭 확인
-    setActiveTab(tab);
     onTabChange(tab);
-
-    if (tab === "Curations") {
-      const scrollableElement = document.querySelector(".scrollable-container");
-      if (scrollableElement) {
-        console.log("Scrolling to top"); // 스크롤 확인
-        scrollableElement.scrollTo({
-          top: 0,
-          behavior: "smooth", // 부드러운 스크롤
-        });
-      }
-    }
   };
 
-  const tabs = ["Curations", "Favorites"];
-  const activeIndex = tabs.indexOf(activeTab);
+  const tabs = [
+    { id: 'Curations', label: 'Curations', icon: <IcArchiveBox /> },
+    { id: 'Favorites', label: 'Favorites', icon: <IcStar2 /> },
+  ];
+  const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
 
   return (
     <St.TabMenu>
-      {tabs.map((tab, index) => (
+      {tabs.map((tab) => (
         <St.TabButton
-          key={tab}
-          isActive={activeTab === tab} // 활성화 상태 전달
-          onClick={() => handleTabClick(tab)}
+          key={tab.id}
+          isActive={activeTab === tab.id} // 활성화 상태 전달
+          onClick={() => handleTabClick(tab.id)}
         >
-          {tab}
+          <St.IconWrapper>{tab.icon}</St.IconWrapper>
+          <St.Label>{tab.label}</St.Label>
         </St.TabButton>
       ))}
       <St.Slider activeIndex={activeIndex} />
@@ -50,23 +43,36 @@ const St = {
     border-bottom: 1px solid ${({ theme }) => theme.colors.Gray2};
   `,
   TabButton: styled.button.withConfig({
-    shouldForwardProp: prop => prop !== "isActive", // isActive를 DOM에 전달하지 않음
+    shouldForwardProp: (prop) => prop !== 'isActive', // isActive를 DOM에 전달하지 않음
   })`
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 8px 0;
     border: none;
     background: none;
     cursor: pointer;
-    font-size: 18px;
     text-align: center;
+    ${({ theme }) => theme.fonts.Body1};
 
     /* 활성화 상태에 따른 스타일 */
-    font-weight: ${({ isActive }) => (isActive ? "bold" : "normal")};
-    color: ${({ theme, isActive }) =>
-      isActive ? theme.colors.Gray0 : theme.colors.Gray3};
+    font-weight: ${({ isActive }) => (isActive ? 'bold' : 'normal')};
+    color: ${({ theme, isActive }) => (isActive ? theme.colors.Gray0 : theme.colors.Gray3)};
   `,
+  IconWrapper: styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 4px; /* 아이콘과 텍스트 간격 */
+    svg {
+      width: 20px; /* 아이콘 크기 */
+      height: 20px;
+    }
+  `,
+  Label: styled.span``,
   Slider: styled.div.withConfig({
-    shouldForwardProp: prop => prop !== "activeIndex", // activeIndex를 DOM에 전달하지 않음
+    shouldForwardProp: (prop) => prop !== 'activeIndex', // activeIndex를 DOM에 전달하지 않음
   })`
     position: absolute;
     bottom: 0;

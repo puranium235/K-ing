@@ -1,25 +1,31 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { favoritePeopleDummyData, favoriteWorksDummyData } from '../assets/dummy/dummyDataArchive';
-import ArchiveTabMenu from '../components/Archive/ArchiveTabMenu';
+import { IcBack } from '../assets/icons';
 import FavoriteItem from '../components/Archive/FavoriteItem';
+
 const FavoritesDetail = ({ type }) => {
-  const location = useLocation();
+  const navigate = useNavigate();
 
-  // dummy data (assets/dummy/dummyDataArchive.js)
-  const [favoriteWorksData, setFavoriteWorksData] = useState(favoriteWorksDummyData);
-  const [favoritePeopleData, setFavoritePeopleData] = useState(favoritePeopleDummyData);
+  const handleBackClick = () => {
+    // 뒤로가기 시 activeTab을 Favorites로 설정
+    navigate('/archive', { state: { activeTab: 'Favorites' } });
+  };
 
-  // Data 선택
+  const [favoriteWorksData] = useState(favoriteWorksDummyData);
+  const [favoritePeopleData] = useState(favoritePeopleDummyData);
+
   const data = type === 'works' ? favoriteWorksData : favoritePeopleData;
 
   return (
     <St.Page>
       <St.Header>Archive</St.Header>
       <St.Title>
-        {'< '}
+        <St.Icon onClick={handleBackClick}>
+          <IcBack />
+        </St.Icon>
         {type === 'works' ? '작품' : '인물'} 전체보기
       </St.Title>
       <St.List>
@@ -33,48 +39,42 @@ const FavoritesDetail = ({ type }) => {
 
 export default FavoritesDetail;
 
-const StFavoritesDetailPageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-
-  padding: 2rem;
-  margin-bottom: 7rem;
-
-  h3 {
-    width: 100%;
-    padding: 1rem 2rem;
-    text-align: left;
-    ${({ theme }) => theme.fonts.Title3};
-  }
-`;
-
 const St = {
   Page: styled.div`
-    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
   `,
   Header: styled.header`
     position: sticky;
     top: 0;
     background-color: ${({ theme }) => theme.colors.White};
-    padding: 10px;
+    z-index: 10;
+    padding: 20px;
     color: ${({ theme }) => theme.colors.Gray0};
-    ${({ theme }) => theme.fonts.Title5};
+    ${({ theme }) => theme.fonts.Title4};
   `,
-  Title: styled.h1`
-    ${({ theme }) => theme.fonts.Title};
+  Title: styled.div`
+    ${({ theme }) => theme.fonts.Title6};
     font-weight: bold;
+    padding: 0em 20px;
+    display: flex;
+    align-items: center;
+
+    position: sticky;
+    top: 66.21px;
+    background-color: ${({ theme }) => theme.colors.White};
+    z-index: 9;
+    height: 40px;
+    line-height: 60px;
   `,
   List: styled.div`
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 한 줄에 3개 */
-    gap: 1px; /* 아이템 간격 */
-    justify-items: center; /* 아이템을 가운데 정렬 */
-    align-items: center; /* 수직으로도 정렬 */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.1rem;
+    overflow-y: auto;
+    padding: 0 0.5rem;
+  `,
+  Icon: styled.div`
+    padding: 0.7em 0.5em 0 0;
   `,
 };
