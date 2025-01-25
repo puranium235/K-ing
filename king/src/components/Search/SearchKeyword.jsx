@@ -40,6 +40,8 @@ const SearchKeyword = () => {
     navigate(`/map`);
   };
 
+  const handleScrollUp = () => {};
+
   return (
     <>
       <StHomeWrapper>
@@ -70,6 +72,10 @@ const SearchKeyword = () => {
             <PlaceCard key={card.id} place={card} />
           ))}
         </ResultWrapper>
+        {/* 위로 화살표로 변경 */}
+        <UpButton onClick={handleScrollUp}>
+          <img src="/src/assets/icons/map.png" alt="map" />
+        </UpButton>
         <Nav />
       </StHomeWrapper>
     </>
@@ -139,5 +145,33 @@ const ResultWrapper = styled.div`
   overflow-y: auto;
   &::-webkit-scrollbar {
     display: none;
+  }
+`;
+
+const UpButton = styled.button`
+  position: absolute;
+  bottom: 9rem;
+  right: 20px;
+  background-color: #fff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  z-index: 1000;
+
+  &:hover {
+    background-color: #ccc;
+  }
+
+  img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
   }
 `;

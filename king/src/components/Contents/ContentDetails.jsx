@@ -1,10 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcMarker, IcStar } from '../../assets/icons';
 import BackButton from '../common/BackButton';
 
 const ContentDetails = () => {
+  const navigate = useNavigate();
+
+  const handleClickPlaceInfo = () => {
+    navigate(`/search/keyword`);
+  };
+
   return (
     <DramaPageContainer>
       <IconText>
@@ -60,7 +67,7 @@ const ContentDetails = () => {
           <p>유인나</p>
         </CastMember>
       </CastGrid>
-      <ActionButton>
+      <ActionButton onClick={handleClickPlaceInfo}>
         <IcMarker />
         <p>촬영지 알아보기</p>
       </ActionButton>
