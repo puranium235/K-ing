@@ -51,6 +51,10 @@ const Home = () => {
 
   const displayedRankings = rankingsData.slice(currentRankSet * 4, currentRankSet * 4 + 4);
 
+  const handleClickSearch = (id) => {
+    navigate(`/place/${id}`);
+  };
+
   const handleSearch = () => {
     // // 검색 유형이 선택되고 키워드도 있는 경우
     // if (type && keyword) {
@@ -60,6 +64,11 @@ const Home = () => {
     // else if (keyword) {
     //   navigate(/search/keyword?keyword=${keyword});
     // }
+  };
+
+  const handleClickTrend = (keyword) => {
+    // navigate(`/seach/keyword?keyword=${keyword}`);
+    navigate(`/search/keyword`);
   };
 
   return (
@@ -93,7 +102,12 @@ const Home = () => {
           </div>
           <div className="rankings">
             {displayedRankings.map((rank, index) => (
-              <p key={index}>
+              <p
+                key={index}
+                onClick={() => {
+                  handleClickTrend(rank);
+                }}
+              >
                 {index + 1 + currentRankSet * 4}. {rank}
               </p>
             ))}
@@ -105,13 +119,8 @@ const Home = () => {
             <span> 전체보기 {'>'}</span>
           </h3>
           <CardContainer>
-            {cardsData.map((card, index) => (
-              <PlaceCard
-                key={index}
-                image={card.image}
-                title={card.title}
-                description={card.description}
-              />
+            {cardsData.map((card) => (
+              <PlaceCard key={card.id} place={card} />
             ))}
           </CardContainer>
         </CurationWrapper>

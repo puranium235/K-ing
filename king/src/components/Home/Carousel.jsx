@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Carousel = ({ carouselList }) => {
   const [currIndex, setCurrIndex] = useState(1);
   const [currList, setCurrList] = useState([]);
   const carouselRef = useRef(null);
+  const navigate = useNavigate();
 
   // 초기 데이터 설정
   useEffect(() => {
@@ -84,12 +86,21 @@ const Carousel = ({ carouselList }) => {
     handleTouchEvents(startX);
   };
 
+  const handleClickCuration = (curationId) => {
+    navigate(`/curation/${curationId}`);
+  };
+
   return (
     <Container>
       <CarouselWrapper onTouchStart={handleTouchStart}>
         <CarouselList ref={carouselRef}>
           {currList.map((item, idx) => (
-            <CarouselItem key={`${item.image}-${idx}`}>
+            <CarouselItem
+              key={`${item.image}-${idx}`}
+              onClick={() => {
+                handleClickCuration(item.id);
+              }}
+            >
               <img src={item.image} alt="carousel-img" />
               <p>{item.title}</p>
             </CarouselItem>
