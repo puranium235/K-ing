@@ -1,9 +1,21 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-const PlaceCard = ({ image, title, description }) => {
+const PlaceCard = ({ place }) => {
+  const { id, image, title, description } = place;
+  const navigate = useNavigate();
+
+  const handleClickPlace = () => {
+    navigate(`/place/${id}`);
+  };
+
   return (
-    <Card>
+    <Card
+      onClick={() => {
+        handleClickPlace();
+      }}
+    >
       <CardImage src={image} alt={title} />
       <CardContent>
         <CardTitle>{title}</CardTitle>

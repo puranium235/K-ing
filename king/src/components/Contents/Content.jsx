@@ -17,7 +17,7 @@ const Content = () => {
   const navigate = useNavigate();
 
   const handleDramaClick = (id) => {
-    navigate(`/drama/${id}`);
+    navigate(`/content/${contentType}/${id}`);
   };
 
   return (
