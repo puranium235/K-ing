@@ -11,7 +11,7 @@ public class RestTemplateConfig {
     @Bean
     public RestTemplate restTemplate() {
         DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
-        // 인코딩 모드를 NONE으로 설정하면 자동 인코딩을 수행하지 않습니다.
+        // 인코딩 모드를 NONE으로 설정하면 자동 인코딩을 수행하지 않습니다
         factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
 
         RestTemplate restTemplate = new RestTemplate();
