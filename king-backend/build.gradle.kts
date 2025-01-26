@@ -38,6 +38,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    implementation("org.apache.commons:commons-text:1.13.0")
 }
 
 tasks.withType<Test> {
