@@ -5,6 +5,7 @@ import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.service.PlaceService;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ public class PlaceController {
     private final PlaceService placeService;
 
     // 공통 응답 모듈 테스트
+    @Operation(summary = "성공 응답 확인용 API")
     @GetMapping("/success")
     public ResponseEntity<ApiResponse<String>> getSuccessResponse() {
         log.info("GET /api/place/success 요청 처리 시작");
@@ -33,6 +35,7 @@ public class PlaceController {
         return response;
     }
 
+    @Operation(summary = "에러 응답 확인용 API")
     @GetMapping("/error")
     public ResponseEntity<ApiResponse<String>> getErrorResponse() {
         // 예외 처리 로그 필요 X (GlobalExceptionHandler에서 에러코드, 메세지 로그 출력됨)
@@ -40,6 +43,7 @@ public class PlaceController {
     }
 
     // 장소 상세 정보 조회
+    @Operation(summary = "장소 상세 조회 API")
     @GetMapping("/{placeId}")
     public ResponseEntity<ApiResponse<PlaceDetailResponseDto>> getPlaceDetail(@PathVariable Long placeId){
         log.info("GET /api/place/{} 요청 처리 시작", placeId);
