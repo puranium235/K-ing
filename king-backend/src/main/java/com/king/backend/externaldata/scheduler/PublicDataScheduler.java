@@ -23,7 +23,7 @@ public class PublicDataScheduler {
     @PostConstruct
     public void init() {
         System.out.println("----- [PublicDataScheduler] 애플리케이션 시작 시 공공 데이터 수집 실행 -----");
-        processData();
+//        processData();
     }
 
     /**
@@ -53,8 +53,8 @@ public class PublicDataScheduler {
 //        tmdbService.populateContentCast();
 //        System.out.println("===== content_cast 테이블 업데이트 완료 =====");
 
-        System.out.println("----- [PublicDataScheduler] 공공 데이터 수집 시작 -----");
-        List<Place> places = publicDataService.fetchAndSaveAllPublicData();
-        System.out.println("수집 완료: " + places.size() + "건");
+//        System.out.println("----- [PublicDataScheduler] 공공 데이터 수집 시작 -----");
+//        List<Place> places = publicDataService.fetchAndSaveAllPublicData();
+//        System.out.println("수집 완료: " + places.size() + "건");
     }
 }
