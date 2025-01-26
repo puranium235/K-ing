@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode {
+    NOT_PENDING_USER(HttpStatus.BAD_REQUEST, "닉네임 입력 단계의 유저가 아닙니다."),
     OAUTH2_LOGIN_FAILED(HttpStatus.BAD_REQUEST, "소셜로그인 사용자를 받아올 수 없습니다."),
     ACCESSTOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다."),
     UNVALID_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다.");

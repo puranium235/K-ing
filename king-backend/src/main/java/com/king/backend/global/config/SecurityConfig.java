@@ -39,7 +39,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, OAuth2UserService customOAuth2UserService) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -50,12 +50,13 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
-                        .requestMatchers("/signup/**").hasRole("PENDING")
-                        .anyRequest().hasRole("PENDING"))
+//                        .anyRequest().permitAll())
+                        .requestMatchers("/user/signup").hasRole("PENDING")
+                        .anyRequest().hasRole("REGISTERED"))
 
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService))
+                                .userService(oAuth2UserService))
                         .successHandler(customSuccessHandler))
 
                 .cors((corsCustomizer) -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
@@ -71,7 +72,8 @@ public class SecurityConfig {
                         configuration.setMaxAge(3600L);
 
                         configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                        configuration.setExposedHeaders(Collections.singletonList("AccessToken"));
+                        configuration.setExposedHeaders(Collections.singletonList("RefreshToken"));
 
                         return configuration;
                     }
