@@ -2,8 +2,10 @@ package com.king.backend.domain.cast.service;
 
 import com.king.backend.domain.cast.dto.response.CastDetailResponseDto;
 import com.king.backend.domain.cast.entity.Cast;
+import com.king.backend.domain.cast.errorcode.CastErrorCode;
 import com.king.backend.domain.cast.repository.CastRepository;
 import com.king.backend.domain.content.entity.ContentCast;
+import com.king.backend.global.exception.CustomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,7 @@ public class CastService {
 
     @Transactional
     public CastDetailResponseDto getCastDetail(Long id){
-        Cast cast = castRepository.findById(id).orElse(null);
+        Cast cast = castRepository.findById(id).orElseThrow(() -> new CustomException(CastErrorCode.CAST_NOT_FOUND));
         List<CastDetailResponseDto.RelatedContent> relatedContents = new ArrayList<>();
         List<CastDetailResponseDto.Work> works = new ArrayList<>();
 
