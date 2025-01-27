@@ -52,6 +52,7 @@ public class CastService {
                 cast.getTranslationKo().getBirthPlace(),
                 cast.getParticipatingWork(),
                 cast.getCreatedAt(),
+                true,
                 relatedContents,
                 works
         );

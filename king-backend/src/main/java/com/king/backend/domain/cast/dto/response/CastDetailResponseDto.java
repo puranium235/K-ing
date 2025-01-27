@@ -18,6 +18,7 @@ public class CastDetailResponseDto {
     private String birthPlace;
     private Long participatingWorks;
     private LocalDateTime createdAt;
+    private boolean isFavorite;
     private List<RelatedContent> relatedContents;
     private List<Work> works;
 
