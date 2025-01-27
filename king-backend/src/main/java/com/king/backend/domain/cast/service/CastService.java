@@ -34,7 +34,8 @@ public class CastService {
                 relatedContents.add(new CastDetailResponseDto.RelatedContent(
                         contentId,
                         title,
-                        imageUrl
+                        imageUrl,
+                        true
                 ));
 
                 works.add(new CastDetailResponseDto.Work(contentId, year, title));

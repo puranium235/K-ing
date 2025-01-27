@@ -29,6 +29,7 @@ public class CastDetailResponseDto {
         private Long contentId;
         private String title;
         private String imageUrl;
+        private boolean isFavorite;
     }
 
     @Data
