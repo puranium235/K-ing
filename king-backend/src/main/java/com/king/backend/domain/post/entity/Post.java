@@ -1,7 +1,7 @@
 package com.king.backend.domain.post.entity;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.Like;
 import com.king.backend.domain.place.entity.Place;
+import com.king.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

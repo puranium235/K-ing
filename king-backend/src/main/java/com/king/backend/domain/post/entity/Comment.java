@@ -1,5 +1,6 @@
 package com.king.backend.domain.post.entity;
 
+import com.king.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
