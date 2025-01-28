@@ -5,7 +5,6 @@ import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.global.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,31 +24,26 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accesToken = null;
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("AccessToken")) {
-                accesToken = cookie.getValue();
-                break;
-            }
-        }
+        String authorization = request.getHeader("Authorization");
 
-        if (accesToken == null) {
+        if (authorization == null || authorization.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (jwtUtil.isExpired(accesToken)) {
+        String accessToken = authorization.substring(7);
+
+        if (jwtUtil.isExpired(accessToken)) {
             throw new CustomException(UserErrorCode.ACCESSTOKEN_EXPIRED);
         }
 
-        String type = jwtUtil.getType(accesToken);
-        if (!type.equals("AccessToken")) {
-            throw new CustomException(UserErrorCode.UNVALID_TOKEN);
+        String type = jwtUtil.getType(accessToken);
+        if (!type.equals("accessToken")) {
+            throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
-        String userId = jwtUtil.getUserId(accesToken);
-        String role = jwtUtil.getRole(accesToken);
+        String userId = jwtUtil.getUserId(accessToken);
+        String role = jwtUtil.getRole(accessToken);
 
         OAuth2UserDTO oAuth2UserDTO = new OAuth2UserDTO();
         oAuth2UserDTO.setName(userId);

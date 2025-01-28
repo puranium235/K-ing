@@ -50,7 +50,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
-//                        .anyRequest().permitAll())
+                        .requestMatchers("/user/token-refresh").permitAll()
                         .requestMatchers("/user/signup").hasRole("PENDING")
                         .anyRequest().hasRole("REGISTERED"))
 

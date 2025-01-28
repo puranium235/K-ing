@@ -23,9 +23,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JWTUtil jwtUtil;
 
-    @Value("${spring.jwt.accesstoken-expires-in}")
-    private Long ACCESSTOKEN_EXPIRES_IN;
-
     @Value("${spring.jwt.refreshtoken-expires-in}")
     private Long REFRESHTOKEN_EXPIRES_IN;
 
@@ -44,11 +41,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         GrantedAuthority authority = iterator.next();
         String role = authority.getAuthority();
 
-        String accessToken = jwtUtil.createJwt("AccessToken", userId, role, ACCESSTOKEN_EXPIRES_IN);
-        String refreshToken = jwtUtil.createJwt("RefreshToken", userId, role, REFRESHTOKEN_EXPIRES_IN);
+        String refreshToken = jwtUtil.createJwt("refreshToken", userId, role, REFRESHTOKEN_EXPIRES_IN);
 
-        response.addCookie(createCookie("AccessToken", accessToken));
-        response.addCookie(createCookie("RefreshToken", refreshToken));
+        response.addCookie(createCookie("refreshToken", refreshToken));
         response.sendRedirect(CLIENT_URL);
     }
 
