@@ -1,7 +1,9 @@
 package com.king.backend.domain.user;
 
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
+import com.king.backend.domain.user.entity.TokenEntity;
 import com.king.backend.domain.user.jwt.JWTUtil;
+import com.king.backend.domain.user.repository.TokenRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +24,7 @@ import java.util.Iterator;
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
+    private final TokenRepository tokenRepository;
 
     @Value("${spring.jwt.refreshtoken-expires-in}")
     private Long REFRESHTOKEN_EXPIRES_IN;
@@ -43,6 +46,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String refreshToken = jwtUtil.createJwt("refreshToken", userId, role, REFRESHTOKEN_EXPIRES_IN);
 
+        TokenEntity token = new TokenEntity(Long.parseLong(userId), refreshToken, REFRESHTOKEN_EXPIRES_IN);
+        tokenRepository.save(token);
         response.addCookie(createCookie("refreshToken", refreshToken));
         response.sendRedirect(CLIENT_URL);
     }

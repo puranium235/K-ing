@@ -2,10 +2,13 @@ package com.king.backend.domain.user.controller;
 
 import com.king.backend.domain.user.dto.request.SignUpRequestDTO;
 import com.king.backend.domain.user.dto.response.SignUpResponseDTO;
+import com.king.backend.domain.user.entity.TokenEntity;
 import com.king.backend.domain.user.entity.UserEntity;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.jwt.JWTUtil;
+import com.king.backend.domain.user.repository.TokenRepository;
 import com.king.backend.domain.user.repository.UserRepository;
+import com.king.backend.domain.user.service.TokenService;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -28,6 +32,8 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final JWTUtil jwtUtil;
+    private final TokenService tokenService;
+    private final TokenRepository tokenRepository;
 
     @Value("${spring.jwt.accesstoken-expires-in}")
     private Long ACCESSTOKEN_EXPIRES_IN;
@@ -52,8 +58,15 @@ public class UserController {
         String userId = jwtUtil.getUserId(oldRefreshToken);
         String role = jwtUtil.getRole(oldRefreshToken);
 
+        Optional<TokenEntity> token = tokenService.findTokenById(Long.parseLong(userId));
+        if (token.isEmpty() || !token.get().getRefreshToken().equals(oldRefreshToken)) {
+            throw new CustomException(UserErrorCode.INVALID_TOKEN);
+        }
+
         String accessToken = jwtUtil.createJwt("accessToken", userId, role, ACCESSTOKEN_EXPIRES_IN);
         String refreshToken = jwtUtil.createJwt("refreshToken", userId, role, REFRESHTOKEN_EXPIRES_IN);
+
+        tokenRepository.save(new TokenEntity(Long.parseLong(userId), refreshToken, REFRESHTOKEN_EXPIRES_IN));
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
