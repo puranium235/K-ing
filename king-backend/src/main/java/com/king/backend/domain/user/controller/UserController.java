@@ -18,11 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -66,6 +64,7 @@ public class UserController {
         String accessToken = jwtUtil.createJwt("accessToken", userId, role, ACCESSTOKEN_EXPIRES_IN);
         String refreshToken = jwtUtil.createJwt("refreshToken", userId, role, REFRESHTOKEN_EXPIRES_IN);
 
+        tokenRepository.deleteById(Long.parseLong(userId));
         tokenRepository.save(new TokenEntity(Long.parseLong(userId), refreshToken, REFRESHTOKEN_EXPIRES_IN));
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
@@ -86,7 +85,6 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         Long userId = Long.parseLong(authentication.getName());
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
         UserEntity findUser = userRepository.findByIdAndStatus(userId, "ROLE_PENDING")
                 .orElseThrow(() -> new CustomException(UserErrorCode.NOT_PENDING_USER));
@@ -105,5 +103,10 @@ public class UserController {
         responseDTO.setLanguage(findUser.getLanguage());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(responseDTO));
+    }
+
+    @PostMapping("/test")
+    ResponseEntity<ApiResponse<String>> userTest() {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("어서오세요!"));
     }
 }
