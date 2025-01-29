@@ -1,5 +1,6 @@
 package com.king.backend.search.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(indexName = "search-index")
+@Document(indexName = "search-index", createIndex = false)
+@JsonIgnoreProperties(value = "_class", allowGetters = true)
 public class SearchDocument {
     @Id
     private String id;

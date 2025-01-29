@@ -1,5 +1,9 @@
 package com.king.backend.search.service;
 
+import co.elastic.clients.elasticsearch._types.mapping.KeywordProperty;
+import co.elastic.clients.elasticsearch._types.mapping.LongNumberProperty;
+import co.elastic.clients.elasticsearch._types.mapping.Property;
+import co.elastic.clients.elasticsearch._types.mapping.TextProperty;
 import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.repository.CastRepository;
 import com.king.backend.domain.content.entity.Content;
@@ -8,12 +12,15 @@ import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.search.entity.SearchDocument;
 import com.king.backend.search.repository.SearchRepository;
+import com.king.backend.search.util.ElasticsearchUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -28,10 +35,33 @@ public class SyncService implements CommandLineRunner {
     private final ContentRepository contentRepository;
     private final PlaceRepository placeRepository;
     private final SearchRepository searchRepository;
+    private final ElasticsearchUtil elasticsearchUtil;
+
+    private static final String INDEX_NAME = "search-index";
 
     @Override
     public void run(String... args) throws Exception {
         log.info("초기 mysql-elasticsearch 데이터 마이그레이션 시작");
+
+        // 기존 인덱스가 있는지 확인하고 없으면 생성
+        if (elasticsearchUtil.indexExists(INDEX_NAME)) {
+            elasticsearchUtil.deleteIndex(INDEX_NAME);
+        }
+        log.info("인덱스가 존재하지 않음. 새로 생성합니다.");
+
+        Map<String, Property> properties = new HashMap<>();
+        properties.put("id", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put("category", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put("name", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
+        properties.put("details", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
+        properties.put("imageUrl", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put("originalId", new Property.Builder().long_(new LongNumberProperty.Builder().build()).build());
+
+        elasticsearchUtil.createIndex(INDEX_NAME, properties);
+
+        migrateCasts();
+        migrateContents();
+        migratePlaces();
         log.info("초기 mysql-elasticsearch 데이터 마이그레이션 완료");
     }
 

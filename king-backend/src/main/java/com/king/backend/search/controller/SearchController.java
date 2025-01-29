@@ -1,0 +1,45 @@
+package com.king.backend.search.controller;
+
+import com.king.backend.domain.content.dto.response.ContentDetailResponseDto;
+import com.king.backend.global.response.ApiResponse;
+import com.king.backend.search.dto.request.AutocompleteRequestDto;
+import com.king.backend.search.dto.response.AutocompleteResponseDto;
+import com.king.backend.search.dto.response.SearchResponseDto;
+import com.king.backend.search.service.SearchService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@Slf4j
+@RequestMapping("/search")
+public class SearchController {
+
+    private final SearchService searchService;
+
+    /**
+     * 자동완성 API
+     * @param requestDto 자동완성 요청 DTO
+     * @return 자동완성 결과
+     */
+    @GetMapping("/autocomplete")
+    public ResponseEntity<ApiResponse<AutocompleteResponseDto>> autocomplete(@ModelAttribute AutocompleteRequestDto requestDto) {
+        log.info("GET /autocomplete 요청 처리 시작");
+        AutocompleteResponseDto response = searchService.getAutocompleteSuggestions(requestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+    }
+
+//    /**
+//     * 검색 API
+//     * @param requestDto 검색 요청 DTO
+//     * @return 검색 결과
+//     */
+//    @GetMapping("/search")
+//    public ResponseEntity<ApiResponse<SearchResponseDto>> search(@ModelAttribute SearchRequestDto requestDto) {
+//        SearchResponseDto response = searchService.search(requestDto);
+//        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+//    }
+}
