@@ -12,7 +12,9 @@ public enum UserErrorCode implements ErrorCode {
     OAUTH2_LOGIN_FAILED(HttpStatus.BAD_REQUEST, "소셜로그인 사용자를 받아올 수 없습니다."),
     ACCESSTOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "accessToken이 만료되었습니다."),
     REFRESHTOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "refreshToken이 만료되었습니다."),
-    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    INVALID_NICKNAME(HttpStatus.BAD_REQUEST, "유효하지 않은 닉네임입니다"),
+    INVALID_LANGUAGE(HttpStatus.BAD_REQUEST, "유효하지 않은 언어코드입니다");
 
     private final HttpStatus status;
     private final String message;

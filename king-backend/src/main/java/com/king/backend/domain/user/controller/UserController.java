@@ -82,6 +82,14 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<SignUpResponseDTO>> signup(@RequestBody SignUpRequestDTO signUpRequestDTO) {
+        if (signUpRequestDTO.getNickname() == null || signUpRequestDTO.getNickname().length() > 50) {
+            throw new CustomException(UserErrorCode.INVALID_NICKNAME);
+        }
+
+        if (!signUpRequestDTO.getLanguage().matches("^(ko|en|ja|zh)$")) {
+            throw new CustomException(UserErrorCode.INVALID_LANGUAGE);
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         Long userId = Long.parseLong(authentication.getName());
