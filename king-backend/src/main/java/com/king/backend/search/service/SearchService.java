@@ -1,6 +1,7 @@
 package com.king.backend.search.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
@@ -16,6 +17,7 @@ import com.king.backend.search.dto.response.AutocompleteResponseDto;
 import com.king.backend.search.dto.response.SearchResponseDto;
 import com.king.backend.search.entity.SearchDocument;
 import com.king.backend.search.repository.SearchRepository;
+import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,7 @@ public class SearchService {
 
     private final SearchRepository searchRepository;
     private final ElasticsearchClient elasticsearchClient;
+    private final CursorUtil cursorUtil;
 
     /**
      * 자동완성 제안 가져오기
@@ -66,6 +69,11 @@ public class SearchService {
                     .query(boolQuery._toQuery()) // BoolQuery를 Query로 변환
                     .size(10) // 최대 검색 결과 수
                     .from(0)  // 검색 시작 위치
+                    .sort(List.of(
+                            new SortOptions.Builder()
+                                    .field(f -> f.field("name").order(SortOrder.Asc))
+                                    .build()
+                    )) // name 기준 오름차순 정렬 적용
                     .source(source -> source
                             .filter(f -> f.excludes("_class")))
             );
@@ -116,12 +124,13 @@ public class SearchService {
         try{
             String query = requestDto.getQuery();
             String category = requestDto.getCategory();
-            int page = requestDto.getPage();
+//            int page = requestDto.getPage();
             int size = requestDto.getSize();
             String sortBy = requestDto.getSortBy();
             String sortOrder = requestDto.getSortOrder();
             String placeType = requestDto.getPlaceType();
             String region = requestDto.getRegion();
+            String cursor = requestDto.getCursor();
 
             // BoolQuery 생성
             BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
@@ -132,6 +141,8 @@ public class SearchService {
                         .query(query)
                         .field("name")
                 ));
+            }else{
+                boolQueryBuilder.must(q -> q.matchAll(m -> m));
             }
 
             // 카테고리 필터링
@@ -153,23 +164,94 @@ public class SearchService {
             List<SortOptions> sortOptions = new ArrayList<>();
             if (sortBy != null && !sortBy.isEmpty()) {
                 SortOrder order = "desc".equalsIgnoreCase(sortOrder) ? SortOrder.Desc : SortOrder.Asc;
-                sortOptions.add(SortOptions.of(s -> s.field(f -> f.field(sortBy).order(order))));
+                sortOptions.add(SortOptions.of(s -> s
+                        .field(f -> f
+                                .field(sortBy)
+                                .order(order)
+                        )
+                ));
+            } else {
+                // 기본 정렬 : createdAt 내림차순, id 오름차순
+                sortOptions.add(SortOptions.of(s -> s
+                        .field(f -> f
+                                .field("createdAt")
+                                .order(SortOrder.Desc)
+                        )
+                ));
+                sortOptions.add(SortOptions.of(s -> s
+                        .field(f -> f
+                                .field("id")
+                                .order(SortOrder.Asc)
+                        )
+                ));
             }
 
-            // SearchRequest 구성
-            SearchRequest searchRequest = SearchRequest.of(request -> {
-                request.index("search-index")
-                        .query(boolQueryBuilder.build()._toQuery())
-                        .from(page * size) // 페이지네이션 적용
-                        .size(size)
-                        .source(source -> source.filter(f -> f.excludes("_class")));
-
-                if (!sortOptions.isEmpty()) { // 정렬 옵션이 있을 경우에만 추가
-                    request.sort(sortOptions);
+            // 'search_after' 처리 (커서가 존재하는 경우)
+            List<Object> searchAfterValues = null;
+            if(cursor!=null && !cursor.isEmpty()){
+                try{
+                    searchAfterValues = cursorUtil.decodeCursor(cursor);
+                }catch (IllegalArgumentException e){
+                    return new SearchResponseDto(
+                            null,
+                            0,
+                            null
+                    );
                 }
+            }
 
-                return request;
-            });
+            SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
+                    .index("search-index")
+                    .query(q -> q.bool(boolQueryBuilder.build()))
+                    .size(size)
+                    .sort(sortOptions)
+                    .source(s -> s
+                            .filter(f -> f
+                                    .excludes("_class")
+                            )
+                    );
+
+            // SearchRequest 구성
+//            SearchRequest searchRequest = SearchRequest.of(request -> request
+//                        .index("search-index")
+//                        .query(boolQueryBuilder.build()._toQuery())
+////                        .from(page * size) // 페이지네이션 적용
+//                        .size(size)
+//                        .sort(sortOptions)
+////                        .searchAfter(searchAfterValues != null ? searchAfterValues.toArray() : null)
+//                        .source(source -> source
+//                                .filter(f -> f.excludes("_class"))
+//                        )
+//            );
+
+            // 'search_after' 값이 존재하면 추가
+            if (searchAfterValues != null && !searchAfterValues.isEmpty()) {
+                searchRequestBuilder.searchAfter(searchAfterValues
+                        .stream()
+                        .map(o -> {
+                            if(o instanceof String){
+                                return FieldValue.of(fv -> fv.stringValue((String) o));
+                            }else if(o instanceof Integer){
+                                return FieldValue.of(fv -> fv.longValue(((Integer)o).longValue()));
+                            }else if(o instanceof Long){
+                                return FieldValue.of(fv -> fv.longValue((Long)o));
+                            }else if(o instanceof Double){
+                                return FieldValue.of(fv -> fv.doubleValue((Double)o));
+                            }else if(o instanceof Float){
+                                return FieldValue.of(fv -> fv.doubleValue(((Float)o).doubleValue()));
+                            }else if(o instanceof Boolean){
+                                return FieldValue.of(fv -> fv.booleanValue((Boolean)o));
+                            }else if (o instanceof java.util.Date){
+                                return FieldValue.of(fv -> fv.longValue(((java.util.Date)o).getTime()));
+                            }else{
+                                throw new IllegalArgumentException("Unsupported search type: " + o.getClass().getName());
+                            }
+                        })
+                        .collect(Collectors.toList())
+                );
+            }
+
+            SearchRequest searchRequest = searchRequestBuilder.build();
 
             // 🔥 검색 요청 로그 출력
             System.out.println("🔍 Elasticsearch Search Request: " + searchRequest.toString());
@@ -178,7 +260,8 @@ public class SearchService {
             SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
 
             // 검색 결과 매핑
-            List<SearchResponseDto.SearchResult> results = searchResponse.hits().hits().stream()
+            List<Hit<SearchDocument>> hits = searchResponse.hits().hits();
+            List<SearchResponseDto.SearchResult> results = hits.stream()
                     .map(Hit::source)
                     .map(doc -> new SearchResponseDto.SearchResult(
                             doc.getCategory(),
@@ -188,18 +271,42 @@ public class SearchService {
                             doc.getImageUrl()
                     ))
                     .collect(Collectors.toList());
-
             // 총 문서 개수 조회
-            long total = searchResponse.hits().total().value();
+            long total = searchResponse.hits().total() != null ? searchResponse.hits().total().value() : 0;
 
-            return new SearchResponseDto(results, total, page, size);
+            // 다음 커서 생성
+            String nextCursor = null;
+            if(!hits.isEmpty()){
+                Hit<SearchDocument> lastHit = hits.get(hits.size()-1);
+                List<Object> lastSortValues = lastHit.sort().stream()
+                        .map(fieldValue -> {
+                            if(fieldValue.isString()){
+                                return fieldValue.stringValue();
+                            }else if(fieldValue.isLong()){
+                                return fieldValue.longValue();
+                            }else if(fieldValue.isDouble()){
+                                return fieldValue.doubleValue();
+                            }else if(fieldValue.isBoolean()){
+                                return fieldValue.booleanValue();
+                            }else{
+                                return fieldValue.anyValue();
+                            }
+                        })
+                        .collect(Collectors.toList());
+                nextCursor = cursorUtil.encodeCursor(lastSortValues);
+            }
+
+            return new SearchResponseDto(
+                    results,
+                    total,
+                    nextCursor
+            );
         }catch (IOException e) {
             e.printStackTrace();
             return new SearchResponseDto(
                     null,
                     0,
-                    0,
-                    0
+                    null
             );
         }
     }

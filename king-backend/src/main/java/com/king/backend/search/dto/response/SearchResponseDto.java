@@ -16,8 +16,9 @@ public class SearchResponseDto {
     private List<SearchResult> results;
 
     private long total;
-    private int page;
-    private int size;
+//    private int page;
+//    private int size;
+    private String nextCursor;
 
     @Data
     @NoArgsConstructor
