@@ -95,6 +95,22 @@ public class UserController {
 
         userRepository.save(findUser);
 
+        String accessToken = jwtUtil.createJwt("accessToken", userId.toString(), "ROLE_REGISTERED", ACCESSTOKEN_EXPIRES_IN);
+        String refreshToken = jwtUtil.createJwt("refreshToken", userId.toString(), "ROLE_REGISTERED", REFRESHTOKEN_EXPIRES_IN);
+
+        tokenRepository.deleteById(userId);
+        tokenRepository.save(new TokenEntity(userId, refreshToken, REFRESHTOKEN_EXPIRES_IN));
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(REFRESHTOKEN_EXPIRES_IN)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
         SignUpResponseDTO responseDTO = new SignUpResponseDTO();
         responseDTO.setUserId(findUser.getId());
         responseDTO.setEmail(findUser.getEmail());
@@ -102,7 +118,7 @@ public class UserController {
         responseDTO.setImageUrl(findUser.getImageUrl());
         responseDTO.setLanguage(findUser.getLanguage());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(responseDTO));
+        return ResponseEntity.status(HttpStatus.CREATED).headers(headers).body(ApiResponse.success(responseDTO));
     }
 
     @PostMapping("/test")
