@@ -120,9 +120,4 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED).headers(headers).body(ApiResponse.success(responseDTO));
     }
-
-    @PostMapping("/test")
-    ResponseEntity<ApiResponse<String>> userTest() {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("어서오세요!"));
-    }
 }
