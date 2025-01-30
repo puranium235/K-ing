@@ -14,10 +14,18 @@ const Content = () => {
   const dramas = DramaDummyData;
   const [contentType, setContentType] = useRecoilState(ContentType);
 
+  const contentTypeMapping = {
+    드라마: 'drama',
+    영화: 'movie',
+    연예인: 'celeb',
+    예능: 'show',
+  };
+
   const navigate = useNavigate();
 
   const handleDramaClick = (id) => {
-    navigate(`/content/${contentType}/${id}`);
+    const englishContentType = contentTypeMapping[contentType];
+    navigate(`/content/${englishContentType}/${id}`);
   };
 
   return (

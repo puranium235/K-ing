@@ -4,6 +4,7 @@ import { RecoilRoot } from 'recoil';
 
 import ScrollToTop from './components/common/ScrollToTop';
 import ArchivePage from './pages/ArchivePage';
+import CelebDetailPage from './pages/CelebDetailPage';
 import ChatbotPage from './pages/ChatbotPage';
 import ContentDetailPage from './pages/ContentDetailPage';
 import ContentPage from './pages/ContentPage';
@@ -44,6 +45,7 @@ const Router = () => {
             <Route path="/curation/map/:curationId" element={<CurationMapPage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/content/:contentType" element={<ContentPage />} />
+            <Route path="/content/celeb/:celebId" element={<CelebDetailPage />} />
             <Route path="/content/:contentType/:dramaId" element={<ContentDetailPage />} />
             {/* 카테고리 설정시 */}
             <Route path="/search/keyword" element={<SearchKeywordpage />} />
