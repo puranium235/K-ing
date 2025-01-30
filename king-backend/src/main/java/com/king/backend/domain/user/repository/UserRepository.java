@@ -10,5 +10,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     UserEntity findByGoogleIdAndStatusIn(String googleId, List<String> statuses);
+    Optional<UserEntity> findByNickname(String nickname);
     Optional<UserEntity> findByIdAndStatus(Long id, String status);
 }

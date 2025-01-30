@@ -1,6 +1,7 @@
 package com.king.backend.domain.user.controller;
 
 import com.king.backend.domain.user.dto.request.SignUpRequestDTO;
+import com.king.backend.domain.user.dto.response.NicknameResponseDTO;
 import com.king.backend.domain.user.dto.response.SignUpResponseDTO;
 import com.king.backend.domain.user.entity.TokenEntity;
 import com.king.backend.domain.user.entity.UserEntity;
@@ -86,6 +87,11 @@ public class UserController {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
 
+        userRepository.findByNickname(signUpRequestDTO.getNickname())
+                .ifPresent((user) -> {
+                    throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
+                });
+
         if (!signUpRequestDTO.getLanguage().matches("^(ko|en|ja|zh)$")) {
             throw new CustomException(UserErrorCode.INVALID_LANGUAGE);
         }
@@ -127,5 +133,21 @@ public class UserController {
         responseDTO.setLanguage(findUser.getLanguage());
 
         return ResponseEntity.status(HttpStatus.CREATED).headers(headers).body(ApiResponse.success(responseDTO));
+    }
+
+    @GetMapping("/nickname")
+    public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname") String nickname) {
+        if (nickname == null || nickname.length() > 50) {
+            throw new CustomException(UserErrorCode.INVALID_NICKNAME);
+        }
+
+        userRepository.findByNickname(nickname)
+                .ifPresent((user) -> {
+                    throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
+                });
+
+        NicknameResponseDTO response = new NicknameResponseDTO();
+        response.setNickname(nickname);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 }
