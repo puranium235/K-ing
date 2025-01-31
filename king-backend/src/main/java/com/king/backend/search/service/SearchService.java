@@ -10,24 +10,31 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.UpdateRequest;
+import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.king.backend.global.exception.CustomException;
 import com.king.backend.search.dto.request.AutocompleteRequestDto;
 import com.king.backend.search.dto.request.SearchRequestDto;
 import com.king.backend.search.dto.response.AutocompleteResponseDto;
 import com.king.backend.search.dto.response.SearchResponseDto;
 import com.king.backend.search.entity.SearchDocument;
+import com.king.backend.search.errorcode.SearchErrorCode;
 import com.king.backend.search.repository.SearchRepository;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SearchService {
 
     private final SearchRepository searchRepository;
@@ -105,13 +112,15 @@ public class SearchService {
     private String generateDetails(SearchDocument doc) {
         switch (doc.getCategory().toUpperCase()) {
             case "CAST":
-                return "인물"; // 예시
+                return "인물";
             case "DRAMA":
+                return "드라마";
             case "SHOW":
+                return "예능";
             case "MOVIE":
-                return "작품"; // 예시
+                return "영화";
             case "PLACE":
-                return "장소"; // 예시, 실제로는 더 구체적으로
+                return "장소";
             default:
                 return "";
         }
@@ -153,10 +162,10 @@ public class SearchService {
             // 장소 필터링
             if ("PLACE".equalsIgnoreCase(category)) {
                 if (placeType != null && !placeType.isEmpty()) {
-                    boolQueryBuilder.filter(q -> q.term(t -> t.field("details.placeType").value(placeType)));
+                    boolQueryBuilder.filter(q -> q.term(t -> t.field("type").value(placeType.toUpperCase())));
                 }
                 if (region != null && !region.isEmpty()) {
-                    boolQueryBuilder.filter(q -> q.match(m -> m.field("details.region").query(region)));
+                    boolQueryBuilder.filter(q -> q.match(m -> m.field("details").query(region)));
                 }
             }
 
@@ -168,6 +177,12 @@ public class SearchService {
                         .field(f -> f
                                 .field(sortBy)
                                 .order(order)
+                        )
+                ));
+                sortOptions.add(SortOptions.of(s -> s
+                        .field(f -> f
+                                .field("id")
+                                .order(SortOrder.Asc)
                         )
                 ));
             } else {
@@ -192,11 +207,8 @@ public class SearchService {
                 try{
                     searchAfterValues = cursorUtil.decodeCursor(cursor);
                 }catch (IllegalArgumentException e){
-                    return new SearchResponseDto(
-                            null,
-                            0,
-                            null
-                    );
+                    log.error("유효하지 않은 커서: {}", cursor);
+                    throw new CustomException(SearchErrorCode.INVALID_CURSOR);
                 }
             }
 
@@ -210,19 +222,6 @@ public class SearchService {
                                     .excludes("_class")
                             )
                     );
-
-            // SearchRequest 구성
-//            SearchRequest searchRequest = SearchRequest.of(request -> request
-//                        .index("search-index")
-//                        .query(boolQueryBuilder.build()._toQuery())
-////                        .from(page * size) // 페이지네이션 적용
-//                        .size(size)
-//                        .sort(sortOptions)
-////                        .searchAfter(searchAfterValues != null ? searchAfterValues.toArray() : null)
-//                        .source(source -> source
-//                                .filter(f -> f.excludes("_class"))
-//                        )
-//            );
 
             // 'search_after' 값이 존재하면 추가
             if (searchAfterValues != null && !searchAfterValues.isEmpty()) {
@@ -308,6 +307,34 @@ public class SearchService {
                     0,
                     null
             );
+        }
+    }
+
+    /**
+     * 인기순 정렬을 위한 Place의 popularity 필드 업데이트
+     *
+     * @param placeId    업데이트할 Place의 ID
+     * @param popularity 최신 조회수
+     */
+    public void updatePlacePopularity(Long placeId, int popularity) {
+        String documentId = "PLACE-" + placeId;
+        try {
+            UpdateRequest<SearchDocument, Object> updateRequest = UpdateRequest.of(u -> u
+                    .index("search-index")
+                    .id(documentId)
+                    .doc(Map.of("popularity", popularity))
+            );
+
+            UpdateResponse<SearchDocument> updateResponse = elasticsearchClient.update(updateRequest, SearchDocument.class);
+
+            if (updateResponse.result() == co.elastic.clients.elasticsearch._types.Result.Updated) {
+                log.info("Elasticsearch에서 Place {}의 popularity 업데이트 성공", placeId);
+            } else {
+                log.warn("Elasticsearch에서 Place {}의 popularity 업데이트 실패: {}", placeId, updateResponse.result());
+            }
+        } catch (IOException e) {
+            log.error("Elasticsearch에서 Place {}의 popularity 업데이트 중 오류 발생: {}", placeId, e.getMessage());
+            throw new CustomException(SearchErrorCode.SEARCH_FAILED);
         }
     }
 }

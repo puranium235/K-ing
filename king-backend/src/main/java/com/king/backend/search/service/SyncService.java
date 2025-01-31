@@ -1,9 +1,7 @@
 package com.king.backend.search.service;
 
-import co.elastic.clients.elasticsearch._types.mapping.KeywordProperty;
-import co.elastic.clients.elasticsearch._types.mapping.LongNumberProperty;
-import co.elastic.clients.elasticsearch._types.mapping.Property;
-import co.elastic.clients.elasticsearch._types.mapping.TextProperty;
+import co.elastic.clients.elasticsearch._types.mapping.*;
+import com.king.backend.connection.RedisUtil;
 import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.repository.CastRepository;
 import com.king.backend.domain.content.entity.Content;
@@ -36,6 +34,7 @@ public class SyncService implements CommandLineRunner {
     private final PlaceRepository placeRepository;
     private final SearchRepository searchRepository;
     private final ElasticsearchUtil elasticsearchUtil;
+    private final RedisUtil redisUtil;
 
     private static final String INDEX_NAME = "search-index";
 
@@ -47,16 +46,20 @@ public class SyncService implements CommandLineRunner {
         if (elasticsearchUtil.indexExists(INDEX_NAME)) {
             elasticsearchUtil.deleteIndex(INDEX_NAME);
         }
+
         log.info("인덱스가 존재하지 않음. 새로 생성합니다.");
 
+        // Define properties with new fields
         Map<String, Property> properties = new HashMap<>();
         properties.put("id", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("category", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put("type", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()); // Added 'type'
         properties.put("name", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
         properties.put("details", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
         properties.put("imageUrl", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("originalId", new Property.Builder().long_(new LongNumberProperty.Builder().build()).build());
-
+        properties.put("popularity", new Property.Builder().integer(new IntegerNumberProperty.Builder().build()).build()); // Added 'popularity'
+        properties.put("createdAt", new Property.Builder().date(new DateProperty.Builder().format("strict_date_optional_time||epoch_millis").build()).build());
         elasticsearchUtil.createIndex(INDEX_NAME, properties);
 
         migrateCasts();
@@ -75,10 +78,13 @@ public class SyncService implements CommandLineRunner {
                 .map(cast -> new SearchDocument(
                         "CAST-"+cast.getId(),
                         "CAST",
+                        "N/A", // 'type' for Cast is not applicable; set as "N/A" or null
                         cast.getTranslationKo().getName(),
                         "가수, 인물",
                         cast.getImageUrl(),
-                        cast.getId()
+                        cast.getId(),
+                        0, // initial popularity, for Cast, could be set to 0 or another default
+                        cast.getCreatedAt()
                 ))
                 .collect(Collectors.toList());
 
@@ -94,11 +100,14 @@ public class SyncService implements CommandLineRunner {
         List<SearchDocument> documents = contents.stream()
                 .map(content -> new SearchDocument(
                         "CONTENT-" + content.getId(),
-                        content.getType().toLowerCase(),
+                        content.getType().toUpperCase(),
+                        content.getType().toUpperCase(), // 'type' field
                         content.getTranslationKo().getTitle(),
                         content.getTranslationKo().getDescription(),
                         content.getImageUrl(),
-                        content.getId()
+                        content.getId(),
+                        0, // initial popularity
+                        content.getCreatedAt()
                 )).collect(Collectors.toList());
         searchRepository.saveAll(documents);
         log.info("Content 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
@@ -110,15 +119,31 @@ public class SyncService implements CommandLineRunner {
     private void migratePlaces() {
         List<Place> places = placeRepository.findAll();
         List<SearchDocument> documents = places.stream()
-                .map(place -> new SearchDocument(
-                        "PLACE-" + place.getId(),
-                        "PLACE",
-                        place.getName(),
-                        place.getAddress(),
-                        place.getImageUrl(),
-                        place.getId()
-                ))
-                .collect(Collectors.toList());
+                .map(place -> {
+                    String key = "place:view:" + place.getId();
+                    String viewCountStr = redisUtil.getValue(key);
+                    int viewCount = 0;
+                    if(viewCountStr != null) {
+                        try{
+                            viewCount = Integer.parseInt(viewCountStr);
+                        }catch (NumberFormatException e){
+                            log.warn("Invalid view count for place {}: {}",place.getId(),viewCountStr);
+                        }
+                    }
+
+                    return new SearchDocument(
+                            "PLACE-" + place.getId(),
+                            "PLACE",
+                            place.getType().toUpperCase(),
+                            place.getName(),
+                            place.getAddress(),
+                            place.getImageUrl(),
+                            place.getId(),
+                            viewCount,
+                            place.getCreatedAt()
+                    );
+                })
+                        .collect(Collectors.toList());
         searchRepository.saveAll(documents);
         log.info("Place 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
     }
@@ -131,10 +156,13 @@ public class SyncService implements CommandLineRunner {
         SearchDocument doc = new SearchDocument(
                 "CONTENT-" + content.getId(),
                 content.getType().toUpperCase(),
+                content.getType().toUpperCase(),
                 content.getTranslationEn().getTitle(),
                 content.getTranslationEn().getDescription(),
                 content.getImageUrl(),
-                content.getId()
+                content.getId(),
+                0,
+                content.getCreatedAt()
         );
         searchRepository.save(doc);
         log.info("Content 인덱싱 완료: {}", doc.getId());
@@ -164,10 +192,13 @@ public class SyncService implements CommandLineRunner {
         SearchDocument doc = new SearchDocument(
                 "CAST-" + cast.getId(),
                 "CAST",
+                "N/A",
                 cast.getTranslationEn().getName(),
                 "가수, 인물", // 실제로는 더 구체적인 정보
                 cast.getImageUrl(),
-                cast.getId()
+                cast.getId(),
+                0,
+                cast.getCreatedAt()
         );
         searchRepository.save(doc);
         log.info("Cast 인덱싱 완료: {}", doc.getId());
@@ -194,13 +225,27 @@ public class SyncService implements CommandLineRunner {
      * Place 인덱싱 (생성 및 업데이트)
      */
     public void indexPlace(Place place) {
+        String key = "place:view:" + place.getId();
+        String viewCountStr = redisUtil.getValue(key);
+        int viewCount = 0;
+        if(viewCountStr != null) {
+            try{
+                viewCount = Integer.parseInt(viewCountStr);
+            }catch (NumberFormatException e){
+                log.warn("Invalid view count for place {}: {}",place.getId(),viewCountStr);
+            }
+        }
+
         SearchDocument doc = new SearchDocument(
                 "PLACE-" + place.getId(),
                 "PLACE",
+                place.getType().toUpperCase(),
                 place.getName(),
                 place.getAddress(),
                 place.getImageUrl(),
-                place.getId()
+                place.getId(),
+                viewCount,
+                place.getCreatedAt()
         );
         searchRepository.save(doc);
         log.info("Place 인덱싱 완료: {}", doc.getId());

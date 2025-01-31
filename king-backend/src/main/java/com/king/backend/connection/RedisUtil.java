@@ -19,4 +19,11 @@ public class RedisUtil {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
         return (String) values.get(key);
     }
+
+    /**
+     * Redis에서 조회수 증가
+     */
+    public void incrementValue(String key) {
+        redisTemplate.opsForValue().increment(key, 1);
+    }
 }

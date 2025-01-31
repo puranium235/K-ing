@@ -1,10 +1,12 @@
 package com.king.backend.domain.place.controller;
 
+import com.king.backend.connection.RedisUtil;
 import com.king.backend.domain.place.dto.response.PlaceDetailResponseDto;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.service.PlaceService;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
+import com.king.backend.search.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlaceController {
 
     private final PlaceService placeService;
+    private final RedisUtil redisUtil;
+    private final SearchService searchService;
 
     // 공통 응답 모듈 테스트
     @GetMapping("/success")
@@ -44,8 +48,25 @@ public class PlaceController {
     public ResponseEntity<ApiResponse<PlaceDetailResponseDto>> getPlaceDetail(@PathVariable Long placeId){
         log.info("GET /api/place/{} 요청 처리 시작", placeId);
         PlaceDetailResponseDto dto = placeService.getPlaceDetail(placeId);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(dto));
+        try{
+            String key = "place:view:"+placeId;
+            redisUtil.incrementValue(key);
+
+            String viewCountStr = redisUtil.getValue(key);
+            int viewCount = 0;
+            if(viewCountStr != null){
+                try{
+                    viewCount = Integer.parseInt(viewCountStr);
+                }catch(NumberFormatException e){
+                    log.warn("Invalid view count for place {}: {}", placeId, viewCountStr);
+                }
+            }
+
+            searchService.updatePlacePopularity(placeId,viewCount);
+
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(dto));
+        }catch(Exception e){
+            throw new CustomException(PlaceErrorCode.PLACE_NOT_FOUND);
+        }
     }
-
-
 }
