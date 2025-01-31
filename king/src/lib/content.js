@@ -1,23 +1,10 @@
 import { client } from './axios';
 
-//GET 요청 예시
-export const getContents = async (contentId) => {
+//컨텐츠 세부정보 조회
+export const getContentDetails = async (contentId) => {
   try {
     const { data } = await client.get(`/content/${contentId}`);
-    return data;
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-//POST 요청 예시
-export const postComment = async (title, img) => {
-  try {
-    const { data } = await client.post(`/createComment`, {
-      title,
-      img,
-    });
-    return data;
+    return data.data;
   } catch (err) {
     console.error(err);
   }
