@@ -8,18 +8,25 @@ import RefreshIcon from '../../assets/icons/refresh.png';
 import BackButton from '../common/BackButton';
 
 const AIChatView = () => {
-  const [messages, setMessages] = useState([
+  const initialMessages = [
     {
       text: '어떤 MBTI의 챗봇을 원하시나요?',
       sender: 'ai',
     },
-  ]);
+  ];
+  const [messages, setMessages] = useState(initialMessages);
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [currentApi, setCurrentApi] = useState('');
 
   const chatT = '회차정보 기반 장소 검색 T봇';
   const chatF = '맞춤 큐레이션 추천 F봇';
+
+  const handleRefresh = () => {
+    setMessages(initialMessages);
+    setNewMessage('');
+    setCurrentApi('');
+  };
 
   const handleOptionClick = (option) => {
     const optionMessage = { text: option, sender: 'option' };
@@ -67,8 +74,8 @@ const AIChatView = () => {
       <Header>
         <BackButton />
         K-ing 챗봇
-        <RefreshButton>
-          <img src={RefreshIcon} />
+        <RefreshButton onClick={handleRefresh}>
+          <img src={RefreshIcon} alt="Refresh" />
         </RefreshButton>
       </Header>
       <IntroMessageContainer>
