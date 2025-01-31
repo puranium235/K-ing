@@ -3,6 +3,7 @@ package com.king.backend.domain.curation.controller;
 import com.king.backend.domain.curation.dto.response.CurationDetailResponseDTO;
 import com.king.backend.domain.curation.service.CurationService;
 import com.king.backend.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/curation")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "BearerAuth")
 public class CurationController {
     private final CurationService curationService;
 
