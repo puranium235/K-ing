@@ -23,6 +23,9 @@ import ReviewFeedPage from './pages/ReviewFeedPage';
 import SearchFilterPage from './pages/SearchFilterPage';
 import SearchKeywordpage from './pages/SearchKeywordPage';
 import SearchResultPage from './pages/SearchResultPage';
+import SignupCompletePage from './pages/SignupCompletePage';
+import SignupPage from './pages/SignupPage';
+import TokenPage from './pages/TokenPage';
 import UploadPage from './pages/UploadPage';
 
 const Router = () => {
@@ -34,6 +37,9 @@ const Router = () => {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/home" element={<HomePage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/signup/complete" element={<SignupCompletePage />} />
+            <Route path="/token" element={<TokenPage />} />
             <Route path="/chatbot" element={<ChatbotPage />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/archive" element={<ArchivePage />} />
