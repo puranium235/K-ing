@@ -7,9 +7,11 @@ import GoodIcon from '../../assets/icons/good.png';
 import LocationIcon from '../../assets/icons/location.png';
 import PenIcon from '../../assets/icons/pen.png';
 import PhoneIcon from '../../assets/icons/phone.png';
+import { formatDate } from '../../util/dateFormat';
 
 const PlaceInfo = ({ placeData }) => {
-  const isAlwaysOpen = placeData.closedDays === '연중무휴';
+  const { closedDay, address, openHour, phone, createdAt } = placeData;
+  const isAlwaysOpen = closedDay === '연중무휴';
 
   return (
     <DetailContainer>
@@ -18,24 +20,24 @@ const PlaceInfo = ({ placeData }) => {
           src={isAlwaysOpen ? GoodIcon : BadIcon}
           alt={isAlwaysOpen ? 'Always Open' : 'Closed'}
         />
-        {placeData.closedDays}
+        {closedDay}
       </ImportantInfoItem>
       <Details>
-        <img src={LocationIcon} alt="Location" /> &nbsp; {placeData.address}
+        <img src={LocationIcon} alt="Location" /> &nbsp; {address}
       </Details>
       {!isAlwaysOpen && (
         <Details>
-          <img src={ClockIcon} alt="Clock" /> &nbsp; {placeData.closedDays} 휴무
+          <img src={ClockIcon} alt="Clock" /> &nbsp; {closedDay} 휴무
         </Details>
       )}
       <Details>
-        <img src={ClockIcon} alt="Clock" /> &nbsp; {placeData.openHours}
+        <img src={ClockIcon} alt="Clock" /> &nbsp; {openHour}
       </Details>
       <Details>
-        <img src={PhoneIcon} alt="Phone" /> &nbsp; {placeData.phone}
+        <img src={PhoneIcon} alt="Phone" /> &nbsp; {phone}
       </Details>
       <Details>
-        <img src={PenIcon} alt="Pen" /> &nbsp; {'2025.01.22'}
+        <img src={PenIcon} alt="Pen" /> &nbsp; {formatDate(createdAt)}
       </Details>
     </DetailContainer>
   );
