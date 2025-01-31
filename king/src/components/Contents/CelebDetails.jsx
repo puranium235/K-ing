@@ -7,12 +7,12 @@ import BackButton from '../common/BackButton';
 
 const CelebDetails = () => {
   const works = [
-    { year: 2025, title: '옥자의 게임 2', link: 'https://example.com/okja2' },
-    { year: 2024, title: '투르크', link: 'https://example.com/turk' },
+    { year: 2025, title: '오징어 게임 2', link: 'https://example.com/okja2' },
+    { year: 2024, title: '트렁크', link: 'https://example.com/turk' },
     { year: 2024, title: '원더랜드', link: 'https://example.com/wonderland' },
     { year: 2021, title: '고요의 바다', link: 'https://example.com/seaofsilence' },
     { year: 2021, title: '오징어 게임', link: 'https://example.com/squidgame' },
-    { year: 2021, title: '서복', link: 'https://example.com/seobok' },
+    { year: 2021, title: '서북', link: 'https://example.com/seobok' },
   ];
 
   const navigate = useNavigate();
