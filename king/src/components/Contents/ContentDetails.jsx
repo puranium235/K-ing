@@ -12,8 +12,11 @@ const ContentDetails = () => {
   const navigate = useNavigate();
 
   const handleClickPlaceInfo = () => {
-    fetchContent();
     navigate(`/search/keyword`);
+  };
+
+  const handleClickCast = (celebId) => {
+    navigate(`/content/celeb/${celebId}`);
   };
 
   const { contentId } = useParams();
@@ -80,7 +83,12 @@ const ContentDetails = () => {
         </IconText>
         <CastGrid>
           {contentInfo.relatedCasts.map((cast) => (
-            <CastMember key={cast.castId}>
+            <CastMember
+              key={cast.castId}
+              onClick={() => {
+                handleClickCast(cast.castId);
+              }}
+            >
               <img src={cast.imageUrl} alt="Cast" />
               <p>{cast.name}</p>
             </CastMember>
@@ -125,7 +133,7 @@ const Header = styled.div`
   min-height: 30vh;
 
   #poster {
-    width: 60%;
+    width: 50%;
     margin-right: 2rem;
   }
 
@@ -172,8 +180,8 @@ const IconText = styled.div`
   margin-bottom: 1rem;
 
   svg {
-    width: 15px;
-    height: 15px;
+    width: 20px;
+    height: 20px;
   }
 
   p {
