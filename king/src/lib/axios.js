@@ -15,7 +15,8 @@ export const client = axios.create({
 // ✅ 요청 인터셉터: 모든 요청에 `accessToken` 자동 추가
 client.interceptors.request.use(
   async (config) => {
-    let accessToken = localStorage.getItem('accessToken');
+    // let accessToken = localStorage.getItem('accessToken');
+    let accessToken = import.meta.env.VITE_MASTER_ACCESS_TOKEN;
 
     // 토큰 재발급 요청(`/user/token-refresh`)은 제외
     if (!config.url.includes('/user/token-refresh') && accessToken) {

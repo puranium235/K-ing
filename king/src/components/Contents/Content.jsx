@@ -1,31 +1,35 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { DramaDummyData } from '../../assets/dummy/dummyDataContents';
 import { IcStar } from '../../assets/icons';
-import { ContentType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 
 const Content = () => {
-  const dramas = DramaDummyData;
-  const [contentType, setContentType] = useRecoilState(ContentType);
+  const contents = DramaDummyData;
+
+  const { contentType } = useParams();
+  // const [contentType, setContentType] = useRecoilState(ContentType);
 
   const contentTypeMapping = {
-    드라마: 'drama',
-    영화: 'movie',
-    연예인: 'celeb',
-    예능: 'show',
+    drama: '드라마',
+    movie: '영화',
+    celeb: '연예인',
+    show: '예능',
   };
 
   const navigate = useNavigate();
 
   const handleDramaClick = (id) => {
-    const englishContentType = contentTypeMapping[contentType];
-    navigate(`/content/${englishContentType}/${id}`);
+    if (contentType === 'celeb') {
+      navigate(`/content/celeb/${id}`);
+    } else {
+      navigate(`/content/detail/${id}`);
+    }
   };
 
   return (
@@ -33,11 +37,11 @@ const Content = () => {
       <StHomeWrapper>
         <IconText>
           <BackButton />
-          <h3> {contentType}</h3>
+          <h3> {contentTypeMapping[contentType]}</h3>
         </IconText>
         <SearchBar />
         <GridContainer>
-          {dramas.map((drama) => (
+          {contents.map((drama) => (
             <Card key={drama.id} onClick={() => handleDramaClick(drama.id)}>
               <CardImageContainer>
                 <CardImage src={drama.image} alt={drama.title} />

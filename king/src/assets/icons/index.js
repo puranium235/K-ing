@@ -20,6 +20,7 @@ export { ReactComponent as IcLikes } from './ic_likes.svg';
 export { ReactComponent as IcMan } from './ic_man.svg';
 export { ReactComponent as IcMap } from './ic_map.svg';
 export { ReactComponent as IcMarker } from './ic_marker.svg';
+export { ReactComponent as IcMarker2 } from './ic_marker_2.svg';
 export { ReactComponent as IcMovie } from './ic_movie.svg';
 export { ReactComponent as IcMypage } from './ic_mypage.svg';
 export { ReactComponent as IcMypageSelected } from './ic_mypage_selected.svg';

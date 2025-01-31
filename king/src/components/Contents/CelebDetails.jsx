@@ -1,19 +1,22 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcBirth, IcMarker, IcPencil, IcSmallStar, IcStar, IcTv } from '../../assets/icons';
+import {
+  IcBirth,
+  IcMarker,
+  IcMarker2,
+  IcPencil,
+  IcSmallStar,
+  IcStar,
+  IcTv,
+} from '../../assets/icons';
+import { getCelebDetails } from '../../lib/content';
 import BackButton from '../common/BackButton';
 
 const CelebDetails = () => {
-  const works = [
-    { year: 2025, title: '옥자의 게임 2', link: 'https://example.com/okja2' },
-    { year: 2024, title: '투르크', link: 'https://example.com/turk' },
-    { year: 2024, title: '원더랜드', link: 'https://example.com/wonderland' },
-    { year: 2021, title: '고요의 바다', link: 'https://example.com/seaofsilence' },
-    { year: 2021, title: '오징어 게임', link: 'https://example.com/squidgame' },
-    { year: 2021, title: '서복', link: 'https://example.com/seobok' },
-  ];
+  const { celebId } = useParams();
+  const [celebInfo, setcelebInfo] = useState(null);
 
   const navigate = useNavigate();
 
@@ -21,80 +24,102 @@ const CelebDetails = () => {
     navigate(`/search/keyword`);
   };
 
+  const getDetails = async () => {
+    const res = await getCelebDetails(celebId);
+    setcelebInfo(res);
+
+    // if (celebInfo) {
+    //   const { title, type, broadcast, description, imageUrl, relatedCasts, favorite } = contentInfo;
+    //   setTypeKor(getContentTypeKor(convertLowerCase(type)));
+    // }
+  };
+
+  const handleClickContent = (contentId) => {
+    navigate(`/content/detail/${contentId}`);
+  };
+
+  useEffect(() => {
+    getDetails();
+  }, [celebInfo]);
+
+  if (!celebInfo) {
+    return null;
+  }
+
   return (
-    <CelebPageContainer>
-      <IconText>
-        <BackButton />
-        <h3> 세부정보</h3>
-      </IconText>
-
-      <Header>
-        <img id="poster" src="/src/assets/dummy/celeb_big.png" alt="Celeb Poster" />
-        <TitleSection>
-          <h3>공유</h3>
-          <IconText>
-            <IcBirth />
-            <p>1979.07.10</p>
-          </IconText>
-          <IconText>
-            <img src="/src/assets/icons/location.png" alt="marker" />
-            <p>부산, 대한민국</p>
-          </IconText>
-          <IconText>
-            <IcTv />
-            <p>41작</p>
-          </IconText>
-        </TitleSection>
-        <IcStar id="favor" />
-      </Header>
-
-      <Synopsis>
+    <>
+      <CelebPageContainer>
         <IconText>
-          <IcSmallStar />
-          <p>대표 작품</p>
+          <BackButton />
+          <h3> 세부정보</h3>
         </IconText>
-        <CastGrid>
-          <CastMember>
-            <img src="/src/assets/dummy/poster1.png" alt="Cast Member" />
-            <p>도깨비</p>
-          </CastMember>
-          <CastMember>
-            <img src="/src/assets/dummy/poster1.png" alt="Cast Member" />
-            <p>도가니</p>
-          </CastMember>
-          <CastMember>
-            <img src="/src/assets/dummy/poster1.png" alt="Cast Member" />
-            <p>커피프린스 1호점</p>
-          </CastMember>
-          <CastMember>
-            <img src="/src/assets/dummy/poster1.png" alt="Cast Member" />
-            <p>부산행</p>
-          </CastMember>
-        </CastGrid>
-      </Synopsis>
 
-      <ListWrapper>
-        <IconText>
-          <IcPencil />
-          <p>작품 활동</p>
-        </IconText>
-        <ul>
-          {works.map((work, index) => (
-            <li key={index}>
-              {work.year} -{' '}
-              <a href={work.link} target="_blank" rel="noopener noreferrer">
-                {work.title}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </ListWrapper>
+        <Header>
+          <img
+            id="poster"
+            src={celebInfo.imageUrl ? celebInfo.imageUrl : '/src/assets/dummy/celeb_big.png'}
+            alt="Celeb Poster"
+          />
+          <TitleSection>
+            <h3>{celebInfo.name}</h3>
+            <IconText>
+              <IcBirth />
+              <p>{celebInfo.birthDate}</p>
+            </IconText>
+            <IconText>
+              <IcMarker2 />
+              <p>{celebInfo.birthPlace}</p>
+            </IconText>
+            <IconText>
+              <IcTv />
+              <p>{celebInfo.participatingWorks}</p>
+            </IconText>
+          </TitleSection>
+          <IcStar id="favor" />
+        </Header>
 
+        <Synopsis>
+          <IconText>
+            <IcSmallStar />
+            <p>대표 작품</p>
+          </IconText>
+          <WorkGrid>
+            {celebInfo.relatedContents.map((work) => (
+              <Work key={work.contentId}>
+                <img src={work.imageUrl} alt="work Poster" />
+                <p>{work.title}</p>
+              </Work>
+            ))}
+          </WorkGrid>
+        </Synopsis>
+
+        <ListWrapper>
+          <IconText>
+            <IcPencil />
+            <p>작품 활동</p>
+          </IconText>
+          <WorkWrapper>
+            {celebInfo.works.map((work, index) => (
+              <li key={index}>
+                {work.year}
+                <p
+                  onClick={() => {
+                    handleClickContent(work.contentId);
+                  }}
+                >
+                  {work.title}
+                </p>
+                <hr />
+              </li>
+            ))}
+          </WorkWrapper>
+        </ListWrapper>
+      </CelebPageContainer>
       <ActionButton onClick={handleClickPlaceInfo}>
         <IcMarker />
-        <p>'공유'의 다른 촬영지가 궁금하다면 ?</p>
+        <p>'{celebInfo.name}'의 촬영지 알아보기</p>
       </ActionButton>
-    </CelebPageContainer>
+    </>
   );
 };
 
@@ -103,7 +128,9 @@ export default CelebDetails;
 const CelebPageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+
+  min-height: 80%;
 
   padding: 20px;
   background-color: #fff;
@@ -123,8 +150,10 @@ const Header = styled.div`
   align-items: end;
   margin-bottom: 20px;
 
+  min-height: 30vh;
+
   #poster {
-    width: 60%;
+    width: 50%;
     margin-right: 2rem;
   }
 
@@ -145,7 +174,7 @@ const TitleSection = styled.div`
   margin-top: 10px;
 
   h3 {
-    ${({ theme }) => theme.fonts.Title3};
+    ${({ theme }) => theme.fonts.Title4};
   }
 
   p {
@@ -170,7 +199,7 @@ const IconText = styled.div`
 
   margin-bottom: 1rem;
 
-  img {
+  svg {
     width: 20px;
     height: 20px;
   }
@@ -180,7 +209,7 @@ const IconText = styled.div`
   }
 `;
 
-const CastGrid = styled.div`
+const WorkGrid = styled.div`
   display: flex;
   flex-direction: row;
   gap: 1rem;
@@ -195,13 +224,15 @@ const CastGrid = styled.div`
   }
 `;
 
-const CastMember = styled.div`
+const Work = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
 
   flex: 0 0 104px;
   height: auto;
+
+  width: 10rem;
 
   img {
     width: 100%;
@@ -210,6 +241,12 @@ const CastMember = styled.div`
   p {
     margin-top: 5px;
     ${({ theme }) => theme.fonts.Body2};
+
+    width: 100%;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `;
 
@@ -220,12 +257,24 @@ const ListWrapper = styled.div`
   margin-bottom: 2rem;
 
   margin-bottom: 0.5rem;
-  ul {
-    ${({ theme }) => theme.fonts.Title3}
+`;
+
+const WorkWrapper = styled.ul`
+  li {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    ${({ theme }) => theme.fonts.Body2};
+    color: #868181;
   }
 
-  a {
-    color: ${({ theme }) => theme.colors.Gray0};
+  p {
+    margin-left: 2rem;
+    ${({ theme }) => theme.fonts.Title6};
+    color: ${({ theme }) => theme.colors.Gray1};
+    text-decoration: underline;
   }
 `;
 
@@ -245,7 +294,7 @@ const ActionButton = styled.button`
   text-align: center;
 
   background-image: linear-gradient(to right, #0062ff, #71c8ff);
-  ${({ theme }) => theme.fonts.Title3};
+  ${({ theme }) => theme.fonts.Head2};
   color: ${({ theme }) => theme.colors.White};
 
   p {
