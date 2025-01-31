@@ -24,7 +24,7 @@ public class CurationDetailResponseDTO {
     private WriterDTO writer;
     private List<PlaceDTO> places;
 
-    private static CurationDetailResponseDTO fromEntity(
+    public static CurationDetailResponseDTO fromEntity(
             CurationList curationList,
             boolean bookmarked,
             List<PlaceDTO> places
