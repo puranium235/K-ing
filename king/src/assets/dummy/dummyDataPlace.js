@@ -1,15 +1,18 @@
 export const placeDummyData = [
   {
+    id: 1,
     image: '/src/assets/dummy/place1.png',
     title: '내음새 마을관광',
     description: '자연 속 용문리 마을관광',
   },
   {
+    id: 2,
     image: '/src/assets/dummy/place2.png',
     title: '사유원',
     description: '퀸즈가의 사냥터',
   },
   {
+    id: 3,
     image: '/src/assets/dummy/place1.png',
     title: '내음새 마을관광',
     description: '자연 속 용문리 마을관광',

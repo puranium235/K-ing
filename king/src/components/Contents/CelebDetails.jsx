@@ -2,45 +2,47 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcMarker, IcStar } from '../../assets/icons';
-import { getContents } from '../../lib/content';
+import { IcBirth, IcMarker, IcPencil, IcSmallStar, IcStar, IcTv } from '../../assets/icons';
 import BackButton from '../common/BackButton';
 
-const ContentDetails = () => {
+const CelebDetails = () => {
+  const works = [
+    { year: 2025, title: '옥자의 게임 2', link: 'https://example.com/okja2' },
+    { year: 2024, title: '투르크', link: 'https://example.com/turk' },
+    { year: 2024, title: '원더랜드', link: 'https://example.com/wonderland' },
+    { year: 2021, title: '고요의 바다', link: 'https://example.com/seaofsilence' },
+    { year: 2021, title: '오징어 게임', link: 'https://example.com/squidgame' },
+    { year: 2021, title: '서복', link: 'https://example.com/seobok' },
+  ];
+
   const navigate = useNavigate();
 
   const handleClickPlaceInfo = () => {
-    fetchContent();
     navigate(`/search/keyword`);
   };
 
-  const fetchContent = async () => {
-    try {
-      const details = await getContents(1);
-      console.log(details);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   return (
-    <DramaPageContainer>
+    <CelebPageContainer>
       <IconText>
         <BackButton />
         <h3> 세부정보</h3>
       </IconText>
 
       <Header>
-        <img id="poster" src="/src/assets/dummy/poster1.png" alt="Drama Poster" />
+        <img id="poster" src="/src/assets/dummy/celeb_big.png" alt="Celeb Poster" />
         <TitleSection>
-          <h3>도깨비</h3>
+          <h3>공유</h3>
           <IconText>
-            <img src="/src/assets/icons/location.png" alt="marker" />
-            <p>드라마</p>
+            <IcBirth />
+            <p>1979.07.10</p>
           </IconText>
           <IconText>
             <img src="/src/assets/icons/location.png" alt="marker" />
-            <p>tvN</p>
+            <p>부산, 대한민국</p>
+          </IconText>
+          <IconText>
+            <IcTv />
+            <p>41작</p>
           </IconText>
         </TitleSection>
         <IcStar id="favor" />
@@ -48,47 +50,57 @@ const ContentDetails = () => {
 
       <Synopsis>
         <IconText>
-          <img src="/src/assets/icons/location.png" alt="marker" />
-          <p>소개</p>
+          <IcSmallStar />
+          <p>대표 작품</p>
         </IconText>
-        불멸의 삶을 끝내기 위해 인간 신부가 필요한 도깨비, 그와 기묘한 동거를 시작한 기억상실증
-        저승사자. 그런 그들 앞에 '도깨비 신부' 라 주장하는 '죽었어야 할 운명'의 소녀가 나타나며
-        벌어지는 신비로운 낭만 설화
+        <CastGrid>
+          <CastMember>
+            <img src="/src/assets/dummy/poster1.png" alt="Cast Member" />
+            <p>도깨비</p>
+          </CastMember>
+          <CastMember>
+            <img src="/src/assets/dummy/poster1.png" alt="Cast Member" />
+            <p>도가니</p>
+          </CastMember>
+          <CastMember>
+            <img src="/src/assets/dummy/poster1.png" alt="Cast Member" />
+            <p>커피프린스 1호점</p>
+          </CastMember>
+          <CastMember>
+            <img src="/src/assets/dummy/poster1.png" alt="Cast Member" />
+            <p>부산행</p>
+          </CastMember>
+        </CastGrid>
       </Synopsis>
 
-      <IconText>
-        <img src="/src/assets/icons/location.png" alt="marker" />
-        <p>등장인물</p>
-      </IconText>
-      <CastGrid>
-        <CastMember>
-          <img src="/src/assets/dummy/celeb1.png" alt="Cast Member" />
-          <p>공유</p>
-        </CastMember>
-        <CastMember>
-          <img src="/src/assets/dummy/celeb2.png" alt="Cast Member" />
-          <p>김고은</p>
-        </CastMember>
-        <CastMember>
-          <img src="/src/assets/dummy/celeb3.png" alt="Cast Member" />
-          <p>이동욱</p>
-        </CastMember>
-        <CastMember>
-          <img src="/src/assets/dummy/celeb4.png" alt="Cast Member" />
-          <p>유인나</p>
-        </CastMember>
-      </CastGrid>
+      <ListWrapper>
+        <IconText>
+          <IcPencil />
+          <p>작품 활동</p>
+        </IconText>
+        <ul>
+          {works.map((work, index) => (
+            <li key={index}>
+              {work.year} -{' '}
+              <a href={work.link} target="_blank" rel="noopener noreferrer">
+                {work.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </ListWrapper>
+
       <ActionButton onClick={handleClickPlaceInfo}>
         <IcMarker />
-        <p>촬영지 알아보기</p>
+        <p>'공유'의 다른 촬영지가 궁금하다면 ?</p>
       </ActionButton>
-    </DramaPageContainer>
+    </CelebPageContainer>
   );
 };
 
-export default ContentDetails;
+export default CelebDetails;
 
-const DramaPageContainer = styled.div`
+const CelebPageContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -164,7 +176,7 @@ const IconText = styled.div`
   }
 
   p {
-    ${({ theme }) => theme.fonts.Title5};
+    ${({ theme }) => theme.fonts.Title6};
   }
 `;
 
@@ -201,6 +213,22 @@ const CastMember = styled.div`
   }
 `;
 
+const ListWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  margin-bottom: 2rem;
+
+  margin-bottom: 0.5rem;
+  ul {
+    ${({ theme }) => theme.fonts.Title3}
+  }
+
+  a {
+    color: ${({ theme }) => theme.colors.Gray0};
+  }
+`;
+
 const ActionButton = styled.button`
   display: flex;
   flex-direction: row;
@@ -217,7 +245,7 @@ const ActionButton = styled.button`
   text-align: center;
 
   background-image: linear-gradient(to right, #0062ff, #71c8ff);
-  ${({ theme }) => theme.fonts.Head2};
+  ${({ theme }) => theme.fonts.Title3};
   color: ${({ theme }) => theme.colors.White};
 
   p {
