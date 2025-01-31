@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 
 import ScrollToTop from './components/common/ScrollToTop';
+import AIChatPage from './pages/AIChatPage';
 import ArchivePage from './pages/ArchivePage';
 import CelebDetailPage from './pages/CelebDetailPage';
 import ChatbotPage from './pages/ChatbotPage';
@@ -47,6 +48,7 @@ const Router = () => {
             <Route path="/content/:contentType" element={<ContentPage />} />
             <Route path="/content/celeb/:celebId" element={<CelebDetailPage />} />
             <Route path="/content/:contentType/:dramaId" element={<ContentDetailPage />} />
+            <Route path="/ai" element={<AIChatPage />} />
             {/* 카테고리 설정시 */}
             <Route path="/search/keyword" element={<SearchKeywordpage />} />
             <Route path="/search/keyword/filter" element={<SearchFilterPage />} />
