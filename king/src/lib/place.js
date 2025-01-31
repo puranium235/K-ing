@@ -4,7 +4,7 @@ import { client } from './axios';
 export const getPlaceDetail = async (placeId) => {
   try {
     const { data } = await client.get(`/place/${placeId}`);
-    return data;
+    return data.data;
   } catch (err) {
     console.error(err);
   }

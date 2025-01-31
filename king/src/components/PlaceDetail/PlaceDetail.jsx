@@ -17,15 +17,12 @@ const PlaceDetail = () => {
   const [placeData, setPlaceData] = useState(null);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchPlace = async () => {
       try {
         const result = await getPlaceDetail(placeId);
-        setPlaceData(result.data);
-      } catch (err) {
-        setError('데이터를 불러오지 못했습니다.');
+        setPlaceData(result);
       } finally {
         setLoading(false);
       }
@@ -35,7 +32,6 @@ const PlaceDetail = () => {
   }, [placeId]);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
 
   const handleRoute = () => {
     navigate(`/reviewfeed/${placeId}`);
