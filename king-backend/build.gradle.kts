@@ -47,6 +47,8 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
 
+    // https://mvnrepository.com/artifact/software.amazon.awssdk/s3
+    testImplementation("software.amazon.awssdk:s3:2.30.8")
 
 }
 
