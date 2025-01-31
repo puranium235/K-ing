@@ -2,13 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcMan, IcMarker, IcMarker2, IcPencil, IcStar, IcTv } from '../../assets/icons';
+import {
+  IcMan,
+  IcMarker,
+  IcMarker2,
+  IcPencil,
+  IcStar,
+  IcStarBlank,
+  IcTv,
+} from '../../assets/icons';
 import { getContentDetails } from '../../lib/content';
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 
 const ContentDetails = () => {
+  const { contentId } = useParams();
+  const [contentInfo, setContentInfo] = useState(null);
+  const [typeKor, setTypeKor] = useState('');
+  const [isFavorited, setIsFavorited] = useState(false);
+
   const navigate = useNavigate();
 
   const handleClickPlaceInfo = () => {
@@ -19,23 +32,24 @@ const ContentDetails = () => {
     navigate(`/content/celeb/${celebId}`);
   };
 
-  const { contentId } = useParams();
-  const [contentInfo, setContentInfo] = useState(null);
-  const [typeKor, setTypeKor] = useState('');
+  const toggleFavorite = () => {
+    setIsFavorited(!isFavorited);
+  };
 
   const getDetails = async () => {
     const res = await getContentDetails(contentId);
     setContentInfo(res);
 
     if (contentInfo) {
-      const { title, type, broadcast, description, imageUrl, relatedCasts, favorite } = contentInfo;
+      const { type, favorite } = contentInfo;
       setTypeKor(getContentTypeKor(convertLowerCase(type)));
+      setIsFavorited(favorite);
     }
   };
 
   useEffect(() => {
     getDetails();
-  }, [contentInfo]);
+  }, [contentId]);
 
   if (!contentInfo) {
     return null;
@@ -66,7 +80,11 @@ const ContentDetails = () => {
               <p>{contentInfo.broadcast}</p>
             </IconText>
           </TitleSection>
-          <IcStar id="favor" />
+          {isFavorited ? (
+            <IcStar id="favor" onClick={toggleFavorite} />
+          ) : (
+            <IcStarBlank id="favor" onClick={toggleFavorite} />
+          )}
         </Header>
 
         <Synopsis>
