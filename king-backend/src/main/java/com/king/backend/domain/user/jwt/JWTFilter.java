@@ -33,7 +33,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String accessToken = authorization.substring(7);
 
-        if (jwtUtil.isExpired(accessToken)) {
+        try {
+            jwtUtil.isExpired(accessToken);
+        } catch (Exception e) {
             throw new CustomException(UserErrorCode.ACCESSTOKEN_EXPIRED);
         }
 
