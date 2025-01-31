@@ -2,7 +2,7 @@ package com.king.backend.domain.user.service;
 
 import com.king.backend.domain.user.dto.domain.GoogleUserDTO;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
-import com.king.backend.domain.user.entity.UserEntity;
+import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
@@ -28,7 +28,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         String registrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
 
-        UserEntity userEntity = null;
+        User userEntity = null;
 
         if (registrationId.equals("google")) {
             GoogleUserDTO googleUserDTO = GoogleUserDTO.from(oAuth2User);
@@ -36,7 +36,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             userEntity = userRepository.findByGoogleIdAndStatusIn(googleUserDTO.getGoogleId(), List.of("ROLE_PENDING", "ROLE_REGISTERED"));
 
             if (userEntity == null) {
-                userEntity = new UserEntity();
+                userEntity = new User();
                 userEntity.setGoogleId(googleUserDTO.getGoogleId());
                 userEntity.setStatus("ROLE_PENDING");
             }
