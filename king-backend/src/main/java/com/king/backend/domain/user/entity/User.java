@@ -3,6 +3,7 @@ package com.king.backend.domain.user.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "user")
-public class UserEntity {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,10 @@ public class UserEntity {
 
     private String googleId;
     private String lineId;
+
+    @CreatedDate
     private LocalDateTime createdAt;
+
     private String description;
     private Boolean contentAlarmOn;
     private String language;

@@ -1,88 +1,123 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcMarker, IcStar } from '../../assets/icons';
-import { getContents } from '../../lib/content';
+import {
+  IcMan,
+  IcMarker,
+  IcMarker2,
+  IcPencil,
+  IcStar,
+  IcStarBlank,
+  IcTv,
+} from '../../assets/icons';
+import { getContentDetails } from '../../lib/content';
+import { convertLowerCase } from '../../util/changeStrFormat';
+import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 
 const ContentDetails = () => {
+  const { contentId } = useParams();
+  const [contentInfo, setContentInfo] = useState(null);
+  const [typeKor, setTypeKor] = useState('');
+  const [isFavorited, setIsFavorited] = useState(false);
+
   const navigate = useNavigate();
 
   const handleClickPlaceInfo = () => {
-    fetchContent();
     navigate(`/search/keyword`);
   };
 
-  const fetchContent = async () => {
-    try {
-      const details = await getContents(1);
-      console.log(details);
-    } catch (error) {
-      console.error(error);
+  const handleClickCast = (celebId) => {
+    navigate(`/content/celeb/${celebId}`);
+  };
+
+  const toggleFavorite = () => {
+    setIsFavorited(!isFavorited);
+  };
+
+  const getDetails = async () => {
+    const res = await getContentDetails(contentId);
+    setContentInfo(res);
+
+    if (contentInfo) {
+      const { type, favorite } = contentInfo;
+      setTypeKor(getContentTypeKor(convertLowerCase(type)));
+      setIsFavorited(favorite);
     }
   };
 
+  useEffect(() => {
+    getDetails();
+  }, [contentId]);
+
+  if (!contentInfo) {
+    return null;
+  }
+
   return (
-    <DramaPageContainer>
-      <IconText>
-        <BackButton />
-        <h3> 세부정보</h3>
-      </IconText>
-
-      <Header>
-        <img id="poster" src="/src/assets/dummy/poster1.png" alt="Drama Poster" />
-        <TitleSection>
-          <h3>도깨비</h3>
-          <IconText>
-            <img src="/src/assets/icons/location.png" alt="marker" />
-            <p>드라마</p>
-          </IconText>
-          <IconText>
-            <img src="/src/assets/icons/location.png" alt="marker" />
-            <p>tvN</p>
-          </IconText>
-        </TitleSection>
-        <IcStar id="favor" />
-      </Header>
-
-      <Synopsis>
+    <>
+      <DramaPageContainer>
         <IconText>
-          <img src="/src/assets/icons/location.png" alt="marker" />
-          <p>소개</p>
+          <BackButton />
+          <h3> 세부정보</h3>
         </IconText>
-        불멸의 삶을 끝내기 위해 인간 신부가 필요한 도깨비, 그와 기묘한 동거를 시작한 기억상실증
-        저승사자. 그런 그들 앞에 '도깨비 신부' 라 주장하는 '죽었어야 할 운명'의 소녀가 나타나며
-        벌어지는 신비로운 낭만 설화
-      </Synopsis>
 
-      <IconText>
-        <img src="/src/assets/icons/location.png" alt="marker" />
-        <p>등장인물</p>
-      </IconText>
-      <CastGrid>
-        <CastMember>
-          <img src="/src/assets/dummy/celeb1.png" alt="Cast Member" />
-          <p>공유</p>
-        </CastMember>
-        <CastMember>
-          <img src="/src/assets/dummy/celeb2.png" alt="Cast Member" />
-          <p>김고은</p>
-        </CastMember>
-        <CastMember>
-          <img src="/src/assets/dummy/celeb3.png" alt="Cast Member" />
-          <p>이동욱</p>
-        </CastMember>
-        <CastMember>
-          <img src="/src/assets/dummy/celeb4.png" alt="Cast Member" />
-          <p>유인나</p>
-        </CastMember>
-      </CastGrid>
+        <Header>
+          <img
+            id="poster"
+            src={contentInfo.imageUrl ? contentInfo.imageUrl : '/src/assets/dummy/poster1.png'}
+            alt="Poster"
+          />
+          <TitleSection>
+            <h3>{contentInfo.title}</h3>
+            <IconText>
+              <IcTv />
+              <p>{typeKor}</p>
+            </IconText>
+            <IconText>
+              <IcMarker2 />
+              <p>{contentInfo.broadcast}</p>
+            </IconText>
+          </TitleSection>
+          {isFavorited ? (
+            <IcStar id="favor" onClick={toggleFavorite} />
+          ) : (
+            <IcStarBlank id="favor" onClick={toggleFavorite} />
+          )}
+        </Header>
+
+        <Synopsis>
+          <IconText>
+            <IcPencil />
+            <p>소개</p>
+          </IconText>
+          {contentInfo.description}
+        </Synopsis>
+
+        <IconText>
+          <IcMan />
+          <p>등장인물</p>
+        </IconText>
+        <CastGrid>
+          {contentInfo.relatedCasts.map((cast) => (
+            <CastMember
+              key={cast.castId}
+              onClick={() => {
+                handleClickCast(cast.castId);
+              }}
+            >
+              <img src={cast.imageUrl} alt="Cast" />
+              <p>{cast.name}</p>
+            </CastMember>
+          ))}
+        </CastGrid>
+      </DramaPageContainer>
       <ActionButton onClick={handleClickPlaceInfo}>
         <IcMarker />
         <p>촬영지 알아보기</p>
       </ActionButton>
-    </DramaPageContainer>
+    </>
   );
 };
 
@@ -91,10 +126,12 @@ export default ContentDetails;
 const DramaPageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
 
   padding: 20px;
   background-color: #fff;
+
+  min-height: 80%;
 
   h3 {
     width: 100%;
@@ -111,8 +148,10 @@ const Header = styled.div`
   align-items: end;
   margin-bottom: 20px;
 
+  min-height: 30vh;
+
   #poster {
-    width: 60%;
+    width: 50%;
     margin-right: 2rem;
   }
 
@@ -133,7 +172,7 @@ const TitleSection = styled.div`
   margin-top: 10px;
 
   h3 {
-    ${({ theme }) => theme.fonts.Title3};
+    ${({ theme }) => theme.fonts.Title4};
   }
 
   p {
@@ -158,7 +197,7 @@ const IconText = styled.div`
 
   margin-bottom: 1rem;
 
-  img {
+  svg {
     width: 20px;
     height: 20px;
   }

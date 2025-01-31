@@ -33,7 +33,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String accessToken = authorization.substring(7);
 
-        if (jwtUtil.isExpired(accessToken)) {
+        try {
+            jwtUtil.isExpired(accessToken);
+        } catch (Exception e) {
             throw new CustomException(UserErrorCode.ACCESSTOKEN_EXPIRED);
         }
 
@@ -44,8 +46,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String userId = jwtUtil.getUserId(accessToken);
         String role = jwtUtil.getRole(accessToken);
-
-        System.out.println("자 다 통과했다 " + userId + " " + role);
 
         OAuth2UserDTO oAuth2UserDTO = new OAuth2UserDTO();
         oAuth2UserDTO.setName(userId);

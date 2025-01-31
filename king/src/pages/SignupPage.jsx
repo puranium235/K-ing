@@ -1,17 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import AIChatView from '../components/AI/AIChatView';
+import Home from '../components/Home/Home';
+import Signup from '../components/Signup/Signup';
 
-const ChatbotPage = () => {
+const SignupPage = () => {
   return (
     <>
-      <AIChatView />
+      <Signup />
     </>
   );
 };
 
-export default ChatbotPage;
+export default SignupPage;
 
 const St = {
   Wrapper: styled.article`

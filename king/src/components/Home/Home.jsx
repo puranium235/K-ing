@@ -20,10 +20,10 @@ const Home = () => {
   const navigate = useNavigate();
 
   const genreIcons = [
-    { icon: IcDrama, label: '드라마', link: '/drama' },
-    { icon: IcMovie, label: '영화', link: '/movie' },
-    { icon: IcShow, label: '예능', link: '/show' },
-    { icon: IcCeleb, label: '연예인', link: '/celeb' },
+    { icon: IcDrama, label: '드라마', contentType: 'drama' },
+    { icon: IcMovie, label: '영화', contentType: 'movie' },
+    { icon: IcShow, label: '예능', contentType: 'show' },
+    { icon: IcCeleb, label: '연예인', contentType: 'celeb' },
   ];
 
   const carouselList = CurationsDummyData;

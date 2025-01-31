@@ -4,7 +4,7 @@ import com.king.backend.domain.user.dto.request.SignUpRequestDTO;
 import com.king.backend.domain.user.dto.response.NicknameResponseDTO;
 import com.king.backend.domain.user.dto.response.SignUpResponseDTO;
 import com.king.backend.domain.user.entity.TokenEntity;
-import com.king.backend.domain.user.entity.UserEntity;
+import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.jwt.JWTUtil;
 import com.king.backend.domain.user.repository.TokenRepository;
@@ -46,7 +46,9 @@ public class UserController {
             throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
-        if (jwtUtil.isExpired(oldRefreshToken)) {
+        try {
+            jwtUtil.isExpired(oldRefreshToken);
+        } catch (Exception e) {
             throw new CustomException(UserErrorCode.REFRESHTOKEN_EXPIRED);
         }
 
@@ -100,7 +102,7 @@ public class UserController {
 
         Long userId = Long.parseLong(authentication.getName());
 
-        UserEntity findUser = userRepository.findByIdAndStatus(userId, "ROLE_PENDING")
+        User findUser = userRepository.findByIdAndStatus(userId, "ROLE_PENDING")
                 .orElseThrow(() -> new CustomException(UserErrorCode.NOT_PENDING_USER));
 
         findUser.setNickname(signUpRequestDTO.getNickname());
