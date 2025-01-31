@@ -46,7 +46,9 @@ public class UserController {
             throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
-        if (jwtUtil.isExpired(oldRefreshToken)) {
+        try {
+            jwtUtil.isExpired(oldRefreshToken);
+        } catch (Exception e) {
             throw new CustomException(UserErrorCode.REFRESHTOKEN_EXPIRED);
         }
 
