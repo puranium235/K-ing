@@ -45,8 +45,6 @@ public class JWTFilter extends OncePerRequestFilter {
         String userId = jwtUtil.getUserId(accessToken);
         String role = jwtUtil.getRole(accessToken);
 
-        System.out.println("자 다 통과했다 " + userId + " " + role);
-
         OAuth2UserDTO oAuth2UserDTO = new OAuth2UserDTO();
         oAuth2UserDTO.setName(userId);
         oAuth2UserDTO.setAuthorities(List.of(new SimpleGrantedAuthority(role)));
