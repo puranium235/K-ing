@@ -3,13 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcMarker, IcStar } from '../../assets/icons';
+import { getContents } from '../../lib/content';
 import BackButton from '../common/BackButton';
 
 const ContentDetails = () => {
   const navigate = useNavigate();
 
   const handleClickPlaceInfo = () => {
+    fetchContent();
     navigate(`/search/keyword`);
+  };
+
+  const fetchContent = async () => {
+    try {
+      const details = await getContents(1);
+      console.log(details);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

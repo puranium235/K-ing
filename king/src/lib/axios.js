@@ -1,8 +1,10 @@
-// import axios from "axios";
+import axios from 'axios';
 
-// export const client = axios.create({
-//   baseURL: VITE_API_BASE_URL,
-//   headers: {
-//     "Content-type": "application/json",
-//   },
-// });
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+export const client = axios.create({
+  baseURL,
+  headers: {
+    'Content-type': 'application/json',
+  },
+});
