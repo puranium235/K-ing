@@ -4,6 +4,7 @@ import com.king.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -18,8 +19,10 @@ public class CurationList {
     private String title;
     private String description;
     private String imageUrl;
-    private LocalDateTime createdAt;
     private boolean isPublic;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

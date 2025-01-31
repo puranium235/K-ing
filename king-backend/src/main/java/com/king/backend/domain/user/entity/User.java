@@ -3,6 +3,7 @@ package com.king.backend.domain.user.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +28,10 @@ public class User {
 
     private String googleId;
     private String lineId;
+
+    @CreatedDate
     private LocalDateTime createdAt;
+
     private String description;
     private Boolean contentAlarmOn;
     private String language;

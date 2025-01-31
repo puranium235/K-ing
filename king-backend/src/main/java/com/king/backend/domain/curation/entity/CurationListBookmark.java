@@ -4,6 +4,9 @@ import com.king.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "curation_list_bookmark")
@@ -20,4 +23,7 @@ public class CurationListBookmark {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
 }
