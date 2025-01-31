@@ -4,18 +4,22 @@ import { client } from './axios';
 // ✅ 닉네임 중복 검사 API
 export const checkNickname = async (nickname) => {
   try {
-    const res = await client.get('/user/nickname', { params: { nickname } });
-    return res.data.success;
+    const res = await client.get(`/user/nickname?nickname=${nickname}`);
+    return { success: res.data.success, message: '' }; // 닉네임 사용 가능
   } catch (err) {
-    if (err.response?.status === 409) {
-      return false; // 중복된 닉네임
-    }
     console.error('닉네임 중복 검사 실패:', err);
-    return false;
+
+    // 닉네임이 중복된 경우 (409 상태 코드)
+    if (err.response?.status === 409) {
+      return { success: false, message: '중복된 닉네임입니다.' };
+    }
+
+    // 서버 오류 또는 다른 예외 처리
+    return { success: false, message: '서버 오류가 발생했습니다. 다시 시도해주세요.' };
   }
 };
 
-// ✅ 회원가입 API (AccessToken 저장)
+// ✅ 회원가입 API (AccessToken 저장 및 에러 처리 포함)
 export const postSignup = async (nickname, language) => {
   try {
     const res = await client.post('/user/signup', { nickname, language });
@@ -23,13 +27,29 @@ export const postSignup = async (nickname, language) => {
     // ✅ 서버가 응답 헤더에 AccessToken을 포함하면 저장
     const accessToken = res.headers.authorization?.split(' ')[1];
     if (accessToken) {
-      localStorage.setItem('accessToken', accessToken); // 저장
+      localStorage.setItem('accessToken', accessToken);
     }
 
-    return res;
+    return { success: true, message: '' };
   } catch (err) {
     console.error('회원가입 요청 실패:', err);
-    throw err;
+
+    if (err.response) {
+      const { code } = err.response.data;
+      let errorMessage = '회원가입에 실패했습니다. 다시 시도해주세요.';
+
+      if (code === 'INVALID_NICKNAME') {
+        errorMessage = '유효하지 않은 닉네임입니다.';
+      } else if (code === 'INVALID_LANGUAGE') {
+        errorMessage = '유효하지 않은 언어코드입니다.';
+      } else if (code === 'DUPLICATED_NICKNAME') {
+        errorMessage = '중복된 닉네임입니다.';
+      }
+
+      return { success: false, message: errorMessage };
+    }
+
+    return { success: false, message: '서버 오류가 발생했습니다. 다시 시도해주세요.' };
   }
 };
 

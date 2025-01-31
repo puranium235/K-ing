@@ -19,15 +19,12 @@ const Signup = () => {
     const trimmedName = name.trim();
 
     if (name.length === 0) {
-      // (1) 닉네임을 입력하지 않은 상태
       setIsValidName(false);
       setErrorMessage('닉네임은 50자 이내여야 합니다.');
     } else if (trimmedName.length === 0) {
-      // (2) 공백만 입력한 경우
       setIsValidName(false);
       setErrorMessage('닉네임은 공백만 입력할 수 없습니다.');
     } else if (trimmedName.length > 50) {
-      // (3) 닉네임이 50자를 초과한 경우
       setIsValidName(false);
       setErrorMessage('닉네임은 50자 이내여야 합니다.');
     } else {
@@ -42,12 +39,13 @@ const Signup = () => {
 
     const timer = setTimeout(async () => {
       setCheckingName(true);
-      const isAvailable = await checkNickname(name);
-      setIsNameAvailable(isAvailable);
+      const { success, message } = await checkNickname(name);
 
-      if (!isAvailable) {
-        setErrorMessage('중복된 닉네임입니다.');
+      setIsNameAvailable(success); // 성공 여부 업데이트
+      if (!success) {
+        setErrorMessage(message); // 중복된 경우 에러 메시지 설정
       }
+
       setCheckingName(false);
     }, 500); // 500ms 디바운싱 적용
 
@@ -58,28 +56,11 @@ const Signup = () => {
   const handleSignup = async () => {
     setErrorMessage('');
 
-    try {
-      const response = await postSignup(name, language);
-      if (response.data.success) {
-        navigate('/signup/complete');
-      }
-    } catch (error) {
-      if (error.response) {
-        const { code } = error.response.data;
-
-        if (code === 'INVALID_NICKNAME') {
-          setErrorMessage('유효하지 않은 닉네임입니다.');
-        } else if (code === 'INVALID_LANGUAGE') {
-          setErrorMessage('유효하지 않은 언어코드입니다.');
-        } else if (code === 'DUPLICATED_NICKNAME') {
-          setErrorMessage('중복된 닉네임입니다.');
-        } else {
-          setErrorMessage('회원가입에 실패했습니다. 다시 시도해주세요.');
-        }
-      } else {
-        console.error('회원가입 요청 실패:', error);
-        setErrorMessage('서버 오류가 발생했습니다. 다시 시도해주세요.');
-      }
+    const { success, message } = await postSignup(name, language);
+    if (success) {
+      navigate('/signup/complete');
+    } else {
+      setErrorMessage(message);
     }
   };
 
