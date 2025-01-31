@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import DummyData from '/src/assets/dummy/dummyData';
-
+import { getCurationDetail } from '../../lib/curation';
+import { formatDate } from '../../util/dateFormat';
 import DetailHeader from '../common/DetailHeader';
 import CardListItem from './CardListItem';
 import FunctionButton from './FunctionButton';
@@ -12,18 +12,23 @@ import UserProfile from './UserProfile';
 const CurationDetail = () => {
   const navigate = useNavigate();
   const { curationId } = useParams();
-  const [places, setPlaces] = useState(DummyData);
+  const [curationData, setCurationData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const curationData = {
-    id: 1,
-    image_url: '/src/assets/dummy/curationimg.png',
-    user_id: 'k-ing_Official',
-    title: '최애의 흔적을 찾아서 : BTS의 RM편입니드아아아아아아아',
-    description:
-      '안녕하세요! 오늘은 방탄소년단 RM이 다녀간 멋진 장소들을 소개하려고 해요. 예술과 자연을 사랑하는 RM의 취향을 엿볼 수 있는 곳들이라, 꼭 한 번쯤 가보고 싶더라고요. 그의 인스타그램이나 인터뷰 속에서 자주 언급된 핫플레이스들인데요, RM처럼 여유를 느끼며 산책하고, 감성을 채울 수 있는 공간들로 골라봤어요. 그럼, RM의 발자취를 따라 떠나볼까요? 😊',
-    updated_at: '2025.01.15',
-    bookmarked: true,
-  };
+  useEffect(() => {
+    const fetchCurationData = async () => {
+      try {
+        const result = await getCurationDetail(curationId);
+        setCurationData(result);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCurationData();
+  }, [curationId]);
+
+  if (loading) return <div>Loading...</div>;
 
   const handleRoute = () => {
     navigate(`/curation/map/${curationId}`);
@@ -34,7 +39,7 @@ const CurationDetail = () => {
       <DetailHeader
         title={curationData.title}
         isOption={true}
-        imageSrc={curationData.image_url}
+        imageSrc={curationData.imageUrl}
         imageAltText={'CurationImage'}
       />
 
@@ -42,9 +47,9 @@ const CurationDetail = () => {
       <Content>
         <UserContainer>
           <UserProfile
-            name={curationData.user_id}
-            date={curationData.updated_at}
-            profileImage="/src/assets/dummy/curationimg.png"
+            name={curationData.writer.nickname}
+            date={formatDate(curationData.createdAt)}
+            profileImage={curationData.writer.imageUrl}
           />
           <FunctionButton bookmarked={curationData.bookmarked} />
         </UserContainer>
@@ -53,7 +58,7 @@ const CurationDetail = () => {
 
       {/* 장소 모음 */}
       <PlaceList>
-        {places.map((place) => (
+        {curationData.places.map((place) => (
           <CardListItem key={place.placeId} place={place} />
         ))}
       </PlaceList>
