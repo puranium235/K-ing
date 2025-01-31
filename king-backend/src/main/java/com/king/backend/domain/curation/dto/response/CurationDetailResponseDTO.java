@@ -68,13 +68,17 @@ public class CurationDetailResponseDTO {
         String name;
         String address;
         String imageUrl;
+        float lat;
+        float lng;
 
         public static PlaceDTO fromEntity(Place place) {
             return new PlaceDTO(
                     place.getId(),
                     place.getName(),
                     place.getAddress(),
-                    place.getImageUrl()
+                    place.getImageUrl(),
+                    place.getLat(),
+                    place.getLng()
             );
         }
     }
