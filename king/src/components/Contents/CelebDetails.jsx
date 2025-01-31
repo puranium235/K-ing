@@ -9,6 +9,7 @@ import {
   IcPencil,
   IcSmallStar,
   IcStar,
+  IcStarBlank,
   IcTv,
 } from '../../assets/icons';
 import { getCelebDetails } from '../../lib/content';
@@ -17,6 +18,7 @@ import BackButton from '../common/BackButton';
 const CelebDetails = () => {
   const { celebId } = useParams();
   const [celebInfo, setcelebInfo] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,11 +29,16 @@ const CelebDetails = () => {
   const getDetails = async () => {
     const res = await getCelebDetails(celebId);
     setcelebInfo(res);
+    setIsFavorited(favorite);
 
     // if (celebInfo) {
     //   const { title, type, broadcast, description, imageUrl, relatedCasts, favorite } = contentInfo;
     //   setTypeKor(getContentTypeKor(convertLowerCase(type)));
     // }
+  };
+
+  const toggleFavorite = () => {
+    setIsFavorited(!isFavorited);
   };
 
   const handleClickContent = (contentId) => {
@@ -75,7 +82,11 @@ const CelebDetails = () => {
               <p>{celebInfo.participatingWorks}</p>
             </IconText>
           </TitleSection>
-          <IcStar id="favor" />
+          {isFavorited ? (
+            <IcStar id="favor" onClick={toggleFavorite} />
+          ) : (
+            <IcStarBlank id="favor" onClick={toggleFavorite} />
+          )}
         </Header>
 
         <Synopsis>
