@@ -49,7 +49,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         TokenEntity token = new TokenEntity(Long.parseLong(userId), refreshToken, REFRESHTOKEN_EXPIRES_IN);
         tokenRepository.save(token);
         response.addCookie(createCookie("refreshToken", refreshToken));
-        response.sendRedirect(CLIENT_URL);
+        response.sendRedirect(CLIENT_URL + "/token");
     }
 
     private Cookie createCookie(String key, String value) {
