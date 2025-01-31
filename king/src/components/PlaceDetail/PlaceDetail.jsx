@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import DummyData from '/src/assets/dummy/dummyData';
+//import DummyData from '/src/assets/dummy/dummyData';
 import Nav from '/src/components/common/Nav';
 
+import { getPlaceDetail } from '../../lib/place';
 import DetailHeader from '../common/DetailHeader';
 import ContentsInfo from './ContentsInfo';
 import FunctionButton from './FunctionButton';
@@ -15,18 +16,26 @@ const PlaceDetail = () => {
   const { placeId } = useParams();
   const [placeData, setPlaceData] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    const fetchPlaceData = () => {
-      const data = DummyData.find((place) => place.placeId === parseInt(placeId));
-      setPlaceData(data);
+    const fetchPlace = async () => {
+      try {
+        const result = await getPlaceDetail(placeId);
+        setPlaceData(result.data);
+      } catch (err) {
+        setError('데이터를 불러오지 못했습니다.');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchPlaceData();
+    fetchPlace();
   }, [placeId]);
 
-  if (!placeData) {
-    return <Container>Loading...</Container>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   const handleRoute = () => {
     navigate(`/reviewfeed/${placeId}`);
@@ -37,13 +46,13 @@ const PlaceDetail = () => {
       <DetailHeader
         title={placeData.name}
         isOption={false}
-        imageSrc={placeData.placeImage}
+        imageSrc={placeData.imageUrl}
         imageAltText={placeData.name}
       />
 
       <Content>
         {/* 장소 관련 작품 정보 */}
-        {placeData.additionalInfo.map((info) => (
+        {placeData.relatedContents.map((info) => (
           <ContentsInfo key={info.contentId} info={info} />
         ))}
 

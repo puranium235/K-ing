@@ -5,7 +5,7 @@ const ContentsInfo = ({ info }) => {
   return (
     <InfoContainer>
       <InfoRow>
-        <InfoTitle>{info.name}</InfoTitle>
+        <InfoTitle>{info.title}</InfoTitle>
         <InfoType>{info.type}</InfoType>
       </InfoRow>
       <Description>{info.description}</Description>
