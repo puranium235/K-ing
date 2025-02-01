@@ -4,11 +4,11 @@ const FilterOption = atom({
   key: 'filterOption',
   default: {
     categories: {
-      restaurant: false,
-      cafe: false,
-      playground: false,
-      store: false,
-      stay: false,
+      RESTAURANT: true,
+      CAFE: false,
+      PLAYGROUND: false,
+      STORE: false,
+      STAY: false,
     },
     province: '',
     district: '',

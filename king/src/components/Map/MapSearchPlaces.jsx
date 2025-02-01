@@ -23,18 +23,18 @@ const MapSearchPlaces = () => {
 
   const filters = ['RESTAURANT', 'CAFE', 'PLAYGROUND', 'STORE', 'STAY'];
 
-  // useEffect(() => {
-  //   const fetchPlaces = async () => {
-  //     try {
-  //       const data = await searchMapView(query, region);
-  //       setPlaces(data);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const data = await searchMapView(query, region);
+        setPlaces(data);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchPlaces();
-  // }, [query, region]);
+    fetchPlaces();
+  }, [query, region]);
 
   const toggleBox = () => {
     setIsExpanded(!isExpanded);
@@ -59,7 +59,7 @@ const MapSearchPlaces = () => {
     console.log(filterOption.categories);
   };
 
-  const filteredPlaces = DummyData.filter((place) => {
+  const filteredPlaces = places.filter((place) => {
     if (Object.values(filterOption.categories).every((value) => !value)) return true;
     return filterOption.categories[place.type];
   });
