@@ -60,6 +60,14 @@ public class SyncService implements CommandLineRunner {
         properties.put("originalId", new Property.Builder().long_(new LongNumberProperty.Builder().build()).build());
         properties.put("popularity", new Property.Builder().integer(new IntegerNumberProperty.Builder().build()).build()); // Added 'popularity'
         properties.put("createdAt", new Property.Builder().date(new DateProperty.Builder().format("strict_date_optional_time||epoch_millis").build()).build());
+
+        properties.put("openHour", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put("breakTime", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put("closedDay", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put("address", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
+        properties.put("lat", new Property.Builder().double_(new DoubleNumberProperty.Builder().build()).build());
+        properties.put("lng", new Property.Builder().double_(new DoubleNumberProperty.Builder().build()).build());
+
         elasticsearchUtil.createIndex(INDEX_NAME, properties);
 
         migrateCasts();
@@ -84,7 +92,13 @@ public class SyncService implements CommandLineRunner {
                         cast.getImageUrl(),
                         cast.getId(),
                         0, // initial popularity, for Cast, could be set to 0 or another default
-                        cast.getCreatedAt()
+                        cast.getCreatedAt(),
+                        "N/A",
+                        "N/A",
+                        "N/A",
+                        "N/A",
+                        0,
+                        0
                 ))
                 .collect(Collectors.toList());
 
@@ -107,7 +121,13 @@ public class SyncService implements CommandLineRunner {
                         content.getImageUrl(),
                         content.getId(),
                         0, // initial popularity
-                        content.getCreatedAt()
+                        content.getCreatedAt(),
+                        "N/A",
+                        "N/A",
+                        "N/A",
+                        "N/A",
+                        0,
+                        0
                 )).collect(Collectors.toList());
         searchRepository.saveAll(documents);
         log.info("Content 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
@@ -140,7 +160,14 @@ public class SyncService implements CommandLineRunner {
                             place.getImageUrl(),
                             place.getId(),
                             viewCount,
-                            place.getCreatedAt()
+                            place.getCreatedAt(),
+                            place.getOpenHour(),
+                            place.getBreakTime(),
+                            place.getClosedDay(),
+                            place.getAddress(),
+                            place.getLat(),
+                            place.getLng()
+
                     );
                 })
                         .collect(Collectors.toList());
@@ -162,7 +189,13 @@ public class SyncService implements CommandLineRunner {
                 content.getImageUrl(),
                 content.getId(),
                 0,
-                content.getCreatedAt()
+                content.getCreatedAt(),
+                "N/A",
+                "N/A",
+                "N/A",
+                "N/A",
+                0,
+                0
         );
         searchRepository.save(doc);
         log.info("Content 인덱싱 완료: {}", doc.getId());
@@ -198,7 +231,13 @@ public class SyncService implements CommandLineRunner {
                 cast.getImageUrl(),
                 cast.getId(),
                 0,
-                cast.getCreatedAt()
+                cast.getCreatedAt(),
+                "N/A",
+                "N/A",
+                "N/A",
+                "N/A",
+                0,
+                0
         );
         searchRepository.save(doc);
         log.info("Cast 인덱싱 완료: {}", doc.getId());
@@ -245,7 +284,13 @@ public class SyncService implements CommandLineRunner {
                 place.getImageUrl(),
                 place.getId(),
                 viewCount,
-                place.getCreatedAt()
+                place.getCreatedAt(),
+                place.getOpenHour(),
+                place.getBreakTime(),
+                place.getClosedDay(),
+                place.getAddress(),
+                place.getLat(),
+                place.getLng()
         );
         searchRepository.save(doc);
         log.info("Place 인덱싱 완료: {}", doc.getId());

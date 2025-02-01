@@ -15,8 +15,10 @@ import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.search.dto.request.AutocompleteRequestDto;
+import com.king.backend.search.dto.request.MapViewRequestDto;
 import com.king.backend.search.dto.request.SearchRequestDto;
 import com.king.backend.search.dto.response.AutocompleteResponseDto;
+import com.king.backend.search.dto.response.MapViewResponseDto;
 import com.king.backend.search.dto.response.SearchResponseDto;
 import com.king.backend.search.entity.SearchDocument;
 import com.king.backend.search.errorcode.SearchErrorCode;
@@ -334,6 +336,78 @@ public class SearchService {
             }
         } catch (IOException e) {
             log.error("Elasticsearch에서 Place {}의 popularity 업데이트 중 오류 발생: {}", placeId, e.getMessage());
+            throw new CustomException(SearchErrorCode.SEARCH_FAILED);
+        }
+    }
+
+    /**
+     * 지도 보기를 위한 장소 목록 가져오기
+     * @param requestDto 지도 보기 요청 DTO
+     * @return 지도에 표시할 장소 목록과 적용된 필터
+     */
+    public MapViewResponseDto getMapViewPlaces(MapViewRequestDto requestDto) {
+        try {
+            String query = requestDto.getQuery();
+            String region = requestDto.getRegion();
+
+            // BoolQuery 생성
+            BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+
+            // 검색어 처리
+            if (query != null && !query.isEmpty()) {
+                boolQueryBuilder.must(q -> q.match(m -> m
+                        .query(query)
+                        .field("name")
+                ));
+            }
+
+            // 지역 필터링 (address 필드 기준)
+            if (region != null && !region.isEmpty()) {
+                boolQueryBuilder.filter(q -> q.match(m -> m
+                        .field("address")
+                        .query(region)
+                ));
+            }
+
+            // SearchRequest 구성
+            SearchRequest searchRequest = SearchRequest.of(request -> request
+                    .index("search-index")
+                    .query(q -> q.bool(boolQueryBuilder.build()))
+                    .size(10000) // 페이지네이션 없이 모든 결과 가져오기 (최대 10,000건)
+                    .sort(List.of(
+                            SortOptions.of(s -> s
+                                    .field(f -> f
+                                            .field("createdAt")
+                                            .order(SortOrder.Desc)
+                                    )
+                            )
+                    ))
+            );
+
+            // Elasticsearch 검색 실행
+            SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
+
+            // 검색 결과 매핑
+            List<Hit<SearchDocument>> hits = searchResponse.hits().hits();
+            List<MapViewResponseDto.PlaceDto> places = hits.stream()
+                    .map(Hit::source)
+                    .map(doc -> new MapViewResponseDto.PlaceDto(
+                            doc.getOriginalId(),
+                            doc.getName(),
+                            doc.getType(),
+                            doc.getOpenHour(),
+                            doc.getBreakTime(),
+                            doc.getClosedDay(),
+                            doc.getAddress(), // Assuming 'details' contains 'address'
+                            doc.getLat(), // Ensure 'lat' is included
+                            doc.getLng(), // Ensure 'lng' is included
+                            doc.getImageUrl()
+                    ))
+                    .collect(Collectors.toList());
+
+            return new MapViewResponseDto(places);
+        } catch (IOException e) {
+            log.error("지도 보기 검색 실패: {}", e.getMessage());
             throw new CustomException(SearchErrorCode.SEARCH_FAILED);
         }
     }

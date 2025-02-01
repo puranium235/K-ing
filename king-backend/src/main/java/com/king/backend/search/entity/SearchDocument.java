@@ -28,4 +28,11 @@ public class SearchDocument {
     private Long originalId; // 원본 데이터의 ID (MySQL의 ID)
     private int popularity;
     private LocalDateTime createdAt;
+
+    private String openHour;
+    private String breakTime;
+    private String closedDay;
+    private String address;
+    private double lat;
+    private double lng;
 }

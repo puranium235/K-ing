@@ -3,8 +3,10 @@ package com.king.backend.search.controller;
 import com.king.backend.domain.content.dto.response.ContentDetailResponseDto;
 import com.king.backend.global.response.ApiResponse;
 import com.king.backend.search.dto.request.AutocompleteRequestDto;
+import com.king.backend.search.dto.request.MapViewRequestDto;
 import com.king.backend.search.dto.request.SearchRequestDto;
 import com.king.backend.search.dto.response.AutocompleteResponseDto;
+import com.king.backend.search.dto.response.MapViewResponseDto;
 import com.king.backend.search.dto.response.SearchResponseDto;
 import com.king.backend.search.service.SearchService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,18 @@ public class SearchController {
     public ResponseEntity<ApiResponse<SearchResponseDto>> search(@ModelAttribute SearchRequestDto requestDto) {
         log.info("GET /search 요청 처리 시작");
         SearchResponseDto response = searchService.search(requestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+    }
+
+    /**
+     * 지도 보기 API
+     * @param requestDto 지도 보기를 위한 필터 요청 DTO
+     * @return 지도에 표시할 장소 목록과 적용된 필터
+     */
+    @GetMapping("/map-view")
+    public ResponseEntity<ApiResponse<MapViewResponseDto>> mapView(@ModelAttribute MapViewRequestDto requestDto) {
+        log.info("GET /search/map-view 요청 처리 시작");
+        MapViewResponseDto response = searchService.getMapViewPlaces(requestDto);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 }
