@@ -11,6 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
+@EntityListeners(PlaceListener.class)
 public class Place {
 
     @Id
