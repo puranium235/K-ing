@@ -42,6 +42,7 @@ public class SearchService {
     private final SearchRepository searchRepository;
     private final ElasticsearchClient elasticsearchClient;
     private final CursorUtil cursorUtil;
+    private final RankingService rankingService;
 
     /**
      * 자동완성 제안 가져오기
@@ -49,6 +50,12 @@ public class SearchService {
     public AutocompleteResponseDto getAutocompleteSuggestions(AutocompleteRequestDto requestDto) {
         try{
             String query = requestDto.getQuery();
+
+            // 검색 로직 실행 전후에 검색어가 존재하면 랭킹 업데이트
+            if (query != null && !query.trim().isEmpty()) {
+                rankingService.incrementKeywordCount(query.trim());
+            }
+
             String category = requestDto.getCategory();
 
             MatchPhrasePrefixQuery matchPhrasePrefixQuery = MatchPhrasePrefixQuery.of(builder -> builder
