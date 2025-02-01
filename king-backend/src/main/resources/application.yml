@@ -1,6 +1,23 @@
+client:
+  url: ${CLIENT_BASE_URL}
 spring:
   application:
     name: king-backend
+  jwt:
+    secret: ${JWT_SECRET}
+    accesstoken-expires-in: ${ACCESSTOKEN_EXPIRES_IN}
+    refreshtoken-expires-in: ${REFRESHTOKEN_EXPIRES_IN}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-name: google
+            client-id: ${OAUTH2_GOOGLE_CLIENT_ID}
+            client-secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${SERVER_BASE_URL}${OAUTH2_GOOGLE_API_ENDPOINT}
+            authorization-grant-type: authorization_code
+            scope: email, profile
   datasource:
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?serverTimezone=UTC
     username: ${MYSQL_USERNAME}
@@ -36,4 +53,4 @@ logging:
   level:
     root: info
     org:
-      springframework: DEBUG
+      springframework: WARN

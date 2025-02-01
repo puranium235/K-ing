@@ -1,10 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { IcFootsteps, IcGoogle, IcKing } from '../../assets/icons';
+import { IcFootsteps, IcKing } from '../../assets/icons';
 import GoogleIcon from '../../assets/icons/ic_google.png';
 import LineIcon from '../../assets/icons/ic_line_88.png';
 const Landing = () => {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const googleLogin = () => {
+    window.location.href = API_BASE_URL + '/oauth2/authorization/google';
+  };
+
   return (
     <St.Page>
       <St.ContentWrapper>
@@ -21,7 +27,7 @@ const Landing = () => {
         <IcFootsteps />
       </St.FootprintWrapper>
       <St.ButtonWrapper>
-        <St.SocialButton $google>
+        <St.SocialButton $google onClick={googleLogin}>
           <img src={GoogleIcon} alt="구글 아이콘" />
           Continue with Google
         </St.SocialButton>

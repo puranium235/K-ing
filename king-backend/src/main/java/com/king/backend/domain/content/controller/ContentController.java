@@ -3,6 +3,7 @@ package com.king.backend.domain.content.controller;
 import com.king.backend.domain.content.dto.response.ContentDetailResponseDto;
 import com.king.backend.domain.content.service.ContentService;
 import com.king.backend.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ public class ContentController {
     private final ContentService contentService;
 
     // 컨텐츠 상세 조회
+    @Operation(summary = "컨텐츠 상세 조회 API")
     @GetMapping("/{contentId}")
     public ResponseEntity<ApiResponse<ContentDetailResponseDto>> getContentDetail(@PathVariable Long contentId){
         log.info("GET /api/content/{} 요청 처리 시작", contentId);

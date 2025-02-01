@@ -2,14 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-// 주소를 "서울시 마포구"까지만 추출
-const getShortAddress = (fullAddress) => {
-  const parts = fullAddress.split(' '); // 공백을 기준으로 나누기
-  if (parts.length >= 2) {
-    return `${parts[0]} ${parts[1]}`; // 첫 번째와 두 번째 부분만 반환
-  }
-  return fullAddress; // 주소가 짧거나 비정상적인 경우 원본 반환
-};
+import { getShortAddress } from '../../util/addressFormat';
 
 const ListItem = ({ place }) => {
   const navigate = useNavigate();

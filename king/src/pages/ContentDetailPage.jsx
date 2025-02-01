@@ -6,7 +6,6 @@ import ContentDetails from '../components/Contents/ContentDetails';
 const ContentDetailPage = () => {
   return (
     <>
-      y
       <ContentDetails />
     </>
   );

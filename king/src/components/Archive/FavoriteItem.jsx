@@ -88,7 +88,11 @@ const St = {
     top: 0;
     right: 0;
     /* 별 아이콘 크기 조정 필요 */
-    /* width: 30px;
-    height: 30px; */
+    /* width: 15px;
+    height: 15px; */
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   `,
 };

@@ -292,17 +292,17 @@ VALUES
 -- 2. place 테이블
 INSERT INTO `place` (`name`, `type`, `description`, `open_hour`, `break_time`, `closed_day`, `address`, `lat`, `lng`, `phone`, `image_url`, `view`)
 VALUES
-    ('커피파머', 'cafe', '커피파머입니다.', '09:00 - 21:00', '정보없음', '연중무휴', '경기도 고양시 일산서구 대화로 61', 37.667523, 126.72817, '031-1899-8903', 'http://example.com/cafefarmer.jpg', 450),
-    ('셀렉토커피 남양주호평점', 'cafe', '셀렉토커피 남양주호평점입니다.', '08:00 - 22:00', '정보없음', '연중무휴', '경기도 남양주시 천마산로 21', 37.663558, 127.24748, '031-511-6362', 'http://example.com/selectcoffee.jpg', 300),
-    ('연희네 슈퍼', 'playground', '연희네 슈퍼입니다.', '00:00 - 24:00', '정보없음', '연중무휴', '전라남도 목포시 해안로127번길 14-2', 34.78168, 126.377325, '061-270-8432', 'http://example.com/vintageshop.jpg', 200),
-    ('청남대', 'playground', '청남대입니다.', '09:00 - 18:00', '정보없음', '월요일', '충청북도 청주시 상당구 문의면 청남대길 646', 36.46255, 127.4906, '043-257-5080', 'http://example.com/cheongnamdae.jpg', 500);
+    ('커피파머', 'cafe', '커피파머입니다.', '09:00 - 21:00', '정보없음', '연중무휴', '경기도 고양시 일산서구 대화로 61', 37.667523, 126.72817, '031-1899-8903', 'https://lh5.googleusercontent.com/p/AF1QipMsttnqldtIWuj3qUMHWGqa8Xk0GCBiep7cqFgr=w408-h544-k-no', 450),
+    ('셀렉토커피 남양주호평점', 'cafe', '셀렉토커피 남양주호평점입니다.', '08:00 - 22:00', '정보없음', '연중무휴', '경기도 남양주시 천마산로 21', 37.663558, 127.24748, '031-511-6362', 'https://lh5.googleusercontent.com/p/AF1QipMsttnqldtIWuj3qUMHWGqa8Xk0GCBiep7cqFgr=w408-h544-k-no', 300),
+    ('연희네 슈퍼', 'playground', '연희네 슈퍼입니다.', '00:00 - 24:00', '정보없음', '연중무휴', '전라남도 목포시 해안로127번길 14-2', 34.78168, 126.377325, '061-270-8432', 'https://lh5.googleusercontent.com/p/AF1QipMsttnqldtIWuj3qUMHWGqa8Xk0GCBiep7cqFgr=w408-h544-k-no', 200),
+    ('청남대', 'playground', '청남대입니다.', '09:00 - 18:00', '정보없음', '월요일', '충청북도 청주시 상당구 문의면 청남대길 646', 36.46255, 127.4906, '043-257-5080', 'https://lh5.googleusercontent.com/p/AF1QipMsttnqldtIWuj3qUMHWGqa8Xk0GCBiep7cqFgr=w408-h544-k-no', 500);
 
 -- 3. content 테이블
 INSERT INTO `content` (`type`, `broadcast`, `created_at`, `image_url`, `tmdb_id`)
 VALUES
-    ('DRAMA', 'KBS', NOW(), 'http://example.com/drama.jpg', 101),
-    ('MOVIE', 'CJ Entertainment', NOW(), 'http://example.com/movie.jpg', 102),
-    ('SHOW', 'SBS', NOW(), 'http://example.com/show.jpg', 103);
+    ('DRAMA', 'KBS', NOW(), 'https://image.tmdb.org/t/p/w500/zP0tEXW21KAlsDdTsKjXiHy1T4Y.jpg', 101),
+    ('MOVIE', 'CJ Entertainment', NOW(), 'https://image.tmdb.org/t/p/w500/mO55nkEFrI2EVdjxx0asaOGtHfa.jpg', 102),
+    ('SHOW', 'SBS', NOW(), 'https://image.tmdb.org/t/p/w500/aTixMf5OaKA50QNvcKv18X9SLjX.jpg', 103);
 
 -- 4. content_ko 테이블
 INSERT INTO `content_ko` (`title`, `description`, `content_id`)
@@ -321,9 +321,9 @@ VALUES
 -- 8. cast 테이블
 INSERT INTO `cast` (`image_url`, `birth_date`, `participating_work`, `created_at`, `tmdb_id`)
 VALUES
-    ('http://example.com/hanyeri.jpg', '1990-01-01', 5, NOW(), 201),
-    ('http://example.com/kimtaeho.jpg', '1985-05-12', 3, NOW(), 202),
-    ('http://example.com/joinseong.jpg', '1981-07-28', 10, NOW(), 203);
+    ('https://image.tmdb.org/t/p/w500/ukEY6AV2EjeGDjMayDj5rpo8pHw.jpg', '1990-01-01', 5, NOW(), 201),
+    ('https://image.tmdb.org/t/p/w500/kmOX5In999BJRSygHc2ulusuJE0.jpg', '1985-05-12', 3, NOW(), 202),
+    ('https://image.tmdb.org/t/p/w500/wbrwRD290SJv0ZIQC1ngv0slyCD.jpg', '1981-07-28', 10, NOW(), 203);
 
 -- 9. cast_ko 테이블
 INSERT INTO `cast_ko` (`name`, `birth_place`, `cast_id`)
@@ -344,6 +344,8 @@ VALUES
 INSERT INTO `content_cast` (`content_id`, `cast_id`)
 VALUES
     (1, 1),
+    (2, 1),
+    (3, 1),
     (1, 2),
     (3, 3);
 

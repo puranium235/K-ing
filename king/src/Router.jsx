@@ -4,6 +4,7 @@ import { RecoilRoot } from 'recoil';
 
 import ScrollToTop from './components/common/ScrollToTop';
 import ArchivePage from './pages/ArchivePage';
+import CelebDetailPage from './pages/CelebDetailPage';
 import ChatbotPage from './pages/ChatbotPage';
 import ContentDetailPage from './pages/ContentDetailPage';
 import ContentPage from './pages/ContentPage';
@@ -22,6 +23,9 @@ import ReviewFeedPage from './pages/ReviewFeedPage';
 import SearchFilterPage from './pages/SearchFilterPage';
 import SearchKeywordpage from './pages/SearchKeywordPage';
 import SearchResultPage from './pages/SearchResultPage';
+import SignupCompletePage from './pages/SignupCompletePage';
+import SignupPage from './pages/SignupPage';
+import TokenPage from './pages/TokenPage';
 import UploadPage from './pages/UploadPage';
 
 const Router = () => {
@@ -33,6 +37,9 @@ const Router = () => {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/home" element={<HomePage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/signup/complete" element={<SignupCompletePage />} />
+            <Route path="/token" element={<TokenPage />} />
             <Route path="/chatbot" element={<ChatbotPage />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/archive" element={<ArchivePage />} />
@@ -44,7 +51,8 @@ const Router = () => {
             <Route path="/curation/map/:curationId" element={<CurationMapPage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/content/:contentType" element={<ContentPage />} />
-            <Route path="/content/:contentType/:dramaId" element={<ContentDetailPage />} />
+            <Route path="/content/celeb/:celebId" element={<CelebDetailPage />} />
+            <Route path="/content/detail/:contentId" element={<ContentDetailPage />} />
             {/* 카테고리 설정시 */}
             <Route path="/search/keyword" element={<SearchKeywordpage />} />
             <Route path="/search/keyword/filter" element={<SearchFilterPage />} />

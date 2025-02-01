@@ -1,8 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import AIChatView from '../components/AI/AIChatView';
+
 const ChatbotPage = () => {
-  return <>챗봇페이지</>;
+  return (
+    <>
+      <AIChatView />
+    </>
+  );
 };
 
 export default ChatbotPage;

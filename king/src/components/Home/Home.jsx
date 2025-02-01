@@ -20,10 +20,10 @@ const Home = () => {
   const navigate = useNavigate();
 
   const genreIcons = [
-    { icon: IcDrama, label: '드라마', link: '/drama' },
-    { icon: IcMovie, label: '영화', link: '/movie' },
-    { icon: IcShow, label: '예능', link: '/show' },
-    { icon: IcCeleb, label: '연예인', link: '/celeb' },
+    { icon: IcDrama, label: '드라마', contentType: 'drama' },
+    { icon: IcMovie, label: '영화', contentType: 'movie' },
+    { icon: IcShow, label: '예능', contentType: 'show' },
+    { icon: IcCeleb, label: '연예인', contentType: 'celeb' },
   ];
 
   const carouselList = CurationsDummyData;
@@ -51,6 +51,10 @@ const Home = () => {
 
   const displayedRankings = rankingsData.slice(currentRankSet * 4, currentRankSet * 4 + 4);
 
+  const handleClickSearch = (id) => {
+    navigate(`/place/${id}`);
+  };
+
   const handleSearch = () => {
     // // 검색 유형이 선택되고 키워드도 있는 경우
     // if (type && keyword) {
@@ -60,6 +64,15 @@ const Home = () => {
     // else if (keyword) {
     //   navigate(/search/keyword?keyword=${keyword});
     // }
+  };
+
+  const handleClickTrend = (keyword) => {
+    // navigate(`/seach/keyword?keyword=${keyword}`);
+    navigate(`/search/keyword`);
+  };
+
+  const handleCurDetails = () => {
+    navigate(`/curation/1`);
   };
 
   return (
@@ -93,25 +106,25 @@ const Home = () => {
           </div>
           <div className="rankings">
             {displayedRankings.map((rank, index) => (
-              <p key={index}>
+              <p
+                key={index}
+                onClick={() => {
+                  handleClickTrend(rank);
+                }}
+              >
                 {index + 1 + currentRankSet * 4}. {rank}
               </p>
             ))}
           </div>
         </TrendingKeyword>
         <CurationWrapper>
-          <h3>
-            연말결산 : 올해의 드라마 🌟
-            <span> 전체보기 {'>'}</span>
-          </h3>
+          <CurationHeader>
+            <h3>연말결산 : 올해의 드라마 🌟</h3>
+            <span onClick={handleCurDetails}> 전체보기 {'>'}</span>
+          </CurationHeader>
           <CardContainer>
-            {cardsData.map((card, index) => (
-              <PlaceCard
-                key={index}
-                image={card.image}
-                title={card.title}
-                description={card.description}
-              />
+            {cardsData.map((card) => (
+              <PlaceCard key={card.id} place={card} />
             ))}
           </CardContainer>
         </CurationWrapper>
@@ -190,9 +203,11 @@ const TrendingKeyword = styled.div`
     }
   }
 `;
+
 const FilterControls = styled.div`
   display: flex;
 `;
+
 const StyledButton = styled.button`
   padding: 5px 10px;
   border-radius: 70px;
@@ -200,17 +215,29 @@ const StyledButton = styled.button`
   background-color: ${({ $active }) => ($active ? '#D0E3FF' : '')};
   color: ${({ theme }) => theme.colors.Navy};
 `;
+
 const CurationWrapper = styled.div`
+  width: 100%;
+`;
+
+const CurationHeader = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
   & > h3 {
     text-align: left;
     ${({ theme }) => theme.fonts.Title4};
     margin: 1rem 0;
+  }
 
-    span {
-      ${({ theme }) => theme.fonts.Body4};
-    }
+  span {
+    ${({ theme }) => theme.fonts.Body4};
   }
 `;
+
 const CardContainer = styled.div`
   display: flex;
   width: 100%;

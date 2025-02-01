@@ -2,14 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-// 주소를 "경기 양평군"처럼 간단히 표시
-const getShortAddress = (fullAddress) => {
-  const parts = fullAddress.split(' ');
-  if (parts.length >= 2) {
-    return `${parts[0]} ${parts[1]}`;
-  }
-  return fullAddress;
-};
+import { getShortAddress } from '../../util/addressFormat';
 
 const CardListItem = ({ place }) => {
   const navigate = useNavigate();

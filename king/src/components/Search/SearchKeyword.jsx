@@ -11,6 +11,7 @@ import BackButton from '../common/BackButton';
 import FilterButton from '../common/FilterButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
+import SortingRow from '../common/SortingRow';
 import PlaceCard from '../Home/PlaceCard';
 
 const SearchKeyword = () => {
@@ -39,6 +40,8 @@ const SearchKeyword = () => {
     navigate(`/map`);
   };
 
+  const handleScrollUp = () => {};
+
   return (
     <>
       <StHomeWrapper>
@@ -60,20 +63,19 @@ const SearchKeyword = () => {
           </FilterWrapper>
           <Options>
             <IcMap onClick={handleOpenMap} />
-            {/* 추후 정렬 컴포넌트 추가 예정 */}
+            <SortingRow />
           </Options>
         </OptionHeader>
 
         <ResultWrapper>
-          {cardsData.map((card, index) => (
-            <PlaceCard
-              key={index}
-              image={card.image}
-              title={card.title}
-              description={card.description}
-            />
+          {cardsData.map((card) => (
+            <PlaceCard key={card.id} place={card} />
           ))}
         </ResultWrapper>
+        {/* 위로 화살표로 변경 */}
+        <UpButton onClick={handleScrollUp}>
+          <img src="/src/assets/icons/map.png" alt="map" />
+        </UpButton>
         <Nav />
       </StHomeWrapper>
     </>
@@ -107,7 +109,9 @@ const IconText = styled.div`
     ${({ theme }) => theme.fonts.Title3};
   }
 `;
-const OptionHeader = styled.div``;
+const OptionHeader = styled.div`
+  width: 100%;
+`;
 
 const Options = styled.div`
   width: 100%;
@@ -122,7 +126,7 @@ const Options = styled.div`
 const FilterWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
 
   gap: 0.5rem;
@@ -141,5 +145,33 @@ const ResultWrapper = styled.div`
   overflow-y: auto;
   &::-webkit-scrollbar {
     display: none;
+  }
+`;
+
+const UpButton = styled.button`
+  position: absolute;
+  bottom: 9rem;
+  right: 20px;
+  background-color: #fff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  z-index: 1000;
+
+  &:hover {
+    background-color: #ccc;
+  }
+
+  img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
   }
 `;
