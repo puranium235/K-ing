@@ -1,36 +1,44 @@
 import React from 'react';
 import styled from 'styled-components';
 
+const filterMap = {
+  RESTAURANT: '식당',
+  CAFE: '카페',
+  PLAYGROUND: '관광',
+  STORE: '상점',
+  STAY: '숙박',
+};
+
 const filterIcons = {
-  식당: {
+  RESTAURANT: {
     default: 'src/assets/icons/restaurant_dark.png',
     active: 'src/assets/icons/restaurant.png',
   },
-  카페: { default: 'src/assets/icons/cafe_dark.png', active: 'src/assets/icons/cafe.png' },
-  관광: {
+  CAFE: { default: 'src/assets/icons/cafe_dark.png', active: 'src/assets/icons/cafe.png' },
+  PLAYGROUND: {
     default: 'src/assets/icons/playground_dark.png',
     active: 'src/assets/icons/playground.png',
   },
-  상점: { default: 'src/assets/icons/shop_dark.png', active: 'src/assets/icons/shop.png' },
-  숙박: { default: 'src/assets/icons/stay_dark.png', active: 'src/assets/icons/stay.png' },
+  STORE: { default: 'src/assets/icons/shop_dark.png', active: 'src/assets/icons/shop.png' },
+  STAY: { default: 'src/assets/icons/stay_dark.png', active: 'src/assets/icons/stay.png' },
 };
 
 const FilterButtons = ({ filters, activeFilter, onFilterChange }) => {
   return (
     <ButtonGroup>
-      {filters.map((filter) => (
-        <FilterButton
-          key={filter}
-          $active={activeFilter === filter ? true : false} // 현재 활성화된 필터 확인
-          onClick={() => onFilterChange(filter)} // 클릭 이벤트 핸들링
-        >
-          <img
-            src={activeFilter === filter ? filterIcons[filter].active : filterIcons[filter].default}
-            alt={filter}
-          />
-          {filter}
-        </FilterButton>
-      ))}
+      {filters.map((filter) => {
+        const isActive = activeFilter[filter]; // 필터가 활성 상태인지 확인
+
+        return (
+          <FilterButton key={filter} $active={isActive} onClick={() => onFilterChange(filter)}>
+            <img
+              src={isActive ? filterIcons[filter].active : filterIcons[filter].default}
+              alt={filter}
+            />
+            {filterMap[filter]}
+          </FilterButton>
+        );
+      })}
     </ButtonGroup>
   );
 };

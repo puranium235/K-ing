@@ -6,7 +6,9 @@ const FilterOption = atom({
     categories: {
       restaurant: false,
       cafe: false,
-      sight: false,
+      playground: false,
+      store: false,
+      stay: false,
     },
     province: '',
     district: '',
@@ -18,4 +20,14 @@ const ContentType = atom({
   default: '',
 });
 
-export { ContentType, FilterOption };
+const searchQueryState = atom({
+  key: 'searchQueryState',
+  default: '카페',
+});
+
+const searchRegionState = atom({
+  key: 'searchRegionState',
+  default: '',
+});
+
+export { ContentType, FilterOption, searchQueryState, searchRegionState };

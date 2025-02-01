@@ -7,11 +7,11 @@ import { getShortAddress } from '../../util/addressFormat';
 const ListItem = ({ place }) => {
   const navigate = useNavigate();
   const handleRoute = () => {
-    navigate(`/place/${placeId}`); // 상세 페이지로 이동
+    navigate(`/place/${id}`); // 상세 페이지로 이동
   };
 
-  const { placeId, name, type, address, openHours, closedDays, placeImage } = place;
-  const isAlwaysOpen = closedDays === '연중무휴'; // 연중무휴 여부 확인
+  const { id, name, type, address, openHour, closedDay, imageUrl } = place;
+  const isAlwaysOpen = closedDay === '연중무휴'; // 연중무휴 여부 확인
 
   return (
     <ItemContainer onClick={handleRoute}>
@@ -20,7 +20,7 @@ const ListItem = ({ place }) => {
         <Desc>{type}</Desc>
       </TitleRow>
       <InfoRow>
-        {closedDays && (
+        {closedDay && (
           <ImportantInfoItem $isAlwaysOpen={isAlwaysOpen}>
             <img
               src={
@@ -30,7 +30,7 @@ const ListItem = ({ place }) => {
               }
               alt={isAlwaysOpen ? 'Always Open' : 'Closed'}
             />
-            {closedDays}
+            {closedDay}
           </ImportantInfoItem>
         )}
         {address && (
@@ -39,14 +39,14 @@ const ListItem = ({ place }) => {
             {getShortAddress(address)}
           </InfoItem>
         )}
-        {openHours && (
+        {openHour && (
           <InfoItem>
             <img src="src/assets/icons/clock.png" alt="Open Hours" />
-            {openHours}
+            {openHour}
           </InfoItem>
         )}
       </InfoRow>
-      {placeImage && <Image src={placeImage} alt={name} />}
+      {imageUrl && <Image src={imageUrl} alt={name} />}
     </ItemContainer>
   );
 };
