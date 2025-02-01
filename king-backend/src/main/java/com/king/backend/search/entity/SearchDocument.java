@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +28,7 @@ public class SearchDocument {
     private String imageUrl; // 이미지 URL
     private Long originalId; // 원본 데이터의 ID (MySQL의 ID)
     private int popularity;
-    private LocalDateTime createdAt;
+//    private LocalDateTime createdAt;
 
     private String openHour;
     private String breakTime;
