@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import DummyData from '../../assets/dummy/dummyData';
+import DummyData from '../../assets/dummy/dummyMapPlace';
 import UpIcon from '../../assets/icons/up.png';
+import { getPlaceDetail } from '../../lib/place';
+import { curationPlaceList } from '../../recoil/atom';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
 import ContentsInfo from '../PlaceDetail/ContentsInfo';
@@ -13,30 +16,30 @@ import GoogleMapView from './GoogleMapView';
 
 const MapCurationPlaces = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { curationId } = useParams();
-  const [places, setPlaces] = useState(DummyData);
+  const places = useRecoilValue(curationPlaceList);
 
   const toggleBox = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const [placeId, setPlaceId] = useState(places[0].placeId);
+  const [placeId, setPlaceId] = useState(places.length > 0 ? places[0].placeId : null);
   const [placeData, setPlaceData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPlaceData = () => {
-      const data = places.find((place) => place.placeId === parseInt(placeId));
-      setPlaceData(data);
+    if (!placeId) return;
+
+    const fetchPlaceData = async () => {
+      try {
+        const result = await getPlaceDetail(placeId);
+        setPlaceData(result);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchPlaceData();
   }, [placeId]);
-
-  if (!placeData) {
-    return <Container>Loading...</Container>;
-  }
-
-  const { name, placeImage } = placeData;
 
   const handleMarkerClick = (placeId) => {
     setPlaceId(placeId);
@@ -56,19 +59,27 @@ const MapCurationPlaces = () => {
         </UpButton>
 
         <Content>
-          <Title>{name}</Title>
+          {loading ? (
+            <LoadingMessage>Loading...</LoadingMessage>
+          ) : placeData ? (
+            <>
+              <Title>{placeData.name}</Title>
+              {placeData.imageUrl && <Image src={placeData.imageUrl} alt={placeData.name} />}
 
-          {placeImage && <Image src={placeImage} alt={name} />}
-          {/* 장소 관련 작품 정보 */}
-          {placeData.additionalInfo.map((info) => (
-            <ContentsInfo key={info.contentId} info={info} />
-          ))}
+              {/* 장소 관련 작품 정보 */}
+              {placeData.relatedContents?.map((info) => (
+                <ContentsInfo key={info.contentId} info={info} />
+              ))}
 
-          {/* 길찾기, 공유 버튼 */}
-          <FunctionButton />
+              {/* 길찾기, 공유 버튼 */}
+              <FunctionButton />
 
-          {/* 장소 상세 정보 */}
-          <PlaceInfo placeData={placeData} />
+              {/* 장소 상세 정보 */}
+              <PlaceInfo placeData={placeData} />
+            </>
+          ) : (
+            <ErrorMessage>장소 정보를 불러올 수 없습니다.</ErrorMessage>
+          )}
         </Content>
       </ContentSection>
 
@@ -149,9 +160,23 @@ const Title = styled.div`
 
 const Image = styled.img`
   width: 100%;
-  height: auto;
+  height: 200px;
   border-radius: 8px;
   margin: 20px 0px;
+  object-fit: cover;
+  display: block;
+`;
+
+const LoadingMessage = styled.div`
+  text-align: center;
+  ${({ theme }) => theme.fonts.Body3};
+  color: #888;
+`;
+
+const ErrorMessage = styled.div`
+  text-align: center;
+  ${({ theme }) => theme.fonts.Body3};
+  color: red;
 `;
 
 export default MapCurationPlaces;

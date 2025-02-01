@@ -63,7 +63,7 @@ const GoogleMapView = ({ places, isSearch, onMarkerClick }) => {
   const [markers, setMarkers] = useState([]);
   const [showSearchButton, setShowSearchButton] = useState(false);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
-  const [activePlaceId, setActivePlaceId] = useState(places?.[0]?.id || null);
+  const [activePlaceId, setActivePlaceId] = useState(places?.[0]?.placeId || null);
   const [preventFitBounds, setPreventFitBounds] = useState(false);
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -76,7 +76,7 @@ const GoogleMapView = ({ places, isSearch, onMarkerClick }) => {
       const markerElement = new google.maps.marker.AdvancedMarkerElement({
         position: { lat: place.lat, lng: place.lng },
         map,
-        zIndex: activePlaceId === place.id ? 10 : 1,
+        zIndex: activePlaceId === place.placeId ? 10 : 1,
       });
 
       const container = document.createElement('div');
@@ -89,12 +89,12 @@ const GoogleMapView = ({ places, isSearch, onMarkerClick }) => {
 
       const image = document.createElement('img');
       image.src =
-        activePlaceId === place.id
+        activePlaceId === place.placeId
           ? markerImages.active[place.type] || markerImages.active['default']
           : markerImages.default[place.type] || markerImages.default['default'];
       image.style.cssText = `
-          width: ${activePlaceId === place.id ? '30px' : '20px'};
-          height: ${activePlaceId === place.id ? '42px' : '20px'};
+          width: ${activePlaceId === place.placeId ? '30px' : '20px'};
+          height: ${activePlaceId === place.placeId ? '42px' : '20px'};
           object-fit: cover;
           transition: width 0.2s ease, height 0.2s ease;
         `;
@@ -104,13 +104,13 @@ const GoogleMapView = ({ places, isSearch, onMarkerClick }) => {
         font-family: "Pretendard";
         font-size: 1.2rem;
         font-style: normal;
-        font-weight: ${activePlaceId === place.id ? 700 : 500};
+        font-weight: ${activePlaceId === place.placeId ? 700 : 500};
         color: black;
         background-color: white;
         padding: 2px 6px;
         border-radius: 16px;
         margin-top:2px;
-        opacity: ${activePlaceId === place.id ? 1 : 0.9}; /* 활성 상태일 때 불투명 */
+        opacity: ${activePlaceId === place.placeId ? 1 : 0.9}; /* 활성 상태일 때 불투명 */
         transition: opacity 0.2s ease;
       `;
       label.innerText = place.name;
@@ -132,13 +132,13 @@ const GoogleMapView = ({ places, isSearch, onMarkerClick }) => {
   const handleMarkerClick = useCallback(
     (map, place) => {
       setPreventFitBounds(true);
-      setActivePlaceId(place.id);
+      setActivePlaceId(place.placeId);
 
       map.setCenter({ lat: place.lat, lng: place.lng });
       map.setZoom(16);
 
       if (onMarkerClick) {
-        onMarkerClick(place.id);
+        onMarkerClick(place.placeId);
       }
     },
     [onMarkerClick],

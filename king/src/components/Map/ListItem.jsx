@@ -121,9 +121,11 @@ const ImportantInfoItem = styled.span`
 
 const Image = styled.img`
   width: 100%;
-  height: auto;
+  height: 200px;
   border-radius: 8px;
   margin-top: 8px;
+  object-fit: cover;
+  display: block;
 `;
 
 export default ListItem;

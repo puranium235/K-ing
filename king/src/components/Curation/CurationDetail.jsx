@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { getCurationDetail } from '../../lib/curation';
+import { curationPlaceList } from '../../recoil/atom';
 import { formatDate } from '../../util/dateFormat';
 import DetailHeader from '../common/DetailHeader';
 import CardListItem from './CardListItem';
@@ -12,6 +14,7 @@ import UserProfile from './UserProfile';
 const CurationDetail = () => {
   const navigate = useNavigate();
   const { curationId } = useParams();
+  const setPlaceList = useSetRecoilState(curationPlaceList);
   const [curationData, setCurationData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -20,18 +23,19 @@ const CurationDetail = () => {
       try {
         const result = await getCurationDetail(curationId);
         setCurationData(result);
+        setPlaceList(result.places);
       } finally {
         setLoading(false);
       }
     };
 
     fetchCurationData();
-  }, [curationId]);
+  }, [curationId, setPlaceList]);
 
   if (loading) return <div>Loading...</div>;
 
   const handleRoute = () => {
-    navigate(`/curation/map/${curationId}`);
+    navigate(`/curation/map`);
   };
 
   return (
