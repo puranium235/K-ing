@@ -23,7 +23,7 @@ const SearchResult = () => {
             <BackButton />
             <h3> 통합검색</h3>
           </IconText>
-          <SearchBar />
+          <SearchBar onSearch={() => {}} />
         </Header>
         <ResultWrapper>
           <FavoritesList title="작품" data={contentList} />

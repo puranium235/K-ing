@@ -46,7 +46,7 @@ const Content = () => {
           <BackButton />
           <h3> {contentTypeMapping[contentType]}</h3>
         </IconText>
-        <SearchBar />
+        <SearchBar onSearch={() => {}} />
         <GridContainer>
           {contents.map((drama) => (
             <Card key={drama.id} onClick={() => handleDramaClick(drama.id)}>
