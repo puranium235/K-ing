@@ -8,7 +8,7 @@ before_script:
 frontend_build:
   stage: build
   only:
-    - changes:
+    changes:
         - king/**
   cache:
     paths:
@@ -16,13 +16,17 @@ frontend_build:
   script:
     - echo [INFO] 프론트엔드 파일 빌드중
     - cd king
+    - echo VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY >> .env
+    - echo VITE_GOOGLE_MAPS_MAP_ID=$VITE_GOOGLE_MAPS_MAP_ID >> .env
+    - echo VITE_API_BASE_URL=$VITE_API_BASE_URL >> .env
+    - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
 
 backend_build:
   stage: deploy
   only:
-    - changes:
+    changes:
         - king-backend/**
         - docker-compose.yml
   script:
