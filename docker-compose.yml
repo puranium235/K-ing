@@ -14,7 +14,7 @@ services:
     command:
       --skip-character-set-client-handshake
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./king-backend/init.sql:/docker-entrypoint-initdb.d/init.sql
       - mysql-data:/var/lib/mysql
     expose:
       - "3306"
@@ -86,8 +86,6 @@ services:
       CLIENT_BASE_URL: ${CLIENT_BASE_URL}
       ACCESSTOKEN_EXPIRES_IN: ${ACCESSTOKEN_EXPIRES_IN}
       REFRESHTOKEN_EXPIRES_IN: ${REFRESHTOKEN_EXPIRES_IN}
-    volumes:
-      - ./app.jar:/app.jar
     command:
       - java -jar app.jar
     depends_on:
@@ -110,7 +108,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./dist:/usr/share/nginx/html
+      - ./king/dist:/usr/share/nginx/html
     depends_on:
       - springboot
     networks:

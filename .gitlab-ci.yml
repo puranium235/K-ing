@@ -14,8 +14,6 @@ frontend-build:
       - kingapp
   script:
     - echo [INFO] 프론트엔드 파일 빌드중
-    - ls -l
-    - $(pwd)
     - cd king
     - echo VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY >> .env
     - echo VITE_GOOGLE_MAPS_MAP_ID=$VITE_GOOGLE_MAPS_MAP_ID >> .env
@@ -23,7 +21,6 @@ frontend-build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
-    - cp -r dist/ ../kingapp/
   artifacts:
     paths:
       - king/dist
@@ -41,13 +38,12 @@ backend-build:
       - king-backend/.gradle/caches/
   script:
     - echo [INFO] 백엔드 파일 빌드중
-    - ls -l
     - cd king-backend
     - chmod +x ./gradlew
     - ./gradlew bootJar
-    - mv $(ls -t build/libs/*.jar | head -n 1) ../kingapp/app.jar
   artifacts:
     paths:
+      - king-backend/init.sql
       - king-backend/build/libs
     expire_in: 1 hour
 
@@ -58,8 +54,6 @@ nginx-build:
   needs: []
   script:
     - echo [INFO] nginx.conf 옮기는중
-    - ls -l
-    - cp nginx.conf kingapp/nginx.conf
   artifacts:
     paths:
       - nginx.conf
@@ -71,7 +65,6 @@ make-env:
   needs: []
   script:
     - echo [INFO] 환경변수 옮기는 중
-    - ls -l
     - echo MYSQL_HOST=$MYSQL_HOST >> .env
     - echo MYSQL_PORT=$MYSQL_PORT >> .env
     - echo MYSQL_DB=$MYSQL_DB >> .env
@@ -93,7 +86,6 @@ make-env:
     - echo OAUTH2_GOOGLE_API_ENDPOINT=$OAUTH2_GOOGLE_API_ENDPOINT >> .env
     - echo SERVER_BASE_URL=$SERVER_BASE_URL >> .env
     - echo CLIENT_BASE_URL=$CLIENT_BASE_URL >> .env
-    - cp .env kingapp/
   artifacts:
     paths:
       - .env
@@ -110,13 +102,6 @@ deploy:
     - make-env
   script:
     - echo [INFO] Docker compose 실행중
-    - ls -l docker-compose.yml
     - echo $(pwd)
-    - ls -l kingapp
-    - cp docker-compose.yml ./kingapp/docker-compose.yml
-    - cp -r king/dist/ ./kingapp/fe/dist/
-    - cp $(ls -t king-backend/build/libs/*.jar | head -n 1) ./kingapp/be/app.jar
-    - cp .env ./kingapp/.env
-    - cp nginx.conf ./kingapp/nginx.conf
-    - cd kingapp
+    - ls -l
     - docker compose up --build -d
