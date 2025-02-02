@@ -84,7 +84,6 @@ make-env:
     - echo OAUTH2_GOOGLE_API_ENDPOINT=$OAUTH2_GOOGLE_API_ENDPOINT >> .env
     - echo SERVER_BASE_URL=$SERVER_BASE_URL >> .env
     - echo CLIENT_BASE_URL=$CLIENT_BASE_URL >> .env
-    - cp .env builds/s12-webmobile2-sub1/S12P11A507/.env
   artifacts:
     paths:
       - .env
