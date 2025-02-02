@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { IcKing } from '../assets/icons';
+import KingLogoImsi from '../assets/icons/king_logo_imsi.png';
 
 const SignupCompletePage = () => {
   const handleLogin = () => {
@@ -10,11 +11,12 @@ const SignupCompletePage = () => {
 
   return (
     <StSignupCompletePageWrapper>
-      <St.IconWrapper>
+      {/* <St.IconWrapper>
         <IcKing />
-      </St.IconWrapper>
+      </St.IconWrapper> */}
+      <LogoImage src={KingLogoImsi} alt="King Logo" />
       <St.ContentWrapper>
-        <Title>K-ing</Title>
+        {/* <Title>K-ing</Title> */}
         <Message>회원가입이 완료되었습니다.</Message>
       </St.ContentWrapper>
       <St.ButtonWrapper>
@@ -97,4 +99,11 @@ const Button = styled.button`
   &:hover {
     opacity: 0.8;
   }
+`;
+
+const LogoImage = styled.img`
+  width: 150px;
+  height: auto;
+  position: relative; /* 요소를 독립적으로 배치하기 위해 */
+  z-index: 2; /* 발자국보다 앞에 배치 */
 `;
