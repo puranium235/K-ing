@@ -22,18 +22,61 @@ frontend-build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
-
   artifacts:
     paths:
       - king/dist
 
-# 배포 단계
 deploy:
   stage: deploy
   image: docker:latest
   tags:
     - king-develop
   script:
-    - docker info
-    - docker build -t testDocker king-backend/Dockerfile
-    - docker run testDocker
+    - echo [INFO] 환경변수 옮기는 중
+    - echo MYSQL_HOST=$MYSQL_HOST >> .env
+    - echo MYSQL_PORT=$MYSQL_PORT >> .env
+    - echo MYSQL_DB=$MYSQL_DB >> .env
+    - echo MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD >>.env
+    - echo MYSQL_USERNAME=$MYSQL_USERNAME >> .env
+    - echo MYSQL_PASSWORD=$MYSQL_PASSWORD >> .env
+    - echo REDIS_HOST=$REDIS_HOST >> .env
+    - echo REDIS_PORT=$REDIS_PORT >> .env
+    - echo REDIS_PASSWORD=$REDIS_PASSWORD >> .env
+    - echo ELASTIC_HOST=$ELASTIC_HOST >> .env
+    - echo ELASTIC_PORT=$ELASTIC_PORT >> .env
+    - echo ELASTIC_USERNAME=$ELASTIC_USERNAME >> .env
+    - echo ELASTIC_PASSWORD=$ELASTIC_PASSWORD >> .env
+    - echo JWT_SECRET=$JWT_SECRET >> .env
+    - echo ACCESSTOKEN_EXPIRES_IN=$ACCESSTOKEN_EXPIRES_IN >> .env
+    - echo REFRESHTOKEN_EXPIRES_IN=$REFRESHTOKEN_EXPIRES_IN >> .env
+    - echo OAUTH2_GOOGLE_CLIENT_ID=$OAUTH2_GOOGLE_CLIENT_ID >> .env
+    - echo OAUTH2_GOOGLE_CLIENT_SECRET=$OAUTH2_GOOGLE_CLIENT_SECRET >> .env
+    - echo OAUTH2_GOOGLE_API_ENDPOINT=$OAUTH2_GOOGLE_API_ENDPOINT >> .env
+    - echo SERVER_BASE_URL=$SERVER_BASE_URL >> .env
+    - echo CLIENT_BASE_URL=$CLIENT_BASE_URL >> .env
+    - echo [INFO] 백엔드 파일 빌드중
+    - docker compose up --build -d
+    - echo [INFO] 환경변수 옮기는 중
+    - echo MYSQL_HOST=$MYSQL_HOST >> .env
+    - echo MYSQL_PORT=$MYSQL_PORT >> .env
+    - echo MYSQL_DB=$MYSQL_DB >> .env
+    - echo MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD >>.env
+    - echo MYSQL_USERNAME=$MYSQL_USERNAME >> .env
+    - echo MYSQL_PASSWORD=$MYSQL_PASSWORD >> .env
+    - echo REDIS_HOST=$REDIS_HOST >> .env
+    - echo REDIS_PORT=$REDIS_PORT >> .env
+    - echo REDIS_PASSWORD=$REDIS_PASSWORD >> .env
+    - echo ELASTIC_HOST=$ELASTIC_HOST >> .env
+    - echo ELASTIC_PORT=$ELASTIC_PORT >> .env
+    - echo ELASTIC_USERNAME=$ELASTIC_USERNAME >> .env
+    - echo ELASTIC_PASSWORD=$ELASTIC_PASSWORD >> .env
+    - echo JWT_SECRET=$JWT_SECRET >> .env
+    - echo ACCESSTOKEN_EXPIRES_IN=$ACCESSTOKEN_EXPIRES_IN >> .env
+    - echo REFRESHTOKEN_EXPIRES_IN=$REFRESHTOKEN_EXPIRES_IN >> .env
+    - echo OAUTH2_GOOGLE_CLIENT_ID=$OAUTH2_GOOGLE_CLIENT_ID >> .env
+    - echo OAUTH2_GOOGLE_CLIENT_SECRET=$OAUTH2_GOOGLE_CLIENT_SECRET >> .env
+    - echo OAUTH2_GOOGLE_API_ENDPOINT=$OAUTH2_GOOGLE_API_ENDPOINT >> .env
+    - echo SERVER_BASE_URL=$SERVER_BASE_URL >> .env
+    - echo CLIENT_BASE_URL=$CLIENT_BASE_URL >> .env
+    - echo [INFO] 백엔드 파일 빌드중
+    - docker compose up --build -d
