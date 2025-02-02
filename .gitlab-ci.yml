@@ -20,11 +20,9 @@ frontend-build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
-    - mkdir -p builds/s12-webmobile2-sub1/S12P11A507/king
-    - cp -r dist/ builds/s12-webmobile2-sub1/S12P11A507/king/dist/
   artifacts:
     paths:
-      - king/dist/
+      - king/dist
     expire_in: 1 hour
 
 backend-build:
@@ -42,12 +40,9 @@ backend-build:
     - cd king-backend
     - chmod +x ./gradlew
     - ./gradlew bootJar
-    - mkdir -p builds/s12-webmobile2-sub1/S12P11A507/king-backend
-    - cp init.sql builds/s12-webmobile2-sub1/S12P11A507/king-backend/init.sql
-    - cp -r build/libs builds/s12-webmobile2-sub1/S12P11A507/king-backend/build/libs
   artifacts:
     paths:
-      - king-backend/build/libs/
+      - king-backend/build/libs
     expire_in: 1 hour
 
 nginx-build:
@@ -57,7 +52,9 @@ nginx-build:
   needs: []
   script:
     - echo [INFO] nginx.conf 옮기는중
-    - cp nginx.conf builds/s12-webmobile2-sub1/S12P11A507/nginx.conf
+  artifacts:
+    paths:
+      - nginx.conf
 
 make-env:
   stage: build
@@ -88,6 +85,9 @@ make-env:
     - echo SERVER_BASE_URL=$SERVER_BASE_URL >> .env
     - echo CLIENT_BASE_URL=$CLIENT_BASE_URL >> .env
     - cp .env builds/s12-webmobile2-sub1/S12P11A507/.env
+  artifacts:
+    paths:
+      - .env
 
 deploy:
   stage: deploy
@@ -100,4 +100,8 @@ deploy:
     - make-env
   script:
     - echo [INFO] Docker compose 실행중
+    - cp king/dist king/dist
+    - cp king-backend/build/libs king-backend/build/libs
+    - cp .env .env
+    - cp nginx.conf nginx.conf
     - docker compose up --build -d
