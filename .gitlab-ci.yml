@@ -13,6 +13,7 @@ frontend-build:
       - king/node_modules
   script:
     - echo [INFO] 프론트엔드 파일 빌드중
+    - ls -l
     - cd king
     - echo VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY >> .env
     - echo VITE_GOOGLE_MAPS_MAP_ID=$VITE_GOOGLE_MAPS_MAP_ID >> .env
@@ -55,7 +56,8 @@ nginx-build:
   needs: []
   script:
     - echo [INFO] nginx.conf 옮기는중
-    - cp nginx.conf kingapp/
+    - ls -l
+    - cp nginx.conf kingapp/nginx.conf
   artifacts:
     paths:
       - nginx.conf
@@ -67,6 +69,7 @@ make-env:
   needs: []
   script:
     - echo [INFO] 환경변수 옮기는 중
+    - ls -l
     - echo MYSQL_HOST=$MYSQL_HOST >> .env
     - echo MYSQL_PORT=$MYSQL_PORT >> .env
     - echo MYSQL_DB=$MYSQL_DB >> .env
