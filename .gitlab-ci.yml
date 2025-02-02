@@ -104,8 +104,7 @@ deploy:
     - echo [INFO] Docker compose 실행중
     - echo $(pwd)
     - ls -l
+    - find . name ".env"
     - head .env
-    - cp .env ./.env
-    - ls -l
     - sleep 600
     - docker compose up --build -d
