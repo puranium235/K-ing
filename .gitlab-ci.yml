@@ -2,52 +2,51 @@ stages:
   - build
   - deploy
 
-#before_script:
-#  - echo [INFO] 배포를 시작합니다...
-#
-#frontend-build:
-#  stage: build
-#  image: node:22.13-alpine
-#  tags:
-#    - king-develop
-#  needs: []
-#  cache:
-#    paths:
-#      - king/node_modules
-#  script:
-#    - echo [INFO] 프론트엔드 파일 빌드중
-#    - cd king
-#    - echo VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY >> .env
-#    - echo VITE_GOOGLE_MAPS_MAP_ID=$VITE_GOOGLE_MAPS_MAP_ID >> .env
-#    - echo VITE_API_BASE_URL=$VITE_API_BASE_URL >> .env
-#    - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
-#    - npm install
-#    - npm run build
-#  artifacts:
-#    paths:
-#      - king/dist/
-#    expire_in: 1 hour
-#
-#backend-build:
-#  stage: build
-#  image: openjdk:17.0.2-slim-buster
-#  tags:
-#    - king-develop
-#  needs: []
-#  cache:
-#    paths:
-#      - king-backend/.gradle/wrapper/gradle-wrapper.jar
-#      - king-backend/.gradle/caches/
-#  script:
-#    - echo [INFO] 백엔드 파일 빌드중
-#    - cd king-backend
-#    - chmod +x ./gradlew
-#    - ./gradlew bootJar
-#  artifacts:
-#    paths:
-#      - king-backend/init.sql
-#      - king-backend/build/libs/
-#    expire_in: 1 hour
+frontend-build:
+  stage: build
+  image: node:22.13-alpine
+  tags:
+    - king-develop
+  needs: []
+  cache:
+    paths:
+      - king/node_modules
+  script:
+    - echo [INFO] 프론트엔드 파일 빌드중
+    - cd king
+    - echo VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY >> .env
+    - echo VITE_GOOGLE_MAPS_MAP_ID=$VITE_GOOGLE_MAPS_MAP_ID >> .env
+    - echo VITE_API_BASE_URL=$VITE_API_BASE_URL >> .env
+    - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
+    - npm install
+    - npm run build
+    - cp king/dist/ builds/king/dist/
+  artifacts:
+    paths:
+      - king/dist/
+    expire_in: 1 hour
+
+backend-build:
+  stage: build
+  image: openjdk:17.0.2-slim-buster
+  tags:
+    - king-develop
+  needs: []
+  cache:
+    paths:
+      - king-backend/.gradle/wrapper/gradle-wrapper.jar
+      - king-backend/.gradle/caches/
+  script:
+    - echo [INFO] 백엔드 파일 빌드중
+    - cd king-backend
+    - chmod +x ./gradlew
+    - ./gradlew bootJar
+    - cp init.sql builds/king-backend/init.sql
+    - cp build/libs builds/king-backend/build/libs
+  artifacts:
+    paths:
+      - king-backend/build/libs/
+    expire_in: 1 hour
 
 nginx-build:
   stage: build
@@ -56,10 +55,7 @@ nginx-build:
   needs: []
   script:
     - echo [INFO] nginx.conf 옮기는중
-  artifacts:
-    paths:
-      - nginx.conf
-    expire_in: 1 hour
+    - cp nginx.conf builds/nginx.conf
 
 make-env:
   stage: build
@@ -89,10 +85,7 @@ make-env:
     - echo OAUTH2_GOOGLE_API_ENDPOINT=$OAUTH2_GOOGLE_API_ENDPOINT >> .env
     - echo SERVER_BASE_URL=$SERVER_BASE_URL >> .env
     - echo CLIENT_BASE_URL=$CLIENT_BASE_URL >> .env
-  artifacts:
-    paths:
-      - ./.env
-    expire_in: 1 hour
+    - cp .env builds/.env
 
 deploy:
   stage: deploy
