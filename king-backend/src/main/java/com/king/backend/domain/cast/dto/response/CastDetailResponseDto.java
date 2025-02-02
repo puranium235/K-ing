@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -17,7 +18,7 @@ public class CastDetailResponseDto {
     private String birthDate;
     private String birthPlace;
     private Long participatingWorks;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
     private boolean isFavorite;
     private List<RelatedContent> relatedContents;
     private List<Work> works;

@@ -87,7 +87,7 @@ public class SearchService {
                     .from(0)  // 검색 시작 위치
                     .sort(List.of(
                             new SortOptions.Builder()
-                                    .field(f -> f.field("name").order(SortOrder.Asc))
+                                    .field(f -> f.field("name.keyword").order(SortOrder.Asc))
                                     .build()
                     )) // name 기준 오름차순 정렬 적용
                     .source(source -> source
@@ -144,11 +144,18 @@ public class SearchService {
             String category = requestDto.getCategory();
 //            int page = requestDto.getPage();
             int size = requestDto.getSize();
-            String sortBy = requestDto.getSortBy();
+            String sortByInput = requestDto.getSortBy();
             String sortOrder = requestDto.getSortOrder();
             String placeType = requestDto.getPlaceType();
             String region = requestDto.getRegion();
             String cursor = requestDto.getCursor();
+
+            String sortBy;
+            if (sortByInput != null && sortByInput.equalsIgnoreCase("name")) {
+                sortBy = "name.keyword";
+            } else {
+                sortBy = sortByInput;
+            }
 
             // BoolQuery 생성
             BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
@@ -359,6 +366,8 @@ public class SearchService {
 
             // BoolQuery 생성
             BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+
+            boolQueryBuilder.filter(q -> q.term(t -> t.field("category").value("place".toUpperCase())));
 
             // 검색어 처리
             if (query != null && !query.isEmpty()) {
