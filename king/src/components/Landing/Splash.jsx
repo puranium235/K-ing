@@ -2,6 +2,7 @@ import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import { IcFootsteps, IcKing } from '../../assets/icons';
+import KingLogo from '../../assets/icons/king_logo.png';
 import KingLogoImsi from '../../assets/icons/king_logo_imsi.png';
 import FootstepsAnimation from './FootstepsAnimation';
 
@@ -12,7 +13,7 @@ const Splash = () => {
         <IcKing />
       </IconWrapper>
       <BrandName>K-ing</BrandName> */}
-      <LogoImage src={KingLogoImsi} alt="King Logo" />
+      <LogoImage src={KingLogo} alt="King Logo" />
 
       {/* <img src={KingLogoImsi} alt="King Logo" width={300} height={300} /> */}
 

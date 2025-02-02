@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { IcKing } from '../assets/icons';
+import KingLogo from '../assets/icons/king_logo.png';
 import KingLogoImsi from '../assets/icons/king_logo_imsi.png';
 
 const SignupCompletePage = () => {
@@ -14,7 +15,7 @@ const SignupCompletePage = () => {
       {/* <St.IconWrapper>
         <IcKing />
       </St.IconWrapper> */}
-      <LogoImage src={KingLogoImsi} alt="King Logo" />
+      <LogoImage src={KingLogo} alt="King Logo" />
       <St.ContentWrapper>
         {/* <Title>K-ing</Title> */}
         <Message>회원가입이 완료되었습니다.</Message>

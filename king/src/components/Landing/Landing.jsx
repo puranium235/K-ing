@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { IcFootsteps, IcKing } from '../../assets/icons';
 import GoogleIcon from '../../assets/icons/ic_google.png';
 import LineIcon from '../../assets/icons/ic_line_88.png';
+import KingLogo from '../../assets/icons/king_logo.png';
 import KingLogoImsi from '../../assets/icons/king_logo_imsi.png';
 const Landing = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -23,7 +24,7 @@ const Landing = () => {
           <Title>촬영 배경지 큐레이션 서비스</Title>
         </St.TaglineWrapper>
         {/* <BrandName>K-ing</BrandName> */}
-        <LogoImage src={KingLogoImsi} alt="King Logo" />
+        <LogoImage src={KingLogo} alt="King Logo" />
       </St.ContentWrapper>
       {/* <St.FootprintWrapper>
         <IcFootsteps />
