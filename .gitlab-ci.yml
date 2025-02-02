@@ -100,6 +100,8 @@ deploy:
     - make-env
   script:
     - echo [INFO] Docker compose 실행중
+    - ls -l docker-compose.yml
+    - ls -l kingapp
     - cp docker-compose.yml ./kingapp/docker-compose.yml
     - cp -r king/dist/ ./kingapp/fe/dist/
     - cp $(ls -t king-backend/build/libs/*.jar | head -n 1) ./kingapp/be/app.jar
