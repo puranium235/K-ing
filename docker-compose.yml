@@ -87,7 +87,7 @@ services:
       ACCESSTOKEN_EXPIRES_IN: ${ACCESSTOKEN_EXPIRES_IN}
       REFRESHTOKEN_EXPIRES_IN: ${REFRESHTOKEN_EXPIRES_IN}
     volumes:
-      - ./king-backend/build/libs:./
+      - ./king-backend/build/libs:/
     command:
       java -jar $(ls build/libs/*.jar | head -n 1)
     depends_on:
