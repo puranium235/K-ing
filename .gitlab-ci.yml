@@ -94,6 +94,7 @@ deploy:
   tags:
     - king-develop
   dependencies:
+    - frontend-build
     - backend-build
     - nginx-build
     - make-env
