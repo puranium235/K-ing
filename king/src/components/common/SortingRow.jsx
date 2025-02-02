@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import SortingIcon from '../../assets/icons/icon-sorting.png';
 import SortingModal from '../../components/common/SortingModal';
 
-const SortingRow = () => {
+const SortingRow = ({ onSortingChange }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [value, setValue] = useState('인기순');
 
@@ -18,6 +18,7 @@ const SortingRow = () => {
 
   const handleOptionClick = (option) => {
     setValue(option); // 선택된 옵션 업데이트
+    onSortingChange(option);
     closeModal(); // 모달 닫기
   };
 

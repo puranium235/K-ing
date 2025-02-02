@@ -1,10 +1,10 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { getSearchResult } from '../../lib/search';
-import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
+import { SearchCategoryState, SearchPrevQuery, SearchQueryState } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
@@ -13,19 +13,21 @@ import SearchList from './SearchList';
 const SearchResult = () => {
   const query = useRecoilValue(SearchQueryState);
   const category = useRecoilValue(SearchCategoryState);
+  const setPrevQuery = useSetRecoilState(SearchPrevQuery);
+
   const [results, setResults] = useState(null);
   const [contentList, setContentList] = useState([]);
   const [celebList, setCelebList] = useState([]);
   const [placeList, setPlaceList] = useState([]);
 
   const getResults = async () => {
-    const res = await getSearchResult(query, category);
+    const res = await getSearchResult({ query, category });
     setResults(res.results);
-    console.log(res.results);
   };
 
   useEffect(() => {
     getResults();
+    setPrevQuery(query);
   }, [query]);
 
   useEffect(() => {
@@ -53,12 +55,12 @@ const SearchResult = () => {
             <BackButton />
             <h3> 통합검색</h3>
           </IconText>
-          <SearchBar onSearch={() => {}} />
+          <SearchBar query={query || ''} onSearch={() => {}} />
         </Header>
         <ResultWrapper>
-          <SearchList title="작품" data={contentList} />
-          <SearchList title="인물" data={celebList} />
-          <SearchList title="장소" data={placeList} />
+          <SearchList title="작품" data={contentList} type="CONTENT" />
+          <SearchList title="인물" data={celebList} type="CAST" />
+          <SearchList title="장소" data={placeList} type="PLACE" />
         </ResultWrapper>
         <Nav />
       </StHomeWrapper>
