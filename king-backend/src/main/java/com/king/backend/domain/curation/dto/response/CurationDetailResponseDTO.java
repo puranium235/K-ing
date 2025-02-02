@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
@@ -19,7 +20,7 @@ public class CurationDetailResponseDTO {
     private String title;
     private String description;
     private String imageUrl;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
     private boolean bookmarked;
     private WriterDTO writer;
     private List<PlaceDTO> places;
