@@ -105,6 +105,6 @@ deploy:
     - make-env
   script:
     - echo [INFO] artifact 실험
-    - ls -l nginx.conf
+    - head nginx.conf
     - echo [INFO] Docker compose 실행중
     - docker compose up --build -d
