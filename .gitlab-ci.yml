@@ -30,7 +30,9 @@ frontend-build:
 # 배포 단계
 deploy:
   stage: deploy
-  image: docker:dind
+  image: docker:latest
+  variables:
+    DOCKER_HOST: "unix:///var/run/docker.sock"
   tags:
     - king-develop
   script:
