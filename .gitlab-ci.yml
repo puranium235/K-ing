@@ -11,9 +11,11 @@ build:
   image: node:22.13-alpine
   tags:
     - king-develop
+  cache:
+    paths:
+      - king/node_modules
   script:
     - echo [INFO] 프론트엔드 파일 빌드중
-    - sleep 120
     - cd king
     - echo VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY >> .env
     - echo VITE_GOOGLE_MAPS_MAP_ID=$VITE_GOOGLE_MAPS_MAP_ID >> .env
@@ -21,7 +23,9 @@ build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
-
+  artifacts:
+    paths:
+      - king/dist
 
 # 배포 단계
 deploy:
