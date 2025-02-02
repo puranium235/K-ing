@@ -11,6 +11,7 @@ frontend-build:
   cache:
     paths:
       - king/node_modules
+      - kingapp
   script:
     - echo [INFO] 프론트엔드 파일 빌드중
     - ls -l
