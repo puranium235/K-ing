@@ -48,7 +48,7 @@ const Router = () => {
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/curation" element={<CurationPage />} />
             <Route path="/curation/:curationId" element={<CurationDetailPage />} />
-            <Route path="/curation/map/:curationId" element={<CurationMapPage />} />
+            <Route path="/curation/map" element={<CurationMapPage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/content/:contentType" element={<ContentPage />} />
             <Route path="/content/celeb/:celebId" element={<CelebDetailPage />} />

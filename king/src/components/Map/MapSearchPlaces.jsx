@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import DummyData from '../../assets/dummy/dummyData';
+import DummyData from '../../assets/dummy/dummyMapPlace';
 import UpIcon from '../../assets/icons/up.png';
+import { searchMapView } from '../../lib/map';
+import { FilterOption, searchQueryState, searchRegionState } from '../../recoil/atom';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
 import FilterButtons from './FilterButtons';
@@ -10,30 +13,58 @@ import GoogleMapView from './GoogleMapView';
 import ListItem from './ListItem';
 
 const MapSearchPlaces = () => {
+  const query = useRecoilValue(searchQueryState);
+  const region = useRecoilValue(searchRegionState);
+  const [filterOption, setFilterOption] = useRecoilState(FilterOption);
+
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeFilter, setActiveFilter] = useState(null);
+  const [places, setPlaces] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const filters = ['식당', '카페', '관광', '상점', '숙박'];
+  const filters = ['RESTAURANT', 'CAFE', 'PLAYGROUND', 'STORE', 'STAY'];
 
-  const filterToTypeMap = {
-    식당: 'restaurant',
-    카페: 'cafe',
-    관광: 'playground',
-    상점: 'store',
-    숙박: 'stay',
-  };
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const data = await searchMapView(query, region);
+        setPlaces(data);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlaces();
+  }, [query, region]);
 
   const toggleBox = () => {
     setIsExpanded(!isExpanded);
   };
 
   const handleFilterChange = (filter) => {
-    setActiveFilter((prevFilter) => (prevFilter === filter ? null : filter));
+    setFilterOption((prevOption) => {
+      const updatedCategories = {
+        ...prevOption.categories,
+        [filter]: !prevOption.categories[filter],
+      };
+
+      // 모든 필터가 false이면 전체 해제 상태로 유지
+      const allFalse = Object.values(updatedCategories).every((value) => !value);
+
+      return {
+        ...prevOption,
+        categories: allFalse ? { ...updatedCategories } : updatedCategories,
+      };
+    });
+
+    console.log(filterOption.categories);
   };
 
-  const filteredPlaces = activeFilter
-    ? DummyData.filter((place) => place.type === filterToTypeMap[activeFilter])
-    : DummyData;
+  const filteredPlaces = places.filter((place) => {
+    if (Object.values(filterOption.categories).every((value) => !value)) return true;
+    return filterOption.categories[place.type];
+  });
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <Container>
@@ -51,15 +82,21 @@ const MapSearchPlaces = () => {
         <FilterContainer>
           <FilterButtons
             filters={filters}
-            activeFilter={activeFilter}
+            activeFilter={filterOption.categories}
             onFilterChange={handleFilterChange}
           />
         </FilterContainer>
-        <ListContainer>
-          {filteredPlaces.map((place) => (
-            <ListItem key={place.placeId} place={place} />
-          ))}
-        </ListContainer>
+        {filteredPlaces.length > 0 ? (
+          <ListContainer>
+            {filteredPlaces.map((place) => (
+              <ListItem key={place.id} place={place} />
+            ))}
+          </ListContainer>
+        ) : (
+          <NoResultsContainer>
+            <NoResultsText>검색 결과가 없습니다.</NoResultsText>
+          </NoResultsContainer>
+        )}
       </ContentSection>
 
       <CloseButton />
@@ -80,16 +117,6 @@ const MapSection = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const SlideBar = styled.div`
-  width: 60px;
-  height: 3px;
-  background-color: #cbcbcb;
-  border-radius: 2.5px;
-  margin: 10px auto;
-  margin-bottom: 20px;
-  cursor: pointer;
 `;
 
 const UpButton = styled.button`
@@ -142,6 +169,20 @@ const ListContainer = styled.div`
     background-color: #fff;
     border-radius: 0px 0px 14px 14px;
   }
+`;
+
+const NoResultsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 200px;
+`;
+
+const NoResultsText = styled.p`
+  ${({ theme }) => theme.fonts.Body3};
+  color: #888;
 `;
 
 export default MapSearchPlaces;
