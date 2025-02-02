@@ -1,15 +1,17 @@
+import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcKing } from '../../assets/icons';
 import { checkNickname, postSignup } from '../../lib/auth';
-import commonLocales from '../../locales/common.json'; // 공통 번역
-import signupLocales from '../../locales/signup.json'; // 회원가입 페이지 번역
+import commonLocales from '../../locales/common.json';
+import signupLocales from '../../locales/signup.json';
 
 const Signup = () => {
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
-  const [language, setLanguage] = useState('ko'); // 기본값을 한국어('ko')로 설정
+  const [language, setLanguage] = useState('ko');
   const [translations, setTranslations] = useState(signupLocales[language]);
   const [commonTranslations, setCommonTranslations] = useState(commonLocales[language]); // 공통 텍스트
   const [isValidName, setIsValidName] = useState(false);
@@ -20,17 +22,52 @@ const Signup = () => {
 
   const navigate = useNavigate();
 
-  // 언어 변경 시 번역 데이터 업데이트
+  // ✅ 로그인 및 ROLE_PENDING 확인
   useEffect(() => {
-    setTranslations(signupLocales[language]);
-    setCommonTranslations(commonLocales[language]);
-    if (errorType === 'DUPLICATE_NICKNAME') {
-      checkNicknameAPI();
+    const checkUserRole = async () => {
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) throw new Error('No access token found');
+
+        const decoded = jwtDecode(accessToken);
+        if (decoded.role !== 'ROLE_PENDING') {
+          navigate('/'); // ROLE_PENDING이 아니면 홈으로 리디렉트
+        }
+      } catch (error) {
+        console.error('유저 정보 확인 중 오류 발생:', error);
+        navigate('/');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUserRole();
+  }, [navigate]);
+
+  // // 언어 변경 시 번역 데이터 업데이트
+  // useEffect(() => {
+  //   setTranslations(signupLocales[language]);
+  //   setCommonTranslations(commonLocales[language]);
+  //   if (errorType === 'DUPLICATE_NICKNAME') {
+  //     checkNicknameAPI();
+  //   }
+  // }, [language]);
+
+  // ✅ 번역 데이터 설정
+  useEffect(() => {
+    if (!loading) {
+      setTranslations(signupLocales[language]);
+      setCommonTranslations(commonLocales[language]);
+
+      if (errorType === 'DUPLICATE_NICKNAME') {
+        checkNicknameAPI();
+      }
     }
-  }, [language]);
+  }, [language, loading]);
 
   // 닉네임 유효성 검사
   useEffect(() => {
+    if (!translations) return;
     const trimmedName = name.trim();
 
     if (name.length === 0) {
