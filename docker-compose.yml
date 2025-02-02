@@ -14,7 +14,7 @@ services:
     command:
       --skip-character-set-client-handshake
     volumes:
-      - ./king-backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./be/init.sql:/docker-entrypoint-initdb.d/init.sql
       - mysql-data:/var/lib/mysql
     expose:
       - "3306"
@@ -87,9 +87,10 @@ services:
       ACCESSTOKEN_EXPIRES_IN: ${ACCESSTOKEN_EXPIRES_IN}
       REFRESHTOKEN_EXPIRES_IN: ${REFRESHTOKEN_EXPIRES_IN}
     volumes:
-      - ./king-backend/build/libs:/build/libs
+      - ./be:/be
     command:
-      - java -jar $(ls build/libs/*.jar | head -n 1)
+      - cd be
+      - java -jar app.jar
     depends_on:
       mysql:
         condition: service_healthy
@@ -110,7 +111,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./king/dist:/usr/share/nginx/html
+      - ./fe/dist:/usr/share/nginx/html
     depends_on:
       - springboot
     networks:

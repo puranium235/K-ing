@@ -100,8 +100,10 @@ deploy:
     - make-env
   script:
     - echo [INFO] Docker compose 실행중
-    - cp -r king/dist/ ./king/dist/
-    - cp -r king-backend/build/libs/ ./king-backend/build/libs/
-    - cp .env ./.env
-    - cp nginx.conf ./nginx.conf
+    - cp docker-compose.yml ./kingapp/docker-compose.yml
+    - cp -r king/dist/ ./kingapp/fe/dist/
+    - cp $(ls -t king-backend/build/libs/*.jar | head -n 1) ./kingapp/be/app.jar
+    - cp .env ./kingapp/.env
+    - cp nginx.conf ./kingapp/nginx.conf
+    - cd kingapp
     - docker compose up --build -d
