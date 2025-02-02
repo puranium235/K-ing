@@ -72,7 +72,7 @@ services:
       MYSQL_PORT: ${MYSQL_PORT}
       MYSQL_DB: ${MYSQL_DB}
       MYSQL_USERNAME: ${MYSQL_USERNAME}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -107,7 +107,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/
       - ./king/dist:/usr/share/nginx/html
     depends_on:
       - springboot
