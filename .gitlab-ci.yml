@@ -20,7 +20,8 @@ frontend-build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
-    - cp dist/ builds/king/dist/
+    - mkdir builds/s12-webmobile2-sub1/S12P11A507/king
+    - cp dist/ builds/s12-webmobile2-sub1/S12P11A507/king/dist/
   artifacts:
     paths:
       - king/dist/
@@ -41,8 +42,9 @@ backend-build:
     - cd king-backend
     - chmod +x ./gradlew
     - ./gradlew bootJar
-    - cp init.sql builds/king-backend/init.sql
-    - cp build/libs builds/king-backend/build/libs
+    - mkdir builds/s12-webmobile2-sub1/S12P11A507/king-backend
+    - cp init.sql builds/s12-webmobile2-sub1/S12P11A507/king-backend/init.sql
+    - cp build/libs builds/s12-webmobile2-sub1/S12P11A507/king-backend/build/libs
   artifacts:
     paths:
       - king-backend/build/libs/
@@ -55,7 +57,7 @@ nginx-build:
   needs: []
   script:
     - echo [INFO] nginx.conf 옮기는중
-    - cp nginx.conf builds/nginx.conf
+    - cp nginx.conf builds/s12-webmobile2-sub1/S12P11A507/nginx.conf
 
 make-env:
   stage: build
@@ -97,7 +99,5 @@ deploy:
     - nginx-build
     - make-env
   script:
-    - echo [INFO] artifact 실험
-    - head nginx.conf
     - echo [INFO] Docker compose 실행중
     - docker compose up --build -d
