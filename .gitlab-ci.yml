@@ -13,6 +13,8 @@ frontend_build:
   cache:
     paths:
       - king/node_modules
+  tags:
+    - king-develop
   script:
     - echo [INFO] 프론트엔드 파일 빌드중
     - cd king
@@ -24,11 +26,13 @@ frontend_build:
     - npm run build
 
 backend_build:
-  stage: deploy
+  stage: deployg
   only:
     changes:
         - king-backend/**
         - docker-compose.yml
+  tags:
+    - king-develop
   script:
     - echo [INFO] 환경변수 옮기는 중
     - echo MYSQL_HOST=$MYSQL_HOST >> .env
