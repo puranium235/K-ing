@@ -89,7 +89,6 @@ services:
     volumes:
       - ./king-backend/build/libs:/build/libs
     command:
-      - cd build/libs
       - java -jar $(ls build/libs/*.jar | head -n 1)
     depends_on:
       mysql:
@@ -112,8 +111,6 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./king/dist:/usr/share/nginx/html
-    command:
-      - /bin/sh -c "rm -f /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
     depends_on:
       - springboot
     networks:
