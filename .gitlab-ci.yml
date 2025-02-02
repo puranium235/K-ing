@@ -30,6 +30,7 @@ frontend-build:
 # 배포 단계
 deploy:
   stage: deploy
+  image: docker:dind
   tags:
     - king-develop
   script:
