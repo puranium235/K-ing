@@ -5,10 +5,10 @@ import styled from 'styled-components';
 
 import { getSearchResult } from '../../lib/search';
 import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
-import FavoritesList from '../Archive/FavoritesList';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
+import SearchList from './SearchList';
 
 const SearchResult = () => {
   const query = useRecoilValue(SearchQueryState);
@@ -56,9 +56,9 @@ const SearchResult = () => {
           <SearchBar onSearch={() => {}} />
         </Header>
         <ResultWrapper>
-          <FavoritesList title="작품" data={contentList} />
-          <FavoritesList title="인물" data={celebList} />
-          <FavoritesList title="장소" data={placeList} />
+          <SearchList title="작품" data={contentList} />
+          <SearchList title="인물" data={celebList} />
+          <SearchList title="장소" data={placeList} />
         </ResultWrapper>
         <Nav />
       </StHomeWrapper>
