@@ -20,7 +20,7 @@ frontend-build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
-    - cp dist/ ../kingapp/fe/dist
+    - cp -r dist/ ../kingapp/fe/dist
   artifacts:
     paths:
       - king/dist
@@ -38,10 +38,11 @@ backend-build:
       - king-backend/.gradle/caches/
   script:
     - echo [INFO] 백엔드 파일 빌드중
+    - ls -l
     - cd king-backend
     - chmod +x ./gradlew
     - ./gradlew bootJar
-    - cp build/libs/ ../kingapp/
+    - cp -r build/libs/ ../kingapp/
   artifacts:
     paths:
       - king-backend/build/libs
