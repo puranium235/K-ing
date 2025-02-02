@@ -22,7 +22,7 @@ const Signup = () => {
 
   const navigate = useNavigate();
 
-  // ✅ 로그인 및 ROLE_PENDING 확인
+  // 로그인 및 ROLE_PENDING 확인
   useEffect(() => {
     const checkUserRole = async () => {
       try {
@@ -44,16 +44,7 @@ const Signup = () => {
     checkUserRole();
   }, [navigate]);
 
-  // // 언어 변경 시 번역 데이터 업데이트
-  // useEffect(() => {
-  //   setTranslations(signupLocales[language]);
-  //   setCommonTranslations(commonLocales[language]);
-  //   if (errorType === 'DUPLICATE_NICKNAME') {
-  //     checkNicknameAPI();
-  //   }
-  // }, [language]);
-
-  // ✅ 번역 데이터 설정
+  // 번역 데이터 설정
   useEffect(() => {
     if (!loading) {
       setTranslations(signupLocales[language]);
