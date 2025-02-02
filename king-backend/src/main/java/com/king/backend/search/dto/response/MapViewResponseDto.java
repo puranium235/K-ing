@@ -19,7 +19,7 @@ public class MapViewResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PlaceDto {
-        private Long id;
+        private Long placeId;
         private String name;
         private String type;
         private String openHour;
