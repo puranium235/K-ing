@@ -14,6 +14,7 @@ frontend-build:
   script:
     - echo [INFO] 프론트엔드 파일 빌드중
     - ls -l
+    - $(pwd)
     - cd king
     - echo VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY >> .env
     - echo VITE_GOOGLE_MAPS_MAP_ID=$VITE_GOOGLE_MAPS_MAP_ID >> .env
