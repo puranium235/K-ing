@@ -20,6 +20,7 @@ frontend-build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
+    - cp dist/ ../kingapp/fe/dist
   artifacts:
     paths:
       - king/dist
@@ -40,6 +41,7 @@ backend-build:
     - cd king-backend
     - chmod +x ./gradlew
     - ./gradlew bootJar
+    - cp build/libs/ ../kingapp/
   artifacts:
     paths:
       - king-backend/build/libs
@@ -52,6 +54,7 @@ nginx-build:
   needs: []
   script:
     - echo [INFO] nginx.conf 옮기는중
+    - cp nginx.conf kingapp/nginx.conf
   artifacts:
     paths:
       - nginx.conf
@@ -84,6 +87,7 @@ make-env:
     - echo OAUTH2_GOOGLE_API_ENDPOINT=$OAUTH2_GOOGLE_API_ENDPOINT >> .env
     - echo SERVER_BASE_URL=$SERVER_BASE_URL >> .env
     - echo CLIENT_BASE_URL=$CLIENT_BASE_URL >> .env
+    - cp .env kingapp/.env
   artifacts:
     paths:
       - .env
