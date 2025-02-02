@@ -76,7 +76,7 @@ public class CurationDetailResponseDTO {
             return new PlaceDTO(
                     place.getId(),
                     place.getName(),
-                    place.getType(),
+                    place.getType().toUpperCase(),
                     place.getAddress(),
                     place.getLat(),
                     place.getLng(),
