@@ -10,6 +10,7 @@ frontend-build:
   image: node:22.13-alpine
   tags:
     - king-develop
+  needs: []
   cache:
     paths:
       - king/node_modules
@@ -31,6 +32,7 @@ backend-build:
   image: openjdk:17.0.2-slim-buster
   tags:
     - king-develop
+  needs: []
   cache:
     paths:
       - king-develop/.gradle/wrapper/gradle-wrapper.jar
@@ -49,6 +51,7 @@ nginx-build:
   stage: build
   tags:
     - king-develop
+  needs: []
   script:
     - echo [INFO] nginx.conf 옮기는중
   artifacts:
@@ -59,6 +62,7 @@ make-env:
   stage: build
   tags:
     - king-develop
+  needs: []
   script:
     - echo [INFO] 환경변수 옮기는 중
     - echo MYSQL_HOST=$MYSQL_HOST >> .env
@@ -91,6 +95,10 @@ deploy:
   image: docker:latest
   tags:
     - king-develop
+  needs:
+    - backend-build
+    - nginx-build
+    - make-env
   script:
     - echo [INFO] Docker compose 실행중
     - docker compose up --build -d
