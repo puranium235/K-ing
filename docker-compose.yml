@@ -62,9 +62,7 @@ services:
       - king
 
   springboot:
-    build:
-      context: ./king-backend
-      dockerfile: ./Dockerfile
+    image: openjdk:17.0.2-jdk-slim
     container_name: springboot
     restart: always
     environment:
@@ -88,6 +86,10 @@ services:
       CLIENT_BASE_URL: ${CLIENT_BASE_URL}
       ACCESSTOKEN_EXPIRES_IN: ${ACCESSTOKEN_EXPIRES_IN}
       REFRESHTOKEN_EXPIRES_IN: ${REFRESHTOKEN_EXPIRES_IN}
+    volumes:
+      - ./king-backend/build/libs/*.jar:./
+    command:
+      java -jar $(ls build/libs/*.jar | head -n 1)
     depends_on:
       mysql:
         condition: service_healthy
