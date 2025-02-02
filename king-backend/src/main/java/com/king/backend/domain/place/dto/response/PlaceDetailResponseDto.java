@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -21,7 +22,7 @@ public class PlaceDetailResponseDto {
     private String closedDay;
     private Double lat;
     private Double lng;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
     private String imageUrl;
     private List<RelatedContent> relatedContents;
 

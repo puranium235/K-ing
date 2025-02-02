@@ -66,8 +66,11 @@ public class SyncService implements CommandLineRunner {
         properties.put("imageUrl", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("originalId", new Property.Builder().long_(new LongNumberProperty.Builder().build()).build());
         properties.put("popularity", new Property.Builder().integer(new IntegerNumberProperty.Builder().build()).build()); // Added 'popularity'
-        properties.put("createdAt", new Property.Builder().date(new DateProperty.Builder().format("strict_date_optional_time||epoch_millis").build()).build());
-
+        properties.put("createdAt", new Property.Builder()
+                .date(new DateProperty.Builder()
+                        .format("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+                        .build())
+                .build());
         properties.put("openHour", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("breakTime", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("closedDay", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
@@ -99,7 +102,7 @@ public class SyncService implements CommandLineRunner {
                         cast.getImageUrl(),
                         cast.getId(),
                         0, // initial popularity, for Cast, could be set to 0 or another default
-//                        cast.getCreatedAt(),
+                        cast.getCreatedAt(),
                         "N/A",
                         "N/A",
                         "N/A",
@@ -128,7 +131,7 @@ public class SyncService implements CommandLineRunner {
                         content.getImageUrl(),
                         content.getId(),
                         0, // initial popularity
-//                        content.getCreatedAt(),
+                        content.getCreatedAt(),
                         "N/A",
                         "N/A",
                         "N/A",
@@ -167,7 +170,7 @@ public class SyncService implements CommandLineRunner {
                             place.getImageUrl(),
                             place.getId(),
                             viewCount,
-//                            place.getCreatedAt(),
+                            place.getCreatedAt(),
                             place.getOpenHour(),
                             place.getBreakTime(),
                             place.getClosedDay(),
@@ -196,7 +199,7 @@ public class SyncService implements CommandLineRunner {
                 content.getImageUrl(),
                 content.getId(),
                 0,
-//                content.getCreatedAt(),
+                content.getCreatedAt(),
                 "N/A",
                 "N/A",
                 "N/A",
@@ -238,7 +241,7 @@ public class SyncService implements CommandLineRunner {
                 cast.getImageUrl(),
                 cast.getId(),
                 0,
-//                cast.getCreatedAt(),
+                cast.getCreatedAt(),
                 "N/A",
                 "N/A",
                 "N/A",
@@ -291,7 +294,7 @@ public class SyncService implements CommandLineRunner {
                 place.getImageUrl(),
                 place.getId(),
                 viewCount,
-//                place.getCreatedAt(),
+                place.getCreatedAt(),
                 place.getOpenHour(),
                 place.getBreakTime(),
                 place.getClosedDay(),

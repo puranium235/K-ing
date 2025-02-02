@@ -1,14 +1,19 @@
 package com.king.backend.search.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * Elasticsearch 도큐먼트 매핑
@@ -28,7 +33,12 @@ public class SearchDocument {
     private String imageUrl; // 이미지 URL
     private Long originalId; // 원본 데이터의 ID (MySQL의 ID)
     private int popularity;
-//    private LocalDateTime createdAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
+    @Field(type = FieldType.Date,
+            format = DateFormat.date_optional_time,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
+    private OffsetDateTime createdAt;
 
     private String openHour;
     private String breakTime;
