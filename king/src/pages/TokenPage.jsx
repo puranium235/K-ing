@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Token from '../components/Token/token';
+import Token from '../components/Token/Token';
 
 const TokenPage = () => {
   return <Token />;
