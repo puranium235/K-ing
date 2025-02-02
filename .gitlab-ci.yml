@@ -55,9 +55,8 @@ nginx-build:
     paths:
       - ./nginx.conf
 
-deploy:
-  stage: deploy
-  image: docker:latest
+make-env:
+  stage: build
   tags:
     - king-develop
   script:
@@ -83,6 +82,15 @@ deploy:
     - echo OAUTH2_GOOGLE_API_ENDPOINT=$OAUTH2_GOOGLE_API_ENDPOINT >> .env
     - echo SERVER_BASE_URL=$SERVER_BASE_URL >> .env
     - echo CLIENT_BASE_URL=$CLIENT_BASE_URL >> .env
+  artifacts:
+    paths:
+      - ./.env
 
-    - echo [INFO] 백엔드 파일 빌드중
+deploy:
+  stage: deploy
+  image: docker:latest
+  tags:
+    - king-develop
+  script:
+    - echo [INFO] Docker compose 실행중
     - docker compose up --build -d
