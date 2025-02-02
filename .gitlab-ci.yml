@@ -20,7 +20,7 @@ frontend-build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
-    - cp king/dist/ builds/king/dist/
+    - cp dist/ builds/king/dist/
   artifacts:
     paths:
       - king/dist/
