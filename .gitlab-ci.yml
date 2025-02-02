@@ -101,6 +101,7 @@ deploy:
   script:
     - echo [INFO] Docker compose 실행중
     - ls -l docker-compose.yml
+    - echo $(pwd)
     - ls -l kingapp
     - cp docker-compose.yml ./kingapp/docker-compose.yml
     - cp -r king/dist/ ./kingapp/fe/dist/
