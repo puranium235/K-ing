@@ -54,7 +54,14 @@ public class SyncService implements CommandLineRunner {
         properties.put("id", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("category", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("type", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()); // Added 'type'
-        properties.put("name", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
+        properties.put("name", new Property.Builder().text(
+                new TextProperty.Builder()
+                        .analyzer("standard")
+                        .fields(Map.of(
+                                "keyword",new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()
+                        ))
+                        .build()
+        ).build());
         properties.put("details", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
         properties.put("imageUrl", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("originalId", new Property.Builder().long_(new LongNumberProperty.Builder().build()).build());
