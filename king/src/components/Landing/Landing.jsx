@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { IcFootsteps, IcKing } from '../../assets/icons';
 import GoogleIcon from '../../assets/icons/ic_google.png';
 import LineIcon from '../../assets/icons/ic_line_88.png';
+import KingLogoImsi from '../../assets/icons/king_logo_imsi.png';
 const Landing = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -14,18 +15,19 @@ const Landing = () => {
   return (
     <StLandingWrapper>
       <St.ContentWrapper>
-        <St.IconWrapper>
+        {/* <St.IconWrapper>
           <IcKing />
-        </St.IconWrapper>
+          </St.IconWrapper> */}
         <St.TaglineWrapper>
           <Tagline>드라마의 발자취를 따라 주인공이 되어보세요.</Tagline>
           <Title>촬영 배경지 큐레이션 서비스</Title>
         </St.TaglineWrapper>
-        <BrandName>K-ing</BrandName>
+        {/* <BrandName>K-ing</BrandName> */}
+        <LogoImage src={KingLogoImsi} alt="King Logo" />
       </St.ContentWrapper>
-      <St.FootprintWrapper>
+      {/* <St.FootprintWrapper>
         <IcFootsteps />
-      </St.FootprintWrapper>
+      </St.FootprintWrapper> */}
       <St.ButtonWrapper>
         <SocialButton $google onClick={googleLogin}>
           <img src={GoogleIcon} alt="구글 아이콘" />
@@ -130,4 +132,11 @@ const SocialButton = styled.button`
   &:hover {
     opacity: 0.9;
   }
+`;
+
+const LogoImage = styled.img`
+  width: 200px;
+  height: auto;
+  position: relative; /* 요소를 독립적으로 배치하기 위해 */
+  z-index: 2; /* 발자국보다 앞에 배치 */
 `;
