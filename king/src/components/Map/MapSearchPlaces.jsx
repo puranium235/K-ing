@@ -90,7 +90,7 @@ const MapSearchPlaces = () => {
         {filteredPlaces.length > 0 ? (
           <ListContainer>
             {filteredPlaces.map((place) => (
-              <ListItem key={place.id} place={place} />
+              <ListItem key={place.placeId} place={place} />
             ))}
           </ListContainer>
         ) : (
