@@ -38,6 +38,7 @@ backend-build:
   script:
     - echo [INFO] 백엔드 파일 빌드중
     - cd king-backend
+    - chmod +x ./gradlew
     - ./gradlew bootJar
   artifacts:
     paths:
