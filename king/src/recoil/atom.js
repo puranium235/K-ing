@@ -24,6 +24,10 @@ const SearchQueryState = atom({
   key: 'searchQueryState',
   default: '',
 });
+const SearchCategoryState = atom({
+  key: 'searchCategoryState',
+  default: '',
+});
 
 const SearchRegionState = atom({
   key: 'searchRegionState',
@@ -35,4 +39,11 @@ const CurationPlaceList = atom({
   default: [],
 });
 
-export { ContentType, CurationPlaceList, FilterOption, SearchQueryState, SearchRegionState };
+export {
+  ContentType,
+  CurationPlaceList,
+  FilterOption,
+  SearchCategoryState,
+  SearchQueryState,
+  SearchRegionState,
+};

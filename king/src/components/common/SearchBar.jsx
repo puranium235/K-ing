@@ -1,12 +1,16 @@
 import { debounce } from 'lodash';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcSearch } from '../../assets/icons';
+import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
 
 const SearchBar = ({ onSearch }) => {
   const [keyword, setKeyword] = useState('');
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
+  const setSearchQuery = useSetRecoilState(SearchQueryState);
+  const setSearchCategory = useSetRecoilState(SearchCategoryState);
 
   // debounce -> 호출 지연
   const handleSearchChange = useCallback(
@@ -28,13 +32,24 @@ const SearchBar = ({ onSearch }) => {
   const handleOptionClick = (option) => {
     setKeyword(option.name);
     setAutoCompleteOptions([]);
+    setSearchCategory('카테고리');
   };
 
   const handleSubmit = () => {
     console.log('검색:', keyword);
-    // 검색
-    onSearch(keyword);
+    onSearch();
   };
+
+  const handleKeyEnter = (e) => {
+    if (e.key === 'Enter') {
+      setSearchCategory('');
+      handleSubmit();
+    }
+  };
+
+  useEffect(() => {
+    setSearchQuery(keyword);
+  }, [keyword]);
 
   return (
     <SWrapper>
@@ -43,6 +58,7 @@ const SearchBar = ({ onSearch }) => {
         placeholder="검색어를 입력하세요."
         value={keyword}
         onChange={onChangeData}
+        onKeyDown={handleKeyEnter}
       />
       <IcSearch onClick={handleSubmit} />
       {autoCompleteOptions.length > 0 && (

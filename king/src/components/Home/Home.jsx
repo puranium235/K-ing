@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import { CurationsDummyData } from '../../assets/dummy/dummyDataArchive';
 import { placeDummyData } from '../../assets/dummy/dummyDataPlace';
 import { IcCeleb, IcDrama, IcMovie, IcShow } from '../../assets/icons';
+import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
@@ -16,6 +17,8 @@ import PlaceCard from './PlaceCard';
 const Home = () => {
   const [activeButton, setActiveButton] = useState('실시간');
   const [currentRankSet, setCurrentRankSet] = useState(0);
+  const query = useRecoilValue(SearchQueryState);
+  const category = useRecoilValue(SearchCategoryState);
 
   const navigate = useNavigate();
 
@@ -23,7 +26,7 @@ const Home = () => {
     { icon: IcDrama, label: '드라마', contentType: 'drama' },
     { icon: IcMovie, label: '영화', contentType: 'movie' },
     { icon: IcShow, label: '예능', contentType: 'show' },
-    { icon: IcCeleb, label: '연예인', contentType: 'celeb' },
+    { icon: IcCeleb, label: '연예인', contentType: 'cast' },
   ];
 
   const carouselList = CurationsDummyData;
@@ -43,27 +46,25 @@ const Home = () => {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      setCurrentRankSet((prev) => (prev === 0 ? 1 : 0)); // 0이면 1로, 1이면 0으로 토글
+      setCurrentRankSet((prev) => (prev === 0 ? 1 : 0));
     }, 3000);
 
-    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 정리
+    return () => clearInterval(intervalId);
   }, []);
 
   const displayedRankings = rankingsData.slice(currentRankSet * 4, currentRankSet * 4 + 4);
 
-  const handleClickSearch = (id) => {
-    navigate(`/place/${id}`);
-  };
-
   const handleSearch = () => {
-    // // 검색 유형이 선택되고 키워드도 있는 경우
-    // if (type && keyword) {
-    //   navigate(/search/results?type=${type}&keyword=${keyword});
-    // }
-    // // 검색 유형이 선택되지 않고 키워드만 있는 경우
-    // else if (keyword) {
-    //   navigate(/search/keyword?keyword=${keyword});
-    // }
+    // 키워드 & 카테고리
+    if (query && category) {
+      console.log(query, category);
+      navigate('/search/keyword');
+    }
+    // 키워드
+    else {
+      console.log(query, category);
+      navigate('/search/result');
+    }
   };
 
   const handleClickTrend = (keyword) => {

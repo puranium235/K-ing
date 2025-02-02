@@ -1,19 +1,49 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import {
-  FavoritePeopleDummyData,
-  FavoriteWorksDummyData,
-} from '../../assets/dummy/dummyDataArchive';
+import { getSearchResult } from '../../lib/search';
+import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
 import FavoritesList from '../Archive/FavoritesList';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 
 const SearchResult = () => {
-  const contentList = FavoriteWorksDummyData;
-  const celebList = FavoritePeopleDummyData;
-  const placeList = FavoriteWorksDummyData;
+  const query = useRecoilValue(SearchQueryState);
+  const category = useRecoilValue(SearchCategoryState);
+  const [results, setResults] = useState(null);
+  const [contentList, setContentList] = useState([]);
+  const [celebList, setCelebList] = useState([]);
+  const [placeList, setPlaceList] = useState([]);
+
+  const getResults = async () => {
+    const res = await getSearchResult(query, category);
+    setResults(res.results);
+    console.log(res.results);
+  };
+
+  useEffect(() => {
+    getResults();
+  }, [query]);
+
+  useEffect(() => {
+    if (results) {
+      setContentList(
+        results.filter(
+          (item) =>
+            item.category === 'DRAMA' || item.category === 'MOVIE' || item.category === 'SHOW',
+        ),
+      );
+      setCelebList(results.filter((item) => item.category === 'CAST'));
+      setPlaceList(results.filter((item) => item.category === 'PLACE'));
+    }
+  }, [results]);
+
+  if (!results) {
+    return null;
+  }
 
   return (
     <>

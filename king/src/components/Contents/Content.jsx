@@ -1,27 +1,43 @@
 import React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { DramaDummyData } from '../../assets/dummy/dummyDataContents';
 import { IcStar, IcStarBlank } from '../../assets/icons';
+import { getSearchResult } from '../../lib/search';
+import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 
 const Content = () => {
-  const contents = DramaDummyData;
   const { contentType } = useParams();
   // const [contentType, setContentType] = useRecoilState(ContentType);
   const [favorites, setFavorites] = useState({});
-  const contentTypeMapping = {
-    drama: '드라마',
-    movie: '영화',
-    celeb: '연예인',
-    show: '예능',
-  };
+  const [results, setResults] = useState();
+  const [contentList, setContentList] = useState([]);
 
   const navigate = useNavigate();
+
+  const getResults = async () => {
+    const res = await getSearchResult('', contentType.toUpperCase());
+    setResults(res.results);
+    console.log(res.results);
+  };
+
+  useEffect(() => {
+    getResults();
+  }, [contentType]);
+
+  useEffect(() => {
+    if (results) {
+      setContentList(results.filter((item) => item.category === contentType.toUpperCase()));
+    }
+  }, [results]);
+
+  if (!results) {
+    return null;
+  }
 
   const toggleFavorite = (event, id) => {
     event.stopPropagation();
@@ -32,8 +48,8 @@ const Content = () => {
   };
 
   const handleDramaClick = (id) => {
-    if (contentType === 'celeb') {
-      navigate(`/content/celeb/${id}`);
+    if (contentType === 'cast') {
+      navigate(`/content/cast/${id}`);
     } else {
       navigate(`/content/detail/${id}`);
     }
@@ -44,21 +60,21 @@ const Content = () => {
       <StHomeWrapper>
         <IconText>
           <BackButton />
-          <h3> {contentTypeMapping[contentType]}</h3>
+          <h3> {getContentTypeKor(contentType)}</h3>
         </IconText>
         <SearchBar onSearch={() => {}} />
         <GridContainer>
-          {contents.map((drama) => (
-            <Card key={drama.id} onClick={() => handleDramaClick(drama.id)}>
+          {contentList.map((content, index) => (
+            <Card key={index} onClick={() => handleDramaClick(content.id)}>
               <CardImageContainer>
-                <CardImage src={drama.image} alt={drama.title} />
-                {favorites[drama.id] ? (
-                  <IcStar id="favor" onClick={(e) => toggleFavorite(e, drama.id)} />
+                <CardImage src={content.imageUrl} alt={content.name} />
+                {favorites[content.id] ? (
+                  <IcStar id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
                 ) : (
-                  <IcStarBlank id="favor" onClick={(e) => toggleFavorite(e, drama.id)} />
+                  <IcStarBlank id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
                 )}
               </CardImageContainer>
-              <CardTitle>{drama.title}</CardTitle>
+              <CardTitle>{content.name}</CardTitle>
             </Card>
           ))}
         </GridContainer>
@@ -106,13 +122,17 @@ const GridContainer = styled.div`
 const Card = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   background-color: ${({ theme }) => theme.colors.White};
   position: relative;
+
+  min-height: 15rem;
 `;
 
 const CardImageContainer = styled.div`
   width: 100%;
+  height: 100%;
   position: relative;
 
   #favor {

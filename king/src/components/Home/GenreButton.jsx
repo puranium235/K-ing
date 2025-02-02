@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { ContentType } from '../../recoil/atom';
-
 const GenreButton = ({ buttonInfo }) => {
   const { icon: Icon, label, contentType } = buttonInfo;
   // const [contentType, setContentType] = useRecoilState(ContentType);
