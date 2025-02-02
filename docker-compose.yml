@@ -87,7 +87,7 @@ services:
       ACCESSTOKEN_EXPIRES_IN: ${ACCESSTOKEN_EXPIRES_IN}
       REFRESHTOKEN_EXPIRES_IN: ${REFRESHTOKEN_EXPIRES_IN}
     command:
-      - java -jar app.jar
+      - java -jar $(ls -t build/libs/*.jar | head -n 1)
     depends_on:
       mysql:
         condition: service_healthy
