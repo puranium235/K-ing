@@ -89,7 +89,7 @@ services:
     volumes:
       - ./king-backend/build/libs:/build/libs
     command:
-      - cd /build/libs
+      - cd build/libs
       - java -jar $(ls build/libs/*.jar | head -n 1)
     depends_on:
       mysql:

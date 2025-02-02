@@ -25,7 +25,8 @@ frontend-build:
     - npm run build
   artifacts:
     paths:
-      - king/dist
+      - king/dist/
+    expire_in: 1 hour
 
 backend-build:
   stage: build
@@ -35,8 +36,8 @@ backend-build:
   needs: []
   cache:
     paths:
-      - king-develop/.gradle/wrapper/gradle-wrapper.jar
-      - king-develop/.gradle/caches/
+      - king-backend/.gradle/wrapper/gradle-wrapper.jar
+      - king-backend/.gradle/caches/
   script:
     - echo [INFO] 백엔드 파일 빌드중
     - cd king-backend
@@ -44,8 +45,9 @@ backend-build:
     - ./gradlew bootJar
   artifacts:
     paths:
-      - ./init.sql
-      - king-backend/build/libs
+      - king-backend/init.sql
+      - king-backend/build/libs/
+    expire_in: 1 hour
 
 nginx-build:
   stage: build
@@ -56,7 +58,8 @@ nginx-build:
     - echo [INFO] nginx.conf 옮기는중
   artifacts:
     paths:
-      - ./nginx.conf
+      - nginx.conf
+    expire_in: 1 hour
 
 make-env:
   stage: build
@@ -89,6 +92,7 @@ make-env:
   artifacts:
     paths:
       - ./.env
+    expire_in: 1 hour
 
 deploy:
   stage: deploy
