@@ -12,26 +12,12 @@ export const getAutoKeyword = async (query, category) => {
 };
 
 //통합 검색
-export const getSearchResult = async (
-  query,
-  category,
-  size,
-  sortBy,
-  sortOrder,
-  placeType,
-  region,
-  cursor,
-) => {
+export const getSearchResult = async (searchOptions) => {
   try {
-    const params = { query };
-
-    if (category !== '') params.category = category;
-    if (size !== '') params.size = size;
-    if (sortBy !== '') params.sortBy = sortBy;
-    if (sortOrder !== '') params.sortOrder = sortOrder;
-    if (placeType !== '') params.placeType = placeType;
-    if (region !== '') params.region = region;
-    if (cursor !== '') params.cursor = cursor;
+    // 미사용 파라미터 제거
+    const params = Object.fromEntries(
+      Object.entries(searchOptions).filter(([_, value]) => value !== undefined && value !== ''),
+    );
 
     const { data } = await client.get('/search/search', { params });
     return data.data;

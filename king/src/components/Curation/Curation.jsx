@@ -15,7 +15,7 @@ const Curation = () => {
       <StCurationWrapper>
         <FixedContainer>
           <TopNav />
-          <SearchBar onSearch={() => {}} />
+          <SearchBar query="" onSearch={() => {}} />
         </FixedContainer>
         <CurationsList data={curations} />
       </StCurationWrapper>

@@ -1,10 +1,12 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
+import { SearchQueryState } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
@@ -16,13 +18,16 @@ const Content = () => {
   const [favorites, setFavorites] = useState({});
   const [results, setResults] = useState();
   const [contentList, setContentList] = useState([]);
+  const query = useRecoilValue(SearchQueryState);
 
   const navigate = useNavigate();
 
   const getResults = async () => {
-    const res = await getSearchResult('', contentType.toUpperCase());
+    const res = await getSearchResult({
+      query: query ? query : '',
+      category: contentType.toUpperCase(),
+    });
     setResults(res.results);
-    console.log(res.results);
   };
 
   useEffect(() => {
@@ -38,6 +43,11 @@ const Content = () => {
   if (!results) {
     return null;
   }
+
+  const handleSearch = () => {
+    setResults(null);
+    getResults(query);
+  };
 
   const toggleFavorite = (event, id) => {
     event.stopPropagation();
@@ -62,7 +72,7 @@ const Content = () => {
           <BackButton />
           <h3> {getContentTypeKor(contentType)}</h3>
         </IconText>
-        <SearchBar onSearch={() => {}} />
+        <SearchBar query="" onSearch={handleSearch} />
         <GridContainer>
           {contentList.map((content, index) => (
             <Card key={index} onClick={() => handleDramaClick(content.id)}>

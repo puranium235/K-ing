@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import DummyData from '../../assets/dummy/dummyMapPlace';
 import UpIcon from '../../assets/icons/up.png';
 import { searchMapView } from '../../lib/map';
 import { FilterOption, SearchQueryState, SearchRegionState } from '../../recoil/atom';

@@ -57,12 +57,10 @@ const Home = () => {
   const handleSearch = () => {
     // 키워드 & 카테고리
     if (query && category) {
-      console.log(query, category);
-      navigate('/search/keyword');
+      navigate(`/search/keyword?query=${query}&category=${category}`);
     }
     // 키워드
     else {
-      console.log(query, category);
       navigate('/search/result');
     }
   };
@@ -86,7 +84,7 @@ const Home = () => {
             <GenreButton key={item.label} buttonInfo={item} />
           ))}
         </GenreWrapper>
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar query="" onSearch={handleSearch} />
         <TrendingKeyword>
           <h3>
             트렌딩 검색어 <span>TOP 8</span>

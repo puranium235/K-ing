@@ -24,6 +24,12 @@ const SearchQueryState = atom({
   key: 'searchQueryState',
   default: '',
 });
+
+const SearchPrevQuery = atom({
+  key: 'searchPrevQuery',
+  default: '',
+});
+
 const SearchCategoryState = atom({
   key: 'searchCategoryState',
   default: '',
@@ -44,6 +50,7 @@ export {
   CurationPlaceList,
   FilterOption,
   SearchCategoryState,
+  SearchPrevQuery,
   SearchQueryState,
   SearchRegionState,
 };
