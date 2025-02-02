@@ -107,4 +107,5 @@ deploy:
     - head .env
     - cp .env ./.env
     - ls -l
+    - sleep 600
     - docker compose up --build -d
