@@ -21,7 +21,7 @@ frontend-build:
     - npm install
     - npm run build
     - mkdir -p builds/s12-webmobile2-sub1/S12P11A507/king
-    - cp dist/ builds/s12-webmobile2-sub1/S12P11A507/king/dist/
+    - cp -r dist/ builds/s12-webmobile2-sub1/S12P11A507/king/dist/
   artifacts:
     paths:
       - king/dist/
@@ -44,7 +44,7 @@ backend-build:
     - ./gradlew bootJar
     - mkdir -p builds/s12-webmobile2-sub1/S12P11A507/king-backend
     - cp init.sql builds/s12-webmobile2-sub1/S12P11A507/king-backend/init.sql
-    - cp build/libs builds/s12-webmobile2-sub1/S12P11A507/king-backend/build/libs
+    - cp -r build/libs builds/s12-webmobile2-sub1/S12P11A507/king-backend/build/libs
   artifacts:
     paths:
       - king-backend/build/libs/
@@ -87,7 +87,7 @@ make-env:
     - echo OAUTH2_GOOGLE_API_ENDPOINT=$OAUTH2_GOOGLE_API_ENDPOINT >> .env
     - echo SERVER_BASE_URL=$SERVER_BASE_URL >> .env
     - echo CLIENT_BASE_URL=$CLIENT_BASE_URL >> .env
-    - cp .env builds/.env
+    - cp .env builds/s12-webmobile2-sub1/S12P11A507/.env
 
 deploy:
   stage: deploy
@@ -95,7 +95,7 @@ deploy:
   tags:
     - king-develop
   dependencies:
-#    - backend-build
+    - backend-build
     - nginx-build
     - make-env
   script:
