@@ -51,7 +51,7 @@ const Router = () => {
             <Route path="/curation/map" element={<CurationMapPage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/content/:contentType" element={<ContentPage />} />
-            <Route path="/content/celeb/:celebId" element={<CelebDetailPage />} />
+            <Route path="/content/cast/:celebId" element={<CelebDetailPage />} />
             <Route path="/content/detail/:contentId" element={<ContentDetailPage />} />
             {/* 카테고리 설정시 */}
             <Route path="/search/keyword" element={<SearchKeywordpage />} />
