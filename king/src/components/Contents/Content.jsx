@@ -1,20 +1,19 @@
 import React from 'react';
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { DramaDummyData } from '../../assets/dummy/dummyDataContents';
-import { IcStar } from '../../assets/icons';
+import { IcStar, IcStarBlank } from '../../assets/icons';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 
 const Content = () => {
   const contents = DramaDummyData;
-
   const { contentType } = useParams();
   // const [contentType, setContentType] = useRecoilState(ContentType);
-
+  const [favorites, setFavorites] = useState({});
   const contentTypeMapping = {
     drama: '드라마',
     movie: '영화',
@@ -23,6 +22,14 @@ const Content = () => {
   };
 
   const navigate = useNavigate();
+
+  const toggleFavorite = (event, id) => {
+    event.stopPropagation();
+    setFavorites((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   const handleDramaClick = (id) => {
     if (contentType === 'celeb') {
@@ -39,13 +46,17 @@ const Content = () => {
           <BackButton />
           <h3> {contentTypeMapping[contentType]}</h3>
         </IconText>
-        <SearchBar />
+        <SearchBar onSearch={() => {}} />
         <GridContainer>
           {contents.map((drama) => (
             <Card key={drama.id} onClick={() => handleDramaClick(drama.id)}>
               <CardImageContainer>
                 <CardImage src={drama.image} alt={drama.title} />
-                <IcStar className="favor" />
+                {favorites[drama.id] ? (
+                  <IcStar id="favor" onClick={(e) => toggleFavorite(e, drama.id)} />
+                ) : (
+                  <IcStarBlank id="favor" onClick={(e) => toggleFavorite(e, drama.id)} />
+                )}
               </CardImageContainer>
               <CardTitle>{drama.title}</CardTitle>
             </Card>
@@ -104,13 +115,13 @@ const CardImageContainer = styled.div`
   width: 100%;
   position: relative;
 
-  .favor {
+  #favor {
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
 
-    width: 10px;
-    height: 10px;
+    width: 20px;
+    height: 20px;
   }
 `;
 

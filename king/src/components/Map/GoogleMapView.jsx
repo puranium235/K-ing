@@ -39,21 +39,21 @@ const mapOptions = {
 const markerImages = {
   default: {
     default: DefaultMarker,
-    cafe: CafeMarker,
-    playground: PlaygroundMarker,
-    restaurant: RestaurantMarker,
-    station: StationMarker,
-    stay: StayMarker,
-    store: StoreMarker,
+    CAFE: CafeMarker,
+    PLAYGROUND: PlaygroundMarker,
+    RESTAURANT: RestaurantMarker,
+    STATION: StationMarker,
+    STAY: StayMarker,
+    STORE: StoreMarker,
   },
   active: {
     default: ActiveDefaultMarker,
-    cafe: ActiveCafeMarker,
-    playground: ActivePlaygroundMarker,
-    restaurant: ActiveRestaurantMarker,
-    station: ActiveStationMarker,
-    stay: ActiveStayMarker,
-    store: ActiveStoreMarker,
+    CAFE: ActiveCafeMarker,
+    PLAYGROUND: ActivePlaygroundMarker,
+    RESTAURANT: ActiveRestaurantMarker,
+    STATION: ActiveStationMarker,
+    STAY: ActiveStayMarker,
+    STORE: ActiveStoreMarker,
   },
 };
 
