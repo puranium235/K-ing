@@ -5,8 +5,7 @@ stages:
 before_script:
   - echo [INFO] 배포를 시작합니다...
 
-# 빌드 단계
-build:
+frontend-build:
   stage: build
   image: node:22.13-alpine
   tags:
@@ -23,6 +22,7 @@ build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
+
   artifacts:
     paths:
       - king/dist
@@ -33,7 +33,8 @@ deploy:
   tags:
     - king-develop
   script:
-    - echo "배포 시작"
-    - echo "배포 환경 준비 중..."
-    - sleep 2  # 배포 과정을 시뮬레이션하기 위한 대기
-    - echo "배포 완료!"
+    - echo [INFO] 배포 테스트
+    - ls king/dist
+    - sleep 60
+    - mkdir -p /frontend
+    - cp -r king/dist/* /frontend/
