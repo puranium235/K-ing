@@ -4,7 +4,7 @@ import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { getCurationDetail } from '../../lib/curation';
-import { curationPlaceList } from '../../recoil/atom';
+import { CurationPlaceList } from '../../recoil/atom';
 import { formatDate } from '../../util/dateFormat';
 import DetailHeader from '../common/DetailHeader';
 import CardListItem from './CardListItem';
@@ -14,7 +14,7 @@ import UserProfile from './UserProfile';
 const CurationDetail = () => {
   const navigate = useNavigate();
   const { curationId } = useParams();
-  const setPlaceList = useSetRecoilState(curationPlaceList);
+  const setPlaceList = useSetRecoilState(CurationPlaceList);
   const [curationData, setCurationData] = useState(null);
   const [loading, setLoading] = useState(true);
 

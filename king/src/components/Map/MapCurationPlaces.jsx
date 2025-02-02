@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import DummyData from '../../assets/dummy/dummyMapPlace';
 import UpIcon from '../../assets/icons/up.png';
 import { getPlaceDetail } from '../../lib/place';
-import { curationPlaceList } from '../../recoil/atom';
+import { CurationPlaceList } from '../../recoil/atom';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
 import ContentsInfo from '../PlaceDetail/ContentsInfo';
@@ -16,7 +16,7 @@ import GoogleMapView from './GoogleMapView';
 
 const MapCurationPlaces = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const places = useRecoilValue(curationPlaceList);
+  const places = useRecoilValue(CurationPlaceList);
 
   const toggleBox = () => {
     setIsExpanded(!isExpanded);
