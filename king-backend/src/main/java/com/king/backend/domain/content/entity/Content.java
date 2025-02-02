@@ -12,6 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
+@EntityListeners(ContentListener.class)
 public class Content {
 
     @Id

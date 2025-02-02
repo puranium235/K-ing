@@ -85,7 +85,7 @@ const Home = () => {
             <GenreButton key={item.label} buttonInfo={item} />
           ))}
         </GenreWrapper>
-        <SearchBar onClick={handleSearch} />
+        <SearchBar onSearch={handleSearch} />
         <TrendingKeyword>
           <h3>
             트렌딩 검색어 <span>TOP 8</span>

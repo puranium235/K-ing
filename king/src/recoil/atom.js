@@ -4,9 +4,11 @@ const FilterOption = atom({
   key: 'filterOption',
   default: {
     categories: {
-      restaurant: false,
-      cafe: false,
-      sight: false,
+      RESTAURANT: false,
+      CAFE: true,
+      PLAYGROUND: true,
+      STORE: false,
+      STAY: false,
     },
     province: '',
     district: '',
@@ -18,4 +20,19 @@ const ContentType = atom({
   default: '',
 });
 
-export { ContentType, FilterOption };
+const searchQueryState = atom({
+  key: 'searchQueryState',
+  default: '',
+});
+
+const searchRegionState = atom({
+  key: 'searchRegionState',
+  default: '',
+});
+
+const curationPlaceList = atom({
+  key: 'placeListState',
+  default: [],
+});
+
+export { ContentType, curationPlaceList, FilterOption, searchQueryState, searchRegionState };

@@ -9,6 +9,7 @@ import {
   IcPencil,
   IcSmallStar,
   IcStar,
+  IcStarBlank,
   IcTv,
 } from '../../assets/icons';
 import { getCelebDetails } from '../../lib/content';
@@ -17,6 +18,7 @@ import BackButton from '../common/BackButton';
 const CelebDetails = () => {
   const { celebId } = useParams();
   const [celebInfo, setcelebInfo] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,11 +29,16 @@ const CelebDetails = () => {
   const getDetails = async () => {
     const res = await getCelebDetails(celebId);
     setcelebInfo(res);
+    setIsFavorited(res.favorite);
 
     // if (celebInfo) {
     //   const { title, type, broadcast, description, imageUrl, relatedCasts, favorite } = contentInfo;
     //   setTypeKor(getContentTypeKor(convertLowerCase(type)));
     // }
+  };
+
+  const toggleFavorite = () => {
+    setIsFavorited(!isFavorited);
   };
 
   const handleClickContent = (contentId) => {
@@ -40,7 +47,7 @@ const CelebDetails = () => {
 
   useEffect(() => {
     getDetails();
-  }, [celebInfo]);
+  }, [celebId]);
 
   if (!celebInfo) {
     return null;
@@ -75,7 +82,11 @@ const CelebDetails = () => {
               <p>{celebInfo.participatingWorks}</p>
             </IconText>
           </TitleSection>
-          <IcStar id="favor" />
+          {isFavorited ? (
+            <IcStar id="favor" onClick={toggleFavorite} />
+          ) : (
+            <IcStarBlank id="favor" onClick={toggleFavorite} />
+          )}
         </Header>
 
         <Synopsis>
@@ -99,18 +110,20 @@ const CelebDetails = () => {
             <p>작품 활동</p>
           </IconText>
           <WorkWrapper>
-            {celebInfo.works.map((work, index) => (
-              <li key={index}>
-                {work.year}
-                <p
-                  onClick={() => {
-                    handleClickContent(work.contentId);
-                  }}
-                >
-                  {work.title}
-                </p>
+            {celebInfo.works.map((work) => (
+              <div key={work.contentId}>
+                <li>
+                  {work.year}
+                  <p
+                    onClick={() => {
+                      handleClickContent(work.contentId);
+                    }}
+                  >
+                    {work.title}
+                  </p>
+                </li>
                 <hr />
-              </li>
+              </div>
             ))}
           </WorkWrapper>
         </ListWrapper>
@@ -263,18 +276,28 @@ const WorkWrapper = styled.ul`
   li {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+
+    margin-left: 3rem;
 
     ${({ theme }) => theme.fonts.Body2};
     color: #868181;
   }
 
   p {
-    margin-left: 2rem;
+    margin-left: 5rem;
     ${({ theme }) => theme.fonts.Title6};
     color: ${({ theme }) => theme.colors.Gray1};
     text-decoration: underline;
+  }
+
+  hr {
+    margin: 1rem 2rem;
+    width: 300px;
+    height: 1px;
+    border: 0;
+    background: ${({ theme }) => theme.colors.Gray3};
   }
 `;
 

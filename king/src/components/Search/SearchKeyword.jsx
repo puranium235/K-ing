@@ -49,7 +49,7 @@ const SearchKeyword = () => {
           <BackButton />
           <h3> 장소 조회</h3>
         </IconText>
-        <SearchBar />
+        <SearchBar onSearch={() => {}} />
         <OptionHeader>
           <FilterWrapper>
             <FilterButton
