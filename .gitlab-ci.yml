@@ -100,7 +100,7 @@ deploy:
   tags:
     - king-develop
   dependencies:
-    - backend-build
+#    - backend-build
     - nginx-build
     - make-env
   script:
