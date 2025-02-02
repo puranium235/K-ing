@@ -20,7 +20,7 @@ frontend-build:
     - echo VITE_MASTER_ACCESS_TOKEN=$VITE_MASTER_ACCESS_TOKEN >> .env
     - npm install
     - npm run build
-    - mkdir builds/s12-webmobile2-sub1/S12P11A507/king
+    - mkdir -p builds/s12-webmobile2-sub1/S12P11A507/king
     - cp dist/ builds/s12-webmobile2-sub1/S12P11A507/king/dist/
   artifacts:
     paths:
@@ -42,7 +42,7 @@ backend-build:
     - cd king-backend
     - chmod +x ./gradlew
     - ./gradlew bootJar
-    - mkdir builds/s12-webmobile2-sub1/S12P11A507/king-backend
+    - mkdir -p builds/s12-webmobile2-sub1/S12P11A507/king-backend
     - cp init.sql builds/s12-webmobile2-sub1/S12P11A507/king-backend/init.sql
     - cp build/libs builds/s12-webmobile2-sub1/S12P11A507/king-backend/build/libs
   artifacts:
