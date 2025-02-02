@@ -2,40 +2,25 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcStar } from '../../assets/icons';
-import { IcStarBlank } from '../../assets/icons';
+const SearchItem = ({ item }) => {
+  const { id, category, name, imageUrl } = item;
 
-const SearchItem = ({ item, type }) => {
   const navigate = useNavigate();
 
-  const handleBookmarkClick = (event) => {
-    event.stopPropagation();
-  };
-
   const handleClick = () => {
-    const routeType = type === 'works' ? 'drama' : 'people'; // '작품' -> drama, '인물' -> people
-    navigate(`/${routeType}/${item.id}`); // 경로로 이동
+    if (category === 'PLACE') {
+      navigate(`/place/${id}`);
+    } else {
+      navigate(`/search/keyword?query=${name}&category=${category}`);
+    }
   };
 
   return (
     <St.Item onClick={handleClick}>
-      <St.ImageWrapper>
-        <St.Image src={item.image} alt={type === 'works' ? item.title : item.name} />
-      </St.ImageWrapper>
-      <St.Info>
-        <St.Text>{type === 'works' ? item.title : item.name}</St.Text>
-      </St.Info>
-      <St.BookmarkButton onClick={handleBookmarkClick}>
-        {item.bookmarked ? (
-          <St.Icon>
-            <IcStar />
-          </St.Icon>
-        ) : (
-          <St.Icon>
-            <IcStarBlank />
-          </St.Icon>
-        )}
-      </St.BookmarkButton>
+      <ImageWrapper>
+        <Image src={imageUrl} alt={name} />
+      </ImageWrapper>
+      <Text>{name}</Text>
     </St.Item>
   );
 };
@@ -44,55 +29,31 @@ export default SearchItem;
 
 const St = {
   Item: styled.div`
-    position: relative;
-    height: 180px;
-    flex-shrink: 0;
-    background-color: ${({ theme }) => theme.colors.White};
-    cursor: pointer; /* 클릭 가능하도록 커서 스타일 변경 */
-  `,
-  ImageWrapper: styled.div`
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  `,
-  Image: styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  `,
-  Info: styled.div`
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    color: ${({ theme }) => theme.colors.White};
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  `,
-  Text: styled.span`
-    ${({ theme }) => theme.fonts.Body6};
-    font-size: 14px;
-    font-weight: bold;
-  `,
-  BookmarkButton: styled.button`
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: none;
-    border: none;
-    cursor: pointer;
     display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     align-items: center;
-    justify-content: center;
-  `,
-  Icon: styled.div`
-    position: absolute;
-    top: 0;
-    right: 0;
-    /* 별 아이콘 크기 조정 필요 */
-    /* width: 15px;
-    height: 15px; */
-    svg {
-      width: 20px;
-      height: 20px;
-    }
+
+    min-height: 10rem;
+    max-height: 15rem;
+
+    width: 7rem;
+    background-color: ${({ theme }) => theme.colors.White};
   `,
 };
+
+const ImageWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+`;
+
+const Image = styled.img`
+  max-width: 10rem;
+  object-fit: cover;
+`;
+
+const Text = styled.span`
+  max-width: 10rem;
+  ${({ theme }) => theme.fonts.Body6};
+  color: ${({ theme }) => theme.colors.Gray0};
+`;

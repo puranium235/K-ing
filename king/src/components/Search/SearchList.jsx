@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import SearchItem from './SearchItem';
 
-const SearchList = ({ title, data }) => {
+const SearchList = ({ title, data, type }) => {
   const navigate = useNavigate();
 
   const unit = title === '인물' ? '명' : '개';
@@ -24,7 +24,7 @@ const SearchList = ({ title, data }) => {
         {data.length > 0 ? (
           <>
             {data.map((item) => (
-              <SearchItem key={item.id} item={item} type={title === '작품' ? 'works' : 'people'} />
+              <SearchItem key={item.id} item={item} type={type} />
             ))}
           </>
         ) : (
@@ -53,31 +53,31 @@ const St = {
   `,
   Left: styled.div`
     display: flex;
-    align-items: baseline; /* 제목과 카운트를 정렬 */
-    gap: 8px; /* 제목과 카운트 간격 */
-    align-items: center; /* 메시지 수직 정렬 */
+    align-items: baseline;
+    gap: 8px;
+    align-items: center;
   `,
   NoDataMessage: styled.div`
     ${({ theme }) => theme.fonts.Body5};
     color: ${({ theme }) => theme.colors.Gray2};
     text-align: center;
-    width: 100%;
     padding: 16px 0;
   `,
   Title: styled.h2`
-    ${({ theme }) => theme.fonts.Body3};
-    font-weight: bold;
+    ${({ theme }) => theme.fonts.Title6};
   `,
   Count: styled.span`
     ${({ theme }) => theme.fonts.Body6};
     color: ${({ theme }) => theme.colors.Gray2};
   `,
   List: styled.div`
-    display: flex;
-    overflow-x: auto;
-    gap: 8px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: auto(3, 1fr);
+    gap: 1rem;
 
-    width: 100%;
+    width: 29rem;
+    overflow-x: auto;
 
     &::-webkit-scrollbar {
       display: none;
