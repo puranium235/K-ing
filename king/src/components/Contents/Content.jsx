@@ -68,12 +68,12 @@ const Content = () => {
             <Card key={index} onClick={() => handleDramaClick(content.id)}>
               <CardImageContainer>
                 <CardImage src={content.imageUrl} alt={content.name} />
-                {favorites[content.id] ? (
-                  <IcStar id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
-                ) : (
-                  <IcStarBlank id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
-                )}
               </CardImageContainer>
+              {favorites[content.id] ? (
+                <IcStar id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
+              ) : (
+                <IcStarBlank id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
+              )}
               <CardTitle>{content.name}</CardTitle>
             </Card>
           ))}
@@ -122,18 +122,13 @@ const GridContainer = styled.div`
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   background-color: ${({ theme }) => theme.colors.White};
   position: relative;
 
+  width: 8.5rem;
   min-height: 15rem;
-`;
-
-const CardImageContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  position: relative;
 
   #favor {
     position: absolute;
@@ -145,10 +140,12 @@ const CardImageContainer = styled.div`
   }
 `;
 
+const CardImageContainer = styled.div``;
+
 const CardImage = styled.img`
-  width: 100%;
-  height: auto;
+  width: 8rem;
   border-radius: 8px;
+  min-height: 8rem;
 `;
 
 const CardTitle = styled.h4`
