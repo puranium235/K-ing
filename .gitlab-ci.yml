@@ -99,7 +99,7 @@ deploy:
   image: docker:latest
   tags:
     - king-develop
-  needs:
+  dependencies:
     - backend-build
     - nginx-build
     - make-env
