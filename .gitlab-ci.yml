@@ -104,4 +104,5 @@ deploy:
     - echo [INFO] Docker compose 실행중
     - echo $(pwd)
     - ls -l
+    - head .env
     - docker compose up --build -d
