@@ -5,8 +5,9 @@ import ShareIcon from '/src/assets/icons/send-outline.png';
 import ShareModal from '/src/components/common/ShareModal';
 
 import { IcBookmark } from '../../assets/icons';
+import { IcBookmarkFillBlack } from '../../assets/icons';
 
-const FunctionButton = ({ bookmarked }) => {
+const FunctionButton = ({ bookmarked, onBookmarkClick }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const openModal = () => {
@@ -26,7 +27,9 @@ const FunctionButton = ({ bookmarked }) => {
       {/* 공유 모달 */}
       <ShareModal isModalVisible={isModalVisible} onClick={closeModal} />
 
-      {bookmarked && <IcBookmark />}
+      <BookmarkButton onClick={onBookmarkClick}>
+        {bookmarked ? <IcBookmark /> : <IcBookmarkFillBlack />}
+      </BookmarkButton>
     </ButtonContainer>
   );
 };
@@ -64,5 +67,16 @@ const ShareButton = styled.button`
     width: 14px;
     height: 14px;
   }
+`;
+
+const BookmarkButton = styled.button`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
 `;
 export default FunctionButton;
