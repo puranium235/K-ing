@@ -1,12 +1,10 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
-import { SearchQueryState } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
@@ -15,14 +13,14 @@ import SearchBar from '../common/SearchBar';
 const Content = () => {
   const { contentType } = useParams();
   // const [contentType, setContentType] = useRecoilState(ContentType);
+  const [query, setQuery] = useState('');
   const [favorites, setFavorites] = useState({});
   const [results, setResults] = useState();
   const [contentList, setContentList] = useState([]);
-  const query = useRecoilValue(SearchQueryState);
 
   const navigate = useNavigate();
 
-  const getResults = async () => {
+  const getResults = async (query) => {
     const res = await getSearchResult({
       query: query ? query : '',
       category: contentType.toUpperCase(),
@@ -44,9 +42,9 @@ const Content = () => {
     return null;
   }
 
-  const handleSearch = () => {
-    setResults(null);
-    getResults(query);
+  const handleSearch = (searchQuery) => {
+    setQuery(searchQuery);
+    getResults(searchQuery ? searchQuery : '');
   };
 
   const toggleFavorite = (event, id) => {
@@ -72,7 +70,7 @@ const Content = () => {
           <BackButton />
           <h3> {getContentTypeKor(contentType)}</h3>
         </IconText>
-        <SearchBar query="" onSearch={handleSearch} />
+        <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
         <GridContainer>
           {contentList.map((content, index) => (
             <Card key={index} onClick={() => handleDramaClick(content.id)}>
@@ -132,13 +130,13 @@ const GridContainer = styled.div`
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   background-color: ${({ theme }) => theme.colors.White};
   position: relative;
 
   width: 8.5rem;
-  min-height: 15rem;
+  height: 15rem;
 
   #favor {
     position: absolute;
@@ -150,12 +148,18 @@ const Card = styled.div`
   }
 `;
 
-const CardImageContainer = styled.div``;
+const CardImageContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+`;
 
 const CardImage = styled.img`
-  width: 8rem;
-  border-radius: 8px;
+  width: 100%;
   min-height: 8rem;
+  object-fit: cover;
+
+  border-radius: 0;
 `;
 
 const CardTitle = styled.h4`

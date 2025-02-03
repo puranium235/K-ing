@@ -1,6 +1,5 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import React, { useEffect, useState } from 'react';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { getSearchResult } from '../../lib/search';
@@ -11,24 +10,30 @@ import SearchBar from '../common/SearchBar';
 import SearchList from './SearchList';
 
 const SearchResult = () => {
-  const query = useRecoilValue(SearchQueryState);
-  const category = useRecoilValue(SearchCategoryState);
   const setPrevQuery = useSetRecoilState(SearchPrevQuery);
+  const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
+  const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
 
   const [results, setResults] = useState(null);
   const [contentList, setContentList] = useState([]);
   const [celebList, setCelebList] = useState([]);
   const [placeList, setPlaceList] = useState([]);
 
-  const getResults = async () => {
-    const res = await getSearchResult({ query, category });
+  const getResults = async (query, category) => {
+    const res = await getSearchResult({ query: query || '', category: category || '' });
     setResults(res.results);
   };
 
-  useEffect(() => {
-    getResults();
+  const handleSearch = (query, category) => {
+    setSearchQuery(query);
+    setSearchCategory(category);
     setPrevQuery(query);
-  }, [query]);
+    getResults(query, category);
+  };
+
+  useEffect(() => {
+    getResults(searchQuery, searchCategory);
+  }, [searchQuery, searchCategory]);
 
   useEffect(() => {
     if (results) {
@@ -55,7 +60,7 @@ const SearchResult = () => {
             <BackButton />
             <h3> 통합검색</h3>
           </IconText>
-          <SearchBar query={query || ''} onSearch={() => {}} />
+          <SearchBar query={searchQuery} onSearch={handleSearch} />
         </Header>
         <ResultWrapper>
           <SearchList title="작품" data={contentList} type="CONTENT" />
@@ -70,15 +75,13 @@ const SearchResult = () => {
 
 export default SearchResult;
 
+// ✅ 스타일 정의
 const StHomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: start;
   text-align: center;
-
-  /* width: 100%; */
-  /* padding: 2rem; */
   margin-bottom: 7rem;
 `;
 
@@ -105,5 +108,4 @@ const IconText = styled.div`
 
 const ResultWrapper = styled.div`
   margin: 0 1rem;
-  /* width: 100%; */
 `;

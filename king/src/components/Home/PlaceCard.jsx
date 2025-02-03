@@ -28,12 +28,12 @@ const PlaceCard = ({ place }) => {
 export default PlaceCard;
 
 const Card = styled.div`
-  width: 100%;
+  width: fit-content;
   overflow: hidden;
 `;
 
 const CardImage = styled.img`
-  width: 100%;
+  width: 90%;
   min-width: 8rem;
   object-fit: cover;
 
@@ -49,8 +49,6 @@ const CardContent = styled.div`
 `;
 
 const CardTitle = styled.h3`
-  width: 100%;
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

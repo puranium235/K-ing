@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSearchParams } from 'react-router-dom';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcFilter, IcMap } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
-import { FilterOption, SearchQueryState } from '../../recoil/atom';
+import { FilterOption, SearchCategoryState, SearchQueryState } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import FilterButton from '../common/FilterButton';
 import Nav from '../common/Nav';
@@ -25,11 +24,8 @@ const SearchKeyword = () => {
   const [isCategoryActive, setIsCategoryActive] = useState(false);
   const [results, setResults] = useState(null);
 
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get('query');
-  const category = searchParams.get('category');
-
-  const setQuery = useSetRecoilState(SearchQueryState);
+  const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
+  const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
 
   const sortType = {
     가나다순: 'name',
@@ -38,28 +34,26 @@ const SearchKeyword = () => {
   };
 
   const getResults = async () => {
-    setQuery(query);
+    setSearchCategory('PLACE');
 
     //필터링
     const selectedPlaceType = Object.keys(filter.categories).filter(
       (key) => filter.categories[key],
     );
 
-    // console.log(selectedCategories);
-
     const res = await getSearchResult({
-      query,
-      category,
+      query: searchQuery,
+      category: searchCategory,
       sortBy,
-      // selectedPlaceType ? selectedPlaceType : '',
+      placeTypeList: selectedPlaceType,
     });
+
     setResults(res.results);
-    // console.log(res.results);
   };
 
   useEffect(() => {
     getResults();
-  }, [query, filter, sortBy]);
+  }, [searchQuery, filter, sortBy]);
 
   useEffect(() => {
     if (filter && filter.categories) {
@@ -68,6 +62,11 @@ const SearchKeyword = () => {
       setIsCategoryActive(Object.values(filter.categories).some((value) => value));
     }
   }, [filter]);
+
+  const handleSearch = (query, category) => {
+    setSearchQuery(query);
+    setSearchCategory(category);
+  };
 
   const handleSorting = (newSorting) => {
     setSortBy(sortType[newSorting]);
@@ -94,7 +93,7 @@ const SearchKeyword = () => {
           <BackButton />
           <h3> 장소 조회</h3>
         </IconText>
-        <SearchBar query={query || ''} onSearch={() => {}} />
+        <SearchBar query={searchQuery || ''} onSearch={handleSearch} />
         <OptionHeader>
           <FilterWrapper>
             <FilterButton
@@ -111,12 +110,19 @@ const SearchKeyword = () => {
             <SortingRow onSortingChange={handleSorting} />
           </Options>
         </OptionHeader>
+        {results.length > 0 ? (
+          <ResultWrapper>
+            {results.map((card, index) => (
+              <PlaceCard key={index} place={card} />
+            ))}
+          </ResultWrapper>
+        ) : (
+          <NoResultsMessage>
+            <img src="/src/assets/icons/king_character_sorry.png" alt="검색 결과가 없습니다." />
+            검색 결과가 없습니다.😭😭
+          </NoResultsMessage>
+        )}
 
-        <ResultWrapper>
-          {results.map((card, index) => (
-            <PlaceCard key={index} place={card} />
-          ))}
-        </ResultWrapper>
         <UpButton onClick={handleScrollUp}>
           <img src="/src/assets/icons/ic_up.png" alt="up" />
         </UpButton>
@@ -189,6 +195,25 @@ const ResultWrapper = styled.div`
   overflow-y: auto;
   &::-webkit-scrollbar {
     display: none;
+  }
+`;
+
+const NoResultsMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+
+  width: 100%;
+  text-align: center;
+
+  padding: 7rem 0;
+
+  color: ${({ theme }) => theme.colors.Gray1};
+  ${({ theme }) => theme.fonts.Body1};
+
+  img {
+    width: 60%;
   }
 `;
 
