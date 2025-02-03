@@ -1,6 +1,8 @@
 package com.king.backend.search.service;
 
+import co.elastic.clients.elasticsearch._types.analysis.*;
 import co.elastic.clients.elasticsearch._types.mapping.*;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import com.king.backend.connection.RedisUtil;
 import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.repository.CastRepository;
@@ -9,6 +11,8 @@ import com.king.backend.domain.content.repository.ContentRepository;
 import com.king.backend.domain.curation.entity.CurationList;
 import com.king.backend.domain.curation.repository.CurationListRepository;
 import com.king.backend.domain.place.entity.Place;
+import com.king.backend.domain.place.entity.PlaceCast;
+import com.king.backend.domain.place.entity.PlaceContent;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.search.entity.CurationDocument;
 import com.king.backend.search.entity.SearchDocument;
@@ -19,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +52,7 @@ public class SyncService implements CommandLineRunner {
     private static final String CURATION_INDEX_NAME = "curation-index";
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         settingBeforeSearchMigration();
         settingBeforeCurationMigration();
@@ -69,7 +75,8 @@ public class SyncService implements CommandLineRunner {
         properties.put("type", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()); // Added 'type'
         properties.put("name", new Property.Builder().text(
                 new TextProperty.Builder()
-                        .analyzer("standard")
+                        .analyzer("autocomplete_analyzer")
+                        .searchAnalyzer("standard")
                         .fields(Map.of(
                                 "keyword",new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()
                         ))
@@ -90,8 +97,42 @@ public class SyncService implements CommandLineRunner {
         properties.put("address", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
         properties.put("lat", new Property.Builder().double_(new DoubleNumberProperty.Builder().build()).build());
         properties.put("lng", new Property.Builder().double_(new DoubleNumberProperty.Builder().build()).build());
+        properties.put("associatedCastNames", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put("associatedContentNames",new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
 
-        elasticsearchUtil.createIndex(SEARCH_INDEX_NAME, properties);
+        // 1. n-gram 토큰 필터 정의 (이름: "autocomplete_filter")
+        TokenFilterDefinition autocompleteFilterDefinition = TokenFilterDefinition.of(tf -> tf
+                .ngram(ng -> ng
+                        .minGram(1)   // 최소 n-gram 길이
+                        .maxGram(20)  // 최대 n-gram 길이
+                )
+        );
+
+        TokenFilter tokenFilter=TokenFilter.of(tf -> tf
+                .definition(autocompleteFilterDefinition));
+
+        // 2. TokenFilterDefinition을 Map에 등록
+        Map<String, TokenFilter> tokenFiltersMap = new HashMap<>();
+        tokenFiltersMap.put("autocomplete_filter", tokenFilter);
+
+        // 3. IndexSettings 생성: analyzer와 tokenFilters 모두 설정
+        IndexSettings settings = new IndexSettings.Builder()
+                        .analysis(analysis -> analysis
+                        // "autocomplete_analyzer" 정의
+                        .analyzer("autocomplete_analyzer", a -> a
+                                .custom(ca -> ca
+                                        .tokenizer("standard")                       // 원하는 tokenizer 설정
+                                        .filter("lowercase", "autocomplete_filter")  // 필터 적용 (등록된 토큰 필터 이름 사용)
+                                )
+                        )
+                        // 별도로 등록한 token filter 설정 추가
+                        .filter(tokenFiltersMap)
+                )
+                .maxNgramDiff(20)
+                .build();
+
+
+        elasticsearchUtil.createIndex(SEARCH_INDEX_NAME, properties,settings);
 
         migrateCasts();
         migrateContents();
@@ -224,7 +265,9 @@ public class SyncService implements CommandLineRunner {
                         "N/A",
                         "N/A",
                         0,
-                        0
+                        0,
+                        null,
+                        null
                 ))
                 .collect(Collectors.toList());
 
@@ -253,7 +296,9 @@ public class SyncService implements CommandLineRunner {
                         "N/A",
                         "N/A",
                         0,
-                        0
+                        0,
+                        null,
+                        null
                 )).collect(Collectors.toList());
         searchRepository.saveAll(documents);
         log.info("Content 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
@@ -277,12 +322,25 @@ public class SyncService implements CommandLineRunner {
                         }
                     }
 
+                    // denormalization: Place와 연관된 Cast 이름 목록 수집 (예: 번역된 한국어 이름)
+                    List<PlaceCast> placeCasts = place.getPlaceCasts();
+                    List<String> associatedCastNames = (placeCasts == null) ? List.of() :
+                            placeCasts.stream()
+                                    .map(pc -> pc.getCast().getTranslationKo().getName())
+                                    .collect(Collectors.toList());
+                    // denormalization: Place와 연관된 Content 이름 목록 수집 (예: 번역된 한국어 이름)
+                    List<PlaceContent> placeContents = place.getPlaceContents();
+                    List<String> associatedContentNames = (placeContents == null) ? List.of() :
+                            placeContents.stream()
+                                    .map(pc -> pc.getContent().getTranslationKo().getTitle())
+                                    .collect(Collectors.toList());
+
                     return new SearchDocument(
                             "PLACE-" + place.getId(),
                             "PLACE",
                             place.getType().toUpperCase(),
                             place.getName(),
-                            place.getAddress(),
+                            place.getDescription(),
                             place.getImageUrl(),
                             place.getId(),
                             viewCount,
@@ -292,8 +350,9 @@ public class SyncService implements CommandLineRunner {
                             place.getClosedDay(),
                             place.getAddress(),
                             place.getLat(),
-                            place.getLng()
-
+                            place.getLng(),
+                            associatedCastNames,
+                            associatedContentNames
                     );
                 })
                         .collect(Collectors.toList());
@@ -321,7 +380,9 @@ public class SyncService implements CommandLineRunner {
                 "N/A",
                 "N/A",
                 0,
-                0
+                0,
+                null,
+                null
         );
         searchRepository.save(doc);
         log.info("Content 인덱싱 완료: {}", doc.getId());
@@ -363,7 +424,9 @@ public class SyncService implements CommandLineRunner {
                 "N/A",
                 "N/A",
                 0,
-                0
+                0,
+                null,
+                null
         );
         searchRepository.save(doc);
         log.info("Cast 인덱싱 완료: {}", doc.getId());
@@ -400,13 +463,25 @@ public class SyncService implements CommandLineRunner {
                 log.warn("Invalid view count for place {}: {}",place.getId(),viewCountStr);
             }
         }
+        // denormalization: Place와 연관된 Cast 이름 목록 수집 (예: 번역된 한국어 이름)
+        List<PlaceCast> placeCasts = place.getPlaceCasts();
+        List<String> associatedCastNames = (placeCasts == null) ? List.of() :
+                placeCasts.stream()
+                        .map(pc -> pc.getCast().getTranslationKo().getName())
+                        .collect(Collectors.toList());
+        // denormalization: Place와 연관된 Content 이름 목록 수집 (예: 번역된 한국어 이름)
+        List<PlaceContent> placeContents = place.getPlaceContents();
+        List<String> associatedContentNames = (placeContents == null) ? List.of() :
+                placeContents.stream()
+                        .map(pc -> pc.getContent().getTranslationKo().getTitle())
+                        .collect(Collectors.toList());
 
         SearchDocument doc = new SearchDocument(
                 "PLACE-" + place.getId(),
                 "PLACE",
                 place.getType().toUpperCase(),
                 place.getName(),
-                place.getAddress(),
+                place.getDescription(),
                 place.getImageUrl(),
                 place.getId(),
                 viewCount,
@@ -416,7 +491,9 @@ public class SyncService implements CommandLineRunner {
                 place.getClosedDay(),
                 place.getAddress(),
                 place.getLat(),
-                place.getLng()
+                place.getLng(),
+                associatedCastNames,
+                associatedContentNames
         );
         searchRepository.save(doc);
         log.info("Place 인덱싱 완료: {}", doc.getId());

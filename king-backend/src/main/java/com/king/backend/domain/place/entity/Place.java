@@ -2,6 +2,8 @@ package com.king.backend.domain.place.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -52,6 +54,11 @@ public class Place {
     private Long view = 0L; // 기본값 설정
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
     private List<PlaceContent> placeContents;
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<PlaceCast> placeCasts;
 
 }

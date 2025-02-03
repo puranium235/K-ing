@@ -1,16 +1,16 @@
 package com.king.backend.domain.place.entity;
 
-import com.king.backend.domain.content.entity.Content;
+import com.king.backend.domain.cast.entity.Cast;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
-@RequiredArgsConstructor
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class PlaceContent {
-
+public class PlaceCast {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,10 +20,9 @@ public class PlaceContent {
     private Place place;
 
     @ManyToOne
-    @JoinColumn(name = "content_id", nullable = false)
-    private Content content;
+    @JoinColumn(name = "cast_id", nullable = false)
+    private Cast cast;
 
     @Column(columnDefinition = "TEXT")
     private String description;
-
 }
