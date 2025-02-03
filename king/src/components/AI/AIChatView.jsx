@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import ChatBotIcon from '../../assets/icons/chat-ai.png';
@@ -18,6 +18,12 @@ const AIChatView = () => {
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [currentApi, setCurrentApi] = useState('');
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const chatT = '회차정보 기반 장소 검색 T봇';
   const chatF = '맞춤 큐레이션 추천 F봇';
@@ -33,14 +39,14 @@ const AIChatView = () => {
     setMessages((prev) => [...prev, optionMessage]);
 
     if (option === chatT) {
-      setCurrentApi('http://localhost:8080/api/ai/tbot');
+      setCurrentApi('http://localhost:8080/api/ai/chat');
       const aiMessage = {
         text: 'T 챗봇은 회차정보 기반 장소를 검색하는 데 특화되어 있습니다.',
         sender: 'ai',
       };
       setMessages((prev) => [...prev, aiMessage]);
     } else if (option === chatF) {
-      setCurrentApi('http://localhost:8080/api/ai/fbot');
+      setCurrentApi('http://localhost:8080/api/ai/chat');
       const aiMessage = {
         text: 'F 챗봇은 맞춤 큐레이션 추천에 특화되어 있습니다.',
         sender: 'ai',
@@ -84,7 +90,7 @@ const AIChatView = () => {
         <br />
         궁금한 것을 물어보세요!
       </IntroMessageContainer>
-      <MessagesContainer>
+      <MessagesContainer ref={messagesContainerRef}>
         {messages.map((message, index) => (
           <Message key={index} $sender={message.sender}>
             {message.sender === 'option' ? (
@@ -105,6 +111,7 @@ const AIChatView = () => {
           </Message>
         ))}
         {isTyping && <TypingIndicator>AI가 생각 중...</TypingIndicator>}
+        <div ref={messagesEndRef} />
       </MessagesContainer>
       <InputContainer>
         <Input
@@ -169,7 +176,9 @@ const MessagesContainer = styled.div`
   width: 90%;
   height: 100%;
   padding: 10px;
-  position: relative;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Message = styled.div`
