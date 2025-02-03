@@ -1,10 +1,13 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { getKeywordRanking } from '../../lib/search';
 
 const Rank = () => {
+  const navigate = useNavigate();
+
   const [activeButton, setActiveButton] = useState('실시간');
   const [period, setPeriod] = useState('realtime');
   const [currentRankSet, setCurrentRankSet] = useState(0);

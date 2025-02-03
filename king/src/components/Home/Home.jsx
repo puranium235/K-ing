@@ -9,9 +9,9 @@ import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
+import CardListItem from '../Curation/CardListItem';
 import Carousel from './Carousel';
 import GenreButton from './GenreButton';
-import PlaceCard from './PlaceCard';
 import Rank from './Rank';
 
 const Home = () => {
@@ -95,8 +95,8 @@ const Home = () => {
                 </span>
               </CurationHeader>
               <CardContainer>
-                {placeList.map((card, index) => (
-                  <PlaceCard key={index} place={card} />
+                {placeList.map((place) => (
+                  <CardListItem key={place.placeId} place={place} />
                 ))}
               </CardContainer>
             </>
