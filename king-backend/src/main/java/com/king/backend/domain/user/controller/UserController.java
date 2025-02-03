@@ -141,10 +141,11 @@ public class UserController {
     }
 
     @GetMapping("/nickname")
-    public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname"g) String nickname) {
-        if (nickname == null || nickname.length() > 50) {
+    public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname", required = false) String nickname) {
+        if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
+        nickname = nickname.trim();
 
         userRepository.findByNickname(nickname)
                 .ifPresent((user) -> {
