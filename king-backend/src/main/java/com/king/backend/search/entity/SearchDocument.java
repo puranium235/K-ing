@@ -14,6 +14,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 /**
  * Elasticsearch 도큐먼트 매핑
@@ -46,4 +47,9 @@ public class SearchDocument {
     private String address;
     private double lat;
     private double lng;
+
+    // 연관된 Cast 이름 리스트 (비정규화된 필드)
+    private List<String> associatedCastNames;
+    // 연관된 Contents 이름 리스트 (비정규화된 필드)
+    private List<String> associatedContentNames;
 }
