@@ -14,12 +14,15 @@ export const getAutoKeyword = async (query, category) => {
 //통합 검색
 export const getSearchResult = async (searchOptions) => {
   try {
+    // placeTypeList -> URL 파라미터 형식으로 변환
+    if (searchOptions.placeTypeList && searchOptions.placeTypeList.length > 0) {
+      searchOptions.placeTypeList = searchOptions.placeTypeList.join(',');
+    }
+
     // 미사용 파라미터 제거
     const params = Object.fromEntries(
       Object.entries(searchOptions).filter(([_, value]) => value !== undefined && value !== ''),
     );
-
-    // console.log(params);
 
     const { data } = await client.get('/search/search', { params });
     return data.data;

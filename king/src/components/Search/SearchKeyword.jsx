@@ -34,18 +34,18 @@ const SearchKeyword = () => {
   };
 
   const getResults = async () => {
+    setSearchCategory('PLACE');
+
     //필터링
     const selectedPlaceType = Object.keys(filter.categories).filter(
       (key) => filter.categories[key],
     );
 
-    console.log(selectedPlaceType);
-
     const res = await getSearchResult({
       query: searchQuery,
       category: searchCategory,
       sortBy,
-      // placeType: selectedPlaceType,
+      placeTypeList: selectedPlaceType,
     });
 
     setResults(res.results);
