@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { CurationsDummyData } from '../../assets/dummy/dummyDataArchive';
@@ -22,8 +22,8 @@ const Home = () => {
   const [rankingsData, setRankingsData] = useState([]);
   const [displayedRankings, setDisplayedRankings] = useState([]);
 
-  const query = useRecoilValue(SearchQueryState);
-  const category = useRecoilValue(SearchCategoryState);
+  const setSearchQuery = useSetRecoilState(SearchQueryState);
+  const setSearchCategory = useSetRecoilState(SearchCategoryState);
   const navigate = useNavigate();
 
   const genreIcons = [
@@ -99,12 +99,11 @@ const Home = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const handleSearch = () => {
-    if (query && category) {
-      navigate(`/search/keyword?query=${query}&category=${category}`);
-    } else {
-      navigate('/search/result');
-    }
+  const handleSearch = (query, category) => {
+    setSearchQuery(query);
+    setSearchCategory(category);
+
+    navigate('/search/result');
   };
 
   const handleClickTrend = (keyword) => {
