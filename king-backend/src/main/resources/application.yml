@@ -3,6 +3,13 @@ client:
 spring:
   application:
     name: king-backend
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.7
   jwt:
     secret: ${JWT_SECRET}
     accesstoken-expires-in: ${ACCESSTOKEN_EXPIRES_IN}

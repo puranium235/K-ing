@@ -85,6 +85,7 @@ services:
       CLIENT_BASE_URL: ${CLIENT_BASE_URL}
       ACCESSTOKEN_EXPIRES_IN: ${ACCESSTOKEN_EXPIRES_IN}
       REFRESHTOKEN_EXPIRES_IN: ${REFRESHTOKEN_EXPIRES_IN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     depends_on:
       mysql:
         condition: service_healthy

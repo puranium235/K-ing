@@ -1,10 +1,10 @@
-import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import ChatBotIcon from '../../assets/icons/chat-ai.png';
 import SendIcon from '../../assets/icons/chat-send.png';
 import RefreshIcon from '../../assets/icons/refresh.png';
+import { client } from '../../lib/axios';
 import BackButton from '../common/BackButton';
 
 const AIChatView = () => {
@@ -39,14 +39,14 @@ const AIChatView = () => {
     setMessages((prev) => [...prev, optionMessage]);
 
     if (option === chatT) {
-      setCurrentApi('http://localhost:8080/api/ai/chat');
+      setCurrentApi(`/ai/chat`);
       const aiMessage = {
         text: 'T 챗봇은 회차정보 기반 장소를 검색하는 데 특화되어 있습니다.',
         sender: 'ai',
       };
       setMessages((prev) => [...prev, aiMessage]);
     } else if (option === chatF) {
-      setCurrentApi('http://localhost:8080/api/ai/chat');
+      setCurrentApi(`/ai/chat`);
       const aiMessage = {
         text: 'F 챗봇은 맞춤 큐레이션 추천에 특화되어 있습니다.',
         sender: 'ai',
@@ -64,7 +64,7 @@ const AIChatView = () => {
     setIsTyping(true);
 
     try {
-      const response = await axios.post(currentApi, { userMessage: newMessage });
+      const response = await client.post(`/ai/chat`, { userMessage: newMessage });
       const aiResponse = { text: response.data.message, sender: 'ai' };
       setMessages((prev) => [...prev, aiResponse]);
     } catch (error) {
