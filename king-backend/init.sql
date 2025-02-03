@@ -300,8 +300,8 @@ VALUES
 -- 3. content 테이블
 INSERT INTO `content` (`type`, `broadcast`, `created_at`, `image_url`, `tmdb_id`)
 VALUES
-    ('DRAMA', 'KBS', NOW(), 'https://king-s3-bucket.s3.us-east-1.amazonaws.com/family.jpg', 101),
-    ('MOVIE', 'CJ Entertainment', NOW(), 'https://image.tmdb.org/t/p/w500/mO55nkEFrI2EVdjxx0asaOGtHfa.jpg', 102),
+    ('DRAMA', 'KBS', NOW(), 'https://image.tmdb.org/t/p/w500/aTixMf5OaKA50QNvcKv18X9SLjX.jpg', 101),
+    ('MOVIE', 'CJ Entertainment', NOW(), 'https://king-s3-bucket.s3.us-east-1.amazonaws.com/uploads/8c316d13-9f54-40b6-acf4-ae1adc4693ee-1987.jpg', 102),
     ('SHOW', 'SBS', NOW(), 'https://image.tmdb.org/t/p/w500/aTixMf5OaKA50QNvcKv18X9SLjX.jpg', 103);
 
 -- 4. content_ko 테이블

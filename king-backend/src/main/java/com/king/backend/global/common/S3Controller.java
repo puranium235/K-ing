@@ -1,5 +1,6 @@
 package com.king.backend.global.common;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,14 +11,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/s3")
+@RequiredArgsConstructor
 public class S3Controller { // 이미지 s3 업로드 확인용
 
     private final S3Service s3Service;
 
-    public S3Controller(S3Service s3Service) {
-        this.s3Service = s3Service;
-    }
-
+    // 업로드 확인
     @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileUrl = s3Service.uploadFile(file);

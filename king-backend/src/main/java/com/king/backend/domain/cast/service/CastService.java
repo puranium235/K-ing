@@ -5,6 +5,7 @@ import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.errorcode.CastErrorCode;
 import com.king.backend.domain.cast.repository.CastRepository;
 import com.king.backend.domain.content.entity.ContentCast;
+import com.king.backend.global.common.S3Service;
 import com.king.backend.global.exception.CustomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CastService {
     private final CastRepository castRepository;
+    private final S3Service s3Service;
 
     @Transactional
     public CastDetailResponseDto getCastDetail(Long id){
@@ -24,17 +26,22 @@ public class CastService {
         List<CastDetailResponseDto.RelatedContent> relatedContents = new ArrayList<>();
         List<CastDetailResponseDto.Work> works = new ArrayList<>();
 
+//        String imageUrl = s3Service.getOrUploadImage(cast);
+        String imageUrl = s3Service.getOrUploadCastImage(cast);
+
         if (cast != null) {
             for (ContentCast contentCast : cast.getContentCasts()) {
                 Long contentId = contentCast.getContent().getId();
                 String title = contentCast.getContent().getTranslationKo().getTitle();
-                String imageUrl = contentCast.getContent().getImageUrl();
+//                String contentImageUrl = contentCast.getContent().getImageUrl();
+//                String contentImageUrl = s3Service.getOrUploadImage(contentCast.getContent());
+                String contentImageUrl = s3Service.getOrUploadContentImage(contentCast.getContent());
                 int year = contentCast.getContent().getCreatedAt().getYear();
 
                 relatedContents.add(new CastDetailResponseDto.RelatedContent(
                         contentId,
                         title,
-                        imageUrl,
+                        contentImageUrl,
                         true
                 ));
 
@@ -48,7 +55,8 @@ public class CastService {
         return new CastDetailResponseDto(
                 cast.getId(),
                 cast.getTranslationKo().getName(),
-                cast.getImageUrl(),
+//                cast.getImageUrl(),
+                imageUrl,
                 cast.getBirthDate(),
                 cast.getTranslationKo().getBirthPlace(),
                 cast.getParticipatingWork(),

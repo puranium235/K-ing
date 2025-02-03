@@ -24,6 +24,7 @@ spring:
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
+    open-in-view: false #  추가
     show-sql: false
     properties:
       hibernate:
