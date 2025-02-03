@@ -1,23 +1,20 @@
 import { debounce } from 'lodash';
 import React, { useCallback, useState } from 'react';
-import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcSearch } from '../../assets/icons';
 import { getAutoKeyword } from '../../lib/search';
-import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 
-const SearchBar = ({ query, onSearch }) => {
+const SearchBar = ({ type, query, onSearch }) => {
   const [keyword, setKeyword] = useState(query);
+  const [category, setCategory] = useState('');
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
-  const setSearchQuery = useSetRecoilState(SearchQueryState);
-  const setSearchCategory = useSetRecoilState(SearchCategoryState);
 
   // debounce -> 호출 지연
   const handleSearchChange = useCallback(
     debounce(async (searchText) => {
-      const res = await getAutoKeyword(searchText);
+      const res = await getAutoKeyword(searchText, type);
       setAutoCompleteOptions(res.results);
     }, 300),
     [],
@@ -31,18 +28,15 @@ const SearchBar = ({ query, onSearch }) => {
   const handleOptionClick = (option) => {
     setKeyword(option.name);
     setAutoCompleteOptions([]);
-    setSearchCategory(option.category);
+    setCategory(option.category);
   };
 
   const handleSubmit = () => {
-    setSearchQuery(keyword);
-    onSearch();
+    onSearch(keyword, category);
   };
 
   const handleKeyEnter = (e) => {
     if (e.key === 'Enter') {
-      setSearchQuery(keyword);
-      setSearchCategory('');
       handleSubmit();
     }
   };

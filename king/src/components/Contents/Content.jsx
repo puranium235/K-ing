@@ -15,10 +15,10 @@ import SearchBar from '../common/SearchBar';
 const Content = () => {
   const { contentType } = useParams();
   // const [contentType, setContentType] = useRecoilState(ContentType);
+  const [query, setQuery] = useState('');
   const [favorites, setFavorites] = useState({});
   const [results, setResults] = useState();
   const [contentList, setContentList] = useState([]);
-  const query = useRecoilValue(SearchQueryState);
 
   const navigate = useNavigate();
 
@@ -28,6 +28,7 @@ const Content = () => {
       category: contentType.toUpperCase(),
     });
     setResults(res.results);
+    // console.log(res.results);
   };
 
   useEffect(() => {
@@ -44,8 +45,8 @@ const Content = () => {
     return null;
   }
 
-  const handleSearch = () => {
-    setResults(null);
+  const handleSearch = (searchQuery) => {
+    setQuery(searchQuery);
     getResults(query);
   };
 
@@ -72,7 +73,7 @@ const Content = () => {
           <BackButton />
           <h3> {getContentTypeKor(contentType)}</h3>
         </IconText>
-        <SearchBar query="" onSearch={handleSearch} />
+        <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
         <GridContainer>
           {contentList.map((content, index) => (
             <Card key={index} onClick={() => handleDramaClick(content.id)}>
@@ -139,6 +140,7 @@ const Card = styled.div`
 
   width: 8.5rem;
   min-height: 15rem;
+  height: 100%;
 
   #favor {
     position: absolute;
@@ -154,8 +156,8 @@ const CardImageContainer = styled.div``;
 
 const CardImage = styled.img`
   width: 8rem;
-  border-radius: 8px;
   min-height: 8rem;
+  height: 100%;
 `;
 
 const CardTitle = styled.h4`
