@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/s3")
-public class S3Controller {
+public class S3Controller { // 이미지 s3 업로드 확인용
 
     private final S3Service s3Service;
 

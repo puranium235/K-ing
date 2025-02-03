@@ -10,7 +10,9 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class S3Service {
@@ -23,8 +25,19 @@ public class S3Service {
         this.s3Client = s3Client;
     }
 
-    // 파일 업로드
+    // 단일 파일 업로드
     public String uploadFile(MultipartFile file) {
+        return uploadToS3(file);
+    }
+    // 여러 파일 업로드
+    public List<String> uploadFiles(List<MultipartFile> files) {
+        return files.stream()
+                .map(this::uploadToS3)
+                .collect(Collectors.toList());
+    }
+
+    // 파일을 S3에 업로드
+    private String uploadToS3(MultipartFile file) {
         String fileName = "uploads/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
 
         PutObjectRequest request = PutObjectRequest.builder()
@@ -36,7 +49,7 @@ public class S3Service {
         try {
             s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
         } catch (IOException e) {
-            throw new RuntimeException("S3 파일 업로드 실패", e); // 커스텀응답으로 변경
+            throw new RuntimeException("S3 파일 업로드 실패", e); // 커스텀 에러로 변경
         }
 
         return getFileUrl(fileName);
