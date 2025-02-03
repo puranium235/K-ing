@@ -25,6 +25,11 @@ const SearchQueryState = atom({
   default: '',
 });
 
+const SearchRelatedType = atom({
+  key: 'searchRelatedType',
+  default: '',
+});
+
 const SearchPrevQuery = atom({
   key: 'searchPrevQuery',
   default: '',
@@ -53,4 +58,5 @@ export {
   SearchPrevQuery,
   SearchQueryState,
   SearchRegionState,
+  SearchRelatedType,
 };

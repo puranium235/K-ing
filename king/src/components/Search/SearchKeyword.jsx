@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { IcFilter, IcMap } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
-import { FilterOption, SearchCategoryState, SearchQueryState } from '../../recoil/atom';
+import { FilterOption, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import FilterButton from '../common/FilterButton';
 import Nav from '../common/Nav';
@@ -25,7 +25,8 @@ const SearchKeyword = () => {
   const [results, setResults] = useState(null);
 
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
-  const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
+  // const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
+  const [relatedType, setRelatedType] = useRecoilState(SearchRelatedType);
 
   const sortType = {
     가나다순: 'name',
@@ -34,18 +35,21 @@ const SearchKeyword = () => {
   };
 
   const getResults = async () => {
-    setSearchCategory('PLACE');
-
-    //필터링
+    //장소 유형
     const selectedPlaceType = Object.keys(filter.categories).filter(
       (key) => filter.categories[key],
     );
 
+    //지역
+    const region = [filter.province, filter.district].filter(Boolean).join(' ');
+
     const res = await getSearchResult({
       query: searchQuery,
-      category: searchCategory,
+      category: 'PLACE',
+      region,
       sortBy,
       placeTypeList: selectedPlaceType,
+      relatedType,
     });
 
     setResults(res.results);
@@ -53,7 +57,29 @@ const SearchKeyword = () => {
 
   useEffect(() => {
     getResults();
-  }, [searchQuery, filter, sortBy]);
+  }, [searchQuery, filter, sortBy, , relatedType]);
+
+  //필터 해제
+  const handleToggleFilter = (filterType) => {
+    setFilter((prevFilter) => {
+      if (filterType === 'category') {
+        return {
+          ...prevFilter,
+          categories: Object.keys(prevFilter.categories).reduce((acc, key) => {
+            acc[key] = false;
+            return acc;
+          }, {}),
+        };
+      } else if (filterType === 'province') {
+        return {
+          ...prevFilter,
+          province: '',
+          district: '',
+        };
+      }
+      return prevFilter;
+    });
+  };
 
   useEffect(() => {
     if (filter && filter.categories) {
@@ -63,9 +89,9 @@ const SearchKeyword = () => {
     }
   }, [filter]);
 
-  const handleSearch = (query, category) => {
+  const handleSearch = (query) => {
     setSearchQuery(query);
-    setSearchCategory(category);
+    setRelatedType('all');
   };
 
   const handleSorting = (newSorting) => {
@@ -102,8 +128,16 @@ const SearchKeyword = () => {
               onClickMethod={handleOpenFilter}
               $isActive={isProvinceActive || isCategoryActive}
             />
-            <FilterButton buttonName="장소 유형" $isActive={isCategoryActive} />
-            <FilterButton buttonName="지역" $isActive={isProvinceActive} />
+            <FilterButton
+              buttonName="장소 유형"
+              $isActive={isCategoryActive}
+              onClickMethod={() => handleToggleFilter('category')}
+            />
+            <FilterButton
+              buttonName="지역"
+              $isActive={isProvinceActive}
+              onClickMethod={() => handleToggleFilter('province')}
+            />
           </FilterWrapper>
           <Options>
             <IcMap onClick={handleOpenMap} />

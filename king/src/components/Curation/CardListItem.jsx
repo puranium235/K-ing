@@ -37,6 +37,9 @@ const CardContainer = styled.div`
   background-color: #fff;
   display: flex;
   flex-direction: column;
+
+  width: 100%;
+  overflow: hidden;
 `;
 
 const ImageContainer = styled.div`
@@ -53,18 +56,29 @@ const Image = styled.img`
 `;
 
 const TextContainer = styled.div`
+  box-sizing: border-box;
   padding: 10px;
   display: flex;
   flex-direction: column;
+
+  width: 100%;
 `;
 
 const Title = styled.h3`
+  width: 100%;
+  text-align: center;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   ${({ theme }) => theme.fonts.Title6};
   color: ${({ theme }) => theme.colors.Gray0};
 `;
 
 const Address = styled.div`
   display: flex;
+  justify-content: center;
   align-items: center;
   margin-top: 4px;
   ${({ theme }) => theme.fonts.Body4};

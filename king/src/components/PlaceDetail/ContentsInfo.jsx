@@ -1,12 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { convertLowerCase } from '../../util/changeStrFormat';
+import { getContentTypeKor } from '../../util/getContentType';
+
 const ContentsInfo = ({ info }) => {
+  const typeKor = getContentTypeKor(convertLowerCase(info.type));
+
   return (
     <InfoContainer>
       <InfoRow>
         <InfoTitle>{info.title}</InfoTitle>
-        <InfoType>{info.type}</InfoType>
+        <InfoType>{typeKor}</InfoType>
       </InfoRow>
       <Description>{info.description}</Description>
     </InfoContainer>
