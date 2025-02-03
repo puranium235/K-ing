@@ -25,3 +25,13 @@ export const getSearchResult = async (searchOptions) => {
     console.error(err);
   }
 };
+
+//실시간 랭킹
+export const getKeywordRanking = async (period) => {
+  try {
+    const { data } = await client.get(`/ranking?period=${period}`);
+    return data.data;
+  } catch (err) {
+    console.error(err);
+  }
+};

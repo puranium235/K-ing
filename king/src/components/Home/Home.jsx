@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { CurationsDummyData } from '../../assets/dummy/dummyDataArchive';
 import { placeDummyData } from '../../assets/dummy/dummyDataPlace';
 import { IcCeleb, IcDrama, IcMovie, IcShow } from '../../assets/icons';
+import { getKeywordRanking } from '../../lib/search';
 import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
@@ -16,10 +17,13 @@ import PlaceCard from './PlaceCard';
 
 const Home = () => {
   const [activeButton, setActiveButton] = useState('실시간');
+  const [period, setPeriod] = useState('realtime');
   const [currentRankSet, setCurrentRankSet] = useState(0);
+  const [rankingsData, setRankingsData] = useState([]);
+  const [displayedRankings, setDisplayedRankings] = useState([]);
+
   const query = useRecoilValue(SearchQueryState);
   const category = useRecoilValue(SearchCategoryState);
-
   const navigate = useNavigate();
 
   const genreIcons = [
@@ -30,19 +34,62 @@ const Home = () => {
   ];
 
   const carouselList = CurationsDummyData;
-
   const cardsData = placeDummyData;
 
-  const rankingsData = [
-    '눈물의 여왕',
-    '부산',
-    'BTS',
-    '놀라운 토요일',
-    '변우석',
-    '제주도',
-    '로제',
-    '나의 완벽한 비서',
+  const periodOptions = [
+    { label: '실시간', value: 'realtime' },
+    { label: '일별', value: 'daily' },
+    { label: '주간별', value: 'weekly' },
   ];
+
+  //날짜 포맷
+  const today = new Date();
+  const formattedToday = `${today.getFullYear()}
+  -${(today.getMonth() + 1).toString().padStart(2, '0')}
+  -${today.getDate().toString().padStart(2, '0')}`;
+
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
+
+  const formatDate = (date) =>
+    `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date
+      .getDate()
+      .toString()
+      .padStart(2, '0')}`;
+
+  const formattedStartOfWeek = formatDate(startOfWeek);
+  const formattedEndOfWeek = formatDate(endOfWeek);
+
+  const getFilterText = () => {
+    switch (period) {
+      case 'realtime':
+        return '🔥지금 인기있는🔥';
+      case 'daily':
+        return formattedToday;
+      case 'weekly':
+        return `${formattedStartOfWeek} ~ ${formattedEndOfWeek}`;
+      default:
+        return '';
+    }
+  };
+
+  const getRanking = async () => {
+    const res = await getKeywordRanking(period);
+    setRankingsData(res);
+  };
+
+  useEffect(() => {
+    getRanking();
+  }, [period]);
+
+  useEffect(() => {
+    if (rankingsData) {
+      setDisplayedRankings(rankingsData.slice(currentRankSet * 4, currentRankSet * 4 + 4));
+    }
+  }, [rankingsData, currentRankSet]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -52,22 +99,16 @@ const Home = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const displayedRankings = rankingsData.slice(currentRankSet * 4, currentRankSet * 4 + 4);
-
   const handleSearch = () => {
-    // 키워드 & 카테고리
     if (query && category) {
       navigate(`/search/keyword?query=${query}&category=${category}`);
-    }
-    // 키워드
-    else {
+    } else {
       navigate('/search/result');
     }
   };
 
   const handleClickTrend = (keyword) => {
-    // navigate(`/seach/keyword?keyword=${keyword}`);
-    navigate(`/search/keyword`);
+    navigate(`/search/keyword?query=${keyword}`);
   };
 
   const handleCurDetails = () => {
@@ -90,28 +131,26 @@ const Home = () => {
             트렌딩 검색어 <span>TOP 8</span>
           </h3>
           <div className="filter">
-            <p>25.01.01 ~ 25.01.08</p>
+            <p>{getFilterText()}</p>
             <FilterControls>
-              {['실시간', '일별', '주간별'].map((type) => (
+              {periodOptions.map(({ label, value }) => (
                 <StyledButton
-                  key={type}
-                  $active={activeButton === type}
-                  onClick={() => setActiveButton(type)}
+                  key={label}
+                  $active={activeButton === label}
+                  onClick={() => {
+                    setActiveButton(label);
+                    setPeriod(value);
+                  }}
                 >
-                  {type}
+                  {label}
                 </StyledButton>
               ))}
             </FilterControls>
           </div>
           <div className="rankings">
             {displayedRankings.map((rank, index) => (
-              <p
-                key={index}
-                onClick={() => {
-                  handleClickTrend(rank);
-                }}
-              >
-                {index + 1 + currentRankSet * 4}. {rank}
+              <p key={index} onClick={() => handleClickTrend(rank.keyword)}>
+                {index + 1 + currentRankSet * 4}. {rank.keyword}
               </p>
             ))}
           </div>
@@ -141,26 +180,23 @@ const StHomeWrapper = styled.div`
   justify-content: center;
   align-items: center;
   text-align: center;
-
   padding: 2rem;
   margin-bottom: 7rem;
 `;
+
 const GenreWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: auto;
-
   width: 100%;
 `;
+
 const TrendingKeyword = styled.div`
   display: flex;
   flex-direction: column;
-
   width: 100%;
   margin-bottom: 1rem;
-
   border-radius: 10px;
-
   background-color: #f2faff;
 
   h3 {
@@ -180,7 +216,6 @@ const TrendingKeyword = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: 0 1.5rem;
-
     p {
       margin: 0;
       ${({ theme }) => theme.fonts.Body6};
@@ -191,11 +226,8 @@ const TrendingKeyword = styled.div`
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-
     margin: 1rem;
-
     text-align: left;
-
     p {
       ${({ theme }) => theme.fonts.Body4};
       padding: 5px;
@@ -210,7 +242,6 @@ const FilterControls = styled.div`
 const StyledButton = styled.button`
   padding: 5px 10px;
   border-radius: 70px;
-
   background-color: ${({ $active }) => ($active ? '#D0E3FF' : '')};
   color: ${({ theme }) => theme.colors.Navy};
 `;
@@ -220,18 +251,15 @@ const CurationWrapper = styled.div`
 `;
 
 const CurationHeader = styled.div`
-  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-
   & > h3 {
     text-align: left;
     ${({ theme }) => theme.fonts.Title4};
     margin: 1rem 0;
   }
-
   span {
     ${({ theme }) => theme.fonts.Body4};
   }
@@ -242,15 +270,12 @@ const CardContainer = styled.div`
   width: 100%;
   flex-wrap: nowrap;
   overflow-x: scroll;
-
   gap: 1rem;
-
   padding: 0.5rem 0;
 
   & > * {
-    flex: 0 0 50%; // 최대 50% 차지
+    flex: 0 0 50%;
   }
-
   &::-webkit-scrollbar {
     display: none;
   }
