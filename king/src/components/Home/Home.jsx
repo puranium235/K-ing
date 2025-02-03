@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { CurationsDummyData } from '../../assets/dummy/dummyDataArchive';
-import { placeDummyData } from '../../assets/dummy/dummyDataPlace';
 import { IcCeleb, IcDrama, IcMovie, IcShow } from '../../assets/icons';
+import { getCurationDetail, getCurationList } from '../../lib/curation';
 import { getKeywordRanking } from '../../lib/search';
 import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
 import Nav from '../common/Nav';
@@ -20,6 +19,9 @@ const Home = () => {
   const [period, setPeriod] = useState('realtime');
   const [currentRankSet, setCurrentRankSet] = useState(0);
   const [rankingsData, setRankingsData] = useState([]);
+  const [carouselList, setCarouselList] = useState([]);
+  const [topCurations, setTopCurations] = useState([]);
+  const [placeList, setPlaceList] = useState([]);
   const [displayedRankings, setDisplayedRankings] = useState([]);
 
   const setSearchQuery = useSetRecoilState(SearchQueryState);
@@ -33,8 +35,10 @@ const Home = () => {
     { icon: IcCeleb, label: '연예인', contentType: 'cast' },
   ];
 
-  const carouselList = CurationsDummyData;
-  const cardsData = placeDummyData;
+  const getResults = async () => {
+    const res = await getCurationList('', '');
+    setCarouselList(res.items);
+  };
 
   const periodOptions = [
     { label: '실시간', value: 'realtime' },
@@ -82,6 +86,25 @@ const Home = () => {
   };
 
   useEffect(() => {
+    getResults();
+  }, []);
+
+  useEffect(() => {
+    if (carouselList) {
+      setTopCurations(carouselList.slice(0, Math.min(3, carouselList.length)));
+      console.log(topCurations);
+    }
+    if (topCurations.length > 0) {
+      getCurationPlace();
+    }
+  }, [carouselList]);
+
+  const getCurationPlace = async () => {
+    const res = await getCurationDetail(topCurations[0].id);
+    setPlaceList(res.places);
+  };
+
+  useEffect(() => {
     getRanking();
   }, [period]);
 
@@ -114,11 +137,15 @@ const Home = () => {
     navigate(`/curation/1`);
   };
 
+  if (!carouselList) {
+    return null;
+  }
+
   return (
     <>
       <StHomeWrapper>
         <TopNav />
-        <Carousel carouselList={carouselList} />
+        <Carousel carouselList={topCurations} />
         <GenreWrapper>
           {genreIcons.map((item) => (
             <GenreButton key={item.label} buttonInfo={item} />
@@ -155,15 +182,19 @@ const Home = () => {
           </div>
         </TrendingKeyword>
         <CurationWrapper>
-          <CurationHeader>
-            <h3>연말결산 : 올해의 드라마 🌟</h3>
-            <span onClick={handleCurDetails}> 전체보기 {'>'}</span>
-          </CurationHeader>
-          <CardContainer>
-            {cardsData.map((card) => (
-              <PlaceCard key={card.id} place={card} />
-            ))}
-          </CardContainer>
+          {topCurations.length > 0 && (
+            <>
+              <CurationHeader>
+                <h3>{topCurations[0].title}</h3>
+                <span onClick={handleCurDetails}> 전체보기 {'>'}</span>
+              </CurationHeader>
+              <CardContainer>
+                {placeList.map((card, index) => (
+                  <PlaceCard key={index} place={card} />
+                ))}
+              </CardContainer>
+            </>
+          )}
         </CurationWrapper>
       </StHomeWrapper>
       <Nav />
