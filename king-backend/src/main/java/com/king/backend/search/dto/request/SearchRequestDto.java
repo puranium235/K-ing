@@ -14,7 +14,8 @@ public class SearchRequestDto {
     private String query; // 검색 키워드
     private String category; // optional: 특정 카테고리 (CAST, SHOW, MOVIE, DRAMA, PLACE)
 
-//    private int page = 0; // 페이지 번호 (기본값 0)
+    private String relatedType;
+
     private int size = 10; // 페이지 당 항목 수 (기본값 10)
 
     private String sortBy; // 정렬 기준 (예: "name", "popularity", "createdAt")

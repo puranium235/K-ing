@@ -142,7 +142,7 @@ public class SearchService {
         try{
             String query = requestDto.getQuery();
             String category = requestDto.getCategory();
-//            int page = requestDto.getPage();
+            String relatedType = requestDto.getRelatedType();
             int size = requestDto.getSize();
             String sortByInput = requestDto.getSortBy();
             String sortOrder = requestDto.getSortOrder();
@@ -162,10 +162,27 @@ public class SearchService {
 
             // 검색어 처리
             if (query != null && !query.isEmpty()) {
-                boolQueryBuilder.must(q -> q.match(m -> m
-                        .query(query)
-                        .field("name")
-                ));
+                if ("place".equalsIgnoreCase(category)){
+                    if ("place".equalsIgnoreCase(relatedType)) {
+                        // 오직 장소만 결과로 검색: name 필드에 대해 match 쿼리 사용.
+                        boolQueryBuilder.must(q -> q.match(m -> m.field("name").query(query)));
+                    }else if("cast".equalsIgnoreCase(relatedType)){
+                        // 연예인 검색: associatedCastNames 필드에 대해 match 쿼리 사용
+                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedCastNames").query(query)));
+                    }else if("content".equalsIgnoreCase(relatedType)){
+                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedContentNames").query(query)));
+                    }else{
+                        boolQueryBuilder.should(q -> q.match(m -> m.field("name").query(query)));
+                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedCastNames").query(query)));
+                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedContentNames").query(query)));
+                        boolQueryBuilder.minimumShouldMatch(String.valueOf(1L));
+                    }
+                }else{
+                    boolQueryBuilder.must(q -> q.match(m -> m
+                            .query(query)
+                            .field("name")
+                    ));
+                }
             }else{
                 boolQueryBuilder.must(q -> q.matchAll(m -> m));
             }
