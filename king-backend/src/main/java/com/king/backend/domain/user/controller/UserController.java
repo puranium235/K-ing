@@ -89,6 +89,7 @@ public class UserController {
         if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
+        nickname = nickname.trim();
 
         userRepository.findByNickname(nickname)
                 .ifPresent((user) -> {
