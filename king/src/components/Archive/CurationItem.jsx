@@ -6,27 +6,42 @@ import { IcBookmarkBlank } from '../../assets/icons';
 import { IcBookmarkFill } from '../../assets/icons';
 
 const CurationItem = ({ item }) => {
-  const { id, title, imageUrl, writerNickname } = item;
-  const [bookmarked, setBookmarked] = useState(false);
+  const { id, title, image, author, bookmarked: initialBookmarked } = item; // 초기 bookmarked 값 가져오기
+  const [bookmarked, setBookmarked] = useState(initialBookmarked); // 초기 상태를 item.bookmarked로 설정
   const navigate = useNavigate();
 
   const handleBookmarkClick = (event) => {
-    event.stopPropagation();
+    event.stopPropagation(); // 이벤트 버블링 방지
+    setBookmarked((prev) => !prev); // 북마크 상태 변경 (true <-> false)
   };
 
-  const handleCurationClick = (id) => {
+  const handleCurationClick = () => {
     navigate(`/curation/${id}`);
   };
 
+  // BE 연결 후 테스트 필요
+  // const CurationItem = ({ item, onRemoveBookmark }) => {
+  //   const { id, title, image, author, bookmarked } = item;
+  //   const navigate = useNavigate();
+
+  //   const handleBookmarkClick = (event) => {
+  //     event.stopPropagation();
+  //     onRemoveBookmark(id); // ✅ 부모 컴포넌트에서 북마크 해제 처리
+  //   };
+
+  //   const handleCurationClick = () => {
+  //     navigate(`/curation/${id}`);
+  //   };
+
   return (
-    <St.Item onClick={() => handleCurationClick(item.id)}>
-      <St.Image src={imageUrl} alt={title} />
+    <St.Item onClick={handleCurationClick}>
+      <St.Image src={image} alt={title} />
       <St.Info>
-        <St.Author>@{writerNickname}</St.Author>
+        <St.Author>@{author}</St.Author>
         <St.Title>{title}</St.Title>
       </St.Info>
       <St.BookmarkButton onClick={handleBookmarkClick}>
-        {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />}
+        {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />} {/* 상태에 따라 아이콘 변경 */}
       </St.BookmarkButton>
     </St.Item>
   );
@@ -38,17 +53,16 @@ const St = {
   Item: styled.div`
     position: relative;
     width: 100%;
-    /* width: 100px; */
     height: 240px;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 카드 그림자 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background-color: ${({ theme }) => theme.colors.White};
   `,
   Image: styled.img`
     width: 100%;
     height: 100%;
-    object-fit: cover; /* 이미지가 카드 크기에 맞게 조정 */
-    display: block; /* 기본 여백 제거 */
+    object-fit: cover;
+    display: block;
   `,
   Info: styled.div`
     text-align: left;
@@ -66,9 +80,6 @@ const St = {
     margin: 4px 0 0;
     padding-right: 0.5rem;
     ${({ theme }) => theme.fonts.Title7};
-
-    width: 100%;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
