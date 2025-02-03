@@ -41,15 +41,15 @@ public class UserController {
     private Long REFRESHTOKEN_EXPIRES_IN;
 
     @PostMapping("/token-refresh")
-    public ResponseEntity<ApiResponse<Void>> tokenRefresh(@CookieValue("refreshToken") String oldRefreshToken) {
-        if (oldRefreshToken == null) {
-            throw new CustomException(UserErrorCode.INVALID_TOKEN);
-        }
+        public ResponseEntity<ApiResponse<Void>> tokenRefresh(@CookieValue(value = "refreshToken", required = false) String oldRefreshToken) {
+            if (oldRefreshToken == null) {
+                throw new CustomException(UserErrorCode.INVALID_TOKEN);
+            }
 
         try {
-            jwtUtil.isExpired(oldRefreshToken);
+            jwtUtil.validToken(oldRefreshToken);
         } catch (Exception e) {
-            throw new CustomException(UserErrorCode.REFRESHTOKEN_EXPIRED);
+            throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
         if (!jwtUtil.getType(oldRefreshToken).equals("refreshToken")) {
