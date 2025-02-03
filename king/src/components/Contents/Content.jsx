@@ -133,14 +133,13 @@ const GridContainer = styled.div`
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   background-color: ${({ theme }) => theme.colors.White};
   position: relative;
 
   width: 8.5rem;
-  min-height: 15rem;
-  height: 100%;
+  height: 15rem;
 
   #favor {
     position: absolute;
@@ -152,12 +151,18 @@ const Card = styled.div`
   }
 `;
 
-const CardImageContainer = styled.div``;
+const CardImageContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+`;
 
 const CardImage = styled.img`
-  width: 8rem;
+  width: 100%;
   min-height: 8rem;
-  height: 100%;
+  object-fit: cover;
+
+  border-radius: 0;
 `;
 
 const CardTitle = styled.h4`
