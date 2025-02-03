@@ -146,7 +146,7 @@ public class SearchService {
             int size = requestDto.getSize();
             String sortByInput = requestDto.getSortBy();
             String sortOrder = requestDto.getSortOrder();
-            String placeType = requestDto.getPlaceType();
+            List<String> placeTypeList = requestDto.getPlaceTypeList();
             String region = requestDto.getRegion();
             String cursor = requestDto.getCursor();
 
@@ -194,8 +194,15 @@ public class SearchService {
 
             // 장소 필터링
             if ("PLACE".equalsIgnoreCase(category)) {
-                if (placeType != null && !placeType.isEmpty()) {
-                    boolQueryBuilder.filter(q -> q.term(t -> t.field("type").value(placeType.toUpperCase())));
+                if (placeTypeList != null && !placeTypeList.isEmpty()) {
+                    // 리스트의 모든 문자열을 대문자로 변환
+                    List<FieldValue> upperCasePlaceTypeList = placeTypeList.stream()
+                            .map(String::toUpperCase)
+                            .map(o -> FieldValue.of(fv -> fv.stringValue(o)))
+                            .collect(Collectors.toList());
+                    boolQueryBuilder.filter(q -> q.terms(t -> t.field("type")
+                            .terms(termsBuilder -> termsBuilder.value(upperCasePlaceTypeList))));
+                    //boolQueryBuilder.filter(q -> q.term(t -> t.field("type").value(placeType.toUpperCase())));
                 }
                 if (region != null && !region.isEmpty()) {
                     boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(region)));

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * 검색 요청 DTO
  */
@@ -22,7 +24,8 @@ public class SearchRequestDto {
     private String sortOrder; // 정렬 순서 ("asc" 또는 "desc")
 
     // 장소 필터링을 위한 추가 필드
-    private String placeType; // 장소 유형 필터 (optional)
+//    private String placeType; // 장소 유형 필터 (optional)
+    private List<String> placeTypeList;
     private String region; // 지역 필터 (optional)
 
     private String cursor; // cursor for cursor-based pagination
