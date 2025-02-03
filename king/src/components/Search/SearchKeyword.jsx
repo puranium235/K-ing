@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcFilter, IcMap } from '../../assets/icons';
@@ -55,6 +55,27 @@ const SearchKeyword = () => {
     getResults();
   }, [searchQuery, filter, sortBy, , relatedType]);
 
+  //필터 해제
+  const handleToggleFilter = (filterType) => {
+    setFilter((prevFilter) => {
+      if (filterType === 'category') {
+        return {
+          ...prevFilter,
+          categories: Object.keys(prevFilter.categories).reduce((acc, key) => {
+            acc[key] = false;
+            return acc;
+          }, {}),
+        };
+      } else if (filterType === 'province') {
+        return {
+          ...prevFilter,
+          province: '',
+        };
+      }
+      return prevFilter;
+    });
+  };
+
   useEffect(() => {
     if (filter && filter.categories) {
       setIsProvinceActive(filter.province !== '');
@@ -102,8 +123,16 @@ const SearchKeyword = () => {
               onClickMethod={handleOpenFilter}
               $isActive={isProvinceActive || isCategoryActive}
             />
-            <FilterButton buttonName="장소 유형" $isActive={isCategoryActive} />
-            <FilterButton buttonName="지역" $isActive={isProvinceActive} />
+            <FilterButton
+              buttonName="장소 유형"
+              $isActive={isCategoryActive}
+              onClickMethod={() => handleToggleFilter('category')}
+            />
+            <FilterButton
+              buttonName="지역"
+              $isActive={isProvinceActive}
+              onClickMethod={() => handleToggleFilter('province')}
+            />
           </FilterWrapper>
           <Options>
             <IcMap onClick={handleOpenMap} />
