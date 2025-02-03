@@ -1,12 +1,10 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
-import { SearchQueryState } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
@@ -22,13 +20,12 @@ const Content = () => {
 
   const navigate = useNavigate();
 
-  const getResults = async () => {
+  const getResults = async (query) => {
     const res = await getSearchResult({
       query: query ? query : '',
       category: contentType.toUpperCase(),
     });
     setResults(res.results);
-    // console.log(res.results);
   };
 
   useEffect(() => {
@@ -47,7 +44,7 @@ const Content = () => {
 
   const handleSearch = (searchQuery) => {
     setQuery(searchQuery);
-    getResults(query);
+    getResults(searchQuery ? searchQuery : '');
   };
 
   const toggleFavorite = (event, id) => {

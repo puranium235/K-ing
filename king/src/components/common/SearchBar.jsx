@@ -26,12 +26,14 @@ const SearchBar = ({ type, query, onSearch }) => {
   };
 
   const handleOptionClick = (option) => {
-    setKeyword(option.name);
     setAutoCompleteOptions([]);
+
+    setKeyword(option.name);
     setCategory(option.category);
   };
 
   const handleSubmit = () => {
+    setAutoCompleteOptions([]);
     onSearch(keyword, category);
   };
 
