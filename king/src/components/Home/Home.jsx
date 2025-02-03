@@ -147,10 +147,10 @@ const CurationHeader = styled.div`
 `;
 
 const CardContainer = styled.div`
-  display: flex;
-  width: fit-content;
-  flex-wrap: nowrap;
-  overflow-x: scroll;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: 100%;
+
   gap: 1rem;
   padding: 0.5rem 0;
 
