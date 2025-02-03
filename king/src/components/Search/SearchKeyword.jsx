@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useSearchParams } from 'react-router-dom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { placeDummyData } from '../../assets/dummy/dummyDataPlace';
 import { IcFilter, IcMap } from '../../assets/icons';
-import { FilterOption } from '../../recoil/atom';
+import { getSearchResult } from '../../lib/search';
+import { FilterOption, SearchQueryState } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import FilterButton from '../common/FilterButton';
 import Nav from '../common/Nav';
@@ -16,21 +17,61 @@ import PlaceCard from '../Home/PlaceCard';
 
 const SearchKeyword = () => {
   const navigate = useNavigate();
-  const cardsData = placeDummyData;
+
   const [filter, setFilter] = useRecoilState(FilterOption);
+  const [sortBy, setSortBy] = useState('popularity');
 
   const [isProvinceActive, setIsProvinceActive] = useState(false);
   const [isCategoryActive, setIsCategoryActive] = useState(false);
+  const [results, setResults] = useState(null);
+
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get('query');
+  const category = searchParams.get('category');
+
+  const setQuery = useSetRecoilState(SearchQueryState);
+
+  const sortType = {
+    가나다순: 'name',
+    인기순: 'popularity',
+    최신순: 'createdAt',
+  };
+
+  const getResults = async () => {
+    setQuery(query);
+
+    //필터링
+    const selectedPlaceType = Object.keys(filter.categories).filter(
+      (key) => filter.categories[key],
+    );
+
+    // console.log(selectedCategories);
+
+    const res = await getSearchResult({
+      query,
+      category,
+      sortBy,
+      // selectedPlaceType ? selectedPlaceType : '',
+    });
+    setResults(res.results);
+    // console.log(res.results);
+  };
+
+  useEffect(() => {
+    getResults();
+  }, [query, filter, sortBy]);
 
   useEffect(() => {
     if (filter && filter.categories) {
       setIsProvinceActive(filter.province !== '');
 
       setIsCategoryActive(Object.values(filter.categories).some((value) => value));
-
-      // console.log(filter);
     }
   }, [filter]);
+
+  const handleSorting = (newSorting) => {
+    setSortBy(sortType[newSorting]);
+  };
 
   const handleOpenFilter = () => {
     navigate(`/search/keyword/filter`);
@@ -42,6 +83,10 @@ const SearchKeyword = () => {
 
   const handleScrollUp = () => {};
 
+  if (!results) {
+    return null;
+  }
+
   return (
     <>
       <StHomeWrapper>
@@ -49,7 +94,7 @@ const SearchKeyword = () => {
           <BackButton />
           <h3> 장소 조회</h3>
         </IconText>
-        <SearchBar onSearch={() => {}} />
+        <SearchBar query={query || ''} onSearch={() => {}} />
         <OptionHeader>
           <FilterWrapper>
             <FilterButton
@@ -63,18 +108,17 @@ const SearchKeyword = () => {
           </FilterWrapper>
           <Options>
             <IcMap onClick={handleOpenMap} />
-            <SortingRow />
+            <SortingRow onSortingChange={handleSorting} />
           </Options>
         </OptionHeader>
 
         <ResultWrapper>
-          {cardsData.map((card) => (
-            <PlaceCard key={card.id} place={card} />
+          {results.map((card, index) => (
+            <PlaceCard key={index} place={card} />
           ))}
         </ResultWrapper>
-        {/* 위로 화살표로 변경 */}
         <UpButton onClick={handleScrollUp}>
-          <img src="/src/assets/icons/map.png" alt="map" />
+          <img src="/src/assets/icons/ic_up.png" alt="up" />
         </UpButton>
         <Nav />
       </StHomeWrapper>
@@ -170,8 +214,8 @@ const UpButton = styled.button`
   }
 
   img {
-    width: 25px;
-    height: 25px;
+    width: 50px;
+    height: 50px;
     object-fit: contain;
   }
 `;

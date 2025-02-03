@@ -11,13 +11,26 @@ import { FilterOption } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 
 function FilterScreen() {
+  const CategoryCheckbox = ({ label, category, checked, onChange }) => {
+    return (
+      <CheckboxContainer>
+        <label>
+          {label}
+          <input type="checkbox" checked={checked} onChange={() => onChange(category)} />
+        </label>
+      </CheckboxContainer>
+    );
+  };
+
   const navigate = useNavigate();
   const regions = regionsDummyData;
 
   const [selectedCategories, setSelectedCategories] = useState({
-    restaurant: false,
-    cafe: false,
-    sight: false,
+    RESTAURANT: false,
+    CAFE: false,
+    PLAYGROUND: false,
+    STORE: false,
+    STAY: false,
   });
 
   const [selectedProvince, setSelectedProvince] = useState('');
@@ -37,9 +50,11 @@ function FilterScreen() {
 
   const handleRefresh = () => {
     setSelectedCategories({
-      restaurant: false,
-      cafe: false,
-      sight: false,
+      RESTAURANT: false,
+      CAFE: false,
+      PLAYGROUND: false,
+      STORE: false,
+      STAY: false,
     });
     setSelectedProvince('');
   };
@@ -62,36 +77,21 @@ function FilterScreen() {
       </IconText>
       <FilterContent>
         <Title>장소 유형</Title>
-        <CheckboxContainer>
-          <label>
-            식당
-            <input
-              type="checkbox"
-              checked={selectedCategories.restaurant}
-              onChange={() => handleCheckedState('restaurant')}
-            />
-          </label>
-        </CheckboxContainer>
-        <CheckboxContainer>
-          <label>
-            카페
-            <input
-              type="checkbox"
-              checked={selectedCategories.cafe}
-              onChange={() => handleCheckedState('cafe')}
-            />
-          </label>
-        </CheckboxContainer>
-        <CheckboxContainer>
-          <label>
-            관광지
-            <input
-              type="checkbox"
-              checked={selectedCategories.sight}
-              onChange={() => handleCheckedState('sight')}
-            />
-          </label>
-        </CheckboxContainer>
+        {[
+          { label: '식당', category: 'RESTAURANT' },
+          { label: '카페', category: 'CAFE' },
+          { label: '관광지', category: 'PLAYGROUND' },
+          { label: '상점', category: 'STORE' },
+          { label: '숙소', category: 'STAY' },
+        ].map(({ label, category }) => (
+          <CategoryCheckbox
+            key={category}
+            label={label}
+            category={category}
+            checked={selectedCategories[category]}
+            onChange={handleCheckedState}
+          />
+        ))}
       </FilterContent>
       <FilterContent>
         <Title>지역</Title>
@@ -163,6 +163,7 @@ const IconText = styled.div`
 const FilterContent = styled.div`
   height: 100%;
   padding: 1.5rem;
+  padding-bottom: 0;
 
   border: 1px solid ${({ theme }) => theme.colors.Gray2};
   border-radius: 10px;
@@ -196,7 +197,7 @@ const SelectionArea = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   text-align: center;
-  height: 30rem;
+  height: 27rem;
 `;
 
 const ProvinceList = styled.div`

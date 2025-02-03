@@ -30,11 +30,6 @@ const CelebDetails = () => {
     const res = await getCelebDetails(celebId);
     setcelebInfo(res);
     setIsFavorited(res.favorite);
-
-    // if (celebInfo) {
-    //   const { title, type, broadcast, description, imageUrl, relatedCasts, favorite } = contentInfo;
-    //   setTypeKor(getContentTypeKor(convertLowerCase(type)));
-    // }
   };
 
   const toggleFavorite = () => {

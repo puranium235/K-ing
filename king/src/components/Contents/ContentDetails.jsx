@@ -29,7 +29,7 @@ const ContentDetails = () => {
   };
 
   const handleClickCast = (celebId) => {
-    navigate(`/content/celeb/${celebId}`);
+    navigate(`/content/cast/${celebId}`);
   };
 
   const toggleFavorite = () => {

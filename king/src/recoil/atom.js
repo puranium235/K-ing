@@ -20,19 +20,37 @@ const ContentType = atom({
   default: '',
 });
 
-const searchQueryState = atom({
+const SearchQueryState = atom({
   key: 'searchQueryState',
   default: '',
 });
 
-const searchRegionState = atom({
+const SearchPrevQuery = atom({
+  key: 'searchPrevQuery',
+  default: '',
+});
+
+const SearchCategoryState = atom({
+  key: 'searchCategoryState',
+  default: '',
+});
+
+const SearchRegionState = atom({
   key: 'searchRegionState',
   default: '',
 });
 
-const curationPlaceList = atom({
+const CurationPlaceList = atom({
   key: 'placeListState',
   default: [],
 });
 
-export { ContentType, curationPlaceList, FilterOption, searchQueryState, searchRegionState };
+export {
+  ContentType,
+  CurationPlaceList,
+  FilterOption,
+  SearchCategoryState,
+  SearchPrevQuery,
+  SearchQueryState,
+  SearchRegionState,
+};

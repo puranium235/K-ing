@@ -1,19 +1,51 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import {
-  FavoritePeopleDummyData,
-  FavoriteWorksDummyData,
-} from '../../assets/dummy/dummyDataArchive';
-import FavoritesList from '../Archive/FavoritesList';
+import { getSearchResult } from '../../lib/search';
+import { SearchCategoryState, SearchPrevQuery, SearchQueryState } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
+import SearchList from './SearchList';
 
 const SearchResult = () => {
-  const contentList = FavoriteWorksDummyData;
-  const celebList = FavoritePeopleDummyData;
-  const placeList = FavoriteWorksDummyData;
+  const query = useRecoilValue(SearchQueryState);
+  const category = useRecoilValue(SearchCategoryState);
+  const setPrevQuery = useSetRecoilState(SearchPrevQuery);
+
+  const [results, setResults] = useState(null);
+  const [contentList, setContentList] = useState([]);
+  const [celebList, setCelebList] = useState([]);
+  const [placeList, setPlaceList] = useState([]);
+
+  const getResults = async () => {
+    const res = await getSearchResult({ query, category });
+    setResults(res.results);
+  };
+
+  useEffect(() => {
+    getResults();
+    setPrevQuery(query);
+  }, [query]);
+
+  useEffect(() => {
+    if (results) {
+      setContentList(
+        results.filter(
+          (item) =>
+            item.category === 'DRAMA' || item.category === 'MOVIE' || item.category === 'SHOW',
+        ),
+      );
+      setCelebList(results.filter((item) => item.category === 'CAST'));
+      setPlaceList(results.filter((item) => item.category === 'PLACE'));
+    }
+  }, [results]);
+
+  if (!results) {
+    return null;
+  }
 
   return (
     <>
@@ -23,12 +55,12 @@ const SearchResult = () => {
             <BackButton />
             <h3> 통합검색</h3>
           </IconText>
-          <SearchBar onSearch={() => {}} />
+          <SearchBar query={query || ''} onSearch={() => {}} />
         </Header>
         <ResultWrapper>
-          <FavoritesList title="작품" data={contentList} />
-          <FavoritesList title="인물" data={celebList} />
-          <FavoritesList title="장소" data={placeList} />
+          <SearchList title="작품" data={contentList} type="CONTENT" />
+          <SearchList title="인물" data={celebList} type="CAST" />
+          <SearchList title="장소" data={placeList} type="PLACE" />
         </ResultWrapper>
         <Nav />
       </StHomeWrapper>

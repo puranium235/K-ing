@@ -1,21 +1,24 @@
 import { debounce } from 'lodash';
 import React, { useCallback, useState } from 'react';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcSearch } from '../../assets/icons';
+import { getAutoKeyword } from '../../lib/search';
+import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
+import { getContentTypeKor } from '../../util/getContentType';
 
-const SearchBar = ({ onSearch }) => {
-  const [keyword, setKeyword] = useState('');
+const SearchBar = ({ query, onSearch }) => {
+  const [keyword, setKeyword] = useState(query);
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
+  const setSearchQuery = useSetRecoilState(SearchQueryState);
+  const setSearchCategory = useSetRecoilState(SearchCategoryState);
 
   // debounce -> 호출 지연
   const handleSearchChange = useCallback(
-    debounce((searchText) => {
-      console.log('API 호출:', searchText);
-      setAutoCompleteOptions([
-        { id: 1, name: '수지', category: '지명, 용인시' },
-        { id: 2, name: '수지', category: '가수, 배우' },
-      ]);
+    debounce(async (searchText) => {
+      const res = await getAutoKeyword(searchText);
+      setAutoCompleteOptions(res.results);
     }, 300),
     [],
   );
@@ -28,12 +31,20 @@ const SearchBar = ({ onSearch }) => {
   const handleOptionClick = (option) => {
     setKeyword(option.name);
     setAutoCompleteOptions([]);
+    setSearchCategory(option.category);
   };
 
   const handleSubmit = () => {
-    console.log('검색:', keyword);
-    // 검색
-    onSearch(keyword);
+    setSearchQuery(keyword);
+    onSearch();
+  };
+
+  const handleKeyEnter = (e) => {
+    if (e.key === 'Enter') {
+      setSearchQuery(keyword);
+      setSearchCategory('');
+      handleSubmit();
+    }
   };
 
   return (
@@ -43,14 +54,15 @@ const SearchBar = ({ onSearch }) => {
         placeholder="검색어를 입력하세요."
         value={keyword}
         onChange={onChangeData}
+        onKeyDown={handleKeyEnter}
       />
       <IcSearch onClick={handleSubmit} />
       {autoCompleteOptions.length > 0 && (
         <AutoSearchContainer>
           <AutoSearchWrap>
-            {autoCompleteOptions.map((option) => (
-              <AutoSearchData key={option.id} onClick={() => handleOptionClick(option)}>
-                {option.name} <a>{option.category}</a>
+            {autoCompleteOptions.map((option, index) => (
+              <AutoSearchData key={index} onClick={() => handleOptionClick(option)}>
+                {option.name} <a>{getContentTypeKor(option.category.toLowerCase())}</a>
               </AutoSearchData>
             ))}
           </AutoSearchWrap>

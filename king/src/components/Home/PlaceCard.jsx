@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const PlaceCard = ({ place }) => {
-  const { id, image, title, description } = place;
+  const { id, imageUrl, name } = place;
   const navigate = useNavigate();
 
   const handleClickPlace = () => {
@@ -16,10 +16,10 @@ const PlaceCard = ({ place }) => {
         handleClickPlace();
       }}
     >
-      <CardImage src={image} alt={title} />
+      <CardImage src={imageUrl} alt={name} />
       <CardContent>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle>{name}</CardTitle>
+        {/* <CardDescription>{description}</CardDescription> */}
       </CardContent>
     </Card>
   );
@@ -34,6 +34,7 @@ const Card = styled.div`
 
 const CardImage = styled.img`
   width: 100%;
+  min-width: 8rem;
   object-fit: cover;
 
   border-radius: 10px;
@@ -41,7 +42,7 @@ const CardImage = styled.img`
 
 const CardContent = styled.div`
   padding: 1rem 0;
-  text-align: left;
+  text-align: center;
 
   background-color: ${({ theme }) => theme.colors.White};
   color: ${({ theme }) => theme.colors.Gray0};
