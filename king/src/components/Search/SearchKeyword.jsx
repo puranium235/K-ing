@@ -35,14 +35,18 @@ const SearchKeyword = () => {
   };
 
   const getResults = async () => {
-    //필터링
+    //장소 유형
     const selectedPlaceType = Object.keys(filter.categories).filter(
       (key) => filter.categories[key],
     );
 
+    //지역
+    const region = [filter.province, filter.district].filter(Boolean).join(' ');
+
     const res = await getSearchResult({
       query: searchQuery,
       category: 'PLACE',
+      region,
       sortBy,
       placeTypeList: selectedPlaceType,
       relatedType,
@@ -70,6 +74,7 @@ const SearchKeyword = () => {
         return {
           ...prevFilter,
           province: '',
+          district: '',
         };
       }
       return prevFilter;
