@@ -20,7 +20,7 @@ const St = {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.1rem;
+    width: 100%;
     overflow-y: auto;
-    padding: 0 16px;
   `,
 };

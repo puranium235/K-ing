@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
@@ -35,20 +35,17 @@ const SearchBar = ({ query, onSearch }) => {
   };
 
   const handleSubmit = () => {
-    // console.log('검색:', keyword);
+    setSearchQuery(keyword);
     onSearch();
   };
 
   const handleKeyEnter = (e) => {
     if (e.key === 'Enter') {
+      setSearchQuery(keyword);
       setSearchCategory('');
       handleSubmit();
     }
   };
-
-  useEffect(() => {
-    setSearchQuery(keyword);
-  }, [keyword]);
 
   return (
     <SWrapper>
