@@ -148,7 +148,7 @@ const CurationHeader = styled.div`
 
 const CardContainer = styled.div`
   display: flex;
-  width: 100%;
+  width: fit-content;
   flex-wrap: nowrap;
   overflow-x: scroll;
   gap: 1rem;
