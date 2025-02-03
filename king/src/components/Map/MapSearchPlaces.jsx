@@ -8,6 +8,7 @@ import { searchMapView } from '../../lib/map';
 import { FilterOption, searchQueryState, searchRegionState } from '../../recoil/atom';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
+import Loading from '../Loading/Loading';
 import FilterButtons from './FilterButtons';
 import GoogleMapView from './GoogleMapView';
 import ListItem from './ListItem';
@@ -64,7 +65,7 @@ const MapSearchPlaces = () => {
     return filterOption.categories[place.type];
   });
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
 
   return (
     <Container>
@@ -89,7 +90,7 @@ const MapSearchPlaces = () => {
         {filteredPlaces.length > 0 ? (
           <ListContainer>
             {filteredPlaces.map((place) => (
-              <ListItem key={place.id} place={place} />
+              <ListItem key={place.placeId} place={place} />
             ))}
           </ListContainer>
         ) : (

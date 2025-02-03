@@ -9,6 +9,7 @@ import { getPlaceDetail } from '../../lib/place';
 import { curationPlaceList } from '../../recoil/atom';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
+import Loading from '../Loading/Loading';
 import ContentsInfo from '../PlaceDetail/ContentsInfo';
 import FunctionButton from '../PlaceDetail/FunctionButton';
 import PlaceInfo from '../PlaceDetail/PlaceInfo';
@@ -44,6 +45,8 @@ const MapCurationPlaces = () => {
   const handleMarkerClick = (placeId) => {
     setPlaceId(placeId);
   };
+
+  if (loading) return <Loading />;
 
   return (
     <Container>

@@ -6,6 +6,7 @@ export { ReactComponent as IcBirth } from './ic_birth.svg';
 export { ReactComponent as IcBookmark } from './ic_bookmark.svg';
 export { ReactComponent as IcBookmarkBlank } from './ic_bookmark_blank.svg';
 export { ReactComponent as IcBookmarkFill } from './ic_bookmark_fill.svg';
+export { ReactComponent as IcBookmarkFillBlack } from './ic_bookmark_fill_black.svg';
 export { ReactComponent as IcCeleb } from './ic_celeb.svg';
 export { ReactComponent as IcChatbot } from './ic_chatbot.svg';
 export { ReactComponent as IcChatbotSelected } from './ic_chatbot_selected.svg';

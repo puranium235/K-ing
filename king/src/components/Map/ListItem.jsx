@@ -7,10 +7,10 @@ import { getShortAddress } from '../../util/addressFormat';
 const ListItem = ({ place }) => {
   const navigate = useNavigate();
   const handleRoute = () => {
-    navigate(`/place/${id}`); // 상세 페이지로 이동
+    navigate(`/place/${placeId}`); // 상세 페이지로 이동
   };
 
-  const { id, name, type, address, openHour, closedDay, imageUrl } = place;
+  const { placeId, name, type, address, openHour, closedDay, imageUrl } = place;
   const isAlwaysOpen = closedDay === '연중무휴'; // 연중무휴 여부 확인
 
   return (

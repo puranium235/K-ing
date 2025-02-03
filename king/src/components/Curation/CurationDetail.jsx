@@ -7,6 +7,7 @@ import { getCurationDetail } from '../../lib/curation';
 import { curationPlaceList } from '../../recoil/atom';
 import { formatDate } from '../../util/dateFormat';
 import DetailHeader from '../common/DetailHeader';
+import Loading from '../Loading/Loading';
 import CardListItem from './CardListItem';
 import FunctionButton from './FunctionButton';
 import UserProfile from './UserProfile';
@@ -32,10 +33,18 @@ const CurationDetail = () => {
     fetchCurationData();
   }, [curationId, setPlaceList]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
 
   const handleRoute = () => {
     navigate(`/curation/map`);
+  };
+
+  const handleBookmarkClick = () => {
+    setCurationData((prevData) => ({
+      ...prevData,
+      bookmarked: !prevData.bookmarked,
+    }));
+    console.log(`북마크 상태 변경: ${!curationData.bookmarked}`);
   };
 
   return (
@@ -55,7 +64,10 @@ const CurationDetail = () => {
             date={formatDate(curationData.createdAt)}
             profileImage={curationData.writer.imageUrl}
           />
-          <FunctionButton bookmarked={curationData.bookmarked} />
+          <FunctionButton
+            bookmarked={curationData.bookmarked}
+            onBookmarkClick={handleBookmarkClick}
+          />
         </UserContainer>
         <Description>{curationData.description}</Description>
       </Content>

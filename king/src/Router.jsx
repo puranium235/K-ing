@@ -16,6 +16,7 @@ import FavoritesDetailPage from './pages/FavoritesDetailPage';
 import FeedPage from './pages/FeedPage';
 import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
+import LoadingPage from './pages/LoadingPage';
 import MapPage from './pages/MapPage';
 import MyPage from './pages/MyPage';
 import PlaceDetailPage from './pages/PlaceDetailPage';
@@ -53,6 +54,7 @@ const Router = () => {
             <Route path="/content/:contentType" element={<ContentPage />} />
             <Route path="/content/celeb/:celebId" element={<CelebDetailPage />} />
             <Route path="/content/detail/:contentId" element={<ContentDetailPage />} />
+            <Route path="/loading" element={<LoadingPage />} />
             {/* 카테고리 설정시 */}
             <Route path="/search/keyword" element={<SearchKeywordpage />} />
             <Route path="/search/keyword/filter" element={<SearchFilterPage />} />
