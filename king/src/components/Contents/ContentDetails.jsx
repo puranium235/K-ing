@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import {
@@ -12,6 +13,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getContentDetails } from '../../lib/content';
+import { SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
@@ -22,9 +24,15 @@ const ContentDetails = () => {
   const [typeKor, setTypeKor] = useState('');
   const [isFavorited, setIsFavorited] = useState(false);
 
+  const setSearchQuery = useSetRecoilState(SearchQueryState);
+  const setRelatedType = useSetRecoilState(SearchRelatedType);
+
   const navigate = useNavigate();
 
   const handleClickPlaceInfo = () => {
+    setSearchQuery(contentInfo.title);
+    setRelatedType('content');
+
     navigate(`/search/keyword`);
   };
 
@@ -39,12 +47,8 @@ const ContentDetails = () => {
   const getDetails = async () => {
     const res = await getContentDetails(contentId);
     setContentInfo(res);
-
-    if (contentInfo) {
-      const { type, favorite } = contentInfo;
-      setTypeKor(getContentTypeKor(convertLowerCase(type)));
-      setIsFavorited(favorite);
-    }
+    setTypeKor(getContentTypeKor(convertLowerCase(res.type)));
+    setIsFavorited(res.favorite);
   };
 
   useEffect(() => {
