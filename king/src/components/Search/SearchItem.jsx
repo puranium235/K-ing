@@ -10,8 +10,10 @@ const SearchItem = ({ item }) => {
   const handleClick = () => {
     if (category === 'PLACE') {
       navigate(`/place/${id}`);
+    } else if (category === 'CAST') {
+      navigate(`/content/cast/${id}`);
     } else {
-      navigate(`/search/keyword?query=${name}&category=${category}`);
+      navigate(`/content/detail/${id}`);
     }
   };
 
