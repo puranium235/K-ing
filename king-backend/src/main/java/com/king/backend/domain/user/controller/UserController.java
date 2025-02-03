@@ -85,16 +85,18 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<SignUpResponseDTO>> signup(@RequestBody SignUpRequestDTO signUpRequestDTO) {
-        if (signUpRequestDTO.getNickname() == null || signUpRequestDTO.getNickname().length() > 50) {
+        String nickname = signUpRequestDTO.getNickname();
+        if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
 
-        userRepository.findByNickname(signUpRequestDTO.getNickname())
+        userRepository.findByNickname(nickname)
                 .ifPresent((user) -> {
                     throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
                 });
 
-        if (!signUpRequestDTO.getLanguage().matches("^(ko|en|ja|zh)$")) {
+        String language = signUpRequestDTO.getLanguage();
+        if (language.matches("^(ko|en|ja|zh)$")) {
             throw new CustomException(UserErrorCode.INVALID_LANGUAGE);
         }
 
@@ -105,8 +107,8 @@ public class UserController {
         User findUser = userRepository.findByIdAndStatus(userId, "ROLE_PENDING")
                 .orElseThrow(() -> new CustomException(UserErrorCode.NOT_PENDING_USER));
 
-        findUser.setNickname(signUpRequestDTO.getNickname());
-        findUser.setLanguage(signUpRequestDTO.getLanguage());
+        findUser.setNickname(nickname);
+        findUser.setLanguage(language);
         findUser.setStatus("ROLE_REGISTERED");
 
         userRepository.save(findUser);
@@ -138,7 +140,7 @@ public class UserController {
     }
 
     @GetMapping("/nickname")
-    public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname") String nickname) {
+    public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname"g) String nickname) {
         if (nickname == null || nickname.length() > 50) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
