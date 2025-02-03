@@ -13,6 +13,8 @@ export { ReactComponent as IcChatbotSelected } from './ic_chatbot_selected.svg';
 export { ReactComponent as IcComments } from './ic_comments.svg';
 export { ReactComponent as IcDrama } from './ic_drama.svg';
 export { ReactComponent as IcFilter } from './ic_filter.svg';
+export { ReactComponent as IcFootprintLeft } from './ic_footprint_left.svg';
+export { ReactComponent as IcFootprintRight } from './ic_footprint_right.svg';
 export { ReactComponent as IcFootsteps } from './ic_footsteps.svg';
 export { ReactComponent as IcHome } from './ic_home.svg';
 export { ReactComponent as IcHomeSelected } from './ic_home_selected.svg';

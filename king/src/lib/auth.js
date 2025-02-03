@@ -1,8 +1,8 @@
-// 📌 auth.js (회원가입 및 닉네임 중복 검사 + 토큰 재발급)
+import signupLocales from '../locales/signup.json';
 import { client } from './axios';
 
-// ✅ 닉네임 중복 검사 API
-export const checkNickname = async (nickname) => {
+// 닉네임 중복 검사 API
+export const checkNickname = async (nickname, language = 'ko') => {
   try {
     const res = await client.get(`/user/nickname?nickname=${nickname}`);
     return { success: res.data.success, message: '' }; // 닉네임 사용 가능
@@ -11,20 +11,26 @@ export const checkNickname = async (nickname) => {
 
     // 닉네임이 중복된 경우 (409 상태 코드)
     if (err.response?.status === 409) {
-      return { success: false, message: '중복된 닉네임입니다.' };
+      return {
+        success: false,
+        message: signupLocales[language].nicknameErrorDuplicate,
+      };
     }
 
     // 서버 오류 또는 다른 예외 처리
-    return { success: false, message: '서버 오류가 발생했습니다. 다시 시도해주세요.' };
+    return {
+      success: false,
+      message: signupLocales[language]?.serverError,
+    };
   }
 };
 
-// ✅ 회원가입 API (AccessToken 저장 및 에러 처리 포함)
+// 회원가입 API (AccessToken 저장 및 에러 처리 포함)
 export const postSignup = async (nickname, language) => {
   try {
     const res = await client.post('/user/signup', { nickname, language });
 
-    // ✅ 서버가 응답 헤더에 AccessToken을 포함하면 저장
+    // 서버가 응답 헤더에 AccessToken을 포함하면 저장
     const accessToken = res.headers.authorization?.split(' ')[1];
     if (accessToken) {
       localStorage.setItem('accessToken', accessToken);
@@ -53,7 +59,7 @@ export const postSignup = async (nickname, language) => {
   }
 };
 
-// ✅ 토큰 재발급 API
+// 토큰 재발급 API
 export const tokenRefresh = async () => {
   try {
     const res = await client.post(
@@ -64,7 +70,7 @@ export const tokenRefresh = async () => {
       },
     );
 
-    // ✅ 새 accessToken을 로컬 스토리지에 저장
+    // 새 accessToken을 로컬 스토리지에 저장
     const newAccessToken = res.headers.authorization?.split(' ')[1];
     if (newAccessToken) {
       localStorage.setItem('accessToken', newAccessToken);
