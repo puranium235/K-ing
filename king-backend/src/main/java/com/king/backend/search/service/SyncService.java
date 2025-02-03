@@ -1,6 +1,8 @@
 package com.king.backend.search.service;
 
+import co.elastic.clients.elasticsearch._types.analysis.*;
 import co.elastic.clients.elasticsearch._types.mapping.*;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import com.king.backend.connection.RedisUtil;
 import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.repository.CastRepository;
@@ -73,7 +75,8 @@ public class SyncService implements CommandLineRunner {
         properties.put("type", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()); // Added 'type'
         properties.put("name", new Property.Builder().text(
                 new TextProperty.Builder()
-                        .analyzer("standard")
+                        .analyzer("autocomplete_analyzer")
+                        .searchAnalyzer("standard")
                         .fields(Map.of(
                                 "keyword",new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()
                         ))
@@ -97,7 +100,39 @@ public class SyncService implements CommandLineRunner {
         properties.put("associatedCastNames", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("associatedContentNames",new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
 
-        elasticsearchUtil.createIndex(SEARCH_INDEX_NAME, properties);
+        // 1. n-gram 토큰 필터 정의 (이름: "autocomplete_filter")
+        TokenFilterDefinition autocompleteFilterDefinition = TokenFilterDefinition.of(tf -> tf
+                .ngram(ng -> ng
+                        .minGram(1)   // 최소 n-gram 길이
+                        .maxGram(20)  // 최대 n-gram 길이
+                )
+        );
+
+        TokenFilter tokenFilter=TokenFilter.of(tf -> tf
+                .definition(autocompleteFilterDefinition));
+
+        // 2. TokenFilterDefinition을 Map에 등록
+        Map<String, TokenFilter> tokenFiltersMap = new HashMap<>();
+        tokenFiltersMap.put("autocomplete_filter", tokenFilter);
+
+        // 3. IndexSettings 생성: analyzer와 tokenFilters 모두 설정
+        IndexSettings settings = new IndexSettings.Builder()
+                        .analysis(analysis -> analysis
+                        // "autocomplete_analyzer" 정의
+                        .analyzer("autocomplete_analyzer", a -> a
+                                .custom(ca -> ca
+                                        .tokenizer("standard")                       // 원하는 tokenizer 설정
+                                        .filter("lowercase", "autocomplete_filter")  // 필터 적용 (등록된 토큰 필터 이름 사용)
+                                )
+                        )
+                        // 별도로 등록한 token filter 설정 추가
+                        .filter(tokenFiltersMap)
+                )
+                .maxNgramDiff(20)
+                .build();
+
+
+        elasticsearchUtil.createIndex(SEARCH_INDEX_NAME, properties,settings);
 
         migrateCasts();
         migrateContents();
@@ -305,7 +340,7 @@ public class SyncService implements CommandLineRunner {
                             "PLACE",
                             place.getType().toUpperCase(),
                             place.getName(),
-                            place.getAddress(),
+                            place.getDescription(),
                             place.getImageUrl(),
                             place.getId(),
                             viewCount,
@@ -446,7 +481,7 @@ public class SyncService implements CommandLineRunner {
                 "PLACE",
                 place.getType().toUpperCase(),
                 place.getName(),
-                place.getAddress(),
+                place.getDescription(),
                 place.getImageUrl(),
                 place.getId(),
                 viewCount,

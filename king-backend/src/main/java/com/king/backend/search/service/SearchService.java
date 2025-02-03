@@ -198,7 +198,7 @@ public class SearchService {
                     boolQueryBuilder.filter(q -> q.term(t -> t.field("type").value(placeType.toUpperCase())));
                 }
                 if (region != null && !region.isEmpty()) {
-                    boolQueryBuilder.filter(q -> q.match(m -> m.field("details").query(region)));
+                    boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(region)));
                 }
             }
 
@@ -299,7 +299,7 @@ public class SearchService {
                             doc.getCategory(),
                             doc.getOriginalId(),
                             doc.getName(),
-                            generateDetails(doc),
+                            doc.getDetails(),
                             doc.getImageUrl()
                     ))
                     .collect(Collectors.toList());
