@@ -1,5 +1,9 @@
 package com.king.backend.domain.user.jwt;
 
+import com.king.backend.domain.user.errorcode.UserErrorCode;
+import com.king.backend.global.exception.CustomException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,20 +22,30 @@ public class JWTUtil {
         SECRET_KEY = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
+    public Claims validToken (String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(SECRET_KEY)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(UserErrorCode.ACCESSTOKEN_EXPIRED);
+        } catch (Exception e) {
+            throw new CustomException(UserErrorCode.INVALID_TOKEN);
+        }
+    }
+
     public String getType(String token) {
-        return Jwts.parser().verifyWith(SECRET_KEY).build().parseSignedClaims(token).getPayload().get("type", String.class);
+        return validToken(token).get("type", String.class);
     }
 
     public String getUserId(String token) {
-        return Jwts.parser().verifyWith(SECRET_KEY).build().parseSignedClaims(token).getPayload().get("userId", String.class);
+        return validToken(token).get("userId", String.class);
     }
 
     public String getRole(String token) {
-        return Jwts.parser().verifyWith(SECRET_KEY).build().parseSignedClaims(token).getPayload().get("role", String.class);
-    }
-
-    public Boolean isExpired(String token) {
-        return Jwts.parser().verifyWith(SECRET_KEY).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date(System.currentTimeMillis()));
+        return validToken(token).get("role", String.class);
     }
 
     public String createJwt(String type, String userId, String role, Long expireMs) {

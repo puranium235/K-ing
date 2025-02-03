@@ -56,11 +56,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests((auth) -> auth
-//                        .requestMatchers("/oauth2/**").permitAll()
-//                        .requestMatchers("/user/token-refresh").permitAll()
-//                        .requestMatchers("/user/signup", "/user/nickname").hasRole("PENDING")
-//                        .anyRequest().hasRole("REGISTERED"))
-                        .anyRequest().permitAll())
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/user/token-refresh").permitAll()
+                        .requestMatchers("/user/signup", "/user/nickname").hasRole("PENDING")
+                        .anyRequest().hasRole("REGISTERED"))
 
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
