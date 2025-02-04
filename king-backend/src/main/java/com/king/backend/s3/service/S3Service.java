@@ -37,17 +37,16 @@ public class S3Service {
     private String bucketName;
     
     // 1. 사용자가 직접 업로드
-
-    // 단일 파일 업로드
     public String uploadFile(MultipartFile file) {
         return uploadToS3(file);
     }
-    // 여러 파일 업로드
+
     public List<String> uploadFiles(List<MultipartFile> files) {
         return files.stream()
                 .map(this::uploadToS3)
                 .collect(Collectors.toList());
     }
+
     // 사용자가 업로드한 파일을 S3에 업로드
     private String uploadToS3(MultipartFile file) {
         String fileName = "uploads/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
@@ -66,6 +65,7 @@ public class S3Service {
 
         return getFileUrl(fileName);
     }
+
     // S3에 저장된 파일 URL 반환
     public String getFileUrl(String fileName) {
         GetUrlRequest request = GetUrlRequest.builder()
@@ -81,8 +81,6 @@ public class S3Service {
 
     
     // 2. tmdb 사진 업로드
-
-    // 이미지(cast, content) 조회 (2가지 경우)
     @Transactional
     public String getOrUploadImage(Object entity){
         String imageUrl;
@@ -96,8 +94,6 @@ public class S3Service {
         } else {
             throw new CustomException(S3ErrorCode.UNSUPPORTED_ENTITY_TYPE);
         }
-
-        log.info("imageUrl 확인 완료: {}", imageUrl);
 
         // 1) DB에 TMDB url 저장되어 있으면 S3에 업로드 후 DB에 S3 주소 업데이트
         if(imageUrl.contains("image.tmdb.org")){

@@ -283,11 +283,11 @@ CREATE TABLE `search_ranking` (
 -- 1. user 테이블
 INSERT INTO `user` (`email`, `nickname`, `image_url`, `google_id`, `line_id`, `created_at`, `description`, `content_alarm_on`, `language`, `status`)
 VALUES
-    ('user1@example.com', 'user1', 'http://example.com/user1.jpg', 'google1', NULL, NOW(), 'Travel enthusiast.', TRUE, 'en', 'registered1'),
-    ('user2@example.com', 'user2', 'http://example.com/user2.jpg', NULL, 'line1', NOW(), 'Loves movies and coffee.', FALSE, 'ko', 'registered'),
-    ('user3@example.com', 'user3', 'http://example.com/user3.jpg', 'google3', NULL, NOW(), 'Passionate about art.', TRUE, 'zh', 'registered'),
-    ('user4@example.com', 'user4', 'http://example.com/user4.jpg', NULL, 'line2', NOW(), 'Tech geek and foodie.', FALSE, 'ja', TRUE),
-    ('user5@example.com', 'user5', 'http://example.com/user5.jpg', 'google5', NULL, NOW(), 'History buff.', TRUE, 'en', FALSE);
+    ('user1@example.com', 'user1', 'http://example.com/user1.jpg', 'google1', NULL, NOW(), 'Travel enthusiast.', TRUE, 'en', 'ROLE_REGISTERED'),
+    ('user2@example.com', 'user2', 'http://example.com/user2.jpg', 'google2', 'line1', NOW(), 'Loves movies and coffee.', FALSE, 'ko', 'ROLE_REGISTERED'),
+    ('user3@example.com', 'user3', 'http://example.com/user3.jpg', 'google3', NULL, NOW(), 'Passionate about art.', TRUE, 'zh', 'ROLE_REGISTERED'),
+    ('user4@example.com', 'user4', 'http://example.com/user4.jpg', 'google4', 'line2', NOW(), 'Tech geek and foodie.', FALSE, 'ja', 'ROLE_REGISTERED'),
+    ('user5@example.com', 'user5', 'http://example.com/user5.jpg', 'google5', NULL, NOW(), 'History buff.', TRUE, 'en', 'ROLE_REGISTERED');
 
 -- 2. place 테이블
 INSERT INTO `place` (`name`, `type`, `description`, `open_hour`, `break_time`, `closed_day`, `address`, `lat`, `lng`, `phone`, `image_url`, `view`)
@@ -350,12 +350,12 @@ INSERT INTO `cast_ko` (`name`, `birth_place`, `cast_id`)
 VALUES
     ('한예리', 'Seoul, South Korea', 1),
     ('조인성', 'Seoul, South Korea', 2),
-    ('강호동', '진주, 경상남도, 대한민국', 3),
-    ('이수근', '양평, 경기도, 대한민국', 4),
-    ('이혜리', '광주, 경기도, 대한민국', 5),
-    ('수지', '광주, 대한민국', 6),
-    ('이종석', '수원, 경기도, 대한민국', 7),
-    ('정해인', '서울, 대한민국', 8);
+    ('강호동', 'Jinju, South Gyeongsang, South Korea', 3),
+    ('이수근', 'Yangpyeong, Gyeonggi, South Korea', 4),
+    ('이혜리', 'Gwangju, Gyeonggi, South Korea', 5),
+    ('수지', 'Gwangju, South Korea', 6),
+    ('이종석', 'Suwon, Gyeonggi, South Korea', 7),
+    ('정해인', 'Seoul, South Korea', 8);
 
 -- 10. cast_en 테이블
 INSERT INTO `cast_en` (`name`, `birth_place`, `cast_id`)
