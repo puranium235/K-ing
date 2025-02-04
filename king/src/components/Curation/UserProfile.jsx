@@ -16,12 +16,12 @@ const UserProfile = ({ name, date, profileImage }) => {
 const ProfileContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 1.2rem;
 `;
 
 const ProfileImage = styled.img`
-  width: 40px;
-  height: 40px;
+  width: 4rem;
+  height: 4rem;
   border-radius: 50%;
   object-fit: cover;
 `;
@@ -34,7 +34,7 @@ const ProfileInfo = styled.div`
 const UserName = styled.span`
   ${({ theme }) => theme.fonts.Title6};
   color: ${({ theme }) => theme.colors.Gray0};
-  margin-bottom: 5px;
+  margin-bottom: 0.5rem;
 `;
 
 const Date = styled.span`

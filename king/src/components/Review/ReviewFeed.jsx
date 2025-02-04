@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Nav from '../../components/common/Nav';
+import Bottom from '../common/Bottom';
 import Header from '../common/Header';
 import SortingRow from '../common/SortingRow';
 import ImageGrid from './ImageGrid';
@@ -33,6 +34,7 @@ const ReviewFeed = () => {
       </LineContainer>
 
       <ImageGrid images={images} />
+      <Bottom />
       <Nav />
     </>
   );

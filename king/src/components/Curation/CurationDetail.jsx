@@ -8,6 +8,7 @@ import MapIcon from '/src/assets/icons/map.png';
 import { getCurationDetail } from '../../lib/curation';
 import { CurationPlaceList } from '../../recoil/atom';
 import { formatDate } from '../../util/dateFormat';
+import Bottom from '../common/Bottom';
 import DetailHeader from '../common/DetailHeader';
 import Loading from '../Loading/Loading';
 import CardListItem from './CardListItem';
@@ -79,6 +80,7 @@ const CurationDetail = () => {
         {curationData.places.map((place) => (
           <CardListItem key={place.placeId} place={place} />
         ))}
+        <Bottom />
       </PlaceList>
 
       <MapButton onClick={handleRoute}>
@@ -94,12 +96,12 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
-  padding: 15px;
+  padding: 1.5rem;
   position: relative;
 `;
 
 const Description = styled.div`
-  padding: 20px 0px;
+  padding: 2rem 0;
   ${({ theme }) => theme.fonts.Body2};
   color: ${({ theme }) => theme.colors.Gray0};
 `;
@@ -109,7 +111,7 @@ const UserContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 0px;
+  padding: 0.6rem 0;
 `;
 
 const PlaceList = styled.div`
@@ -121,14 +123,14 @@ const PlaceList = styled.div`
 
 const MapButton = styled.button`
   position: absolute;
-  bottom: 40px;
-  right: 20px;
+  bottom: 4rem;
+  right: 2rem;
   background-color: #fff;
   color: white;
   border: none;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 5rem;
+  height: 5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -141,8 +143,8 @@ const MapButton = styled.button`
   }
 
   img {
-    width: 25px;
-    height: 25px;
+    width: 2.5rem;
+    height: 2.5rem;
     object-fit: contain; /* 이미지가 왜곡되지 않도록 설정 */
   }
 `;

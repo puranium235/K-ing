@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import Nav from '/src/components/common/Nav';
 
 import { getPlaceDetail } from '../../lib/place';
+import Bottom from '../common/Bottom';
 import DetailHeader from '../common/DetailHeader';
 import Loading from '../Loading/Loading';
 import ContentsInfo from './ContentsInfo';
@@ -61,6 +62,7 @@ const PlaceDetail = () => {
         <BottomContainer>
           <ActionButton onClick={handleRoute}>다른 팬의 인증샷이 궁금하다면?</ActionButton>
         </BottomContainer>
+        <Bottom />
       </Content>
 
       <Nav />
@@ -99,7 +101,6 @@ const ActionButton = styled.button`
   border: none;
   border-radius: 20px;
   cursor: pointer;
-  margin-bottom: 7rem;
 
   &:hover {
     background-image: linear-gradient(to right, #71c8ff, #0062ff);
