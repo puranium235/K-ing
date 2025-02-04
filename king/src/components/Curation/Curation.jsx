@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { getCurationList } from '../../lib/curation';
-import { SearchQueryState } from '../../recoil/atom';
 import CurationsList from '../Archive/CurationsList';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
@@ -47,7 +45,6 @@ const Curation = () => {
 
 export default Curation;
 
-// ✅ 스타일 정의
 const StCurationWrapper = styled.div`
   display: flex;
   flex-direction: column;

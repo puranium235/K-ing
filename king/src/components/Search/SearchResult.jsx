@@ -75,7 +75,6 @@ const SearchResult = () => {
 
 export default SearchResult;
 
-// ✅ 스타일 정의
 const StHomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -83,12 +82,11 @@ const StHomeWrapper = styled.div`
   align-items: start;
   text-align: center;
   margin-bottom: 7rem;
+  padding: 2rem;
 `;
 
 const Header = styled.div`
   width: 100%;
-  box-sizing: border-box;
-  padding: 2rem 2rem 0 2rem;
 `;
 
 const IconText = styled.div`
@@ -106,6 +104,4 @@ const IconText = styled.div`
   }
 `;
 
-const ResultWrapper = styled.div`
-  margin: 0 1rem;
-`;
+const ResultWrapper = styled.div``;

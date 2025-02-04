@@ -9,7 +9,7 @@ const TopNav = () => {
   const navigate = useNavigate();
 
   const handleButtonClick = (buttonName) => {
-    setSelectedButton(buttonName);
+    setSelectedButton(`/${buttonName}`);
     navigate(`/${buttonName}`);
   };
 
