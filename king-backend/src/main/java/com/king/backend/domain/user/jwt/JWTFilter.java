@@ -59,7 +59,7 @@ public class JWTFilter extends OncePerRequestFilter {
         oAuth2UserDTO.setName(userId);
         oAuth2UserDTO.setAuthorities(List.of(new SimpleGrantedAuthority(role)));
 
-        Authentication authToken = new UsernamePasswordAuthenticationToken(oAuth2UserDTO.getName(), null, oAuth2UserDTO.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(oAuth2UserDTO, null, oAuth2UserDTO.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);

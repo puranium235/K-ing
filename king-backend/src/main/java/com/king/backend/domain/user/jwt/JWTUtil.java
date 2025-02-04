@@ -44,14 +44,19 @@ public class JWTUtil {
         return validToken(token).get("userId", String.class);
     }
 
+    public String getLanguage(String token) {
+        return validToken(token).get("language", String.class);
+    }
+
     public String getRole(String token) {
         return validToken(token).get("role", String.class);
     }
 
-    public String createJwt(String type, String userId, String role, Long expireMs) {
+    public String createJwt(String type, String userId, String language, String role, Long expireMs) {
         return Jwts.builder()
                 .claim("type", type)
                 .claim("userId", userId)
+                .claim("language", language)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expireMs))

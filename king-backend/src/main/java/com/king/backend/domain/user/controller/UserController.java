@@ -57,6 +57,7 @@ public class UserController {
         }
 
         String userId = jwtUtil.getUserId(oldRefreshToken);
+        String language = jwtUtil.getLanguage(oldRefreshToken);
         String role = jwtUtil.getRole(oldRefreshToken);
 
         Optional<TokenEntity> token = tokenService.findTokenById(Long.parseLong(userId));
@@ -64,8 +65,8 @@ public class UserController {
             throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
-        String accessToken = jwtUtil.createJwt("accessToken", userId, role, ACCESSTOKEN_EXPIRES_IN);
-        String refreshToken = jwtUtil.createJwt("refreshToken", userId, role, REFRESHTOKEN_EXPIRES_IN);
+        String accessToken = jwtUtil.createJwt("accessToken", userId, language, role, ACCESSTOKEN_EXPIRES_IN);
+        String refreshToken = jwtUtil.createJwt("refreshToken", userId, language, role, REFRESHTOKEN_EXPIRES_IN);
 
         tokenRepository.deleteById(Long.parseLong(userId));
         tokenRepository.save(new TokenEntity(Long.parseLong(userId), refreshToken, REFRESHTOKEN_EXPIRES_IN));
@@ -114,8 +115,8 @@ public class UserController {
 
         userRepository.save(findUser);
 
-        String accessToken = jwtUtil.createJwt("accessToken", userId.toString(), "ROLE_REGISTERED", ACCESSTOKEN_EXPIRES_IN);
-        String refreshToken = jwtUtil.createJwt("refreshToken", userId.toString(), "ROLE_REGISTERED", REFRESHTOKEN_EXPIRES_IN);
+        String accessToken = jwtUtil.createJwt("accessToken", userId.toString(), language, "ROLE_REGISTERED", ACCESSTOKEN_EXPIRES_IN);
+        String refreshToken = jwtUtil.createJwt("refreshToken", userId.toString(), language, "ROLE_REGISTERED", REFRESHTOKEN_EXPIRES_IN);
 
         tokenRepository.deleteById(userId);
         tokenRepository.save(new TokenEntity(userId, refreshToken, REFRESHTOKEN_EXPIRES_IN));

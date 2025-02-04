@@ -38,13 +38,14 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2UserDTO oAuth2UserDTO = (OAuth2UserDTO) authentication.getPrincipal();
 
         String userId = oAuth2UserDTO.getName();
+        String language = oAuth2UserDTO.getLanguage();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority authority = iterator.next();
         String role = authority.getAuthority();
 
-        String refreshToken = jwtUtil.createJwt("refreshToken", userId, role, REFRESHTOKEN_EXPIRES_IN);
+        String refreshToken = jwtUtil.createJwt("refreshToken", userId, language, role, REFRESHTOKEN_EXPIRES_IN);
 
         TokenEntity token = new TokenEntity(Long.parseLong(userId), refreshToken, REFRESHTOKEN_EXPIRES_IN);
         tokenRepository.save(token);
