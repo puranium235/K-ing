@@ -88,6 +88,10 @@ services:
       CLIENT_BASE_URL: ${CLIENT_BASE_URL}
       ACCESSTOKEN_EXPIRES_IN: ${ACCESSTOKEN_EXPIRES_IN}
       REFRESHTOKEN_EXPIRES_IN: ${REFRESHTOKEN_EXPIRES_IN}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
     depends_on:
       mysql:
         condition: service_healthy
