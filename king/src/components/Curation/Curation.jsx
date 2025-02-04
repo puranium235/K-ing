@@ -11,7 +11,7 @@ import TopNav from '../common/TopNav';
 
 const Curation = () => {
   const [curationList, setCurationList] = useState([]);
-  const [query, setQuery] = useRecoilState(SearchQueryState);
+  const [query, setQuery] = useState('');
   const [cursor, setCursor] = useState('');
 
   const getResults = async (searchQuery) => {
@@ -24,6 +24,7 @@ const Curation = () => {
   }, [query]);
 
   const handleSearch = (searchQuery) => {
+    setQuery(searchQuery);
     setCurationList([]);
     getResults(searchQuery ? searchQuery : '');
   };
@@ -33,7 +34,7 @@ const Curation = () => {
       <StCurationWrapper>
         <FixedContainer>
           <TopNav />
-          <SearchBar query={query} onSearch={handleSearch} />
+          <SearchBar query="" onSearch={handleSearch} />
         </FixedContainer>
         <CurationWrapper>
           <CurationsList data={curationList} />

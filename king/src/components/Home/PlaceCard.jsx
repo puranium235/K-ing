@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const PlaceCard = ({ place }) => {
-  const { id, imageUrl, name } = place;
+  const { id, imageUrl, name, details } = place;
   const navigate = useNavigate();
 
   const handleClickPlace = () => {
@@ -11,15 +11,11 @@ const PlaceCard = ({ place }) => {
   };
 
   return (
-    <Card
-      onClick={() => {
-        handleClickPlace();
-      }}
-    >
+    <Card onClick={handleClickPlace}>
       <CardImage src={imageUrl} alt={name} />
       <CardContent>
         <CardTitle>{name}</CardTitle>
-        {/* <CardDescription>{description}</CardDescription> */}
+        <CardDescription>{details}</CardDescription>
       </CardContent>
     </Card>
   );
@@ -28,19 +24,18 @@ const PlaceCard = ({ place }) => {
 export default PlaceCard;
 
 const Card = styled.div`
-  width: 100%;
   overflow: hidden;
 `;
 
 const CardImage = styled.img`
   width: 100%;
-  min-width: 8rem;
+  /* height: 8rem; */
   object-fit: cover;
-
   border-radius: 10px;
 `;
 
 const CardContent = styled.div`
+  width: 100%;
   padding: 1rem 0;
   text-align: center;
 
@@ -49,23 +44,22 @@ const CardContent = styled.div`
 `;
 
 const CardTitle = styled.h3`
-  width: 100%;
+  margin: 0;
+  max-width: 100%;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  margin: 0;
   ${({ theme }) => theme.fonts.Title7};
 `;
 
 const CardDescription = styled.p`
-  width: 100%;
+  max-width: 100%;
+  margin: 5px 0 0;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
-  margin: 5px 0 0;
   ${({ theme }) => theme.fonts.Body5};
 `;
