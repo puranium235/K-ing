@@ -127,7 +127,6 @@ const ChatContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  height: 100vh;
 `;
 
 const Header = styled.div`
@@ -243,6 +242,9 @@ const InputContainer = styled.div`
   padding: 12px;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
+
+  position: fixed;
+  bottom: 0;
 `;
 
 const Input = styled.input`
