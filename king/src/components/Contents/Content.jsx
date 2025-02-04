@@ -135,8 +135,8 @@ const Card = styled.div`
   background-color: ${({ theme }) => theme.colors.White};
   position: relative;
 
-  width: 8.5rem;
-  height: 15rem;
+  width: 100%;
+  height: 100%;
 
   #favor {
     position: absolute;

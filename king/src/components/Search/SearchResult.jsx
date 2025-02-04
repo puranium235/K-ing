@@ -104,4 +104,6 @@ const IconText = styled.div`
   }
 `;
 
-const ResultWrapper = styled.div``;
+const ResultWrapper = styled.div`
+  width: 100%;
+`;

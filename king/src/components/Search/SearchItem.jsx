@@ -38,7 +38,8 @@ const St = {
 
     gap: 0.5rem;
 
-    width: 100%;
+    min-width: 10.5rem;
+    width: 10.5rem;
     height: 100%;
     background-color: ${({ theme }) => theme.colors.White};
   `,

@@ -275,13 +275,13 @@ const ListWrapper = styled.div`
 `;
 
 const WorkWrapper = styled.ul`
+  width: 100%;
+  margin-top: 1rem;
   li {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-
-    margin-left: 3rem;
 
     ${({ theme }) => theme.fonts.Body2};
     color: #868181;
@@ -295,8 +295,8 @@ const WorkWrapper = styled.ul`
   }
 
   hr {
-    margin: 1rem 2rem;
-    width: 300px;
+    margin: 1rem 0;
+    width: 90%;
     height: 1px;
     border: 0;
     background: ${({ theme }) => theme.colors.Gray3};

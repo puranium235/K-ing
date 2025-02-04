@@ -43,6 +43,9 @@ const St = {
     flex-direction: column;
     gap: 1rem;
 
+    width: 100%;
+
+    box-sizing: border-box;
     padding: 1rem 0.5rem;
   `,
   Header: styled.div`
@@ -70,9 +73,9 @@ const St = {
     color: ${({ theme }) => theme.colors.Gray2};
   `,
   List: styled.div`
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-direction: row;
+
     gap: 1rem;
 
     width: 100%;
