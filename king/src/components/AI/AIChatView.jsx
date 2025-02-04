@@ -11,7 +11,7 @@ const AIChatView = () => {
   const initialMessages = [
     {
       text: '어떤 MBTI의 챗봇을 원하시나요?',
-      sender: 'ai',
+      sender: 'assistant',
     },
   ];
   const [messages, setMessages] = useState(initialMessages);
@@ -20,6 +20,50 @@ const AIChatView = () => {
   const [currentApi, setCurrentApi] = useState('');
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const response = await client.get('/chatbot/');
+        if (response.data.length > 0) {
+          setMessages(
+            response.data.map((msg) => ({
+              text: msg.content,
+              sender: msg.role,
+            })),
+          );
+        } else {
+          saveInitialMessage();
+        }
+      } catch (err) {
+        console.error('대화 기록을 불러오지 못했습니다:', err);
+      }
+    };
+
+    fetchChatHistory();
+  }, []);
+
+  const saveChatHistory = async (role, content, type) => {
+    try {
+      await client.post('/chatbot/save', {
+        role,
+        content,
+        type,
+      });
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+    }
+  };
+
+  const saveInitialMessage = async () => {
+    const initialMessage = {
+      text: '어떤 MBTI의 챗봇을 원하시나요?',
+      sender: 'assistant',
+      type: 'message',
+    };
+    setMessages([initialMessage]);
+    await saveChatHistory('assistant', initialMessage.text, 'message');
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -32,7 +76,7 @@ const AIChatView = () => {
     try {
       await client.delete('/chatbot/');
 
-      setMessages(initialMessages);
+      saveInitialMessage();
       setNewMessage('');
       setCurrentApi('');
     } catch (err) {
@@ -40,41 +84,51 @@ const AIChatView = () => {
     }
   };
 
-  const handleOptionClick = (option) => {
-    const optionMessage = { text: option, sender: 'option' };
+  const handleOptionClick = async (option) => {
+    const optionMessage = { text: option, sender: 'option', type: 'option' };
     setMessages((prev) => [...prev, optionMessage]);
+    await saveChatHistory('option', option, 'option');
 
+    let aiMessage;
     if (option === chatT) {
-      setCurrentApi(`/chatbot/`);
-      const aiMessage = {
+      setCurrentApi(`/chatbot/chat`);
+      aiMessage = {
         text: 'T 챗봇은 회차정보 기반 장소를 검색하는 데 특화되어 있습니다.',
-        sender: 'ai',
+        sender: 'assistant',
+        type: 'message',
       };
-      setMessages((prev) => [...prev, aiMessage]);
     } else if (option === chatF) {
-      setCurrentApi(`/chatbot`);
-      const aiMessage = {
+      setCurrentApi(`/chatbo/chat`);
+      aiMessage = {
         text: 'F 챗봇은 맞춤 큐레이션 추천에 특화되어 있습니다.',
-        sender: 'ai',
+        sender: 'assistant',
+        type: 'message',
       };
-      setMessages((prev) => [...prev, aiMessage]);
     }
+    setMessages((prev) => [...prev, aiMessage]);
+    await saveChatHistory('assistant', aiMessage.text, 'message');
   };
 
   const sendMessage = async () => {
     if (newMessage.trim() === '') return;
 
-    const userMessage = { text: newMessage, sender: 'user' };
+    const userMessage = { text: newMessage, sender: 'user', type: 'message' };
     setMessages((prev) => [...prev, userMessage]);
+    await saveChatHistory('user', newMessage, 'message');
+
     setNewMessage('');
     setIsTyping(true);
 
     try {
-      const response = await client.post(`/chatbot/`, { userMessage: newMessage });
-      const aiResponse = { text: response.data.message, sender: 'ai' };
+      const response = await client.post(`/chatbot/chat`, { userMessage: newMessage });
+      const aiResponse = { text: response.data.message, sender: 'assistant', type: 'message' };
       setMessages((prev) => [...prev, aiResponse]);
+      //await saveChatHistory('assistant', aiResponse.text, 'message');
     } catch (error) {
-      setMessages((prev) => [...prev, { text: 'AI 응답을 불러오지 못했습니다.', sender: 'ai' }]);
+      setMessages((prev) => [
+        ...prev,
+        { text: 'AI 응답을 불러오지 못했습니다.', sender: 'assistant', type: 'message' },
+      ]);
       console.error('Error fetching AI response:', error);
     } finally {
       setIsTyping(false);
@@ -101,7 +155,7 @@ const AIChatView = () => {
           <Message key={index} $sender={message.sender}>
             {message.sender === 'option' ? (
               <OptionMessageBubble>{message.text}</OptionMessageBubble>
-            ) : message.sender === 'ai' ? (
+            ) : message.sender === 'assistant' ? (
               <ChatBotContainer>
                 <MessageBubble $sender={message.sender}>{message.text}</MessageBubble>
                 {index === 0 && (

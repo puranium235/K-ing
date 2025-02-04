@@ -36,17 +36,41 @@ public class AIController {
         return Long.parseLong(authentication.getName());
     }
 
+    /**
+     * ✅ 유저의 대화 기록을 불러옴 (최신순)
+     */
+    @GetMapping("/")
+    public ResponseEntity<List<ChatHistory>> getChatHistory() {
+        List<ChatHistory> chatHistoryList = chatHistoryService.findByUserId(getUserId());
+        return ResponseEntity.ok(chatHistoryList);
+    }
+
+    /**
+     * ✅ 유저의 대화 기록을 삭제
+     */
     @DeleteMapping("/")
     public ResponseEntity<String> deleteChatHistory() {
         chatHistoryService.deleteByUserId(getUserId());
         return ResponseEntity.ok("대화 기록이 삭제되었습니다.");
     }
 
+    /**
+     * ✅ 특정 채팅 메시지를 저장
+     */
+    @PostMapping("/save")
+    public ResponseEntity<String> saveChatHistory(@RequestBody ChatHistory chatHistory) {
+        chatHistoryService.saveChatHistory(getUserId(), chatHistory.getRole(), chatHistory.getContent(), chatHistory.getType());
+        return ResponseEntity.ok("대화 기록이 저장되었습니다.");
+    }
+
+    /**
+     * ✅ AI 챗봇과의 대화 엔드포인트
+     */
     @Operation(
             summary = "AI 챗봇과 대화",
             description = "사용자가 입력한 메시지를 기반으로 AI 챗봇이 응답을 생성합니다."
     )
-    @PostMapping("/")
+    @PostMapping("/chat")
     public ResponseEntity<Map<String, Object>> chat(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "사용자가 입력한 메시지", required = true, content = @Content(
@@ -58,20 +82,18 @@ public class AIController {
         try {
             String userMessage = requestBody.get("userMessage");
 
-            // DB에서 대화 히스토리 가져오기
+            // ✅ DB에서 대화 히스토리 가져오기
             List<ChatHistory> chatHistoryList = chatHistoryService.findByUserId(getUserId());
             List<Map<String, String>> dialogueHistory = convertChatHistoryToDialogueHistory(chatHistoryList);
 
-            // 사용자 메시지 저장
             if (userMessage != null && !userMessage.trim().isEmpty()) {
-                chatHistoryService.saveChatHistory(new ChatHistory(getUserId(), "user", userMessage));
+                //chatHistoryService.saveChatHistory(getUserId(), "user", userMessage, "message");
 
                 Map<String, String> userMessageMap = Map.of("role", "user", "content", userMessage);
                 dialogueHistory.add(userMessageMap);
 
-                // GPT 프롬프트 생성 및 호출
+                // ✅ GPT 프롬프트 생성 및 호출
                 String prompt = generatePrompt(dialogueHistory);
-                // GPT 응답 생성
                 ChatResponse chatResponse = chatModel.call(
                         new Prompt(new UserMessage(prompt),
                                 OpenAiChatOptions.builder()
@@ -83,8 +105,8 @@ public class AIController {
 
                 String gptResponse = chatResponse.getResults().get(0).getOutput().getText();
 
-                // GPT 응답 저장
-                chatHistoryService.saveChatHistory(new ChatHistory(getUserId(), "assistant", gptResponse));
+                // ✅ GPT 응답 저장
+                chatHistoryService.saveChatHistory(getUserId(), "assistant", gptResponse, "message");
 
                 Map<String, Object> responseBody = new HashMap<>();
                 responseBody.put("message", gptResponse);
@@ -100,8 +122,12 @@ public class AIController {
         }
     }
 
+    /**
+     * ✅ DB 채팅 기록을 JSON 변환
+     */
     private List<Map<String, String>> convertChatHistoryToDialogueHistory(List<ChatHistory> chatHistoryList) {
         return chatHistoryList.stream()
+                .filter(chat -> "message".equals(chat.getType()))
                 .map(chat -> Map.of(
                         "role", chat.getRole(),
                         "content", chat.getContent()
@@ -109,6 +135,10 @@ public class AIController {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * ✅ AI 챗봇에 전달할 프롬프트 생성
+     */
     private String generatePrompt(List<Map<String, String>> dialogueHistory) {
         StringBuilder promptBuilder = new StringBuilder();
         promptBuilder.append("<dialogue history>\n");

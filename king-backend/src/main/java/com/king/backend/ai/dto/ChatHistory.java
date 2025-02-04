@@ -22,16 +22,25 @@ public class ChatHistory {
     @Column(nullable = false)
     private String role;
 
-    @Column(nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT NOW()")
+    @Column(nullable = false, updatable = false)
     private OffsetDateTime created;
 
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    public ChatHistory(Long userId, String user, String userMessage) {
+    @Column(length = 255)
+    private String type;
+
+    public ChatHistory(Long userId, String role, String content, String type) {
         this.userId = userId;
-        this.role = user;
+        this.role = role;
+        this.content = content;
+        this.type = type;
+    }
+
+    // 저장 전 자동으로 created 값 설정
+    @PrePersist
+    protected void onCreate() {
         this.created = OffsetDateTime.now();
-        this.content = userMessage;
     }
 }

@@ -8,7 +8,8 @@ CREATE TABLE chat_history (
                           user_id BIGINT NOT NULL,
                           role VARCHAR(255) NOT NULL,
                           content TEXT NOT NULL,
-                          created DATETIME DEFAULT NOW()
+                          type VARCHAR(255),
+                          created DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE messages (
