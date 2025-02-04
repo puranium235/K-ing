@@ -14,6 +14,7 @@ import {
   IcUpload,
   IcUploadSelected,
 } from '../../assets/icons';
+import { getUserIdFromToken } from '../../util/getUserIdFromToken';
 
 const Nav = () => {
   const location = useLocation();
@@ -31,6 +32,16 @@ const Nav = () => {
   const handleButtonClick = (buttonName) => {
     navigate(`/${buttonName}`);
     setSelectedButton(`/${buttonName}`);
+  };
+
+  const handleMyPageClick = () => {
+    const userId = getUserIdFromToken();
+    if (userId) {
+      navigate(`/user/${userId}`);
+      setSelectedButton(`/user/${userId}`);
+    } else {
+      navigate('/');
+    }
   };
 
   useEffect(() => {
@@ -60,8 +71,8 @@ const Nav = () => {
 
         <p>Archive</p>
       </button>
-      <button type="button" onClick={() => handleButtonClick('mypage')}>
-        {selectedButton === '/mypage' ? <IcMypageSelected /> : <IcMypage />}
+      <button type="button" onClick={handleMyPageClick}>
+        {selectedButton.startsWith('/user/') ? <IcMypageSelected /> : <IcMypage />}
 
         <p>MyPage</p>
       </button>

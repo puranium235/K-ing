@@ -46,10 +46,9 @@ const Router = () => {
             <Route path="/chatbot" element={<ChatbotPage />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/archive" element={<ArchivePage />} />
-            <Route path="/favorites/works" element={<FavoritesDetailPage type="works" />} />
-            <Route path="/favorites/people" element={<FavoritesDetailPage type="people" />} />
+            <Route path="/favorites/:type" element={<FavoritesDetailPage />} />
             <Route path="/mypage" element={<MyPage />} />
-            <Route path="/userpage/:userId" element={<UserPage />} />
+            <Route path="/user/:userId" element={<UserPage />} />
             <Route path="/setting" element={<SettingPage />} />
             <Route path="/curation" element={<CurationPage />} />
             <Route path="/curation/:curationId" element={<CurationDetailPage />} />

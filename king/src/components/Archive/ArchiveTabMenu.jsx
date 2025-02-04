@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { IcArchiveBox } from '../../assets/icons';
@@ -6,7 +6,6 @@ import { IcStar2 } from '../../assets/icons';
 
 const ArchiveTabMenu = ({ activeTab, onTabChange }) => {
   const handleTabClick = (tab) => {
-    console.log(`Tab clicked: ${tab}`); // 클릭 확인
     onTabChange(tab);
   };
 
@@ -17,7 +16,7 @@ const ArchiveTabMenu = ({ activeTab, onTabChange }) => {
   const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
 
   return (
-    <St.TabMenu>
+    <StArchiveTabMenuWrapper>
       {tabs.map((tab) => (
         <St.TabButton
           key={tab.id}
@@ -29,19 +28,20 @@ const ArchiveTabMenu = ({ activeTab, onTabChange }) => {
         </St.TabButton>
       ))}
       <St.Slider activeIndex={activeIndex} />
-    </St.TabMenu>
+    </StArchiveTabMenuWrapper>
   );
 };
 
 export default ArchiveTabMenu;
 
+const StArchiveTabMenuWrapper = styled.nav`
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.Gray2};
+`;
+
 const St = {
-  TabMenu: styled.nav`
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid ${({ theme }) => theme.colors.Gray2};
-  `,
   TabButton: styled.button.withConfig({
     shouldForwardProp: (prop) => prop !== 'isActive', // isActive를 DOM에 전달하지 않음
   })`
@@ -49,7 +49,7 @@ const St = {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 8px 0;
+    padding: 0.8rem 0;
     border: none;
     background: none;
     cursor: pointer;
@@ -64,10 +64,10 @@ const St = {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 4px; /* 아이콘과 텍스트 간격 */
+    margin-bottom: 0.4rem;
     svg {
-      width: 20px; /* 아이콘 크기 */
-      height: 20px;
+      width: 2rem;
+      height: 2rem;
     }
   `,
   Label: styled.span``,
@@ -76,7 +76,7 @@ const St = {
   })`
     position: absolute;
     bottom: 0;
-    height: 2px;
+    height: 0.2rem;
     width: 50%; /* 각 탭의 너비 */
     background-color: ${({ theme }) => theme.colors.Gray0};
     transition: transform 0.3s ease;

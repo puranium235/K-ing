@@ -33,8 +33,8 @@ const St = {
     position: relative;
     display: flex;
     justify-content: space-between;
-    border-bottom: 2px solid ${({ theme }) => theme.colors.Gray2 || '#ddd'};
-    margin-top: 10px;
+    border-bottom: 0.2rem solid ${({ theme }) => theme.colors.Gray2 || '#ddd'};
+    margin-top: 1rem;
   `,
   TabButton: styled.button.withConfig({
     shouldForwardProp: (prop) => prop !== 'isActive',
@@ -43,12 +43,12 @@ const St = {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px 0;
+    padding: 1rem 0;
     border: none;
     background: none;
     cursor: pointer;
     text-align: center;
-    font-size: 16px;
+    font-size: 1.6rem;
 
     font-weight: ${({ isActive }) => (isActive ? 'bold' : 'normal')};
     color: ${({ theme, isActive }) =>
@@ -58,21 +58,21 @@ const St = {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 0.4rem;
     svg {
-      width: 20px;
-      height: 20px;
+      width: 2rem;
+      height: 2rem;
     }
   `,
   Label: styled.span`
-    font-size: 14px;
+    font-size: 1.4rem;
   `,
   Slider: styled.div.withConfig({
     shouldForwardProp: (prop) => prop !== 'activeIndex',
   })`
     position: absolute;
     bottom: 0;
-    height: 3px;
+    height: 0.3rem;
     width: 50%;
     background-color: ${({ theme }) => theme.colors.Gray0 || '#000'};
     transition: transform 0.3s ease;

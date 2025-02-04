@@ -20,7 +20,7 @@ const FavoritesList = ({ title, data, onTabChange }) => {
   };
 
   return (
-    <St.Section>
+    <StFavoritesListWrapper>
       <St.Header>
         <St.Left>
           <St.Title>{title}</St.Title>
@@ -58,21 +58,20 @@ const FavoritesList = ({ title, data, onTabChange }) => {
           </St.ShowAllButton2>
         )}
       </St.List>
-    </St.Section>
+    </StFavoritesListWrapper>
   );
 };
 
 export default FavoritesList;
 
-const St = {
-  Section: styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+const StFavoritesListWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+`;
 
-    /* margin-bottom: 2rem; */
-    padding: 16px;
-  `,
+const St = {
   Header: styled.div`
     display: flex;
     justify-content: space-between;

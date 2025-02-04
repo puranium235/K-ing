@@ -31,7 +31,7 @@ const Archive = () => {
   const [favoritePeopleData] = useState(FavoritePeopleDummyData);
 
   return (
-    <St.Container>
+    <StArchiveWrapper>
       <St.Header>Archive</St.Header>
       <ArchiveTabMenu activeTab={activeTab} onTabChange={setActiveTab} />
       {activeTab === 'Curations' && <CurationsList data={curationsData} />}
@@ -42,18 +42,19 @@ const Archive = () => {
         </>
       )}
       <Nav />
-    </St.Container>
+    </StArchiveWrapper>
   );
 };
 
 export default Archive;
 
+const StArchiveWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
+
 const St = {
-  Container: styled.div`
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-  `,
   Header: styled.header`
     position: sticky;
     top: 0;

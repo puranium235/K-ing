@@ -1,19 +1,25 @@
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-function SettingsButton({ isMyPage }) {
-  if (!isMyPage) return null; // 🔥 내 마이페이지가 아니면 버튼 숨기기
+const SettingsButton = ({ isMyPage }) => {
+  const navigate = useNavigate();
 
-  return <Button onClick={() => window.location.replace('/setting')}>⚙️</Button>;
-}
+  if (!isMyPage) return null;
+
+  const handleSettingClick = () => {
+    navigate(`/setting`);
+  };
+  return <Button onClick={handleSettingClick}>⚙️</Button>;
+};
 
 export default SettingsButton;
 
 const Button = styled.button`
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 1.5rem;
+  right: 1.5rem;
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 2rem;
   cursor: pointer;
 `;

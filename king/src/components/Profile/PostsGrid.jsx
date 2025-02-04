@@ -24,8 +24,8 @@ export default PostsGrid;
 const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
-  margin-top: 15px;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
 `;
 
 const PostItem = styled.div`
@@ -40,11 +40,11 @@ const PostImage = styled.img`
 
 const LockIcon = styled.span`
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 0.5rem;
+  right: 0.5rem;
   background: rgba(0, 0, 0, 0.5);
   color: white;
-  font-size: 14px;
-  padding: 3px;
+  font-size: 1.4rem;
+  padding: 0.3rem;
   border-radius: 50%;
 `;

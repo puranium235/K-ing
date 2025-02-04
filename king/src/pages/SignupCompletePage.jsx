@@ -39,7 +39,7 @@ const StSignupCompletePageWrapper = styled.div`
   align-items: center;
   justify-content: center;
   gap: 5rem;
-  height: 100vh;
+  height: 100%;
   background-color: ${({ theme }) => theme.colors.White};
 `;
 
@@ -49,17 +49,17 @@ const St = {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 350px;
-    padding: 0 20px;
-    gap: 20px;
+    max-width: 35rem;
+    padding: 0 2rem;
+    gap: 2rem;
   `,
   ButtonWrapper: styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 1rem;
     width: 100%;
-    max-width: 350px;
+    max-width: 30rem;
   `,
   IconWrapper: styled.div`
     ${({ theme }) => theme.fonts.Title2}
@@ -69,7 +69,7 @@ const St = {
 const Title = styled.h1`
   ${({ theme }) => theme.fonts.Title1}
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 `;
 
 const Message = styled.p`
@@ -80,17 +80,17 @@ const Message = styled.p`
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 1rem;
   width: 100%;
 `;
 
 const Button = styled.button`
   flex: 1;
-  padding: 12px;
+  padding: 1.2rem;
   ${({ theme }) => theme.fonts.Title4}
   font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.8rem;
   cursor: pointer;
 
   background-color: ${({ $primary, theme }) =>
@@ -103,7 +103,7 @@ const Button = styled.button`
 `;
 
 const LogoImage = styled.img`
-  width: 150px;
+  width: 15rem;
   height: auto;
   position: relative; /* 요소를 독립적으로 배치하기 위해 */
   z-index: 2; /* 발자국보다 앞에 배치 */

@@ -15,28 +15,28 @@ export default ProfileHeader;
 
 const HeaderContainer = styled.div`
   text-align: center;
-  padding: 20px;
+  padding: 2rem;
 `;
 
 const ProfileImage = styled.img`
-  width: 80px;
-  height: 80px;
+  width: 8rem;
+  height: 8rem;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 `;
 
 const Nickname = styled.h2`
   margin: 5px 0;
-  font-size: 20px;
+  font-size: 2rem;
 `;
 
 const Email = styled.p`
-  font-size: 14px;
+  font-size: 1.4rem;
   color: #888;
 `;
 
 const Bio = styled.p`
-  font-size: 14px;
+  font-size: 1.4rem;
   color: #555;
 `;

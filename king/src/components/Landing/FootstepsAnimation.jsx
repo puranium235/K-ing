@@ -85,8 +85,8 @@ const FootstepsWrapper = styled.div`
   position: absolute;
   bottom: 10%;
   left: 20%;
-  width: 300px;
-  height: 300px;
+  width: 25rem;
+  height: 30rem;
   display: flex;
   flex-direction: column;
   align-items: center;
