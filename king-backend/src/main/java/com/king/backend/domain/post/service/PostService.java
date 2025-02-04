@@ -4,8 +4,11 @@ import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.post.dto.request.PostUploadRequestDto;
+import com.king.backend.domain.post.dto.response.PostAllResponseDto;
 import com.king.backend.domain.post.entity.Post;
 import com.king.backend.domain.post.entity.PostImage;
+import com.king.backend.domain.post.repository.CommentRepository;
+import com.king.backend.domain.post.repository.LikeRepository;
 import com.king.backend.domain.post.repository.PostImageRepository;
 import com.king.backend.domain.post.repository.PostRepository;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
@@ -22,16 +25,21 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PostService {
+    private final S3Service s3Service;
     private final UserRepository userRepository;
     private final PlaceRepository placeRepository;
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
-    private final S3Service s3Service;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public Long uploadPost(PostUploadRequestDto reqDto, MultipartFile imageFile) {
@@ -59,5 +67,30 @@ public class PostService {
             postImageRepository.save(postImage);
         }
         return post.getId();
+    }
+
+    @Transactional
+    public List<PostAllResponseDto> getAllPosts() {
+        List<Post> posts = postRepository.findAll();
+
+        return posts.stream().map(post -> {
+            String imageUrl = postImageRepository.findByPostId(post.getId())
+                    .map(PostImage::getImageUrl)
+                    .orElse(null);
+
+            int likesCount = likeRepository.countByPostId(post.getId());
+            int commentsCount = commentRepository.countByPostId(post.getId());
+
+            return PostAllResponseDto.builder()
+                    .postId(post.getId())
+                    .imageUrl(imageUrl)
+                    .likesCnt(likesCount)
+                    .commentsCnt(commentsCount)
+                    .writer(new PostAllResponseDto.Writer(post.getWriter().getId(), post.getWriter().getNickname()))
+                    .content(post.getContent())
+                    .createdAt(post.getCreatedAt())
+                    .updatedAt(post.getUpdatedAt())
+                    .build();
+        }).collect(Collectors.toList());
     }
 }

@@ -14,6 +14,7 @@ import java.time.OffsetDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
+@Table(name="`like`")
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
