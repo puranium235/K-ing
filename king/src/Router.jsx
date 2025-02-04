@@ -24,10 +24,12 @@ import ReviewFeedPage from './pages/ReviewFeedPage';
 import SearchFilterPage from './pages/SearchFilterPage';
 import SearchKeywordpage from './pages/SearchKeywordPage';
 import SearchResultPage from './pages/SearchResultPage';
+import SettingPage from './pages/SettingPage';
 import SignupCompletePage from './pages/SignupCompletePage';
 import SignupPage from './pages/SignupPage';
 import TokenPage from './pages/TokenPage';
 import UploadPage from './pages/UploadPage';
+import UserPage from './pages/UserPage';
 
 const Router = () => {
   return (
@@ -47,6 +49,8 @@ const Router = () => {
             <Route path="/favorites/works" element={<FavoritesDetailPage type="works" />} />
             <Route path="/favorites/people" element={<FavoritesDetailPage type="people" />} />
             <Route path="/mypage" element={<MyPage />} />
+            <Route path="/userpage/:userId" element={<UserPage />} />
+            <Route path="/setting" element={<SettingPage />} />
             <Route path="/curation" element={<CurationPage />} />
             <Route path="/curation/:curationId" element={<CurationDetailPage />} />
             <Route path="/curation/map" element={<CurationMapPage />} />

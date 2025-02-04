@@ -12,7 +12,7 @@ const LandingPage = () => {
     // 3초 후 Splash -> Landing으로 변경
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 3300);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
