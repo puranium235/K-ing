@@ -123,7 +123,7 @@ const PlaceList = styled.div`
 `;
 
 const MapButton = styled.button`
-  position: absolute;
+  position: fixed;
   bottom: 4rem;
   right: 2rem;
   background-color: #fff;

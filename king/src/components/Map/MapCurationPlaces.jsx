@@ -95,7 +95,7 @@ const MapCurationPlaces = () => {
 };
 
 const Container = styled.div`
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -103,7 +103,7 @@ const Container = styled.div`
 
 const MapSection = styled.div`
   position: relative;
-  height: 100vh;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,7 +127,7 @@ const UpButton = styled.button`
 const ContentSection = styled.div`
   background-color: #ffffff;
   position: absolute;
-  ${(props) => (props.$isExpanded ? 'top: 8rem;' : 'top: calc(100vh - 18rem);')}
+  ${(props) => (props.$isExpanded ? 'top: 8rem;' : 'top: calc(100vh - 20rem);')}
   left: 0;
   right: 0;
   transition: bottom 0.3s ease;
