@@ -1,5 +1,6 @@
-package com.king.backend.global.common;
+package com.king.backend.s3.controller;
 
+import com.king.backend.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/s3")
 @RequiredArgsConstructor
-public class S3Controller { // 이미지 s3 업로드 확인용
+public class S3TestController { // 이미지 s3 업로드 확인용
 
     private final S3Service s3Service;
 

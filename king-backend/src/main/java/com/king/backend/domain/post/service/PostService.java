@@ -2,7 +2,7 @@ package com.king.backend.domain.post.service;
 
 import com.king.backend.domain.post.repository.PostRepository;
 import com.king.backend.domain.user.repository.UserRepository;
-import com.king.backend.global.common.S3Service;
+import com.king.backend.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

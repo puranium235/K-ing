@@ -25,7 +25,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     open-in-view: false #  추가
-    show-sql: false
+    show-sql: true # 추가
     properties:
       hibernate:
         format_sql: true

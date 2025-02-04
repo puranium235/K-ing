@@ -5,7 +5,7 @@ import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.errorcode.CastErrorCode;
 import com.king.backend.domain.cast.repository.CastRepository;
 import com.king.backend.domain.content.entity.ContentCast;
-import com.king.backend.global.common.S3Service;
+import com.king.backend.s3.service.S3Service;
 import com.king.backend.global.exception.CustomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,16 +26,13 @@ public class CastService {
         List<CastDetailResponseDto.RelatedContent> relatedContents = new ArrayList<>();
         List<CastDetailResponseDto.Work> works = new ArrayList<>();
 
-//        String imageUrl = s3Service.getOrUploadImage(cast);
-        String imageUrl = s3Service.getOrUploadCastImage(cast);
+        String imageUrl = s3Service.getOrUploadImage(cast);
 
         if (cast != null) {
             for (ContentCast contentCast : cast.getContentCasts()) {
                 Long contentId = contentCast.getContent().getId();
                 String title = contentCast.getContent().getTranslationKo().getTitle();
-//                String contentImageUrl = contentCast.getContent().getImageUrl();
-//                String contentImageUrl = s3Service.getOrUploadImage(contentCast.getContent());
-                String contentImageUrl = s3Service.getOrUploadContentImage(contentCast.getContent());
+                String contentImageUrl = s3Service.getOrUploadImage(contentCast.getContent());
                 int year = contentCast.getContent().getCreatedAt().getYear();
 
                 relatedContents.add(new CastDetailResponseDto.RelatedContent(
@@ -55,7 +52,6 @@ public class CastService {
         return new CastDetailResponseDto(
                 cast.getId(),
                 cast.getTranslationKo().getName(),
-//                cast.getImageUrl(),
                 imageUrl,
                 cast.getBirthDate(),
                 cast.getTranslationKo().getBirthPlace(),

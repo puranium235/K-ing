@@ -1,6 +1,5 @@
 package com.king.backend.global.config;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,12 +19,6 @@ public class S3Config {
 
     @Value("${spring.aws.region}")
     private String region;
-
-    @PostConstruct
-    public void init() {
-        System.out.println("region!!!!: " + region);
-    }
-
 
     @Bean
     public S3Client s3Client() {
