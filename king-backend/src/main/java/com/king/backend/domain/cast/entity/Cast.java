@@ -2,12 +2,8 @@ package com.king.backend.domain.cast.entity;
 
 import com.king.backend.domain.content.entity.ContentCast;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -17,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EntityListeners(CastListener.class)
+@Setter
 public class Cast {
 
     @Id
