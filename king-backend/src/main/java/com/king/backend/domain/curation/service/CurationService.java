@@ -6,11 +6,13 @@ import com.king.backend.domain.curation.errorcode.CurationErrorCode;
 import com.king.backend.domain.curation.repository.CurationListBookmarkRepository;
 import com.king.backend.domain.curation.repository.CurationListItemRepository;
 import com.king.backend.domain.curation.repository.CurationListRepository;
+import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,9 +23,12 @@ public class CurationService {
     private final CurationListBookmarkRepository curationListBookmarkRepository;
     private final CurationListItemRepository curationListItemRepository;
 
+    @Transactional
     public CurationDetailResponseDTO getCurationDetail(Long curationListId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
+        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
+
+        Long userId = Long.parseLong(user.getName());
 
         CurationList curationList = curationListRepository.findById(curationListId)
                 .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));

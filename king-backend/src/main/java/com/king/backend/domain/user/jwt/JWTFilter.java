@@ -1,8 +1,6 @@
 package com.king.backend.domain.user.jwt;
 
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
-import com.king.backend.domain.user.errorcode.UserErrorCode;
-import com.king.backend.global.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,21 +25,31 @@ public class JWTFilter extends OncePerRequestFilter {
         String authorization = request.getHeader("Authorization");
 
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+            String requestUri = request.getRequestURI();
+            String requestMethod = request.getMethod();
+
+            if (requestUri.matches("^/api/user/token-refresh$") && requestMethod.equals("POST")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "accessToken이 유효하지 않습니다");
             return;
         }
 
         String accessToken = authorization.substring(7);
 
         try {
-            jwtUtil.isExpired(accessToken);
+            jwtUtil.validToken(accessToken);
         } catch (Exception e) {
-            throw new CustomException(UserErrorCode.ACCESSTOKEN_EXPIRED);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "accessToken이 유효하지 않습니다");
+            return;
         }
 
         String type = jwtUtil.getType(accessToken);
         if (!type.equals("accessToken")) {
-            throw new CustomException(UserErrorCode.INVALID_TOKEN);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "accessToken이 유효하지 않습니다");
+            return;
         }
 
         String userId = jwtUtil.getUserId(accessToken);
@@ -51,7 +59,7 @@ public class JWTFilter extends OncePerRequestFilter {
         oAuth2UserDTO.setName(userId);
         oAuth2UserDTO.setAuthorities(List.of(new SimpleGrantedAuthority(role)));
 
-        Authentication authToken = new UsernamePasswordAuthenticationToken(oAuth2UserDTO.getName(), null, oAuth2UserDTO.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(oAuth2UserDTO, null, oAuth2UserDTO.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
