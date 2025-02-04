@@ -64,14 +64,15 @@ const StNavWrapper = styled.nav`
   display: flex;
   justify-content: space-around;
 
-  position: absolute;
+  position: fixed;
   bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
 
-  width: 321px;
-  height: 68px;
+  width: 27.5rem;
+  height: 6.8rem;
   padding: 0 1rem;
+  margin: 0 auto;
 
   border-radius: 30px;
 

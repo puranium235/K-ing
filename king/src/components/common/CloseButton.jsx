@@ -29,12 +29,11 @@ const ClosedButton = styled.button`
   color: white;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 4rem;
+  height: 4rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   z-index: 1000;
@@ -44,8 +43,8 @@ const ClosedButton = styled.button`
   }
 
   img {
-    width: 25px;
-    height: 25px;
+    width: 2.5rem;
+    height: 2.5rem;
     object-fit: contain; /* 이미지가 왜곡되지 않도록 설정 */
   }
 `;

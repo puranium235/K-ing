@@ -2,7 +2,16 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="theme-color" content="#8C383A" />
+    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <!-- pwa 설정 -->
+    <link rel="manifest" href="/manifest.json" />
+    <!-- ios 아이콘 설정 -->
+    <!-- <link rel="apple-touch-icon" href="touch-icon-iphone.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="touch-icon-ipad.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="touch-icon-iphone-retina.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="touch-icon-ipad-retina.png" /> -->
+    <!-- 폰트 설정 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -11,11 +20,28 @@
       crossorigin
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
     />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>K-ing</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <!-- service-worker 등록 -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        // Register a service worker hosted at the root of the
+        // site using the default scope.
+        navigator.serviceWorker
+          .register('/service-worker.js')
+          .then((registration) => {
+            console.log('Service worker registration succeeded:', registration);
+          })
+          .catch((err) => {
+            console.log('Service worker registration failed:', error);
+          });
+      } else {
+        console.log('Service workers are not supported.');
+      }
+    </script>
   </body>
 </html>
