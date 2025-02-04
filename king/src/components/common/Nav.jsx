@@ -21,10 +21,21 @@ const Nav = () => {
 
   const [selectedButton, setSelectedButton] = useState(location.pathname);
 
-  const handleButtonClick = (buttonName) => {
-    setSelectedButton(buttonName);
-    navigate(`/${buttonName}`);
+  const setButton = (pathname) => {
+    if (pathname == '/curation' || pathname == '/feed') {
+      return '/home';
+    }
+    return pathname;
   };
+
+  const handleButtonClick = (buttonName) => {
+    navigate(`/${buttonName}`);
+    setSelectedButton(`/${buttonName}`);
+  };
+
+  useEffect(() => {
+    setSelectedButton(setButton(location.pathname));
+  }, [location.pathname]);
 
   return (
     <StNavWrapper>
