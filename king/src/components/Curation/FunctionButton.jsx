@@ -74,6 +74,7 @@ const BookmarkButton = styled.button`
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  width: auto;
   background: none;
   border: none;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
