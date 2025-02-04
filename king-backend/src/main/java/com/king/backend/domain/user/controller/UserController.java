@@ -97,7 +97,7 @@ public class UserController {
                 });
 
         String language = signUpRequestDTO.getLanguage();
-        if (language.matches("^(ko|en|ja|zh)$")) {
+        if (!language.matches("^(ko|en|ja|zh)$")) {
             throw new CustomException(UserErrorCode.INVALID_LANGUAGE);
         }
 
