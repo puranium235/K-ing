@@ -18,7 +18,9 @@ const ImageContainer = styled.div`
 
   img {
     width: 100%;
-    height: 250px;
+    height: 24rem;
+    object-fit: cover;
+    display: block;
   }
 `;
 

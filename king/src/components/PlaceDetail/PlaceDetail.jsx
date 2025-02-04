@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import Nav from '/src/components/common/Nav';
 
 import { getPlaceDetail } from '../../lib/place';
+import Bottom from '../common/Bottom';
 import DetailHeader from '../common/DetailHeader';
 import Loading from '../Loading/Loading';
 import ContentsInfo from './ContentsInfo';
@@ -61,6 +62,7 @@ const PlaceDetail = () => {
         <BottomContainer>
           <ActionButton onClick={handleRoute}>다른 팬의 인증샷이 궁금하다면?</ActionButton>
         </BottomContainer>
+        <Bottom />
       </Content>
 
       <Nav />
@@ -70,24 +72,24 @@ const PlaceDetail = () => {
 
 const Container = styled.div`
   width: 100%;
-  height: calc(100vh + 90px);
+  height: 100%;
 `;
 
 const Content = styled.div`
-  padding: 20px;
+  padding: 2rem;
   position: relative;
 `;
 
 const BottomContainer = styled.div`
-  padding: 20px 0px;
+  padding: 2rem 0rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 1.2rem;
 
   img {
-    width: 15px;
+    width: 1.5rem;
   }
 `;
 
@@ -95,7 +97,7 @@ const ActionButton = styled.button`
   ${({ theme }) => theme.fonts.Title3};
   background-image: linear-gradient(to right, #0062ff, #71c8ff);
   color: white;
-  padding: 14px 22px;
+  padding: 1.4rem 2.2rem;
   border: none;
   border-radius: 20px;
   cursor: pointer;

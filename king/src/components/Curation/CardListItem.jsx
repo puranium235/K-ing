@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import LocationIcon from '../../assets/icons/location.png';
 import { getShortAddress } from '../../util/addressFormat';
 
 const CardListItem = ({ place }) => {
@@ -10,20 +11,20 @@ const CardListItem = ({ place }) => {
   const handleCurationClick = (id) => {
     navigate(`/place/${id}`);
   };
-  const { placeId, placeImage, name, address } = place;
+  const { placeId, imageUrl, name, address } = place;
 
   return (
     <CardContainer onClick={() => handleCurationClick(placeId)}>
       {/* 이미지 컨테이너 */}
       <ImageContainer>
-        <Image src={placeImage} alt={name} />
+        <Image src={imageUrl} alt={name} />
       </ImageContainer>
 
       {/* 텍스트 컨테이너 */}
       <TextContainer>
         <Title>{name}</Title>
         <Address>
-          <img src="/src/assets/icons/location.png" alt="location" />
+          <img src={LocationIcon} alt="location" />
           {getShortAddress(address)}
         </Address>
       </TextContainer>
@@ -44,7 +45,7 @@ const CardContainer = styled.div`
 
 const ImageContainer = styled.div`
   width: 100%;
-  height: 240px;
+  height: 22rem;
   overflow: hidden;
   border-radius: 10px;
 `;
@@ -57,16 +58,16 @@ const Image = styled.img`
 
 const TextContainer = styled.div`
   box-sizing: border-box;
-  padding: 10px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 
   width: 100%;
 `;
 
 const Title = styled.h3`
   width: 100%;
-  text-align: center;
 
   white-space: nowrap;
   overflow: hidden;
@@ -80,13 +81,13 @@ const Address = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 4px;
+  margin-top: 0.4rem;
   ${({ theme }) => theme.fonts.Body4};
   color: ${({ theme }) => theme.colors.Gray1};
 
   img {
-    width: 12px;
-    height: 12px;
-    margin-right: 4px;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-right: 0.4rem;
   }
 `;

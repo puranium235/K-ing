@@ -41,10 +41,9 @@ const St = {
   Section: styled.div`
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 1rem;
 
-    /* margin-bottom: 2rem; */
-    padding: 16px;
+    padding: 1rem 0.5rem;
   `,
   Header: styled.div`
     display: flex;
@@ -73,10 +72,10 @@ const St = {
   List: styled.div`
     display: grid;
     grid-auto-flow: column;
-    grid-template-columns: auto(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
 
-    width: 29rem;
+    width: 100%;
     overflow-x: auto;
 
     &::-webkit-scrollbar {
