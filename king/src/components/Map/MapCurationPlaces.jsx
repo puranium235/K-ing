@@ -96,6 +96,7 @@ const Container = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
 `;
 
 const MapSection = styled.div`
@@ -133,7 +134,6 @@ const UpButton = styled.button`
 
 const ContentSection = styled.div`
   background-color: #ffffff;
-  height: 100%;
   position: absolute;
   ${(props) => (props.$isExpanded ? 'top: 90px;' : 'top: calc(100vh - 400px);')}
   left: 0;

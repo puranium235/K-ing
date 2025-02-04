@@ -22,7 +22,7 @@ const BackButton = () => {
 export default BackButton;
 
 const ClosedButton = styled.button`
-  position: fixed;
+  position: absolute;
   top: 20px;
   left: 20px;
   background-color: #fff;

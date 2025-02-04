@@ -18,16 +18,19 @@ const closeModal = () => {
 
 const OptionModal = ({ isModalVisible, onClick }) => {
   return (
-    <>
+    <Container>
       <ModalBackground $isVisible={isModalVisible} onClick={onClick} />
 
       <ModalContainer $isVisible={isModalVisible}>
         <OptionButton>수정하기</OptionButton>
         <OptionButton>삭제하기</OptionButton>
       </ModalContainer>
-    </>
+    </Container>
   );
 };
+const Container = styled.div`
+  position: relative;
+`;
 
 const ModalBackground = styled.div`
   position: fixed;

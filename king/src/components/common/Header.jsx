@@ -59,7 +59,7 @@ const Header = ({ title, isOption }) => {
   };
 
   return (
-    <>
+    <Container>
       <StHeader>
         <BackButton />
         <TitleContainer
@@ -89,9 +89,13 @@ const Header = ({ title, isOption }) => {
 
       {/* 옵션 모달 */}
       <OptionModal isModalVisible={isModalVisible} onClick={closeModal} />
-    </>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  position: relative;
+`;
 
 const StHeader = styled.div`
   display: flex;
