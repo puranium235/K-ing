@@ -38,8 +38,8 @@ const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
-  padding: 0px 10px;
+  gap: 1rem;
+  padding: 0 1rem;
 `;
 
 const ShareButton = styled.button`
@@ -50,11 +50,11 @@ const ShareButton = styled.button`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 30px;
-  height: 30px;
+  gap: 0.8rem;
+  width: 3rem;
+  height: 3rem;
   white-space: nowrap;
-  padding: 7px;
+  padding: 0.7rem;
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -64,8 +64,8 @@ const ShareButton = styled.button`
   }
 
   img {
-    width: 14px;
-    height: 14px;
+    width: 1.4rem;
+    height: 1.4rem;
   }
 `;
 

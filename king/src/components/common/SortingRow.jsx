@@ -32,7 +32,7 @@ const SortingRow = ({ onSortingChange }) => {
       </SortingContainer>
       <SortingModal
         isModalVisible={isModalVisible}
-        onClick={closeModal}
+        onCloseClick={closeModal}
         onOptionClick={handleOptionClick}
       />
     </>
@@ -43,20 +43,20 @@ const SortingContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: right;
-  padding: 10px;
+  padding: 1rem;
 `;
 
 const SortingButton = styled.button`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 5px;
+  gap: 0.5rem;
   background: none;
   border: none;
   cursor: pointer;
 
   img {
-    width: 16px;
+    width: 1.6rem;
   }
 `;
 

@@ -45,7 +45,7 @@ const CardContainer = styled.div`
 
 const ImageContainer = styled.div`
   width: 100%;
-  height: 240px;
+  height: 22rem;
   overflow: hidden;
   border-radius: 10px;
 `;
@@ -58,7 +58,7 @@ const Image = styled.img`
 
 const TextContainer = styled.div`
   box-sizing: border-box;
-  padding: 10px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -81,13 +81,13 @@ const Address = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 4px;
+  margin-top: 0.4rem;
   ${({ theme }) => theme.fonts.Body4};
   color: ${({ theme }) => theme.colors.Gray1};
 
   img {
-    width: 12px;
-    height: 12px;
-    margin-right: 4px;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-right: 0.4rem;
   }
 `;
