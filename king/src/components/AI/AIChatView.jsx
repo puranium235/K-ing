@@ -30,12 +30,11 @@ const AIChatView = () => {
 
   const handleRefresh = async () => {
     try {
-      await client.delete('/chatbot');
+      await client.delete('/chatbot/');
 
       setMessages(initialMessages);
       setNewMessage('');
       setCurrentApi('');
-      console.log('대화 기록이 성공적으로 삭제되었습니다.');
     } catch (err) {
       console.error(err);
     }
@@ -46,7 +45,7 @@ const AIChatView = () => {
     setMessages((prev) => [...prev, optionMessage]);
 
     if (option === chatT) {
-      setCurrentApi(`/chatbot`);
+      setCurrentApi(`/chatbot/`);
       const aiMessage = {
         text: 'T 챗봇은 회차정보 기반 장소를 검색하는 데 특화되어 있습니다.',
         sender: 'ai',
@@ -71,7 +70,7 @@ const AIChatView = () => {
     setIsTyping(true);
 
     try {
-      const response = await client.post(`/chatbot`, { userMessage: newMessage });
+      const response = await client.post(`/chatbot/`, { userMessage: newMessage });
       const aiResponse = { text: response.data.message, sender: 'ai' };
       setMessages((prev) => [...prev, aiResponse]);
     } catch (error) {
