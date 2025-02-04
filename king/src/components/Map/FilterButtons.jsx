@@ -11,16 +11,16 @@ const filterMap = {
 
 const filterIcons = {
   RESTAURANT: {
-    default: 'src/assets/icons/restaurant_dark.png',
-    active: 'src/assets/icons/restaurant.png',
+    default: '/src/assets/icons/restaurant_dark.png',
+    active: '/src/assets/icons/restaurant.png',
   },
-  CAFE: { default: 'src/assets/icons/cafe_dark.png', active: 'src/assets/icons/cafe.png' },
+  CAFE: { default: '/src/assets/icons/cafe_dark.png', active: '/src/assets/icons/cafe.png' },
   PLAYGROUND: {
-    default: 'src/assets/icons/playground_dark.png',
-    active: 'src/assets/icons/playground.png',
+    default: '/src/assets/icons/playground_dark.png',
+    active: '/src/assets/icons/playground.png',
   },
-  STORE: { default: 'src/assets/icons/shop_dark.png', active: 'src/assets/icons/shop.png' },
-  STAY: { default: 'src/assets/icons/stay_dark.png', active: 'src/assets/icons/stay.png' },
+  STORE: { default: '/src/assets/icons/shop_dark.png', active: '/src/assets/icons/shop.png' },
+  STAY: { default: '/src/assets/icons/stay_dark.png', active: '/src/assets/icons/stay.png' },
 };
 
 const FilterButtons = ({ filters, activeFilter, onFilterChange }) => {
