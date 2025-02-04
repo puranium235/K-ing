@@ -6,7 +6,7 @@ import NaverIcon from '../../assets/icons/naver.png';
 
 const DeepLinkModal = ({ isModalVisible, onClick }) => {
   return (
-    <>
+    <Container>
       <ModalBackground $isVisible={isModalVisible} onClick={onClick} />
 
       <ModalContainer $isVisible={isModalVisible}>
@@ -17,9 +17,13 @@ const DeepLinkModal = ({ isModalVisible, onClick }) => {
           구글 지도 <img src={GoogleIcon} alt="Google" />
         </OptionButton>
       </ModalContainer>
-    </>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  position: relative;
+`;
 
 const ModalBackground = styled.div`
   position: fixed;
