@@ -12,9 +12,8 @@ const FavoritesItem = ({ item, type }) => {
     console.log(`${type === 'works' ? item.title : item.name} 북마크 상태 변경`);
   };
   const handleClick = () => {
-    // 현재 인물 페이지 없어서 연결 임시로 people로 주었음. 작품도 drama / movie / show 구분을 할 수 없어서 임시로 drama로 넣어둠
-    const routeType = type === 'works' ? 'drama' : 'people'; // '작품' -> drama, '인물' -> people
-    navigate(`/${routeType}/${item.id}`); // 경로로 이동
+    const routeType = type === 'works' ? 'detail' : 'cast'; // '작품' -> detail, '인물' -> people
+    navigate(`/content/${routeType}/${item.id}`); // 경로로 이동
   };
 
   return (
