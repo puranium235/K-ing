@@ -61,8 +61,8 @@ const Nav = () => {
 export default Nav;
 
 const StNavWrapper = styled.nav`
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
 
   position: fixed;
   bottom: 1rem;
@@ -70,7 +70,7 @@ const StNavWrapper = styled.nav`
   transform: translateX(-50%);
 
   width: 27.5rem;
-  height: 6.8rem;
+  height: 5.5rem;
   padding: 0 1rem;
   margin: 0 auto;
 
@@ -78,7 +78,15 @@ const StNavWrapper = styled.nav`
 
   background-color: ${({ theme }) => theme.colors.Gray1};
   & > button {
+    justify-content: center;
+    align-items: center;
+
     color: ${({ theme }) => theme.colors.White};
     ${({ theme }) => theme.fonts.Body4}
+
+    svg {
+      width: 2rem;
+      height: 2rem;
+    }
   }
 `;
