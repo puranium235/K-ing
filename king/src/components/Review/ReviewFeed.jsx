@@ -41,12 +41,7 @@ const ReviewFeed = () => {
 const LineContainer = styled.div`
   border-top: 1px solid ${({ theme }) => theme.colors.Gray5};
   border-bottom: 1px solid ${({ theme }) => theme.colors.Gray5};
-  padding: 5px 0px;
-`;
-
-const Title = styled.h1`
-  ${({ theme }) => theme.fonts.Title3};
-  margin: 0;
+  padding: 0.5rem 0;
 `;
 
 export default ReviewFeed;

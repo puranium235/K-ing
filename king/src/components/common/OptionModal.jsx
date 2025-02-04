@@ -51,7 +51,7 @@ const ModalContainer = styled.div`
   background-color: #f8f8f8;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
-  padding: 30px;
+  padding: 3rem;
   box-shadow: 0px -2px 15px rgba(0, 0, 0, 0.1);
   z-index: 1010;
   display: ${({ $isVisible }) => ($isVisible ? 'block' : 'none')};
@@ -82,11 +82,11 @@ const OptionButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  padding: 16px;
+  gap: 1rem;
+  padding: 1.6rem;
   background-color: white;
   border-radius: 16px;
-  margin-bottom: 6px;
+  margin-bottom: 0.6rem;
   cursor: pointer;
 
   &:hover {
@@ -94,8 +94,8 @@ const OptionButton = styled.div`
   }
 
   img {
-    width: 12px;
-    height: 12px;
+    width: 1.2rem;
+    height: 1.2rem;
   }
 `;
 
