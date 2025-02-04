@@ -70,24 +70,24 @@ const PlaceDetail = () => {
 
 const Container = styled.div`
   width: 100%;
-  height: calc(100vh + 90px);
+  height: 100vh;
 `;
 
 const Content = styled.div`
-  padding: 20px;
+  padding: 2rem;
   position: relative;
 `;
 
 const BottomContainer = styled.div`
-  padding: 20px 0px;
+  padding: 2rem 0rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 1.2rem;
 
   img {
-    width: 15px;
+    width: 1.5rem;
   }
 `;
 
@@ -95,10 +95,11 @@ const ActionButton = styled.button`
   ${({ theme }) => theme.fonts.Title3};
   background-image: linear-gradient(to right, #0062ff, #71c8ff);
   color: white;
-  padding: 14px 22px;
+  padding: 1.4rem 2.2rem;
   border: none;
   border-radius: 20px;
   cursor: pointer;
+  margin-bottom: 7rem;
 
   &:hover {
     background-image: linear-gradient(to right, #71c8ff, #0062ff);

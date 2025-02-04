@@ -19,13 +19,13 @@ const ContentsInfo = ({ info }) => {
 };
 
 const InfoContainer = styled.div`
-  margin-bottom: 16px;
+  margin-bottom: 1.6rem;
 `;
 
 const InfoRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 1rem;
 `;
 
 const InfoTitle = styled.h2`
@@ -41,7 +41,7 @@ const InfoType = styled.span`
 const Description = styled.p`
   ${({ theme }) => theme.fonts.Body2};
   color: #555;
-  margin: 5px 0;
+  margin: 0.5rem 0;
 `;
 
 export default ContentsInfo;
