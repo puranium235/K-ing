@@ -53,6 +53,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         OAuth2UserDTO oAuth2UserDTO = new OAuth2UserDTO();
         oAuth2UserDTO.setName(userEntity.getId().toString());
+        oAuth2UserDTO.setLanguage(userEntity.getLanguage());
         oAuth2UserDTO.setAuthorities(List.of(new SimpleGrantedAuthority(userEntity.getStatus())));
 
         return oAuth2UserDTO;

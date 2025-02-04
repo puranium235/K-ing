@@ -41,15 +41,15 @@ public class UserController {
     private Long REFRESHTOKEN_EXPIRES_IN;
 
     @PostMapping("/token-refresh")
-    public ResponseEntity<ApiResponse<Void>> tokenRefresh(@CookieValue("refreshToken") String oldRefreshToken) {
-        if (oldRefreshToken == null) {
-            throw new CustomException(UserErrorCode.INVALID_TOKEN);
-        }
+        public ResponseEntity<ApiResponse<Void>> tokenRefresh(@CookieValue(value = "refreshToken", required = false) String oldRefreshToken) {
+            if (oldRefreshToken == null) {
+                throw new CustomException(UserErrorCode.INVALID_TOKEN);
+            }
 
         try {
-            jwtUtil.isExpired(oldRefreshToken);
+            jwtUtil.validToken(oldRefreshToken);
         } catch (Exception e) {
-            throw new CustomException(UserErrorCode.REFRESHTOKEN_EXPIRED);
+            throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
         if (!jwtUtil.getType(oldRefreshToken).equals("refreshToken")) {
@@ -57,6 +57,7 @@ public class UserController {
         }
 
         String userId = jwtUtil.getUserId(oldRefreshToken);
+        String language = jwtUtil.getLanguage(oldRefreshToken);
         String role = jwtUtil.getRole(oldRefreshToken);
 
         Optional<TokenEntity> token = tokenService.findTokenById(Long.parseLong(userId));
@@ -64,8 +65,8 @@ public class UserController {
             throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
-        String accessToken = jwtUtil.createJwt("accessToken", userId, role, ACCESSTOKEN_EXPIRES_IN);
-        String refreshToken = jwtUtil.createJwt("refreshToken", userId, role, REFRESHTOKEN_EXPIRES_IN);
+        String accessToken = jwtUtil.createJwt("accessToken", userId, language, role, ACCESSTOKEN_EXPIRES_IN);
+        String refreshToken = jwtUtil.createJwt("refreshToken", userId, language, role, REFRESHTOKEN_EXPIRES_IN);
 
         tokenRepository.deleteById(Long.parseLong(userId));
         tokenRepository.save(new TokenEntity(Long.parseLong(userId), refreshToken, REFRESHTOKEN_EXPIRES_IN));
@@ -85,16 +86,19 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<SignUpResponseDTO>> signup(@RequestBody SignUpRequestDTO signUpRequestDTO) {
-        if (signUpRequestDTO.getNickname() == null || signUpRequestDTO.getNickname().length() > 50) {
+        String nickname = signUpRequestDTO.getNickname();
+        if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
+        nickname = nickname.trim();
 
-        userRepository.findByNickname(signUpRequestDTO.getNickname())
+        userRepository.findByNickname(nickname)
                 .ifPresent((user) -> {
                     throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
                 });
 
-        if (!signUpRequestDTO.getLanguage().matches("^(ko|en|ja|zh)$")) {
+        String language = signUpRequestDTO.getLanguage();
+        if (!language.matches("^(ko|en|ja|zh)$")) {
             throw new CustomException(UserErrorCode.INVALID_LANGUAGE);
         }
 
@@ -105,14 +109,14 @@ public class UserController {
         User findUser = userRepository.findByIdAndStatus(userId, "ROLE_PENDING")
                 .orElseThrow(() -> new CustomException(UserErrorCode.NOT_PENDING_USER));
 
-        findUser.setNickname(signUpRequestDTO.getNickname());
-        findUser.setLanguage(signUpRequestDTO.getLanguage());
+        findUser.setNickname(nickname);
+        findUser.setLanguage(language);
         findUser.setStatus("ROLE_REGISTERED");
 
         userRepository.save(findUser);
 
-        String accessToken = jwtUtil.createJwt("accessToken", userId.toString(), "ROLE_REGISTERED", ACCESSTOKEN_EXPIRES_IN);
-        String refreshToken = jwtUtil.createJwt("refreshToken", userId.toString(), "ROLE_REGISTERED", REFRESHTOKEN_EXPIRES_IN);
+        String accessToken = jwtUtil.createJwt("accessToken", userId.toString(), language, "ROLE_REGISTERED", ACCESSTOKEN_EXPIRES_IN);
+        String refreshToken = jwtUtil.createJwt("refreshToken", userId.toString(), language, "ROLE_REGISTERED", REFRESHTOKEN_EXPIRES_IN);
 
         tokenRepository.deleteById(userId);
         tokenRepository.save(new TokenEntity(userId, refreshToken, REFRESHTOKEN_EXPIRES_IN));
@@ -138,10 +142,11 @@ public class UserController {
     }
 
     @GetMapping("/nickname")
-    public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname") String nickname) {
-        if (nickname == null || nickname.length() > 50) {
+    public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname", required = false) String nickname) {
+        if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
+        nickname = nickname.trim();
 
         userRepository.findByNickname(nickname)
                 .ifPresent((user) -> {

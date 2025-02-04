@@ -13,6 +13,7 @@ import java.util.Map;
 public class OAuth2UserDTO implements OAuth2User {
 
     private String name;
+    private String language;
     private Collection<? extends GrantedAuthority> authorities;
 
     @Override
