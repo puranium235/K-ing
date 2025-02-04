@@ -25,8 +25,8 @@ const ListItem = ({ place }) => {
             <img
               src={
                 isAlwaysOpen
-                  ? 'src/assets/icons/good.png' // 연중무휴 아이콘
-                  : 'src/assets/icons/bad.png' // 기본 휴무 아이콘
+                  ? '/src/assets/icons/good.png' // 연중무휴 아이콘
+                  : '/src/assets/icons/bad.png' // 기본 휴무 아이콘
               }
               alt={isAlwaysOpen ? 'Always Open' : 'Closed'}
             />
@@ -35,13 +35,13 @@ const ListItem = ({ place }) => {
         )}
         {address && (
           <InfoItem>
-            <img src="src/assets/icons/location.png" alt="Location" />
+            <img src="/src/assets/icons/location.png" alt="Location" />
             {getShortAddress(address)}
           </InfoItem>
         )}
         {openHour && (
           <InfoItem>
-            <img src="src/assets/icons/clock.png" alt="Open Hours" />
+            <img src="/src/assets/icons/clock.png" alt="Open Hours" />
             {openHour}
           </InfoItem>
         )}

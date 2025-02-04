@@ -1,16 +1,23 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcFootsteps, IcKing } from '../../assets/icons';
 import GoogleIcon from '../../assets/icons/ic_google.png';
 import LineIcon from '../../assets/icons/ic_line_88.png';
 import KingLogo from '../../assets/icons/king_logo.png';
-import KingLogoImsi from '../../assets/icons/king_logo_imsi.png';
+
 const Landing = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const navigate = useNavigate();
 
   const googleLogin = () => {
     window.location.href = API_BASE_URL + '/oauth2/authorization/google';
+  };
+
+  const handleMasterToken = () => {
+    let accessToken = import.meta.env.VITE_MASTER_ACCESS_TOKEN;
+    localStorage.setItem('accessToken', accessToken);
+    navigate('/home');
   };
 
   return (
@@ -29,7 +36,9 @@ const Landing = () => {
       {/* <St.FootprintWrapper>
         <IcFootsteps />
       </St.FootprintWrapper> */}
+
       <St.ButtonWrapper>
+        <SocialButton onClick={handleMasterToken}>master login</SocialButton>
         <SocialButton $google onClick={googleLogin}>
           <img src={GoogleIcon} alt="구글 아이콘" />
           Continue with Google
