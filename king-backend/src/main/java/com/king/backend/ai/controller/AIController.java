@@ -1,7 +1,7 @@
 package com.king.backend.ai.controller;
 
 import com.king.backend.ai.dto.ChatHistory;
-import com.king.backend.ai.repository.ChatHistoryRepository;
+import com.king.backend.ai.service.ChatHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,17 +25,28 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "AI 컨트롤러", description = "chatGPT 챗봇 API")
-@RequestMapping("/ai")
+@RequestMapping("/chatbot")
 public class AIController {
 
-    private final ChatHistoryRepository chatHistoryRepository;
+    private final ChatHistoryService chatHistoryService;
     private final OpenAiChatModel chatModel;
+
+    private Long getUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return Long.parseLong(authentication.getName());
+    }
+
+    @DeleteMapping("/")
+    public ResponseEntity<String> deleteChatHistory() {
+        chatHistoryService.deleteByUserId(getUserId());
+        return ResponseEntity.ok("대화 기록이 삭제되었습니다.");
+    }
 
     @Operation(
             summary = "AI 챗봇과 대화",
             description = "사용자가 입력한 메시지를 기반으로 AI 챗봇이 응답을 생성합니다."
     )
-    @PostMapping("/chat")
+    @PostMapping("/")
     public ResponseEntity<Map<String, Object>> chat(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "사용자가 입력한 메시지", required = true, content = @Content(
@@ -43,19 +54,17 @@ public class AIController {
                     schema = @Schema(example = "{ \"userMessage\": \"안녕!\" }")
             ))
             @RequestBody Map<String, String> requestBody) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Long userId = Long.parseLong(authentication.getName());
 
+        try {
             String userMessage = requestBody.get("userMessage");
 
             // DB에서 대화 히스토리 가져오기
-            List<ChatHistory> chatHistoryList = chatHistoryRepository.findByUserId(userId);
+            List<ChatHistory> chatHistoryList = chatHistoryService.findByUserId(getUserId());
             List<Map<String, String>> dialogueHistory = convertChatHistoryToDialogueHistory(chatHistoryList);
 
             // 사용자 메시지 저장
             if (userMessage != null && !userMessage.trim().isEmpty()) {
-                chatHistoryRepository.save(new ChatHistory(userId, "user", userMessage));
+                chatHistoryService.saveChatHistory(new ChatHistory(getUserId(), "user", userMessage));
 
                 Map<String, String> userMessageMap = Map.of("role", "user", "content", userMessage);
                 dialogueHistory.add(userMessageMap);
@@ -75,7 +84,7 @@ public class AIController {
                 String gptResponse = chatResponse.getResults().get(0).getOutput().getText();
 
                 // GPT 응답 저장
-                chatHistoryRepository.save(new ChatHistory(userId, "assistant", gptResponse));
+                chatHistoryService.saveChatHistory(new ChatHistory(getUserId(), "assistant", gptResponse));
 
                 Map<String, Object> responseBody = new HashMap<>();
                 responseBody.put("message", gptResponse);

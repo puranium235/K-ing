@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ChatHistoryRepository extends JpaRepository<ChatHistory, Long> {
     List<ChatHistory> findByUserId(Long userId);
+    void deleteByUserId(Long userId);
 }
