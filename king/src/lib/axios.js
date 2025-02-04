@@ -28,21 +28,69 @@ client.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+// 토큰 재발급 요청 횟수 관리 변수
+let isRefreshing = false;
+
 // ✅ 응답 인터셉터: accessToken이 만료되면 자동 재발급
 client.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      console.log('🔄 AccessToken 만료: 재발급 시도');
-      const newAccessToken = await tokenRefresh();
+    const originalRequest = error.config;
 
-      if (newAccessToken) {
-        // ✅ 새로운 accessToken으로 요청 재시도
-        error.config.headers.Authorization = `Bearer ${newAccessToken}`;
-        return client(error.config);
+    // 🔹 401 에러 발생 시 (로그인한 사용자가 아닌 경우)
+    if (error.response?.status === 401) {
+      // 🔹 `/user/token-refresh` 요청에서 401이 발생한 경우 → 즉시 `/`로 이동
+      if (originalRequest.url.includes('/user/token-refresh')) {
+        console.log('❌ Refresh token 만료됨 → 로그인 페이지로 이동');
+        localStorage.removeItem('accessToken'); // 토큰 삭제
+        window.location.replace('/');
+        return Promise.reject(error);
+      }
+
+      // 🔹 이미 토큰 갱신 중이면 기다리도록 설정 (무한 요청 방지)
+      if (isRefreshing) {
+        return Promise.reject(error);
+      }
+
+      isRefreshing = true;
+
+      try {
+        console.log('🔄 AccessToken 만료: 재발급 시도');
+        const newAccessToken = await tokenRefresh();
+
+        if (newAccessToken) {
+          // ✅ 새로운 accessToken으로 요청 재시도
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return client(originalRequest);
+        }
+      } catch (refreshError) {
+        console.log('❌ 토큰 재발급 실패 → 로그인 페이지로 이동');
+        localStorage.removeItem('accessToken'); // 토큰 삭제
+        navigate('/'); // 🔹 로그인 페이지로 이동
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
     return Promise.reject(error);
   },
 );
+
+// client.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     if (error.response?.status === 401) {
+//       console.log('🔄 AccessToken 만료: 재발급 시도');
+//       const newAccessToken = await tokenRefresh();
+
+//       if (newAccessToken) {
+//         // ✅ 새로운 accessToken으로 요청 재시도
+//         error.config.headers.Authorization = `Bearer ${newAccessToken}`;
+//         return client(error.config);
+//       }
+//     }
+
+//     return Promise.reject(error);
+//   },
+// );
