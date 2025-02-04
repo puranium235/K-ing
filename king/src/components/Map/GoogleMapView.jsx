@@ -336,6 +336,7 @@ const SearchButton = styled.button`
   transform: translateX(-50%);
   background-color: #ffffff;
   ${({ theme }) => theme.fonts.Body3};
+  color: ${({ theme }) => theme.colors.Gray0};
   border: none;
   border-radius: 20px;
   padding: 6px 12px;
