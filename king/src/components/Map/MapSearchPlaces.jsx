@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import DummyData from '../../assets/dummy/dummyMapPlace';
 import UpIcon from '../../assets/icons/up.png';
 import { searchMapView } from '../../lib/map';
-import { FilterOption, searchQueryState, searchRegionState } from '../../recoil/atom';
+import { FilterOption, SearchQueryState, SearchRegionState } from '../../recoil/atom';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
+import Loading from '../Loading/Loading';
 import FilterButtons from './FilterButtons';
 import GoogleMapView from './GoogleMapView';
 import ListItem from './ListItem';
 
 const MapSearchPlaces = () => {
-  const query = useRecoilValue(searchQueryState);
-  const region = useRecoilValue(searchRegionState);
+  const query = useRecoilValue(SearchQueryState);
+  const region = useRecoilValue(SearchRegionState);
   const [filterOption, setFilterOption] = useRecoilState(FilterOption);
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -64,7 +64,7 @@ const MapSearchPlaces = () => {
     return filterOption.categories[place.type];
   });
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
 
   return (
     <Container>
@@ -89,7 +89,7 @@ const MapSearchPlaces = () => {
         {filteredPlaces.length > 0 ? (
           <ListContainer>
             {filteredPlaces.map((place) => (
-              <ListItem key={place.id} place={place} />
+              <ListItem key={place.placeId} place={place} />
             ))}
           </ListContainer>
         ) : (

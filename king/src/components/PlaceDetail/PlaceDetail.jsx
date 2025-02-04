@@ -6,6 +6,7 @@ import Nav from '/src/components/common/Nav';
 
 import { getPlaceDetail } from '../../lib/place';
 import DetailHeader from '../common/DetailHeader';
+import Loading from '../Loading/Loading';
 import ContentsInfo from './ContentsInfo';
 import FunctionButton from './FunctionButton';
 import PlaceInfo from './PlaceInfo';
@@ -30,7 +31,7 @@ const PlaceDetail = () => {
     fetchPlace();
   }, [placeId]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
 
   const handleRoute = () => {
     navigate(`/reviewfeed/${placeId}`);

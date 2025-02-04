@@ -1,15 +1,23 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { IcKing } from '../assets/icons';
+import KingLogo from '../assets/icons/king_logo.png';
+import KingLogoImsi from '../assets/icons/king_logo_imsi.png';
+
 const SignupCompletePage = () => {
   const handleLogin = () => {
     window.location.href = '/home';
   };
 
   return (
-    <St.Page>
+    <StSignupCompletePageWrapper>
+      {/* <St.IconWrapper>
+        <IcKing />
+      </St.IconWrapper> */}
+      <LogoImage src={KingLogo} alt="King Logo" />
       <St.ContentWrapper>
-        <Title>회원가입 완료</Title>
+        {/* <Title>K-ing</Title> */}
         <Message>회원가입이 완료되었습니다.</Message>
       </St.ContentWrapper>
       <St.ButtonWrapper>
@@ -19,22 +27,23 @@ const SignupCompletePage = () => {
           </Button>
         </ButtonContainer>
       </St.ButtonWrapper>
-    </St.Page>
+    </StSignupCompletePageWrapper>
   );
 };
 
 export default SignupCompletePage;
 
+const StSignupCompletePageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5rem;
+  height: 100vh;
+  background-color: ${({ theme }) => theme.colors.White};
+`;
+
 const St = {
-  Page: styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 5rem;
-    height: 100vh;
-    background-color: ${({ theme }) => theme.colors.White};
-  `,
   ContentWrapper: styled.div`
     display: flex;
     flex-direction: column;
@@ -51,6 +60,9 @@ const St = {
     gap: 10px;
     width: 100%;
     max-width: 350px;
+  `,
+  IconWrapper: styled.div`
+    ${({ theme }) => theme.fonts.Title2}
   `,
 };
 
@@ -88,4 +100,11 @@ const Button = styled.button`
   &:hover {
     opacity: 0.8;
   }
+`;
+
+const LogoImage = styled.img`
+  width: 150px;
+  height: auto;
+  position: relative; /* 요소를 독립적으로 배치하기 위해 */
+  z-index: 2; /* 발자국보다 앞에 배치 */
 `;

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
@@ -25,7 +26,7 @@ public class Content {
 
     private String broadcast;
 
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     private String imageUrl;
 

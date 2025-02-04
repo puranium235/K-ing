@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -5,11 +6,12 @@ import { IcBookmarkBlank } from '../../assets/icons';
 import { IcBookmarkFill } from '../../assets/icons';
 
 const CurationItem = ({ item }) => {
+  const { id, title, imageUrl, writerNickname } = item;
+  const [bookmarked, setBookmarked] = useState(false);
   const navigate = useNavigate();
 
   const handleBookmarkClick = (event) => {
-    event.stopPropagation(); // 부모 클릭 이벤트 방지
-    console.log(`${item.title} 북마크 상태 변경`);
+    event.stopPropagation();
   };
 
   const handleCurationClick = (id) => {
@@ -18,13 +20,13 @@ const CurationItem = ({ item }) => {
 
   return (
     <St.Item onClick={() => handleCurationClick(item.id)}>
-      <St.Image src={item.image} alt={item.title} />
+      <St.Image src={imageUrl} alt={title} />
       <St.Info>
-        <St.Author>@{item.author}</St.Author>
-        <St.Title>{item.title}</St.Title>
+        <St.Author>@{writerNickname}</St.Author>
+        <St.Title>{title}</St.Title>
       </St.Info>
       <St.BookmarkButton onClick={handleBookmarkClick}>
-        {item.bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />}
+        {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />}
       </St.BookmarkButton>
     </St.Item>
   );
@@ -36,6 +38,7 @@ const St = {
   Item: styled.div`
     position: relative;
     width: 100%;
+    /* width: 100px; */
     height: 240px;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 카드 그림자 */

@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { placeDummyData } from '../../assets/dummy/dummyDataPlace';
 import { IcFilter, IcMap } from '../../assets/icons';
-import { FilterOption } from '../../recoil/atom';
+import { getSearchResult } from '../../lib/search';
+import { FilterOption, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import FilterButton from '../common/FilterButton';
 import Nav from '../common/Nav';
@@ -16,21 +16,87 @@ import PlaceCard from '../Home/PlaceCard';
 
 const SearchKeyword = () => {
   const navigate = useNavigate();
-  const cardsData = placeDummyData;
+
   const [filter, setFilter] = useRecoilState(FilterOption);
+  const [sortBy, setSortBy] = useState('popularity');
 
   const [isProvinceActive, setIsProvinceActive] = useState(false);
   const [isCategoryActive, setIsCategoryActive] = useState(false);
+  const [results, setResults] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
+  // const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
+  const [relatedType, setRelatedType] = useRecoilState(SearchRelatedType);
+
+  const sortType = {
+    가나다순: 'name',
+    인기순: 'popularity',
+    최신순: 'createdAt',
+  };
+
+  const getResults = async () => {
+    //장소 유형
+    const selectedPlaceType = Object.keys(filter.categories).filter(
+      (key) => filter.categories[key],
+    );
+
+    //지역
+    const region = [filter.province, filter.district].filter(Boolean).join(' ');
+
+    const res = await getSearchResult({
+      query: searchQuery,
+      category: 'PLACE',
+      region,
+      sortBy,
+      placeTypeList: selectedPlaceType,
+      relatedType,
+    });
+
+    setResults(res.results);
+  };
+
+  useEffect(() => {
+    getResults();
+  }, [searchQuery, filter, sortBy, , relatedType]);
+
+  //필터 해제
+  const handleToggleFilter = (filterType) => {
+    setFilter((prevFilter) => {
+      if (filterType === 'category') {
+        return {
+          ...prevFilter,
+          categories: Object.keys(prevFilter.categories).reduce((acc, key) => {
+            acc[key] = false;
+            return acc;
+          }, {}),
+        };
+      } else if (filterType === 'province') {
+        return {
+          ...prevFilter,
+          province: '',
+          district: '',
+        };
+      }
+      return prevFilter;
+    });
+  };
 
   useEffect(() => {
     if (filter && filter.categories) {
       setIsProvinceActive(filter.province !== '');
 
       setIsCategoryActive(Object.values(filter.categories).some((value) => value));
-
-      // console.log(filter);
     }
   }, [filter]);
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    setRelatedType('all');
+  };
+
+  const handleSorting = (newSorting) => {
+    setSortBy(sortType[newSorting]);
+  };
 
   const handleOpenFilter = () => {
     navigate(`/search/keyword/filter`);
@@ -42,6 +108,10 @@ const SearchKeyword = () => {
 
   const handleScrollUp = () => {};
 
+  if (!results) {
+    return null;
+  }
+
   return (
     <>
       <StHomeWrapper>
@@ -49,7 +119,7 @@ const SearchKeyword = () => {
           <BackButton />
           <h3> 장소 조회</h3>
         </IconText>
-        <SearchBar onSearch={() => {}} />
+        <SearchBar query={searchQuery || ''} onSearch={handleSearch} />
         <OptionHeader>
           <FilterWrapper>
             <FilterButton
@@ -58,23 +128,37 @@ const SearchKeyword = () => {
               onClickMethod={handleOpenFilter}
               $isActive={isProvinceActive || isCategoryActive}
             />
-            <FilterButton buttonName="장소 유형" $isActive={isCategoryActive} />
-            <FilterButton buttonName="지역" $isActive={isProvinceActive} />
+            <FilterButton
+              buttonName="장소 유형"
+              $isActive={isCategoryActive}
+              onClickMethod={() => handleToggleFilter('category')}
+            />
+            <FilterButton
+              buttonName="지역"
+              $isActive={isProvinceActive}
+              onClickMethod={() => handleToggleFilter('province')}
+            />
           </FilterWrapper>
           <Options>
             <IcMap onClick={handleOpenMap} />
-            <SortingRow />
+            <SortingRow onSortingChange={handleSorting} />
           </Options>
         </OptionHeader>
+        {results.length > 0 ? (
+          <ResultWrapper>
+            {results.map((card, index) => (
+              <PlaceCard key={index} place={card} />
+            ))}
+          </ResultWrapper>
+        ) : (
+          <NoResultsMessage>
+            <img src="/src/assets/icons/king_character_sorry.png" alt="검색 결과가 없습니다." />
+            검색 결과가 없습니다.😭😭
+          </NoResultsMessage>
+        )}
 
-        <ResultWrapper>
-          {cardsData.map((card) => (
-            <PlaceCard key={card.id} place={card} />
-          ))}
-        </ResultWrapper>
-        {/* 위로 화살표로 변경 */}
         <UpButton onClick={handleScrollUp}>
-          <img src="/src/assets/icons/map.png" alt="map" />
+          <img src="/src/assets/icons/ic_up.png" alt="up" />
         </UpButton>
         <Nav />
       </StHomeWrapper>
@@ -148,6 +232,25 @@ const ResultWrapper = styled.div`
   }
 `;
 
+const NoResultsMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+
+  width: 100%;
+  text-align: center;
+
+  padding: 7rem 0;
+
+  color: ${({ theme }) => theme.colors.Gray1};
+  ${({ theme }) => theme.fonts.Body1};
+
+  img {
+    width: 60%;
+  }
+`;
+
 const UpButton = styled.button`
   position: absolute;
   bottom: 9rem;
@@ -170,8 +273,8 @@ const UpButton = styled.button`
   }
 
   img {
-    width: 25px;
-    height: 25px;
+    width: 50px;
+    height: 50px;
     object-fit: contain;
   }
 `;

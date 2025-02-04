@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import {
@@ -13,6 +14,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getCelebDetails } from '../../lib/content';
+import { SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 
 const CelebDetails = () => {
@@ -21,8 +23,13 @@ const CelebDetails = () => {
   const [isFavorited, setIsFavorited] = useState(false);
 
   const navigate = useNavigate();
+  const setSearchQuery = useSetRecoilState(SearchQueryState);
+  const setRelatedType = useSetRecoilState(SearchRelatedType);
 
   const handleClickPlaceInfo = () => {
+    setSearchQuery(celebInfo.name);
+    setRelatedType('cast');
+
     navigate(`/search/keyword`);
   };
 
@@ -30,11 +37,6 @@ const CelebDetails = () => {
     const res = await getCelebDetails(celebId);
     setcelebInfo(res);
     setIsFavorited(res.favorite);
-
-    // if (celebInfo) {
-    //   const { title, type, broadcast, description, imageUrl, relatedCasts, favorite } = contentInfo;
-    //   setTypeKor(getContentTypeKor(convertLowerCase(type)));
-    // }
   };
 
   const toggleFavorite = () => {

@@ -4,10 +4,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
-import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
-import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
-import co.elastic.clients.elasticsearch.indices.GetIndexRequest;
-import co.elastic.clients.elasticsearch.indices.GetIndexResponse;
+import co.elastic.clients.elasticsearch.indices.*;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.client.RequestOptions;
 import org.springframework.stereotype.Component;
@@ -51,10 +48,11 @@ public class ElasticsearchUtil {
     /**
      * 인덱스 생성
      */
-    public void createIndex(String indexName, Map<String, Property> properties ) {
+    public void createIndex(String indexName, Map<String, Property> properties, IndexSettings settings) {
         if (!indexExists(indexName)) {
             CreateIndexRequest request = new CreateIndexRequest.Builder()
                     .index(indexName)
+                    .settings((IndexSettings) settings)
                     .mappings(new TypeMapping.Builder().properties(properties).build()) // 매핑 적용
                     .build();
             try {
@@ -70,6 +68,13 @@ public class ElasticsearchUtil {
         }else {
             System.out.println("이미 존재하는 인덱스: " + indexName);
         }
+    }
+
+    /**
+     * 기존 createIndex() 메소드 (settings 없이) - 필요시 유지
+     */
+    public void createIndex(String indexName, Map<String, Property> properties) {
+        createIndex(indexName, properties, IndexSettings.of(s -> s)); // 빈 settings 전달
     }
 
     public void deleteIndex(String indexName) {

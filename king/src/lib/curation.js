@@ -9,3 +9,15 @@ export const getCurationDetail = async (curationId) => {
     console.error(err);
   }
 };
+
+//큐레이션 리스트 조회
+export const getCurationList = async (query, cursor) => {
+  try {
+    const { data } = await client.get(
+      `/curation-lists/search?query=${query || ''}&cursor=${cursor || ''}`,
+    );
+    return data.data;
+  } catch (err) {
+    console.error(err);
+  }
+};

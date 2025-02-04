@@ -3,19 +3,19 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { IcSearch } from '../../assets/icons';
+import { getAutoKeyword } from '../../lib/search';
+import { getContentTypeKor } from '../../util/getContentType';
 
-const SearchBar = ({ onSearch }) => {
-  const [keyword, setKeyword] = useState('');
+const SearchBar = ({ type, query, onSearch }) => {
+  const [keyword, setKeyword] = useState(query);
+  const [category, setCategory] = useState('');
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
 
   // debounce -> 호출 지연
   const handleSearchChange = useCallback(
-    debounce((searchText) => {
-      console.log('API 호출:', searchText);
-      setAutoCompleteOptions([
-        { id: 1, name: '수지', category: '지명, 용인시' },
-        { id: 2, name: '수지', category: '가수, 배우' },
-      ]);
+    debounce(async (searchText) => {
+      const res = await getAutoKeyword(searchText, type);
+      setAutoCompleteOptions(res.results);
     }, 300),
     [],
   );
@@ -26,14 +26,21 @@ const SearchBar = ({ onSearch }) => {
   };
 
   const handleOptionClick = (option) => {
-    setKeyword(option.name);
     setAutoCompleteOptions([]);
+
+    setKeyword(option.name);
+    setCategory(option.category);
   };
 
   const handleSubmit = () => {
-    console.log('검색:', keyword);
-    // 검색
-    onSearch(keyword);
+    setAutoCompleteOptions([]);
+    onSearch(keyword, category);
+  };
+
+  const handleKeyEnter = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
   };
 
   return (
@@ -43,14 +50,15 @@ const SearchBar = ({ onSearch }) => {
         placeholder="검색어를 입력하세요."
         value={keyword}
         onChange={onChangeData}
+        onKeyDown={handleKeyEnter}
       />
       <IcSearch onClick={handleSubmit} />
       {autoCompleteOptions.length > 0 && (
         <AutoSearchContainer>
           <AutoSearchWrap>
-            {autoCompleteOptions.map((option) => (
-              <AutoSearchData key={option.id} onClick={() => handleOptionClick(option)}>
-                {option.name} <a>{option.category}</a>
+            {autoCompleteOptions.map((option, index) => (
+              <AutoSearchData key={index} onClick={() => handleOptionClick(option)}>
+                {option.name} <a>{getContentTypeKor(option.category.toLowerCase())}</a>
               </AutoSearchData>
             ))}
           </AutoSearchWrap>

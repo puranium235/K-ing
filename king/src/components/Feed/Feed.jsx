@@ -70,6 +70,7 @@ const FixedContainer = styled.div`
   z-index: 1000;
 
   padding-top: 2rem;
+  width: 100%;
 
   background-color: ${({ theme }) => theme.colors.White};
 `;

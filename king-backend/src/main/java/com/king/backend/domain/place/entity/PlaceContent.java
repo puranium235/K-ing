@@ -23,6 +23,7 @@ public class PlaceContent {
     @JoinColumn(name = "content_id", nullable = false)
     private Content content;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
 }

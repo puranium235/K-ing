@@ -1,19 +1,56 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import {
-  FavoritePeopleDummyData,
-  FavoriteWorksDummyData,
-} from '../../assets/dummy/dummyDataArchive';
-import FavoritesList from '../Archive/FavoritesList';
+import { getSearchResult } from '../../lib/search';
+import { SearchCategoryState, SearchPrevQuery, SearchQueryState } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
+import SearchList from './SearchList';
 
 const SearchResult = () => {
-  const contentList = FavoriteWorksDummyData;
-  const celebList = FavoritePeopleDummyData;
-  const placeList = FavoriteWorksDummyData;
+  const setPrevQuery = useSetRecoilState(SearchPrevQuery);
+  const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
+  const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
+
+  const [results, setResults] = useState(null);
+  const [contentList, setContentList] = useState([]);
+  const [celebList, setCelebList] = useState([]);
+  const [placeList, setPlaceList] = useState([]);
+
+  const getResults = async (query, category) => {
+    const res = await getSearchResult({ query: query || '', category: category || '' });
+    setResults(res.results);
+  };
+
+  const handleSearch = (query, category) => {
+    setSearchQuery(query);
+    setSearchCategory(category);
+    setPrevQuery(query);
+    getResults(query, category);
+  };
+
+  useEffect(() => {
+    getResults(searchQuery, searchCategory);
+  }, [searchQuery, searchCategory]);
+
+  useEffect(() => {
+    if (results) {
+      setContentList(
+        results.filter(
+          (item) =>
+            item.category === 'DRAMA' || item.category === 'MOVIE' || item.category === 'SHOW',
+        ),
+      );
+      setCelebList(results.filter((item) => item.category === 'CAST'));
+      setPlaceList(results.filter((item) => item.category === 'PLACE'));
+    }
+  }, [results]);
+
+  if (!results) {
+    return null;
+  }
 
   return (
     <>
@@ -23,12 +60,12 @@ const SearchResult = () => {
             <BackButton />
             <h3> 통합검색</h3>
           </IconText>
-          <SearchBar onSearch={() => {}} />
+          <SearchBar query={searchQuery} onSearch={handleSearch} />
         </Header>
         <ResultWrapper>
-          <FavoritesList title="작품" data={contentList} />
-          <FavoritesList title="인물" data={celebList} />
-          <FavoritesList title="장소" data={placeList} />
+          <SearchList title="작품" data={contentList} type="CONTENT" />
+          <SearchList title="인물" data={celebList} type="CAST" />
+          <SearchList title="장소" data={placeList} type="PLACE" />
         </ResultWrapper>
         <Nav />
       </StHomeWrapper>
@@ -38,15 +75,13 @@ const SearchResult = () => {
 
 export default SearchResult;
 
+// ✅ 스타일 정의
 const StHomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: start;
   text-align: center;
-
-  /* width: 100%; */
-  /* padding: 2rem; */
   margin-bottom: 7rem;
 `;
 
@@ -73,5 +108,4 @@ const IconText = styled.div`
 
 const ResultWrapper = styled.div`
   margin: 0 1rem;
-  /* width: 100%; */
 `;

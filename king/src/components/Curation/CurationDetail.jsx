@@ -4,9 +4,10 @@ import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { getCurationDetail } from '../../lib/curation';
-import { curationPlaceList } from '../../recoil/atom';
+import { CurationPlaceList } from '../../recoil/atom';
 import { formatDate } from '../../util/dateFormat';
 import DetailHeader from '../common/DetailHeader';
+import Loading from '../Loading/Loading';
 import CardListItem from './CardListItem';
 import FunctionButton from './FunctionButton';
 import UserProfile from './UserProfile';
@@ -14,7 +15,7 @@ import UserProfile from './UserProfile';
 const CurationDetail = () => {
   const navigate = useNavigate();
   const { curationId } = useParams();
-  const setPlaceList = useSetRecoilState(curationPlaceList);
+  const setPlaceList = useSetRecoilState(CurationPlaceList);
   const [curationData, setCurationData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -32,10 +33,18 @@ const CurationDetail = () => {
     fetchCurationData();
   }, [curationId, setPlaceList]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
 
   const handleRoute = () => {
     navigate(`/curation/map`);
+  };
+
+  const handleBookmarkClick = () => {
+    setCurationData((prevData) => ({
+      ...prevData,
+      bookmarked: !prevData.bookmarked,
+    }));
+    console.log(`북마크 상태 변경: ${!curationData.bookmarked}`);
   };
 
   return (
@@ -55,7 +64,10 @@ const CurationDetail = () => {
             date={formatDate(curationData.createdAt)}
             profileImage={curationData.writer.imageUrl}
           />
-          <FunctionButton bookmarked={curationData.bookmarked} />
+          <FunctionButton
+            bookmarked={curationData.bookmarked}
+            onBookmarkClick={handleBookmarkClick}
+          />
         </UserContainer>
         <Description>{curationData.description}</Description>
       </Content>
