@@ -291,11 +291,11 @@ CREATE TABLE `search_ranking` (
 -- 1. user 테이블
 INSERT INTO `user` (`email`, `nickname`, `image_url`, `google_id`, `line_id`, `created_at`, `description`, `content_alarm_on`, `language`, `status`)
 VALUES
-    ('user1@example.com', 'user1', 'http://example.com/user1.jpg', 'google1', NULL, NOW(), 'Travel enthusiast.', TRUE, 'en', 'registered1'),
-    ('user2@example.com', 'user2', 'http://example.com/user2.jpg', NULL, 'line1', NOW(), 'Loves movies and coffee.', FALSE, 'ko', 'registered'),
-    ('user3@example.com', 'user3', 'http://example.com/user3.jpg', 'google3', NULL, NOW(), 'Passionate about art.', TRUE, 'zh', 'registered'),
-    ('user4@example.com', 'user4', 'http://example.com/user4.jpg', NULL, 'line2', NOW(), 'Tech geek and foodie.', FALSE, 'ja', TRUE),
-    ('user5@example.com', 'user5', 'http://example.com/user5.jpg', 'google5', NULL, NOW(), 'History buff.', TRUE, 'en', FALSE);
+    ('user1@example.com', 'user1', 'http://example.com/user1.jpg', 'google1', NULL, NOW(), 'Travel enthusiast.', TRUE, 'en', 'ROLE_REGISTERED'),
+    ('user2@example.com', 'user2', 'http://example.com/user2.jpg', 'google2', 'line1', NOW(), 'Loves movies and coffee.', FALSE, 'ko', 'ROLE_REGISTERED'),
+    ('user3@example.com', 'user3', 'http://example.com/user3.jpg', 'google3', NULL, NOW(), 'Passionate about art.', TRUE, 'zh', 'ROLE_REGISTERED'),
+    ('user4@example.com', 'user4', 'http://example.com/user4.jpg', 'google4', 'line2', NOW(), 'Tech geek and foodie.', FALSE, 'ja', 'ROLE_REGISTERED'),
+    ('user5@example.com', 'user5', 'http://example.com/user5.jpg', 'google5', NULL, NOW(), 'History buff.', TRUE, 'en', 'ROLE_REGISTERED');
 
 -- 2. place 테이블
 INSERT INTO `place` (`name`, `type`, `description`, `open_hour`, `break_time`, `closed_day`, `address`, `lat`, `lng`, `phone`, `image_url`, `view`)
@@ -308,37 +308,74 @@ VALUES
 -- 3. content 테이블
 INSERT INTO `content` (`type`, `broadcast`, `created_at`, `image_url`, `tmdb_id`)
 VALUES
-    ('DRAMA', 'KBS', NOW(), 'https://image.tmdb.org/t/p/w500/zP0tEXW21KAlsDdTsKjXiHy1T4Y.jpg', 101),
+    ('DRAMA', 'KBS', NOW(), 'https://image.tmdb.org/t/p/w500/aTixMf5OaKA50QNvcKv18X9SLjX.jpg', 101),
     ('MOVIE', 'CJ Entertainment', NOW(), 'https://image.tmdb.org/t/p/w500/mO55nkEFrI2EVdjxx0asaOGtHfa.jpg', 102),
-    ('SHOW', 'SBS', NOW(), 'https://image.tmdb.org/t/p/w500/aTixMf5OaKA50QNvcKv18X9SLjX.jpg', 103);
+    ('SHOW', 'SBS', NOW(), 'https://image.tmdb.org/t/p/w500/aTixMf5OaKA50QNvcKv18X9SLjX.jpg', 103),
+    ('DRAMA', 'JTBC', NOW(), 'https://image.tmdb.org/t/p/w500/5dZijYdQMyaV22CZn9IVmdxdTBs.jpg', 67014),
+    ('DRAMA', 'MBC', NOW(), 'https://image.tmdb.org/t/p/w500/lX5Gn41rG3lcGAQHPJqLOK1fwwP.jpg', 66330),
+    ('SHOW', 'tvN', NOW(), 'https://image.tmdb.org/t/p/w500/9C6MhvOK87gUFchadlau1ypUuiG.jpg', 75750),
+    ('SHOW', 'tvN', NOW(), 'https://image.tmdb.org/t/p/w500/pnibkuL74C33GoKLTXAmF4nl3a6.jpg', 78648),
+    ('SHOW', 'tvN', NOW(), 'https://image.tmdb.org/t/p/w500/2I5lAbIFUluXJH6cgnfy08zYJW4.jpg', 78477);
 
 -- 4. content_ko 테이블
 INSERT INTO `content_ko` (`title`, `description`, `content_id`)
 VALUES
     ('(아는 건 별로 없지만) 가족입니다', '가족의 관계를 다시 조명하는 감동적인 드라마.', 1),
     ('1987', '역사적 사건을 바탕으로 한 강렬한 영화.', 2),
-    ('1박2일', '한국의 아름다움을 보여주는 예능 프로그램.', 3);
+    ('1박2일', '한국의 아름다움을 보여주는 예능 프로그램.', 3),
+    ('청춘시대', '외모부터 성격, 전공, 남자 취향, 연애스타일까지 모두 다른 5명의 매력적인 여대생이 셰어하우스 벨 에포크에 모여 살며 벌어지는 유쾌하고 발랄한 청춘 드라마.', 4),
+    ('W(더블유)', '같은 공간 다른 차원을 교차하는 사건의 중심에 선 냉철한 천재 벤처재벌 강철과 활달하고 정 많은 외과의사 오연주가 펼치는 로맨틱 서스펜스 멜로 드라마.', 5),
+    ('신서유기 외전: 강식당', '셰프가 된 요괴들의 리얼 장사 프로젝트! 힘든 하루의 무게만큼 빈 그릇의 기쁨을 배워가는 식구들과 그들을 찾아온 다양한 손님들이 만들어낸 소란한 보통날의 이야기.', 6),
+    ('놀라운 토요일', '‘좋아요’ 폭발하는 SNS 핵 공감 핫 플레이스부터 오랜 전통이 살아 숨 쉬는 노포까지! 혀르가즘 자극하는 시장의 먹거리를 얻기 위한 MC군단의 자존심을 건 미션 수행!', 7),
+    ('선다방', '‘일반인 맞선 전문 예약제 카페’를 콘셉트로, 스타 카페지기들이 실제 맞선 전문 카페를 운영하며 다양한 삶의 이야기를 나누는 프로그램.', 8);
 
 -- 5. content_en 테이블
 INSERT INTO `content_en` (`title`, `description`, `content_id`)
 VALUES
     ('(My Unfamiliar Family)', 'A touching drama about family relationships.', 1),
     ('1987', 'A powerful film based on historical events.', 2),
-    ('2 Days 1 Night', 'A show highlighting Koreas beauty.', 3);
+    ('2 Days 1 Night', 'A show highlighting Koreas beauty.', 3),
+    ('Age of Youth', 'A story about five young women with different personalities living together in a shared house.', 4),
+    ('W: Two Worlds', 'A romantic suspense drama about a genius entrepreneur and a warm-hearted doctor crossing different dimensions.', 5),
+    ('Kang’s Kitchen', 'A real-life restaurant project where celebrities take on the challenge of running a restaurant.', 6),
+    ('Amazing Saturday', 'A music variety show where the cast competes to guess lyrics and win delicious food.', 7),
+    ('The Love Studio', 'A show featuring real-life blind dates, hosted by celebrity café managers.', 8);
 
 -- 8. cast 테이블
 INSERT INTO `cast` (`image_url`, `birth_date`, `participating_work`, `created_at`, `tmdb_id`)
 VALUES
     ('https://image.tmdb.org/t/p/w500/ukEY6AV2EjeGDjMayDj5rpo8pHw.jpg', '1990-01-01', 5, NOW(), 201),
-    ('https://image.tmdb.org/t/p/w500/kmOX5In999BJRSygHc2ulusuJE0.jpg', '1985-05-12', 3, NOW(), 202),
-    ('https://image.tmdb.org/t/p/w500/wbrwRD290SJv0ZIQC1ngv0slyCD.jpg', '1981-07-28', 10, NOW(), 203);
+    ('https://image.tmdb.org/t/p/w500/wbrwRD290SJv0ZIQC1ngv0slyCD.jpg', '1981-07-28', 10, NOW(), 203),
+    ('https://image.tmdb.org/t/p/w500/tceyY4cqTxkiar4jFjPnEaZ6QRZ.jpg', '1970-06-11', 61, NOW(), 1250840),
+    ('https://image.tmdb.org/t/p/w500/zwEmEAS7CAuJLwhLhvSB09La1QM.jpg', '1975-02-10', 79, NOW(), 1250841),
+    ('https://image.tmdb.org/t/p/w500/9GVVhuZ2e7BTj9WR3WyenVfIDRw.jpg', '1994-06-09', 42, NOW(), 1413827),
+    ('https://image.tmdb.org/t/p/w500/67YkqSOk6LSAoM6WzSeXgerM7nD.jpg', '1994-10-10', 35, NOW(), 1014784),
+    ('https://image.tmdb.org/t/p/w500/eW73DbmKQrqb6xDC52oMbVehw6G.jpg', '1989-09-14', 34, NOW(), 1095818),
+    ('https://image.tmdb.org/t/p/w500/7ZMUHR2q0XTWMxuqijWSVfWQv14.jpg', '1988-04-01', 42, NOW(), 1470763);
 
 -- 9. cast_ko 테이블
 INSERT INTO `cast_ko` (`name`, `birth_place`, `cast_id`)
 VALUES
     ('한예리', 'Seoul, South Korea', 1),
-    ('김태호', 'Seoul, South Korea', 2),
-    ('조인성', 'Seoul, South Korea', 3);
+    ('조인성', 'Seoul, South Korea', 2),
+    ('강호동', 'Jinju, South Gyeongsang, South Korea', 3),
+    ('이수근', 'Yangpyeong, Gyeonggi, South Korea', 4),
+    ('이혜리', 'Gwangju, Gyeonggi, South Korea', 5),
+    ('수지', 'Gwangju, South Korea', 6),
+    ('이종석', 'Suwon, Gyeonggi, South Korea', 7),
+    ('정해인', 'Seoul, South Korea', 8);
+
+-- 10. cast_en 테이블
+INSERT INTO `cast_en` (`name`, `birth_place`, `cast_id`)
+VALUES
+    ('han', 'Seoul, South Korea', 1),
+    ('jo', 'Seoul, South Korea', 2),
+    ('Kang Ho-dong', 'Jinju, South Gyeongsang, South Korea', 3),
+    ('Lee Soo-geun', 'Yangpyeong, Gyeonggi, South Korea', 4),
+    ('Lee Hye-ri', 'Gwangju, Gyeonggi, South Korea', 5),
+    ('Bae Suzy', 'Gwangju, South Korea', 6),
+    ('Lee Jong-suk', 'Suwon, Gyeonggi, South Korea', 7),
+    ('Jung Hae-in', 'Seoul, South Korea', 8);
 
 -- 13. place_content 테이블
 INSERT INTO `place_content` (`place_id`, `content_id`, `description`)
@@ -352,10 +389,18 @@ VALUES
 INSERT INTO `content_cast` (`content_id`, `cast_id`)
 VALUES
     (1, 1),
+    (1, 2),
     (2, 1),
     (3, 1),
-    (1, 2),
-    (3, 3);
+    (3, 3),
+    (3, 4),
+    (4,5),
+    (4,6),
+    (5,6),
+    (5,7),
+    (5,8),
+    (6, 3),
+    (6, 4);
 
 -- 15. place_cast 테이블
 INSERT INTO `place_cast` (`place_id`, `cast_id`, `description`)

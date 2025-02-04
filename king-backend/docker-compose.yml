@@ -11,8 +11,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    command:
-      --skip-character-set-client-handshake
+    command: --skip-character-set-client-handshake
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - mysql-data:/var/lib/mysql
@@ -25,7 +24,7 @@ services:
     image: redis:alpine
     container_name: redis
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 3s
       retries: 5
       start_period: 1s
@@ -42,7 +41,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
     container_name: elastic
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9200" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
       interval: 5s
       retries: 60
       start_period: 5s
@@ -85,6 +84,12 @@ services:
       CLIENT_BASE_URL: ${CLIENT_BASE_URL}
       ACCESSTOKEN_EXPIRES_IN: ${ACCESSTOKEN_EXPIRES_IN}
       REFRESHTOKEN_EXPIRES_IN: ${REFRESHTOKEN_EXPIRES_IN}
+      # S3 관련 환경 변수 추가
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      # OpenAI
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     depends_on:
       mysql:

@@ -31,7 +31,8 @@ spring:
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    show-sql: false
+    open-in-view: false #  추가
+    show-sql: true # 추가
     properties:
       hibernate:
         format_sql: true
@@ -49,6 +50,11 @@ spring:
     uris: ${ELASTIC_HOST}:${ELASTIC_PORT}
     username: ${ELASTIC_USERNAME}
     password: ${ELASTIC_PASSWORD}
+  aws:
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    region: ${AWS_REGION}
+    s3-bucket: ${AWS_S3_BUCKET}
 server:
   port: 8080
   servlet:
