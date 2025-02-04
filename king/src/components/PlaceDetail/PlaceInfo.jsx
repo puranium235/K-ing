@@ -44,14 +44,14 @@ const PlaceInfo = ({ placeData }) => {
 };
 
 const DetailContainer = styled.div`
-  padding: 20px 0px;
+  padding: 2rem 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 12px;
+  gap: 1.2rem;
 
   img {
-    width: 15px;
+    width: 1.5rem;
   }
 `;
 
@@ -63,13 +63,13 @@ const Details = styled.div`
 const ImportantInfoItem = styled.span`
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.6rem;
   ${({ theme }) => theme.fonts.Title5};
   color: ${(props) => (props.$isAlwaysOpen ? '#17A600' : props.theme.colors.Red)};
 
   img {
-    width: 16px;
-    height: 16px;
+    width: 1.6rem;
+    height: 1.6rem;
   }
 `;
 

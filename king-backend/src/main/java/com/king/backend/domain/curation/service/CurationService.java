@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class CurationService {
     private final CurationListBookmarkRepository curationListBookmarkRepository;
     private final CurationListItemRepository curationListItemRepository;
 
+    @Transactional
     public CurationDetailResponseDTO getCurationDetail(Long curationListId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
