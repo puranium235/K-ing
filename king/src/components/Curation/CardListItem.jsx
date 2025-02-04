@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import LocationIcon from '../../assets/icons/location.png';
 import { getShortAddress } from '../../util/addressFormat';
 
 const CardListItem = ({ place }) => {
@@ -10,20 +11,20 @@ const CardListItem = ({ place }) => {
   const handleCurationClick = (id) => {
     navigate(`/place/${id}`);
   };
-  const { placeId, placeImage, name, address } = place;
+  const { placeId, imageUrl, name, address } = place;
 
   return (
     <CardContainer onClick={() => handleCurationClick(placeId)}>
       {/* 이미지 컨테이너 */}
       <ImageContainer>
-        <Image src={placeImage} alt={name} />
+        <Image src={imageUrl} alt={name} />
       </ImageContainer>
 
       {/* 텍스트 컨테이너 */}
       <TextContainer>
         <Title>{name}</Title>
         <Address>
-          <img src="/src/assets/icons/location.png" alt="location" />
+          <img src={LocationIcon} alt="location" />
           {getShortAddress(address)}
         </Address>
       </TextContainer>
@@ -60,13 +61,13 @@ const TextContainer = styled.div`
   padding: 10px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 
   width: 100%;
 `;
 
 const Title = styled.h3`
   width: 100%;
-  text-align: center;
 
   white-space: nowrap;
   overflow: hidden;

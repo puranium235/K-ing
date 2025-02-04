@@ -1,6 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import CafeIcon from '../../assets/icons/cafe.png';
+import CafeDarkIcon from '../../assets/icons/cafe_dark.png';
+import PlaygroundIcon from '../../assets/icons/playground.png';
+import PlaygroundDarkIcon from '../../assets/icons/playground_dark.png';
+import RestaurantIcon from '../../assets/icons/restaurant.png';
+import RestaurantDarkIcon from '../../assets/icons/restaurant_dark.png';
+import ShopIcon from '../../assets/icons/shop.png';
+import ShopDarkIcon from '../../assets/icons/shop_dark.png';
+import StayIcon from '../../assets/icons/stay.png';
+import StayDarkIcon from '../../assets/icons/stay_dark.png';
+
 const filterMap = {
   RESTAURANT: '식당',
   CAFE: '카페',
@@ -11,16 +22,16 @@ const filterMap = {
 
 const filterIcons = {
   RESTAURANT: {
-    default: '/src/assets/icons/restaurant_dark.png',
-    active: '/src/assets/icons/restaurant.png',
+    default: RestaurantDarkIcon,
+    active: RestaurantIcon,
   },
-  CAFE: { default: '/src/assets/icons/cafe_dark.png', active: '/src/assets/icons/cafe.png' },
+  CAFE: { default: CafeDarkIcon, active: CafeIcon },
   PLAYGROUND: {
-    default: '/src/assets/icons/playground_dark.png',
-    active: '/src/assets/icons/playground.png',
+    default: PlaygroundDarkIcon,
+    active: PlaygroundIcon,
   },
-  STORE: { default: '/src/assets/icons/shop_dark.png', active: '/src/assets/icons/shop.png' },
-  STAY: { default: '/src/assets/icons/stay_dark.png', active: '/src/assets/icons/stay.png' },
+  STORE: { default: ShopDarkIcon, active: ShopIcon },
+  STAY: { default: StayDarkIcon, active: StayIcon },
 };
 
 const FilterButtons = ({ filters, activeFilter, onFilterChange }) => {
@@ -70,7 +81,7 @@ const FilterButton = styled.button`
   border: 1px solid ${(props) => (props.$active ? props.theme.colors.MainBlue : '#CAC4D0')};
   border-radius: 8px;
   cursor: pointer;
-  color: ${(props) => (props.$active ? '#fff' : props.theme.colors.Grey1)};
+  color: ${(props) => (props.$active ? '#fff' : props.theme.colors.Gray1)};
   background-color: ${(props) => (props.$active ? props.theme.colors.MainBlue : '#fff')};
   transition:
     background-color 0.3s,

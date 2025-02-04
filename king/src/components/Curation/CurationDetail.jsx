@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
+import MapIcon from '/src/assets/icons/map.png';
+
 import { getCurationDetail } from '../../lib/curation';
 import { CurationPlaceList } from '../../recoil/atom';
 import { formatDate } from '../../util/dateFormat';
@@ -80,7 +82,7 @@ const CurationDetail = () => {
       </PlaceList>
 
       <MapButton onClick={handleRoute}>
-        <img src="/src/assets/icons/map.png" alt="map" />
+        <img src={MapIcon} alt="map" />
       </MapButton>
     </Container>
   );
