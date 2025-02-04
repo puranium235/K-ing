@@ -4,7 +4,6 @@ import com.king.backend.domain.content.entity.ContentCast;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -13,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
-//@EntityListeners(CastListener.class)
+@EntityListeners(CastListener.class)
 @Setter
 public class Cast {
 

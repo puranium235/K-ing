@@ -43,7 +43,6 @@ spring:
     uris: ${ELASTIC_HOST}:${ELASTIC_PORT}
     username: ${ELASTIC_USERNAME}
     password: ${ELASTIC_PASSWORD}
-  # AWS S3 관련 환경 변수 추가
   aws:
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}

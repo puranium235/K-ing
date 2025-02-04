@@ -31,7 +31,4 @@ public class S3Config {
                 )
                 .build();
     }
-
-
-
 }

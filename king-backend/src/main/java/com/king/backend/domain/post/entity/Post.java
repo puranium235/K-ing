@@ -30,7 +30,7 @@ public class Post {
     @JoinColumn(name="user_id", nullable=false)
     private User user;
 
-    private Long placeId; // place 객체 대신 placeId만 저장
+    private Long placeId;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostImage> postImages;

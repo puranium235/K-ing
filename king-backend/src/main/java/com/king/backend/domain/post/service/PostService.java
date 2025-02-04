@@ -15,6 +15,4 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final S3Service s3Service;
-
-
 }
