@@ -2,6 +2,7 @@ package com.king.backend.ai.service;
 
 import com.king.backend.ai.dto.ChatHistory;
 import com.king.backend.ai.repository.ChatHistoryRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ public class ChatHistoryService {
         return chatHistoryRepository.findByUserId(userId);
     }
 
+    @Transactional
     public void deleteByUserId(Long userId) {
         chatHistoryRepository.deleteByUserId(userId);
     }

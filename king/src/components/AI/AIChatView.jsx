@@ -28,10 +28,17 @@ const AIChatView = () => {
   const chatT = '회차정보 기반 장소 검색 T봇';
   const chatF = '맞춤 큐레이션 추천 F봇';
 
-  const handleRefresh = () => {
-    setMessages(initialMessages);
-    setNewMessage('');
-    setCurrentApi('');
+  const handleRefresh = async () => {
+    try {
+      await client.delete('/chatbot');
+
+      setMessages(initialMessages);
+      setNewMessage('');
+      setCurrentApi('');
+      console.log('대화 기록이 성공적으로 삭제되었습니다.');
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleOptionClick = (option) => {
@@ -39,14 +46,14 @@ const AIChatView = () => {
     setMessages((prev) => [...prev, optionMessage]);
 
     if (option === chatT) {
-      setCurrentApi(`/ai/chat`);
+      setCurrentApi(`/chatbot`);
       const aiMessage = {
         text: 'T 챗봇은 회차정보 기반 장소를 검색하는 데 특화되어 있습니다.',
         sender: 'ai',
       };
       setMessages((prev) => [...prev, aiMessage]);
     } else if (option === chatF) {
-      setCurrentApi(`/ai/chat`);
+      setCurrentApi(`/chatbot`);
       const aiMessage = {
         text: 'F 챗봇은 맞춤 큐레이션 추천에 특화되어 있습니다.',
         sender: 'ai',
@@ -64,7 +71,7 @@ const AIChatView = () => {
     setIsTyping(true);
 
     try {
-      const response = await client.post(`/ai/chat`, { userMessage: newMessage });
+      const response = await client.post(`/chatbot`, { userMessage: newMessage });
       const aiResponse = { text: response.data.message, sender: 'ai' };
       setMessages((prev) => [...prev, aiResponse]);
     } catch (error) {
@@ -141,7 +148,7 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 20px;
+  padding: 1.4rem 2rem;
   width: 95%;
   ${({ theme }) => theme.fonts.Title4};
 `;
@@ -151,8 +158,8 @@ const RefreshButton = styled.button`
   align-items: center;
 
   img {
-    width: 16px;
-    height: 16px;
+    width: 1.6rem;
+    height: 1.6rem;
   }
 `;
 
@@ -160,14 +167,14 @@ const IntroMessageContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  gap: 1.2rem;
+  padding: 1.6rem;
   width: 100%;
   ${({ theme }) => theme.fonts.Body2};
 
   img {
-    width: 35px;
-    height: 35px;
+    width: 3.5rem;
+    height: 3.5rem;
   }
 `;
 
@@ -175,7 +182,7 @@ const MessagesContainer = styled.div`
   flex: 1;
   width: 90%;
   height: 100%;
-  padding: 10px;
+  padding: 1rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -186,12 +193,12 @@ const Message = styled.div`
   flex-direction: column;
   align-items: ${({ $sender }) =>
     $sender === 'user' || $sender === 'option' ? 'flex-end' : 'flex-start'};
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 `;
 
 const MessageBubble = styled.div`
   max-width: 70%;
-  padding: 8px 12px;
+  padding: 0.8rem 1.2rem;
   border-radius: 5px;
   background-color: ${({ $sender }) => ($sender === 'user' ? '#D9EAFF' : '#DFD9FF')};
   color: ${({ theme }) => theme.fonts.Body4};
@@ -201,7 +208,7 @@ const MessageBubble = styled.div`
 `;
 
 const OptionMessageBubble = styled.div`
-  padding: 2px 5px;
+  padding: 0.2rem 0.5rem;
   background-color: #95b4dd;
   color: white;
   border: none;
@@ -214,7 +221,7 @@ const OptionMessageBubble = styled.div`
 `;
 
 const OptionButton = styled.button`
-  padding: 2px 5px;
+  padding: 0.2rem 0.5rem;
   background-color: #a6acd7;
   color: white;
   border: none;
@@ -233,7 +240,7 @@ const ChatBotContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 1rem;
   max-width: 80%;
   border-radius: 16px;
   white-space: pre-wrap;
@@ -241,7 +248,7 @@ const ChatBotContainer = styled.div`
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 7px;
+  gap: 0.7rem;
 `;
 
 const InputContainer = styled.div`
@@ -249,24 +256,24 @@ const InputContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 90%;
-  padding: 12px;
+  padding: 1.2rem;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
 `;
 
 const Input = styled.input`
   flex: 1;
-  padding: 10px;
-  font-size: 14px;
+  padding: 1rem;
+  font-size: 1.4rem;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 2rem;
   outline: none;
-  margin-right: 10px;
+  margin-right: 1rem;
 `;
 
 const SendButton = styled.button`
-  padding: 10px 14px;
-  font-size: 14px;
+  padding: 1rem 1.4rem;
+  font-size: 1.4rem;
   background-color: ${({ theme }) => theme.colors.MainBlue};
   color: white;
   border: none;
@@ -281,15 +288,15 @@ const SendButton = styled.button`
   }
 
   img {
-    width: 18px;
-    height: 18px;
+    width: 1.8rem;
+    height: 1.8rem;
   }
 `;
 
 const TypingIndicator = styled.div`
-  font-size: 12px;
+  font-size: 1.2rem;
   color: #aaa;
-  margin-top: 8px;
+  margin-bottom: 1rem;
 `;
 
 export default AIChatView;
