@@ -136,11 +136,6 @@ const Header = styled.div`
   padding: 14px 20px;
   width: 95%;
   ${({ theme }) => theme.fonts.Title4};
-
-  svg {
-    width: 1.8rem;
-    height: 1.8rem;
-  }
 `;
 
 const RefreshButton = styled.button`

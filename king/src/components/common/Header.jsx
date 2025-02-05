@@ -102,11 +102,6 @@ const StHeader = styled.div`
   align-items: center;
   padding: 1.4rem 1rem;
   gap: 1rem;
-
-  svg {
-    width: 1.8rem;
-    height: 1.8rem;
-  }
 `;
 
 const OptionButton = styled.button`
