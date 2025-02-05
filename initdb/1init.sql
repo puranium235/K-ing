@@ -3,6 +3,15 @@ CREATE DATABASE king;
 
 USE king;
 
+CREATE TABLE chat_history (
+                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          user_id BIGINT NOT NULL,
+                          role VARCHAR(255) NOT NULL,
+                          content TEXT NOT NULL,
+                          type VARCHAR(255),
+                          created DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE messages (
                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
                           created DATETIME DEFAULT NOW(),
