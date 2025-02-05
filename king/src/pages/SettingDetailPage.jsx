@@ -2,17 +2,17 @@ import styled from 'styled-components';
 
 import Setting from '../components/Setting/Setting';
 
-const SettingPage = () => {
+const SettingDetailPage = () => {
   return (
-    <StSettingPageWrapper>
+    <StSettingDetailPageWrapper>
       <Setting />
-    </StSettingPageWrapper>
+    </StSettingDetailPageWrapper>
   );
 };
 
-export default SettingPage;
+export default SettingDetailPage;
 
-const StSettingPageWrapper = styled.div`
+const StSettingDetailPageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
