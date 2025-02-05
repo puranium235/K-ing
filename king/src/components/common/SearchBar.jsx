@@ -122,7 +122,6 @@ const AutoSearchData = styled.li`
 
   padding: 1rem;
   z-index: 4;
-  letter-spacing: 2px;
 
   color: ${({ theme }) => theme.colors.Gray1};
   ${({ theme }) => theme.fonts.Body5};

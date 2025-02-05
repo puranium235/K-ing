@@ -96,6 +96,11 @@ const IconText = styled.div`
   align-items: center;
   gap: 0.7rem;
 
+  svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
   h3 {
     width: 100%;
     padding: 0.5rem 0;
@@ -104,4 +109,6 @@ const IconText = styled.div`
   }
 `;
 
-const ResultWrapper = styled.div``;
+const ResultWrapper = styled.div`
+  width: 100%;
+`;

@@ -1,10 +1,12 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
+import { ContentType } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
@@ -13,6 +15,7 @@ import SearchBar from '../common/SearchBar';
 const Content = () => {
   const { contentType } = useParams();
   // const [contentType, setContentType] = useRecoilState(ContentType);
+  const setContentType = useSetRecoilState(ContentType);
   const [query, setQuery] = useState('');
   const [favorites, setFavorites] = useState({});
   const [results, setResults] = useState();
@@ -56,6 +59,8 @@ const Content = () => {
   };
 
   const handleDramaClick = (id) => {
+    setContentType(contentType);
+
     if (contentType === 'cast') {
       navigate(`/content/cast/${id}`);
     } else {
@@ -63,11 +68,15 @@ const Content = () => {
     }
   };
 
+  const handleGoBack = () => {
+    navigate(`/home`);
+  };
+
   return (
     <>
       <StHomeWrapper>
         <IconText>
-          <BackButton />
+          <BackButton onBack={handleGoBack} />
           <h3> {getContentTypeKor(contentType)}</h3>
         </IconText>
         <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
@@ -112,6 +121,11 @@ const IconText = styled.div`
   align-items: center;
   gap: 0.7rem;
 
+  svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
   h3 {
     width: 100%;
     padding: 0.5rem 0;
@@ -135,8 +149,8 @@ const Card = styled.div`
   background-color: ${({ theme }) => theme.colors.White};
   position: relative;
 
-  width: 8.5rem;
-  height: 15rem;
+  width: 100%;
+  height: 100%;
 
   #favor {
     position: absolute;
@@ -150,19 +164,21 @@ const Card = styled.div`
 
 const CardImageContainer = styled.div`
   width: 100%;
-  height: 100%;
+  height: 80%;
   display: flex;
 `;
 
 const CardImage = styled.img`
   width: 100%;
-  min-height: 8rem;
+  height: 100%;
   object-fit: cover;
 
   border-radius: 0;
 `;
 
 const CardTitle = styled.h4`
+  flex: 1;
+  width: 100%;
   margin-top: 5px;
   ${({ theme }) => theme.fonts.Body4};
   color: ${({ theme }) => theme.colors.Gray0};

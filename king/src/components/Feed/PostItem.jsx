@@ -43,8 +43,9 @@ const St = {
   `,
   Image: styled.img`
     width: 100%;
-    height: 168px;
+    min-height: 16rem;
     border-radius: 10px;
+    object-fit: cover;
   `,
   Info: styled.div`
     display: flex;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import {
@@ -13,7 +13,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getContentDetails } from '../../lib/content';
-import { SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
@@ -26,6 +26,7 @@ const ContentDetails = () => {
 
   const setSearchQuery = useSetRecoilState(SearchQueryState);
   const setRelatedType = useSetRecoilState(SearchRelatedType);
+  const contentType = useRecoilValue(ContentType);
 
   const navigate = useNavigate();
 
@@ -51,6 +52,10 @@ const ContentDetails = () => {
     setIsFavorited(res.favorite);
   };
 
+  const handleGoBack = () => {
+    navigate(`/content/${contentType}`);
+  };
+
   useEffect(() => {
     getDetails();
   }, [contentId]);
@@ -63,7 +68,7 @@ const ContentDetails = () => {
     <>
       <DramaPageContainer>
         <IconText>
-          <BackButton />
+          <BackButton onBack={handleGoBack} />
           <h3> 세부정보</h3>
         </IconText>
 
@@ -132,7 +137,7 @@ const DramaPageContainer = styled.div`
   flex-direction: column;
   justify-content: flex-start;
 
-  padding: 20px;
+  padding: 2rem;
   background-color: #fff;
 
   min-height: 80%;
@@ -202,11 +207,13 @@ const IconText = styled.div`
   margin-bottom: 1rem;
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 1.8rem;
+    height: 1.8rem;
   }
 
   p {
+    padding: 0.5rem 0;
+    text-align: left;
     ${({ theme }) => theme.fonts.Title5};
   }
 `;
@@ -250,9 +257,8 @@ const ActionButton = styled.button`
   justify-content: center;
   align-items: center;
 
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 3rem;
+  margin: auto;
+  margin-bottom: 2rem;
 
   border-radius: 20px;
   padding: 0.8rem 2rem;

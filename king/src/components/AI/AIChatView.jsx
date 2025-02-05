@@ -127,7 +127,6 @@ const ChatContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  height: 100vh;
 `;
 
 const Header = styled.div`
@@ -137,6 +136,11 @@ const Header = styled.div`
   padding: 14px 20px;
   width: 95%;
   ${({ theme }) => theme.fonts.Title4};
+
+  svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
 `;
 
 const RefreshButton = styled.button`
@@ -243,6 +247,9 @@ const InputContainer = styled.div`
   padding: 12px;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
+
+  position: fixed;
+  bottom: 0;
 `;
 
 const Input = styled.input`
