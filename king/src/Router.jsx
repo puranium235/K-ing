@@ -25,6 +25,7 @@ import ReviewFeedPage from './pages/ReviewFeedPage';
 import SearchFilterPage from './pages/SearchFilterPage';
 import SearchKeywordpage from './pages/SearchKeywordPage';
 import SearchResultPage from './pages/SearchResultPage';
+import SettingDetailPage from './pages/SettingDetailPage';
 import SettingPage from './pages/SettingPage';
 import SignupCompletePage from './pages/SignupCompletePage';
 import SignupPage from './pages/SignupPage';
@@ -41,10 +42,10 @@ const Router = () => {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/token" element={<TokenPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/signup/complete" element={<SignupCompletePage />} />
               <Route path="/home" element={<HomePage />} />
-              <Route path="/token" element={<TokenPage />} />
               <Route path="/chatbot" element={<ChatbotPage />} />
               <Route path="/upload" element={<UploadPage />} />
               <Route path="/archive" element={<ArchivePage />} />
@@ -52,6 +53,7 @@ const Router = () => {
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/user/:userId" element={<UserPage />} />
               <Route path="/setting" element={<SettingPage />} />
+              <Route path="/setting/:settingType" element={<SettingDetailPage />} />
               <Route path="/curation" element={<CurationPage />} />
               <Route path="/curation/:curationId" element={<CurationDetailPage />} />
               <Route path="/curation/map" element={<CurationMapPage />} />

@@ -19,20 +19,24 @@ client.interceptors.request.use(
     let accessToken = localStorage.getItem('accessToken');
     // let accessToken = import.meta.env.VITE_MASTER_ACCESS_TOKEN;
 
-    // 토큰 재발급 요청(`/user/token-refresh`)은 제외
-    // if (!config.url.includes('/user/token-refresh') && accessToken) {
-    //   config.headers.Authorization = `Bearer ${accessToken}`;
-    // }
+    const isNicknameCheckRequest = config.url.includes('/user/nickname');
+    const isTokenRefresh = config.url.includes('/user/token-refresh');
+    // console.log('isNicknameCheckRequest : ' + isNicknameCheckRequest);
+    // console.log('isTokenRefresh : ' + isTokenRefresh);
 
-    if (!config.url.includes('/user/token-refresh') && accessToken) {
+    if (!isTokenRefresh && accessToken) {
+      // console.log('if 문에 들어 왔어용');
       // 🔥 accessToken에서 role 가져오기
       try {
         const decoded = jwtDecode(accessToken);
         const userRole = decoded.role; // ✅ 토큰에서 role 추출
-        console.log('🔍 현재 유저 역할:', userRole);
+        // console.log('🔍 현재 유저 역할:', userRole);
 
         // 🔥 ROLE_REGISTERED가 아닌 경우 강제 이동
-        if (userRole !== 'ROLE_REGISTERED') {
+        // 🔥 ROLE_PENDING 사용자는 닉네임 중복 검사 API 요청만 가능하도록 예외 처리
+        if (userRole === 'ROLE_PENDING' && isNicknameCheckRequest) {
+          // console.log('✅ ROLE_PENDING 사용자, 닉네임 중복 검사 허용');
+        } else if (userRole !== 'ROLE_REGISTERED') {
           console.warn('❌ 접근 불가: 해당 페이지는 ROLE_REGISTERED만 가능합니다.');
           window.location.replace('/');
           return Promise.reject('접근 권한 없음'); // 요청 중단
@@ -57,6 +61,12 @@ client.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // 🔹 닉네임 중복 검사 요청은 401이어도 예외 처리 (차단하지 않음)
+    if (originalRequest.url.includes('/user/nickname')) {
+      console.warn('⚠️ 닉네임 중복 검사 요청에서 401 발생 → 응답 유지');
+      return Promise.reject(error); // 요청을 중단하지 않고 그대로 진행
+    }
 
     // 🔹 401 에러 발생 시 (로그인한 사용자가 아닌 경우)
     if (error.response?.status === 401) {
@@ -105,21 +115,3 @@ client.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
-// client.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     if (error.response?.status === 401) {
-//       console.log('🔄 AccessToken 만료: 재발급 시도');
-//       const newAccessToken = await tokenRefresh();
-
-//       if (newAccessToken) {
-//         // ✅ 새로운 accessToken으로 요청 재시도
-//         error.config.headers.Authorization = `Bearer ${newAccessToken}`;
-//         return client(error.config);
-//       }
-//     }
-
-//     return Promise.reject(error);
-//   },
-// );
