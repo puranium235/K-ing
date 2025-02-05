@@ -61,4 +61,11 @@ public class PostController {
         Long updatedPostId = postService.updatePost(postId, reqDto, imageFile);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(updatedPostId));
     }
+
+    @Operation(summary = "게시글 삭제 API")
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
+    }
 }

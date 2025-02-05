@@ -310,7 +310,7 @@ VALUES
 -- 3. content 테이블
 INSERT INTO `content` (`type`, `broadcast`, `created_at`, `image_url`, `tmdb_id`)
 VALUES
-    ('DRAMA', 'KBS', NOW(), 'null', 101),
+    ('DRAMA', 'KBS', NOW(), null, 101),
     ('MOVIE', 'CJ Entertainment', NOW(), 'https://image.tmdb.org/t/p/w500/mO55nkEFrI2EVdjxx0asaOGtHfa.jpg', 102),
     ('SHOW', 'SBS', NOW(), 'https://image.tmdb.org/t/p/w500/aTixMf5OaKA50QNvcKv18X9SLjX.jpg', 103),
     ('DRAMA', 'JTBC', NOW(), 'https://image.tmdb.org/t/p/w500/5dZijYdQMyaV22CZn9IVmdxdTBs.jpg', 67014),
@@ -346,8 +346,8 @@ VALUES
 -- 8. cast 테이블
 INSERT INTO `cast` (`image_url`, `birth_date`, `participating_work`, `created_at`, `tmdb_id`)
 VALUES
-    ('https://image.tmdb.org/t/p/w500/ukEY6AV2EjeGDjMayDj5rpo8pHw.jpg', '1990-01-01', 5, NOW(), 201),
-    ('https://image.tmdb.org/t/p/w500/wbrwRD290SJv0ZIQC1ngv0slyCD.jpg', '1981-07-28', 10, NOW(), 203),
+    (null, '1990-01-01', 5, NOW(), 201),
+    (null, '1981-07-28', 10, NOW(), 203),
     ('https://image.tmdb.org/t/p/w500/tceyY4cqTxkiar4jFjPnEaZ6QRZ.jpg', '1970-06-11', 61, NOW(), 1250840),
     ('https://image.tmdb.org/t/p/w500/zwEmEAS7CAuJLwhLhvSB09La1QM.jpg', '1975-02-10', 79, NOW(), 1250841),
     ('https://image.tmdb.org/t/p/w500/9GVVhuZ2e7BTj9WR3WyenVfIDRw.jpg', '1994-06-09', 42, NOW(), 1413827),
