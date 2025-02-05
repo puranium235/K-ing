@@ -161,8 +161,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
-    @GetMapping("/{userId}/profile")
+    @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserProfileResponseDTO>> getUserProfile(@PathVariable(value = "userId") String userId) {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(userService.getUserById(userId)));
-    }
+    }g
 }
