@@ -20,7 +20,7 @@ const SearchItem = ({ item }) => {
   return (
     <St.Item onClick={handleClick}>
       <ImageWrapper>
-        <Image src={imageUrl} alt={name} />
+        <Image src={imageUrl} alt={name} $defaultImage={imageUrl.includes('default.jpg')} />
       </ImageWrapper>
       <Text>{name}</Text>
     </St.Item>
@@ -56,7 +56,7 @@ const ImageWrapper = styled.div`
 
 const Image = styled.img`
   width: 100%;
-  object-fit: contain;
+  object-fit: ${({ $defaultImage }) => ($defaultImage ? 'contain' : 'cover')};
 
   overflow: hidden;
 `;
