@@ -2,6 +2,7 @@ package com.king.backend.domain.user.controller;
 
 import com.king.backend.domain.user.dto.request.SignUpRequestDTO;
 import com.king.backend.domain.user.dto.response.NicknameResponseDTO;
+import com.king.backend.domain.user.dto.response.UserProfileResponseDTO;
 import com.king.backend.domain.user.dto.response.SignUpResponseDTO;
 import com.king.backend.domain.user.entity.TokenEntity;
 import com.king.backend.domain.user.entity.User;
@@ -10,6 +11,7 @@ import com.king.backend.domain.user.jwt.JWTUtil;
 import com.king.backend.domain.user.repository.TokenRepository;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.domain.user.service.TokenService;
+import com.king.backend.domain.user.service.UserService;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class UserController {
     private final JWTUtil jwtUtil;
     private final TokenService tokenService;
     private final TokenRepository tokenRepository;
+    private final UserService userService;
 
     @Value("${spring.jwt.accesstoken-expires-in}")
     private Long ACCESSTOKEN_EXPIRES_IN;
@@ -41,10 +44,10 @@ public class UserController {
     private Long REFRESHTOKEN_EXPIRES_IN;
 
     @PostMapping("/token-refresh")
-        public ResponseEntity<ApiResponse<Void>> tokenRefresh(@CookieValue(value = "refreshToken", required = false) String oldRefreshToken) {
-            if (oldRefreshToken == null) {
-                throw new CustomException(UserErrorCode.INVALID_TOKEN);
-            }
+    public ResponseEntity<ApiResponse<Void>> tokenRefresh(@CookieValue(value = "refreshToken", required = false) String oldRefreshToken) {
+        if (oldRefreshToken == null) {
+            throw new CustomException(UserErrorCode.INVALID_TOKEN);
+        }
 
         try {
             jwtUtil.validToken(oldRefreshToken);
@@ -156,5 +159,10 @@ public class UserController {
         NicknameResponseDTO response = new NicknameResponseDTO();
         response.setNickname(nickname);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+    }
+
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<ApiResponse<UserProfileResponseDTO>> getUserProfile(@PathVariable(value = "userId") String userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(userService.getUserById(userId)));
     }
 }
