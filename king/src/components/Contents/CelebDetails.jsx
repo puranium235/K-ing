@@ -98,7 +98,12 @@ const CelebDetails = () => {
           </IconText>
           <WorkGrid>
             {celebInfo.relatedContents.map((work) => (
-              <Work key={work.contentId}>
+              <Work
+                key={work.contentId}
+                onClick={() => {
+                  handleClickContent(work.contentId);
+                }}
+              >
                 <img src={work.imageUrl} alt="work Poster" />
                 <p>{work.title}</p>
               </Work>
@@ -147,7 +152,7 @@ const CelebPageContainer = styled.div`
 
   min-height: 80%;
 
-  padding: 20px;
+  padding: 2rem;
   background-color: #fff;
 
   h3 {
@@ -215,12 +220,12 @@ const IconText = styled.div`
   margin-bottom: 1rem;
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 1.8rem;
+    height: 1.8rem;
   }
 
   p {
-    ${({ theme }) => theme.fonts.Title6};
+    ${({ theme }) => theme.fonts.Title5};
   }
 `;
 
@@ -231,6 +236,7 @@ const WorkGrid = styled.div`
   margin-top: 0.5rem;
 
   width: 100%;
+  height: 100%;
   overflow-x: auto;
   white-space: nowrap;
 
@@ -245,12 +251,11 @@ const Work = styled.div`
   align-items: center;
 
   flex: 0 0 104px;
-  height: auto;
-
   width: 10rem;
 
   img {
     width: 100%;
+    flex: 8;
   }
 
   p {
@@ -277,6 +282,7 @@ const ListWrapper = styled.div`
 const WorkWrapper = styled.ul`
   width: 100%;
   margin-top: 1rem;
+
   li {
     display: flex;
     flex-direction: row;
@@ -295,7 +301,7 @@ const WorkWrapper = styled.ul`
   }
 
   hr {
-    margin: 1rem 0;
+    margin: 0.7rem 0;
     width: 90%;
     height: 1px;
     border: 0;
@@ -309,10 +315,8 @@ const ActionButton = styled.button`
   justify-content: center;
   align-items: center;
 
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 3rem;
-
+  margin: auto;
+  margin-bottom: 2rem;
   border-radius: 20px;
   padding: 0.8rem 2rem;
 
