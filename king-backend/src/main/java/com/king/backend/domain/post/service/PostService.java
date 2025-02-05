@@ -5,8 +5,10 @@ import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.post.dto.request.PostUploadRequestDto;
 import com.king.backend.domain.post.dto.response.PostAllResponseDto;
+import com.king.backend.domain.post.dto.response.PostDetailResponseDto;
 import com.king.backend.domain.post.entity.Post;
 import com.king.backend.domain.post.entity.PostImage;
+import com.king.backend.domain.post.errorcode.PostErrorCode;
 import com.king.backend.domain.post.repository.CommentRepository;
 import com.king.backend.domain.post.repository.LikeRepository;
 import com.king.backend.domain.post.repository.PostImageRepository;
@@ -78,8 +80,8 @@ public class PostService {
                     .map(PostImage::getImageUrl)
                     .orElse(null);
 
-            int likesCount = likeRepository.countByPostId(post.getId());
-            int commentsCount = commentRepository.countByPostId(post.getId());
+            Long likesCount = likeRepository.countByPostId(post.getId());
+            Long commentsCount = commentRepository.countByPostId(post.getId());
 
             return PostAllResponseDto.builder()
                     .postId(post.getId())
@@ -92,5 +94,53 @@ public class PostService {
                     .updatedAt(post.getUpdatedAt())
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public PostDetailResponseDto getPostDetail(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+        User writer = post.getWriter();
+        String imageUrl = postImageRepository.findByPostId(postId).map(PostImage::getImageUrl).orElse(null);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
+        Long userId = Long.parseLong(oauthUser.getName());
+
+        boolean isLiked = likeRepository.existsByPostIdAndUserId(postId, userId);
+        Long likesCount = likeRepository.countByPostId(postId);
+        Long commentsCount = commentRepository.countByPostId(postId);
+
+        List<PostDetailResponseDto.Comment> comments = commentRepository.findByPostId(postId).stream()
+                .map(comment -> PostDetailResponseDto.Comment.builder()
+                        .commentId(comment.getId())
+                        .content(comment.getContent())
+                        .createdAt(comment.getCreatedAt())
+                        .writer(PostDetailResponseDto.Writer.builder()
+                                .userId(comment.getWriter().getId())
+                                .nickname(comment.getWriter().getNickname())
+                                .imageUrl(comment.getWriter().getImageUrl())
+                                .build())
+                        .build())
+                .toList();
+
+        return PostDetailResponseDto.builder()
+                .postId(post.getId())
+                .content(post.getContent())
+                .createdAt(post.getCreatedAt())
+                .imageUrl(imageUrl)
+                .writer(PostDetailResponseDto.Writer.builder()
+                        .userId(writer.getId())
+                        .nickname(writer.getNickname())
+                        .imageUrl(writer.getImageUrl())
+                        .build())
+                .place(PostDetailResponseDto.Place.builder()
+                        .placeId(post.getPlace().getId())
+                        .name(post.getPlace().getName())
+                        .build())
+                .isLiked(isLiked)
+                .likesCount(likesCount)
+                .commentsCount(commentsCount)
+                .comments(comments)
+                .build();
     }
 }

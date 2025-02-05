@@ -11,8 +11,8 @@ import java.time.OffsetDateTime;
 public class PostAllResponseDto {
     private Long postId;
     private String imageUrl;
-    private int likesCnt;
-    private int commentsCnt;
+    private Long likesCnt;
+    private Long commentsCnt;
     private Writer writer;
     private String content;
     private OffsetDateTime createdAt;
