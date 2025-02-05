@@ -313,6 +313,9 @@ const InputContainer = styled.div`
   padding: 1.2rem;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
+
+  position: fixed;
+  bottom: 0;
 `;
 
 const Input = styled.input`

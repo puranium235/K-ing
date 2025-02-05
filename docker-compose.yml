@@ -4,8 +4,8 @@ services:
     container_name: ${MYSQL_HOST}
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 3s
-      retries: 5
+      interval: 30s
+      retries: 40
       start_period: 1s
       timeout: 10s
     restart: always
@@ -13,7 +13,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     command: --skip-character-set-client-handshake
     volumes:
-      - ./king-backend/init.sql:/docker-entrypoint-initdb.d/init.sql
       - mysql-data:/var/lib/mysql
     expose:
       - "3306"

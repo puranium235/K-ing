@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import {
@@ -13,7 +13,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getContentDetails } from '../../lib/content';
-import { SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
@@ -26,6 +26,7 @@ const ContentDetails = () => {
 
   const setSearchQuery = useSetRecoilState(SearchQueryState);
   const setRelatedType = useSetRecoilState(SearchRelatedType);
+  const contentType = useRecoilValue(ContentType);
 
   const navigate = useNavigate();
 
@@ -51,6 +52,10 @@ const ContentDetails = () => {
     setIsFavorited(res.favorite);
   };
 
+  const handleGoBack = () => {
+    navigate(`/content/${contentType}`);
+  };
+
   useEffect(() => {
     getDetails();
   }, [contentId]);
@@ -63,8 +68,8 @@ const ContentDetails = () => {
     <>
       <DramaPageContainer>
         <IconText>
-          <BackButton />
-          <h3> 세부정보</h3>
+          <BackButton onBack={handleGoBack} />
+          <p> 세부정보</p>
         </IconText>
 
         <Header>
@@ -84,11 +89,13 @@ const ContentDetails = () => {
               <p>{contentInfo.broadcast}</p>
             </IconText>
           </TitleSection>
-          {isFavorited ? (
-            <IcStar id="favor" onClick={toggleFavorite} />
-          ) : (
-            <IcStarBlank id="favor" onClick={toggleFavorite} />
-          )}
+          <BookmarkWrapper>
+            {isFavorited ? (
+              <IcStar id="favor" onClick={toggleFavorite} />
+            ) : (
+              <IcStarBlank id="favor" onClick={toggleFavorite} />
+            )}
+          </BookmarkWrapper>
         </Header>
 
         <Synopsis>
@@ -132,17 +139,10 @@ const DramaPageContainer = styled.div`
   flex-direction: column;
   justify-content: flex-start;
 
-  padding: 20px;
+  padding: 2rem;
   background-color: #fff;
 
   min-height: 80%;
-
-  h3 {
-    width: 100%;
-    padding: 1rem 0;
-    text-align: left;
-    ${({ theme }) => theme.fonts.Title3};
-  }
 `;
 
 const Header = styled.div`
@@ -150,7 +150,8 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   align-items: end;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
 
   min-height: 30vh;
 
@@ -177,11 +178,18 @@ const TitleSection = styled.div`
 
   h3 {
     ${({ theme }) => theme.fonts.Title4};
+    margin-bottom: 1rem;
   }
 
   p {
     ${({ theme }) => theme.fonts.Title5};
     color: ${({ theme }) => theme.colors.Gray0};
+  }
+`;
+
+const BookmarkWrapper = styled.div`
+  svg {
+    cursor: pointer;
   }
 `;
 
@@ -199,15 +207,15 @@ const IconText = styled.div`
   align-items: center;
   gap: 0.7rem;
 
-  margin-bottom: 1rem;
-
   svg {
-    width: 20px;
-    height: 20px;
+    width: 1.8rem;
+    height: 1.8rem;
   }
 
   p {
-    ${({ theme }) => theme.fonts.Title5};
+    padding: 0.5rem 0;
+    text-align: left;
+    ${({ theme }) => theme.fonts.Title4};
   }
 `;
 
@@ -234,6 +242,8 @@ const CastMember = styled.div`
   flex: 0 0 104px;
   height: auto;
 
+  cursor: pointer;
+
   img {
     width: 100%;
   }
@@ -250,9 +260,8 @@ const ActionButton = styled.button`
   justify-content: center;
   align-items: center;
 
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 3rem;
+  margin: auto;
+  margin-bottom: 10rem;
 
   border-radius: 20px;
   padding: 0.8rem 2rem;

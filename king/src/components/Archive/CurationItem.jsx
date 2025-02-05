@@ -34,7 +34,7 @@ const CurationItem = ({ item }) => {
   //   };
 
   return (
-    <St.Item onClick={handleCurationClick}>
+    <StCurationItemWrapper onClick={handleCurationClick}>
       <St.Image src={image} alt={title} />
       <St.Info>
         <St.Author>@{author}</St.Author>
@@ -43,19 +43,30 @@ const CurationItem = ({ item }) => {
       <St.BookmarkButton onClick={handleBookmarkClick}>
         {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />} {/* 상태에 따라 아이콘 변경 */}
       </St.BookmarkButton>
-    </St.Item>
+    </StCurationItemWrapper>
   );
 };
 
 export default CurationItem;
 
+const StCurationItemWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 24rem;
+  overflow: hidden;
+  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
+  background-color: ${({ theme }) => theme.colors.White};
+
+  cursor: pointer;
+`;
+
 const St = {
   Item: styled.div`
     position: relative;
     width: 100%;
-    height: 240px;
+    height: 24rem;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
     background-color: ${({ theme }) => theme.colors.White};
   `,
   Image: styled.img`
@@ -67,17 +78,17 @@ const St = {
   Info: styled.div`
     text-align: left;
     position: absolute;
-    bottom: 8px;
-    left: 8px;
+    bottom: 0.8rem;
+    left: 0.8rem;
     color: ${({ theme }) => theme.colors.White};
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
   `,
   Author: styled.p`
     ${({ theme }) => theme.fonts.Body6};
     margin: 0;
   `,
   Title: styled.h3`
-    margin: 4px 0 0;
+    margin: 0.4rem 0 0;
     padding-right: 0.5rem;
     ${({ theme }) => theme.fonts.Title7};
     white-space: nowrap;
@@ -86,12 +97,12 @@ const St = {
   `,
   BookmarkButton: styled.button`
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 0.8rem;
+    right: 0.8rem;
     background: none;
     border: none;
     color: ${({ theme }) => theme.colors.White};
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
     cursor: pointer;
 
     &:hover {

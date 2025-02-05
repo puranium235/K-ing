@@ -189,6 +189,8 @@ const CheckboxContainer = styled.div`
     input[type='checkbox'] {
       width: 20px;
       height: 20px;
+
+      cursor: pointer;
     }
   }
 `;
@@ -203,9 +205,15 @@ const SelectionArea = styled.div`
 const ProvinceList = styled.div`
   height: 100%;
   overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const ProvinceItem = styled.div`
+  cursor: pointer;
+
   padding: 1rem;
 
   ${({ theme, $isActive }) => ($isActive ? theme.fonts.Title6 : theme.fonts.Body3)};

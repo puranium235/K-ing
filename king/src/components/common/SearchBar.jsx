@@ -95,6 +95,10 @@ const SWrapper = styled.div`
     color: ${({ theme }) => theme.colors.Gray1};
     ${({ theme }) => theme.fonts.Body4};
   }
+
+  & > svg {
+    cursor: pointer;
+  }
 `;
 
 const AutoSearchContainer = styled.div`
@@ -122,7 +126,6 @@ const AutoSearchData = styled.li`
 
   padding: 1rem;
   z-index: 4;
-  letter-spacing: 2px;
 
   color: ${({ theme }) => theme.colors.Gray1};
   ${({ theme }) => theme.fonts.Body5};

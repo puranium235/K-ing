@@ -114,7 +114,7 @@ const StHomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   text-align: center;
   padding: 2rem;
   margin-bottom: 7rem;
@@ -142,6 +142,8 @@ const CurationHeader = styled.div`
     margin: 1rem 0;
   }
   span {
+    cursor: pointer;
+
     ${({ theme }) => theme.fonts.Body4};
   }
 `;

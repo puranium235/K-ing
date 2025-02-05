@@ -15,6 +15,11 @@ const FilterOption = atom({
   },
 });
 
+const ContentId = atom({
+  key: 'contentId',
+  default: 1,
+});
+
 const ContentType = atom({
   key: 'contentType',
   default: '',
@@ -51,6 +56,7 @@ const CurationPlaceList = atom({
 });
 
 export {
+  ContentId,
   ContentType,
   CurationPlaceList,
   FilterOption,

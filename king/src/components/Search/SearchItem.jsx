@@ -31,6 +31,8 @@ export default SearchItem;
 
 const St = {
   Item: styled.div`
+    cursor: pointer;
+
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -38,7 +40,8 @@ const St = {
 
     gap: 0.5rem;
 
-    width: 100%;
+    min-width: 10.5rem;
+    width: 10.5rem;
     height: 100%;
     background-color: ${({ theme }) => theme.colors.White};
   `,
