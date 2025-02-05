@@ -32,7 +32,7 @@ const Curation = () => {
       <StCurationWrapper>
         <FixedContainer>
           <TopNav />
-          <SearchBar query="" onSearch={handleSearch} />
+          <SearchBar query="" type="curation" onSearch={handleSearch} />
         </FixedContainer>
         <CurationWrapper>
           <CurationsList data={curationList} />

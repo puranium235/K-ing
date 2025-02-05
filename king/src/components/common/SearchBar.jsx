@@ -22,7 +22,10 @@ const SearchBar = ({ type, query, onSearch }) => {
 
   const onChangeData = (e) => {
     setKeyword(e.currentTarget.value);
-    handleSearchChange(e.currentTarget.value);
+
+    if (type !== 'curation') {
+      handleSearchChange(e.currentTarget.value);
+    }
   };
 
   const handleOptionClick = (option) => {
