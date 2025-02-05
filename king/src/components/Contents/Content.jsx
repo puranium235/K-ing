@@ -1,10 +1,12 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
+import { ContentType } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
@@ -13,6 +15,7 @@ import SearchBar from '../common/SearchBar';
 const Content = () => {
   const { contentType } = useParams();
   // const [contentType, setContentType] = useRecoilState(ContentType);
+  const setContentType = useSetRecoilState(ContentType);
   const [query, setQuery] = useState('');
   const [favorites, setFavorites] = useState({});
   const [results, setResults] = useState();
@@ -56,6 +59,8 @@ const Content = () => {
   };
 
   const handleDramaClick = (id) => {
+    setContentType(contentType);
+
     if (contentType === 'cast') {
       navigate(`/content/cast/${id}`);
     } else {
@@ -63,11 +68,15 @@ const Content = () => {
     }
   };
 
+  const handleGoBack = () => {
+    navigate(`/home`);
+  };
+
   return (
     <>
       <StHomeWrapper>
         <IconText>
-          <BackButton />
+          <BackButton onBack={handleGoBack} />
           <h3> {getContentTypeKor(contentType)}</h3>
         </IconText>
         <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />

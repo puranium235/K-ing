@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import {
@@ -13,7 +13,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getContentDetails } from '../../lib/content';
-import { SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
@@ -26,6 +26,7 @@ const ContentDetails = () => {
 
   const setSearchQuery = useSetRecoilState(SearchQueryState);
   const setRelatedType = useSetRecoilState(SearchRelatedType);
+  const contentType = useRecoilValue(ContentType);
 
   const navigate = useNavigate();
 
@@ -51,6 +52,10 @@ const ContentDetails = () => {
     setIsFavorited(res.favorite);
   };
 
+  const handleGoBack = () => {
+    navigate(`/content/${contentType}`);
+  };
+
   useEffect(() => {
     getDetails();
   }, [contentId]);
@@ -63,7 +68,7 @@ const ContentDetails = () => {
     <>
       <DramaPageContainer>
         <IconText>
-          <BackButton />
+          <BackButton onBack={handleGoBack} />
           <h3> 세부정보</h3>
         </IconText>
 

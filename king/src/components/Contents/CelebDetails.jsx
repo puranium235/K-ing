@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import {
@@ -14,7 +14,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getCelebDetails } from '../../lib/content';
-import { SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 
 const CelebDetails = () => {
@@ -25,6 +25,7 @@ const CelebDetails = () => {
   const navigate = useNavigate();
   const setSearchQuery = useSetRecoilState(SearchQueryState);
   const setRelatedType = useSetRecoilState(SearchRelatedType);
+  const contentType = useRecoilValue(ContentType);
 
   const handleClickPlaceInfo = () => {
     setSearchQuery(celebInfo.name);
@@ -47,6 +48,10 @@ const CelebDetails = () => {
     navigate(`/content/detail/${contentId}`);
   };
 
+  const handleGoBack = () => {
+    navigate(`/content/${contentType}`);
+  };
+
   useEffect(() => {
     getDetails();
   }, [celebId]);
@@ -59,7 +64,7 @@ const CelebDetails = () => {
     <>
       <CelebPageContainer>
         <IconText>
-          <BackButton />
+          <BackButton onBack={handleGoBack} />
           <h3> 세부정보</h3>
         </IconText>
 
