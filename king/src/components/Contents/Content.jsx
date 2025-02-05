@@ -112,6 +112,11 @@ const IconText = styled.div`
   align-items: center;
   gap: 0.7rem;
 
+  svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
   h3 {
     width: 100%;
     padding: 0.5rem 0;
@@ -150,19 +155,21 @@ const Card = styled.div`
 
 const CardImageContainer = styled.div`
   width: 100%;
-  height: 100%;
+  height: 80%;
   display: flex;
 `;
 
 const CardImage = styled.img`
   width: 100%;
-  min-height: 8rem;
+  height: 100%;
   object-fit: cover;
 
   border-radius: 0;
 `;
 
 const CardTitle = styled.h4`
+  flex: 1;
+  width: 100%;
   margin-top: 5px;
   ${({ theme }) => theme.fonts.Body4};
   color: ${({ theme }) => theme.colors.Gray0};

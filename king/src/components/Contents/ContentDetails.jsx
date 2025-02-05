@@ -132,7 +132,7 @@ const DramaPageContainer = styled.div`
   flex-direction: column;
   justify-content: flex-start;
 
-  padding: 20px;
+  padding: 2rem;
   background-color: #fff;
 
   min-height: 80%;
@@ -202,11 +202,13 @@ const IconText = styled.div`
   margin-bottom: 1rem;
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 1.8rem;
+    height: 1.8rem;
   }
 
   p {
+    padding: 0.5rem 0;
+    text-align: left;
     ${({ theme }) => theme.fonts.Title5};
   }
 `;
@@ -250,9 +252,8 @@ const ActionButton = styled.button`
   justify-content: center;
   align-items: center;
 
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 3rem;
+  margin: auto;
+  margin-bottom: 2rem;
 
   border-radius: 20px;
   padding: 0.8rem 2rem;
