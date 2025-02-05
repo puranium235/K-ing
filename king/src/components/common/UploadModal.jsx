@@ -1,8 +1,18 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const UploadModal = ({ isShowing }) => {
-  const options = ['게시글 작성', '큐레이션 작성'];
+  const navigate = useNavigate();
+  const options = ['인증샷 업로드', '큐레이션 발행'];
+
+  const onOptionClick = (option) => {
+    if (option === '인증샷 업로드') {
+      navigate(`/upload/post`);
+    } else {
+      navigate(`/upload/curation`);
+    }
+  };
 
   return (
     isShowing && (
