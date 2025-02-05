@@ -53,16 +53,20 @@ const Home = () => {
   const getCurationPlace = async () => {
     const res = await getCurationDetail(topCurations[0].id);
     setPlaceList(res.places);
+    console.log(res.places);
   };
 
   useEffect(() => {
-    if (carouselList) {
+    if (carouselList.length > 0) {
       setTopCurations(carouselList.slice(0, Math.min(3, carouselList.length)));
     }
+  }, [carouselList]);
+
+  useEffect(() => {
     if (topCurations.length > 0) {
       getCurationPlace();
     }
-  }, [carouselList]);
+  }, [topCurations]);
 
   if (!carouselList) {
     return null;
