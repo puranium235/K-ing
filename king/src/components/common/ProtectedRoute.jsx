@@ -18,6 +18,13 @@ const getUserRole = () => {
 const ProtectedRoute = () => {
   const userRole = getUserRole();
 
+  // 🔥 ROLE_PENDING 사용자는 회원가입 관련 페이지는 접근 가능하도록 예외 처리
+  const isSignupPage = window.location.pathname.startsWith('/signup');
+  if (userRole === 'ROLE_PENDING' && isSignupPage) {
+    console.log('✅ ROLE_PENDING 사용자, 회원가입 페이지 접근 허용');
+    return <Outlet />;
+  }
+
   if (!userRole) {
     return <Navigate to="/" replace />;
   }
