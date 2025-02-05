@@ -87,7 +87,7 @@ const StNavWrapper = styled.nav`
   grid-template-columns: repeat(5, 1fr);
 
   position: fixed;
-  bottom: 1rem;
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
 

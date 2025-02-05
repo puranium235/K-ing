@@ -114,7 +114,7 @@ const StHomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   text-align: center;
   padding: 2rem;
   margin-bottom: 7rem;

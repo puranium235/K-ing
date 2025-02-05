@@ -58,7 +58,11 @@ const FixedContainer = styled.div`
   position: sticky;
   top: 0;
   z-index: 1000;
-  padding: 0 2rem 2rem 2rem;
+
+  width: 100%;
+  padding-bottom: 2rem;
+  /* padding: 0 2rem 2rem 2rem; */
+
   background-color: ${({ theme }) => theme.colors.White};
 `;
 
