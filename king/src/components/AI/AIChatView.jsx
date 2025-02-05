@@ -77,14 +77,14 @@ const AIChatView = () => {
 
     let aiMessage;
     if (option === chatT) {
-      setCurrentApi(`/chatbot/chat`);
+      setCurrentApi(`/chatbot/chatT`);
       aiMessage = {
         text: 'T 챗봇은 회차정보 기반 장소를 검색하는 데 특화되어 있습니다.',
         sender: 'assistant',
         type: 'message',
       };
     } else if (option === chatF) {
-      setCurrentApi(`/chatbot/chat`);
+      setCurrentApi(`/chatbot/chatF`);
       aiMessage = {
         text: 'F 챗봇은 맞춤 큐레이션 추천에 특화되어 있습니다.',
         sender: 'assistant',
@@ -102,10 +102,11 @@ const AIChatView = () => {
     const userMessage = { text: newMessage, sender: 'user', type: 'message' };
     setMessages((prev) => [...prev, userMessage]);
 
+    setNewMessage('');
     setIsTyping(true);
 
     try {
-      const responseMessage = await getResponse(currentApi, newMessage);
+      const responseMessage = await getResponse(currentApi, userMessage.text);
       const assistantMessages = splitIntoSentences(responseMessage, 'assistant');
 
       for (const msg of assistantMessages) {
@@ -120,7 +121,6 @@ const AIChatView = () => {
       console.error('Error fetching AI response:', error);
     } finally {
       setIsTyping(false);
-      setNewMessage('');
     }
   };
 
