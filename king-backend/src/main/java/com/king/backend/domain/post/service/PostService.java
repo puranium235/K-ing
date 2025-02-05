@@ -171,7 +171,7 @@ public class PostService {
             String imageUrl = postImage.getImageUrl();
             log.info("postService : 삭제할 imageUrl {}", imageUrl);
 
-            s3Service.deleteFile(imageUrl);
+//            s3Service.deleteFile(imageUrl);
             postImageRepository.delete(postImage);
             log.info("postService : 삭제했는가 imageUrl {}", postImage.getImageUrl());
 
