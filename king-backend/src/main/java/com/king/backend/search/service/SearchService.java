@@ -64,10 +64,26 @@ public class SearchService {
                     .maxExpansions(10)
             );
 
+            // 오타 보정을 위한 Fuzzy 쿼리 생성
+            // fuzziness 옵션은 "AUTO"를 사용하면 입력 길이에 따라 적절한 편집 거리를 자동 적용합니다.
+            Query fuzzyQuery = Query.of(q -> q.fuzzy(f -> f
+                    .field("name")
+                    .value(query)
+                    .fuzziness("AUTO")
+            ));
+
             // BoolQuery 생성
             BoolQuery boolQuery = BoolQuery.of(boolBuilder -> {
                 // must 쿼리 추가
-                boolBuilder.must(Query.of(q -> q.matchPhrasePrefix(matchPhrasePrefixQuery)));
+//                boolBuilder.must(Query.of(q -> q.matchPhrasePrefix(matchPhrasePrefixQuery)));
+                boolBuilder
+                        .should(q -> q.matchPhrasePrefix(matchPhrasePrefixQuery))
+                        .should(q -> q.fuzzy(f -> f
+                                .field("name")
+                                .value(query)
+                                .fuzziness("AUTO")
+                        ))
+                        .minimumShouldMatch("1");
 
                 // filter 쿼리 추가 (category가 비어있지 않은 경우)
                 if (category != null && !category.isEmpty()) {
@@ -165,22 +181,23 @@ public class SearchService {
                 if ("place".equalsIgnoreCase(category)){
                     if ("place".equalsIgnoreCase(relatedType)) {
                         // 오직 장소만 결과로 검색: name 필드에 대해 match 쿼리 사용.
-                        boolQueryBuilder.must(q -> q.match(m -> m.field("name").query(query)));
+                        boolQueryBuilder.must(q -> q.match(m -> m.field("name").query(query).fuzziness("AUTO")));
                     }else if("cast".equalsIgnoreCase(relatedType)){
                         // 연예인 검색: associatedCastNames 필드에 대해 match 쿼리 사용
-                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedCastNames").query(query)));
+                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedCastNames").query(query).fuzziness("AUTO")));
                     }else if("content".equalsIgnoreCase(relatedType)){
-                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedContentNames").query(query)));
+                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedContentNames").query(query).fuzziness("AUTO")));
                     }else{
-                        boolQueryBuilder.should(q -> q.match(m -> m.field("name").query(query)));
-                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedCastNames").query(query)));
-                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedContentNames").query(query)));
+                        boolQueryBuilder.should(q -> q.match(m -> m.field("name").query(query).fuzziness("AUTO")));
+                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedCastNames").query(query).fuzziness("AUTO")));
+                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedContentNames").query(query).fuzziness("AUTO")));
                         boolQueryBuilder.minimumShouldMatch(String.valueOf(1L));
                     }
                 }else{
                     boolQueryBuilder.must(q -> q.match(m -> m
                             .query(query)
                             .field("name")
+                            .fuzziness("AUTO")
                     ));
                 }
             }else{
