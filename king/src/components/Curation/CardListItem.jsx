@@ -41,6 +41,8 @@ const CardContainer = styled.div`
 
   width: 100%;
   overflow: hidden;
+
+  cursor: pointer;
 `;
 
 const ImageContainer = styled.div`

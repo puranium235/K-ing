@@ -95,6 +95,10 @@ const SWrapper = styled.div`
     color: ${({ theme }) => theme.colors.Gray1};
     ${({ theme }) => theme.fonts.Body4};
   }
+
+  & > svg {
+    cursor: pointer;
+  }
 `;
 
 const AutoSearchContainer = styled.div`

@@ -161,6 +161,8 @@ const TrendingKeyword = styled.div`
     margin: 1rem;
     text-align: left;
     p {
+      cursor: pointer;
+
       ${({ theme }) => theme.fonts.Body4};
       padding: 5px;
     }

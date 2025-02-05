@@ -56,6 +56,8 @@ const StCurationItemWrapper = styled.div`
   overflow: hidden;
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
   background-color: ${({ theme }) => theme.colors.White};
+
+  cursor: pointer;
 `;
 
 const St = {

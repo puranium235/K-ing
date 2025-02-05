@@ -7,11 +7,11 @@ import {
   FavoritePeopleDummyData,
   FavoriteWorksDummyData,
 } from '../../assets/dummy/dummyDataArchive';
-import { IcBack } from '../../assets/icons';
+import BackButton from '../common/BackButton';
 import FavoriteItem from './FavoriteItem';
 
 const FavoritesDetail = () => {
-  const { type } = useParams(); // ✅ URL에서 type을 가져오기
+  const { type } = useParams();
   const navigate = useNavigate();
 
   const handleBackClick = () => {
@@ -29,9 +29,7 @@ const FavoritesDetail = () => {
       <St.FixedContainer>
         <St.Header>Archive</St.Header>
         <St.Title>
-          <St.Icon onClick={handleBackClick}>
-            <IcBack />
-          </St.Icon>
+          <BackButton onBack={handleBackClick} />
           {type === 'works' ? '작품' : '인물'} 전체보기
         </St.Title>
       </St.FixedContainer>
@@ -74,6 +72,11 @@ const St = {
     padding: 1rem 2rem 1rem 1.5rem;
     gap: 0.5rem;
 
+    svg {
+      width: 1.6rem;
+      height: 1.6rem;
+    }
+
     background-color: ${({ theme }) => theme.colors.White};
   `,
 
@@ -87,9 +90,5 @@ const St = {
     &::-webkit-scrollbar {
       display: none;
     }
-  `,
-
-  Icon: styled.div`
-    padding: 0.7em 0.5em 0 0;
   `,
 };

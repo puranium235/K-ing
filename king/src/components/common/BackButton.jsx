@@ -27,4 +27,9 @@ export default BackButton;
 const BtnWrapper = styled.button`
   display: flex;
   align-items: center;
+
+  svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
 `;

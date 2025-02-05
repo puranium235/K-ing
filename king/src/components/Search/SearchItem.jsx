@@ -31,6 +31,8 @@ export default SearchItem;
 
 const St = {
   Item: styled.div`
+    cursor: pointer;
+
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
