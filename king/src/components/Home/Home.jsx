@@ -122,7 +122,7 @@ const StHomeWrapper = styled.div`
 const GenreWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: auto;
+  gap: 1rem;
   width: 100%;
 `;
 

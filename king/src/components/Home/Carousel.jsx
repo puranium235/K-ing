@@ -14,15 +14,15 @@ const Carousel = ({ carouselList }) => {
   };
 
   const settings = {
-    dots: false, // 하단 네비게이션 점 제거
-    infinite: true, // 무한 반복
-    speed: 500, // 전환 속도
-    slidesToShow: 1, // 한 번에 보이는 슬라이드 개수
-    slidesToScroll: 1, // 한 번에 스크롤되는 슬라이드 개수
-    autoplay: true, // 자동 슬라이드
-    autoplaySpeed: 5000, // 자동 슬라이드 속도 (5초)
-    arrows: false, // 좌우 화살표 제거
-    swipe: true, // 터치 스와이프 가능
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    arrows: false,
+    swipe: true,
   };
 
   return (
