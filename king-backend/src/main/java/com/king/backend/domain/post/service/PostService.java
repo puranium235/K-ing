@@ -199,4 +199,38 @@ public class PostService {
 
         return post.getId();
     }
+
+    @Transactional
+    public void deletePost(Long postId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
+        Long userId = Long.parseLong(user.getName());
+        
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+        
+        if (!post.getWriter().getId().equals(userId)) {
+            throw new CustomException(PostErrorCode.POST_DELETE_ACCESS_DENIED);
+        }
+
+        postImageRepository.findByPostId(postId).ifPresent(postImage -> {
+            String imageUrl = postImage.getImageUrl();
+            log.info("postService: 삭제할 imageUrl {}", imageUrl);
+            s3Service.deleteFile(imageUrl); // S3에서 이미지 삭제
+            postImageRepository.delete(postImage);
+            log.info("postService: 이미지 삭제 완료");
+        });
+        
+        likeRepository.deleteByPostId(postId);
+        log.info("postService: 게시글의 좋아요 삭제 완료");
+        
+        commentRepository.deleteByPostId(postId);
+        log.info("postService: 게시글의 댓글 삭제 완료");
+        
+        // 임시저장 삭제
+        
+        postRepository.delete(post);
+        log.info("postService: 게시글 삭제 완료 - postId: {}", postId);
+    }
+
 }

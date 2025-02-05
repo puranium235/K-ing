@@ -104,31 +104,8 @@ public class S3Service {
             throw new CustomException(S3ErrorCode.UNSUPPORTED_ENTITY_TYPE);
         }
 
-        // 1) DB에 TMDB url 저장되어 있으면 S3에 업로드 후 DB에 S3 주소 업데이트
-        if(imageUrl.contains("image.tmdb.org")){
-            // s3에 업로드 후 s3 주소 반환
-            String s3ImageUrl = uploadTmdbImage(imageUrl);
-            log.info("tmdbUrl {} -> s3ImageUrl 변환 완료: {}", imageUrl, s3ImageUrl);
-
-            if (entity instanceof Content) {
-                Content content = (Content) entity;
-                content.setImageUrl(s3ImageUrl);
-                content = contentRepository.save(content);
-                log.info("새로운 s3ImageUrl {}로 content 업데이트 완료", content.getImageUrl());
-            } else if (entity instanceof Cast) {
-                Cast cast = (Cast) entity;
-                cast.setImageUrl(s3ImageUrl);
-                cast = castRepository.save(cast);
-                log.info("새로운 s3ImageUrl {} 로 cast 업데이트 완료", cast.getImageUrl());
-            } else {
-                throw new CustomException(S3ErrorCode.UNSUPPORTED_ENTITY_TYPE);
-            }
-
-            return s3ImageUrl;
-        }
-
-        // 2) null이면 기본 이미지 url 반환
-        if ("null".equals(imageUrl)) {
+        // 1) null이면 기본 이미지 url 반환
+        if (imageUrl == null) {
             String s3ImageUrl = String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", bucketName, region);
             if (entity instanceof Content) {
                 Content content = (Content) entity;
@@ -144,6 +121,29 @@ public class S3Service {
             log.info("imageUrl이 null이므로 기본 이미지 반환");
             return s3ImageUrl;
         }
+
+        // 2) DB에 TMDB url 저장되어 있으면 S3에 업로드 후 DB에 S3 주소 업데이트
+//        if(imageUrl.contains("image.tmdb.org")){
+//            // s3에 업로드 후 s3 주소 반환
+//            String s3ImageUrl = uploadTmdbImage(imageUrl);
+//            log.info("tmdbUrl {} -> s3ImageUrl 변환 완료: {}", imageUrl, s3ImageUrl);
+//
+//            if (entity instanceof Content) {
+//                Content content = (Content) entity;
+//                content.setImageUrl(s3ImageUrl);
+//                content = contentRepository.save(content);
+//                log.info("새로운 s3ImageUrl {}로 content 업데이트 완료", content.getImageUrl());
+//            } else if (entity instanceof Cast) {
+//                Cast cast = (Cast) entity;
+//                cast.setImageUrl(s3ImageUrl);
+//                cast = castRepository.save(cast);
+//                log.info("새로운 s3ImageUrl {} 로 cast 업데이트 완료", cast.getImageUrl());
+//            } else {
+//                throw new CustomException(S3ErrorCode.UNSUPPORTED_ENTITY_TYPE);
+//            }
+//
+//            return s3ImageUrl;
+//        }
 
         // 3) 이미 DB에 S3 주소가 저장되어 있으면 그대로 반환
         return imageUrl;
