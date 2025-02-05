@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 import { tokenRefresh } from './auth';
 
@@ -19,7 +20,27 @@ client.interceptors.request.use(
     // let accessToken = import.meta.env.VITE_MASTER_ACCESS_TOKEN;
 
     // 토큰 재발급 요청(`/user/token-refresh`)은 제외
+    // if (!config.url.includes('/user/token-refresh') && accessToken) {
+    //   config.headers.Authorization = `Bearer ${accessToken}`;
+    // }
+
     if (!config.url.includes('/user/token-refresh') && accessToken) {
+      // 🔥 accessToken에서 role 가져오기
+      try {
+        const decoded = jwtDecode(accessToken);
+        const userRole = decoded.role; // ✅ 토큰에서 role 추출
+        console.log('🔍 현재 유저 역할:', userRole);
+
+        // 🔥 ROLE_REGISTERED가 아닌 경우 강제 이동
+        if (userRole !== 'ROLE_REGISTERED') {
+          console.warn('❌ 접근 불가: 해당 페이지는 ROLE_REGISTERED만 가능합니다.');
+          window.location.replace('/');
+          return Promise.reject('접근 권한 없음'); // 요청 중단
+        }
+      } catch (error) {
+        console.error('❌ 토큰 디코딩 실패:', error);
+      }
+
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
@@ -59,6 +80,14 @@ client.interceptors.response.use(
         const newAccessToken = await tokenRefresh();
 
         if (newAccessToken) {
+          const decoded = jwtDecode(newAccessToken);
+          const userRole = decoded.role;
+
+          if (userRole !== 'ROLE_REGISTERED') {
+            console.warn('❌ 접근 불가: ROLE_REGISTERED만 가능');
+            window.location.replace('/');
+            return Promise.reject('접근 권한 없음');
+          }
           // ✅ 새로운 accessToken으로 요청 재시도
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return client(originalRequest);

@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 
+import ProtectedRoute from './components/common/ProtectedRoute';
 import ScrollToTop from './components/common/ScrollToTop';
 import ArchivePage from './pages/ArchivePage';
 import CelebDetailPage from './pages/CelebDetailPage';
@@ -39,33 +40,35 @@ const Router = () => {
         <Suspense>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/home" element={<HomePage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/signup/complete" element={<SignupCompletePage />} />
-            <Route path="/token" element={<TokenPage />} />
-            <Route path="/chatbot" element={<ChatbotPage />} />
-            <Route path="/upload" element={<UploadPage />} />
-            <Route path="/archive" element={<ArchivePage />} />
-            <Route path="/favorites/:type" element={<FavoritesDetailPage />} />
-            <Route path="/mypage" element={<MyPage />} />
-            <Route path="/user/:userId" element={<UserPage />} />
-            <Route path="/setting" element={<SettingPage />} />
-            <Route path="/curation" element={<CurationPage />} />
-            <Route path="/curation/:curationId" element={<CurationDetailPage />} />
-            <Route path="/curation/map" element={<CurationMapPage />} />
-            <Route path="/feed" element={<FeedPage />} />
-            <Route path="/content/:contentType" element={<ContentPage />} />
-            <Route path="/content/cast/:celebId" element={<CelebDetailPage />} />
-            <Route path="/content/detail/:contentId" element={<ContentDetailPage />} />
-            <Route path="/loading" element={<LoadingPage />} />
-            {/* 카테고리 설정시 */}
-            <Route path="/search/keyword" element={<SearchKeywordpage />} />
-            <Route path="/search/keyword/filter" element={<SearchFilterPage />} />
-            {/* 통합검색시 */}
-            <Route path="/search/result" element={<SearchResultPage />} />
-            <Route path="/map" element={<MapPage />} />
-            <Route path="/place/:placeId" element={<PlaceDetailPage />} />
-            <Route path="/reviewfeed/:placeId" element={<ReviewFeedPage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/signup/complete" element={<SignupCompletePage />} />
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/token" element={<TokenPage />} />
+              <Route path="/chatbot" element={<ChatbotPage />} />
+              <Route path="/upload" element={<UploadPage />} />
+              <Route path="/archive" element={<ArchivePage />} />
+              <Route path="/favorites/:type" element={<FavoritesDetailPage />} />
+              <Route path="/mypage" element={<MyPage />} />
+              <Route path="/user/:userId" element={<UserPage />} />
+              <Route path="/setting" element={<SettingPage />} />
+              <Route path="/curation" element={<CurationPage />} />
+              <Route path="/curation/:curationId" element={<CurationDetailPage />} />
+              <Route path="/curation/map" element={<CurationMapPage />} />
+              <Route path="/feed" element={<FeedPage />} />
+              <Route path="/content/:contentType" element={<ContentPage />} />
+              <Route path="/content/cast/:celebId" element={<CelebDetailPage />} />
+              <Route path="/content/detail/:contentId" element={<ContentDetailPage />} />
+              <Route path="/loading" element={<LoadingPage />} />
+              {/* 카테고리 설정시 */}
+              <Route path="/search/keyword" element={<SearchKeywordpage />} />
+              <Route path="/search/keyword/filter" element={<SearchFilterPage />} />
+              {/* 통합검색시 */}
+              <Route path="/search/result" element={<SearchResultPage />} />
+              <Route path="/map" element={<MapPage />} />
+              <Route path="/place/:placeId" element={<PlaceDetailPage />} />
+              <Route path="/reviewfeed/:placeId" element={<ReviewFeedPage />} />
+            </Route>
             <Route path="*" element={<ErrorPage />} />
           </Routes>
         </Suspense>
