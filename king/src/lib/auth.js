@@ -82,7 +82,7 @@ export const tokenRefresh = async () => {
 
     // ❌ 토큰이 유효하지 않거나 만료되었을 경우 -> 로그인 페이지로 이동
     if (err.response?.status === 401) {
-      alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+      // alert('세션이 만료되었습니다. 다시 로그인해주세요.');
       localStorage.removeItem('accessToken'); // 기존 accessToken 삭제
       window.location.href = '/'; // 로그인 페이지로 리디렉트
     }
