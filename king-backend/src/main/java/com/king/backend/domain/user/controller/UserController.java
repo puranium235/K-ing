@@ -169,7 +169,6 @@ public class UserController {
 
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deleteUser() {
-        userService.deleteUser();
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
+        return userService.deleteUser();
     }
 }
