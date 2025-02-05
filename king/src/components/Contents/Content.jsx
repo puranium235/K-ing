@@ -84,14 +84,19 @@ const Content = () => {
           {contentList.map((content, index) => (
             <Card key={index} onClick={() => handleDramaClick(content.id)}>
               <CardImageContainer>
-                <CardImage src={content.imageUrl} alt={content.name} />
+                <CardImage
+                  src={content.imageUrl}
+                  alt={content.name}
+                  $defaultImage={content.imageUrl.includes('default.jpg')}
+                />
               </CardImageContainer>
+              <CardTitle>{content.name}</CardTitle>
+
               {favorites[content.id] ? (
                 <IcStar id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
               ) : (
                 <IcStarBlank id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
               )}
-              <CardTitle>{content.name}</CardTitle>
             </Card>
           ))}
         </GridContainer>
@@ -137,16 +142,19 @@ const GridContainer = styled.div`
 `;
 
 const Card = styled.div`
+  position: relative;
+  cursor: pointer;
+
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  background-color: ${({ theme }) => theme.colors.White};
-  position: relative;
 
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
+  gap: 0.5rem;
+
+  min-width: 10.5rem;
+  width: 10.5rem;
+  background-color: ${({ theme }) => theme.colors.White};
 
   #favor {
     position: absolute;
@@ -159,23 +167,76 @@ const Card = styled.div`
 `;
 
 const CardImageContainer = styled.div`
-  width: 100%;
-  height: 80%;
   display: flex;
+  justify-content: end;
+  width: 100%;
+  height: 100%;
+  flex: 8;
+  overflow: hidden;
 `;
 
 const CardImage = styled.img`
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: ${({ $defaultImage }) => ($defaultImage ? 'contain' : 'cover')};
 
-  border-radius: 0;
+  overflow: hidden;
 `;
 
-const CardTitle = styled.h4`
-  flex: 1;
-  width: 100%;
-  margin-top: 5px;
-  ${({ theme }) => theme.fonts.Body4};
+const CardTitle = styled.span`
+  flex: 1.5;
+  ${({ theme }) => theme.fonts.Body6};
   color: ${({ theme }) => theme.colors.Gray0};
 `;
+
+// const Card = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-between;
+//   align-items: center;
+//   background-color: ${({ theme }) => theme.colors.White};
+//   position: relative;
+
+//   width: 100%;
+//   height: 100%;
+//   cursor: pointer;
+
+//   #favor {
+//     position: absolute;
+//     top: 0.5rem;
+//     right: 0.5rem;
+
+//     width: 20px;
+//     height: 20px;
+//   }
+// `;
+
+// const CardImageContainer = styled.div`
+//   flex: 8;
+//   width: 100%;
+//   height: 20rem;
+
+//   display: flex;
+//   overflow: hidden;
+// `;
+
+// const CardImage = styled.img`
+//   width: 100%;
+//   height: 100%;
+
+//   object-fit: cover;
+//   border-radius: 0;
+// `;
+
+// const CardTitle = styled.h4`
+//   width: 100%;
+
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   text-align: center;
+
+//   margin-top: 0.5rem;
+//   ${({ theme }) => theme.fonts.Body4};
+//   color: ${({ theme }) => theme.colors.Gray0};
+// `;

@@ -20,8 +20,9 @@ const SearchResult = () => {
   const [placeList, setPlaceList] = useState([]);
 
   const getResults = async (query, category) => {
-    const res = await getSearchResult({ query: query || '', category: category || '' });
+    const res = await getSearchResult({ query: query || '', category: category || '', size: 20 });
     setResults(res.results);
+    console.log(res.results);
   };
 
   const handleSearch = (query, category) => {

@@ -42,12 +42,13 @@ const St = {
 
     min-width: 10.5rem;
     width: 10.5rem;
-    height: 100%;
     background-color: ${({ theme }) => theme.colors.White};
   `,
 };
 
 const ImageWrapper = styled.div`
+  display: flex;
+  justify-content: end;
   width: 100%;
   flex: 8;
   overflow: hidden;
@@ -55,8 +56,9 @@ const ImageWrapper = styled.div`
 
 const Image = styled.img`
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+
+  overflow: hidden;
 `;
 
 const Text = styled.span`
