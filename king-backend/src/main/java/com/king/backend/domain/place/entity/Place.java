@@ -5,12 +5,12 @@ import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString

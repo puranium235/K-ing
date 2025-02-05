@@ -2,9 +2,11 @@ package com.king.backend.domain.content.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 public class ContentKo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
