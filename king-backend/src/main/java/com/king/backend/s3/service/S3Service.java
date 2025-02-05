@@ -36,6 +36,9 @@ public class S3Service {
 
     @Value("${spring.aws.s3-bucket}")
     private String bucketName;
+
+    @Value("${spring.aws.region}")
+    private String region;
     
     // 1. 사용자가 직접 업로드
     public String uploadFile(MultipartFile file) {
@@ -76,9 +79,7 @@ public class S3Service {
         URL url = s3Client.utilities().getUrl(request);
         return url.toString();
     }
-//    private String extractFileName(String imageUrl) {
-//        return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-//    }
+
     private String extractFileName(String imageUrl) {
         try {
             URL url = new URL(imageUrl);
@@ -87,8 +88,6 @@ public class S3Service {
             throw new RuntimeException("이미지 URL에서 파일명을 추출하는 중 오류 발생: " + imageUrl, e);
         }
     }
-
-
     
     // 2. tmdb 사진 업로드
     @Transactional
@@ -127,10 +126,16 @@ public class S3Service {
 
             return s3ImageUrl;
         }
-        // 2) 이미 DB에 S3 주소가 저장되어 있으면 그대로 반환
+
+        // 2) null이면 기본 이미지 url 반환
+        if ("null".equals(imageUrl)) {
+            log.info("imageUrl이 null이므로 기본 이미지 반환");
+            return String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", bucketName, region);
+        }
+
+        // 3) 이미 DB에 S3 주소가 저장되어 있으면 그대로 반환
         return imageUrl;
     }
-
 
     public String uploadTmdbImage(String tmdbUrl) {
         try {
