@@ -91,3 +91,15 @@ export const tokenRefresh = async () => {
     return null;
   }
 };
+
+// 로그아웃 API 요청
+export const logout = async () => {
+  try {
+    const res = await client.post('/user/logout', {});
+    console.log('✅ 로그아웃 성공:', res.status);
+    return true;
+  } catch (err) {
+    console.error('❌ 로그아웃 실패:', err.response ? err.response.status : err);
+  }
+  return false;
+};
