@@ -1,112 +1,40 @@
-import React, { useEffect, useRef, useState } from 'react';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Slider from 'react-slick';
 import styled from 'styled-components';
 
 const Carousel = ({ carouselList }) => {
-  const [currIndex, setCurrIndex] = useState(1);
-  const [currList, setCurrList] = useState([]);
-  const carouselRef = useRef(null);
   const navigate = useNavigate();
-
-  // 초기 데이터 설정
-  useEffect(() => {
-    if (carouselList.length) {
-      const startData = carouselList[carouselList.length - 1];
-      const endData = carouselList[0];
-      const list = [startData, ...carouselList, endData];
-      setCurrList(list);
-    }
-  }, [carouselList]);
-
-  // 자동 슬라이딩 로직
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrIndex((prevIndex) => (prevIndex === currList.length - 2 ? 1 : prevIndex + 1));
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [currList]);
-
-  useEffect(() => {
-    const handleTransitionEnd = () => {
-      if (currIndex === 0) {
-        carouselRef.current.style.transition = 'none';
-        setCurrIndex(carouselList.length);
-        carouselRef.current.style.transform = `translateX(-${carouselList.length * 100}%)`;
-      } else if (currIndex === carouselList.length + 1) {
-        carouselRef.current.style.transition = 'none';
-        setCurrIndex(1);
-        carouselRef.current.style.transform = `translateX(-100%)`;
-      }
-    };
-
-    if (carouselRef.current) {
-      carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
-      carouselRef.current.style.transform = `translateX(-${currIndex * 100}%)`;
-      carouselRef.current.addEventListener('transitionend', handleTransitionEnd);
-    }
-
-    return () => {
-      if (carouselRef.current) {
-        carouselRef.current.removeEventListener('transitionend', handleTransitionEnd);
-      }
-    };
-  }, [currIndex, carouselList.length]);
-
-  const handleSwipe = (direction) => {
-    setCurrIndex((prev) => prev + direction);
-  };
-
-  const handleTouchEvents = (startX) => {
-    const move = (e) => {
-      const touchMoveX = e.touches[0].clientX;
-      const moveX = startX - touchMoveX;
-      const movePercent = (moveX / window.innerWidth) * 100;
-      carouselRef.current.style.transform = `translateX(calc(-${currIndex * 100}% - ${movePercent}%))`;
-    };
-
-    const end = (e) => {
-      const touchEndX = e.changedTouches[0].clientX;
-      const threshold = window.innerWidth / 4;
-      if (startX - touchEndX > threshold) {
-        handleSwipe(1);
-      } else if (touchEndX - startX > threshold) {
-        handleSwipe(-1);
-      }
-      document.removeEventListener('touchmove', move);
-      document.removeEventListener('touchend', end);
-    };
-
-    document.addEventListener('touchmove', move);
-    document.addEventListener('touchend', end);
-  };
-
-  const handleTouchStart = (e) => {
-    const startX = e.touches[0].clientX;
-    handleTouchEvents(startX);
-  };
 
   const handleClickCuration = (curationId) => {
     navigate(`/curation/${curationId}`);
   };
 
+  const settings = {
+    dots: false, // 하단 네비게이션 점 제거
+    infinite: true, // 무한 반복
+    speed: 500, // 전환 속도
+    slidesToShow: 1, // 한 번에 보이는 슬라이드 개수
+    slidesToScroll: 1, // 한 번에 스크롤되는 슬라이드 개수
+    autoplay: true, // 자동 슬라이드
+    autoplaySpeed: 5000, // 자동 슬라이드 속도 (5초)
+    arrows: false, // 좌우 화살표 제거
+    swipe: true, // 터치 스와이프 가능
+  };
+
   return (
     <Container>
-      <CarouselWrapper onTouchStart={handleTouchStart}>
-        <CarouselList ref={carouselRef}>
-          {currList.map((item, idx) => (
-            <CarouselItem
-              key={`${item.id}-${idx}`}
-              onClick={() => {
-                handleClickCuration(item.id);
-              }}
-            >
-              <img src={item.imageUrl} alt="carousel-img" />
-              <p>{item.title}</p>
-            </CarouselItem>
-          ))}
-        </CarouselList>
-      </CarouselWrapper>
+      <StyledSlider {...settings}>
+        {carouselList.map((item) => (
+          <CarouselItem key={item.id} onClick={() => handleClickCuration(item.id)}>
+            <img src={item.imageUrl} alt="carousel-img" />
+            <p>{item.title}</p>
+          </CarouselItem>
+        ))}
+      </StyledSlider>
     </Container>
   );
 };
@@ -118,36 +46,43 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-top: 1rem;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 2rem;
 `;
 
-const CarouselWrapper = styled.div`
+const StyledSlider = styled(Slider)`
+  width: 100%;
+
+  .slick-list {
+    overflow: hidden;
+  }
+
+  .slick-track {
+    display: flex;
+    align-items: center;
+  }
+
+  .slick-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+`;
+
+const CarouselItem = styled.div`
   position: relative;
   width: 100%;
-  overflow: hidden;
-`;
-
-const CarouselList = styled.ul`
-  display: flex;
-  width: 100%;
-`;
-
-const CarouselItem = styled.li`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  flex: none;
-  width: 100%;
-  height: 186px;
-  overflow: hidden;
-  border-radius: 20px;
+  height: 100%;
 
   cursor: pointer;
 
   img {
-    width: 100%;
-    object-fit: cover;
+    width: 35rem;
+    height: 18rem;
+    object-fit: contain;
+    object-position: center;
   }
 
   &::after {
@@ -155,19 +90,21 @@ const CarouselItem = styled.li`
     position: absolute;
     top: 0;
     left: 0;
+
     width: 100%;
     height: 100%;
+
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 1;
   }
 
   p {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
+    bottom: 1rem;
+    left: 1rem;
+
+    color: ${({ theme }) => theme.colors.White};
+    padding: 0.5rem 1rem;
     ${({ theme }) => theme.fonts.Title6}
     z-index: 2;
   }
