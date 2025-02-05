@@ -114,6 +114,7 @@ const Signup = () => {
     if (success) {
       navigate('/signup/complete');
     } else {
+      console.error('회원가입 실패:', message);
       setErrorMessage(message);
     }
   };

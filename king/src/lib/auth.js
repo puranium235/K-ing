@@ -39,6 +39,7 @@ export const postSignup = async (nickname, language) => {
     return { success: true, message: '' };
   } catch (err) {
     console.error('회원가입 요청 실패:', err);
+    console.error('회원가입 요청 실패:', err.response ? err.response.data : err);
 
     if (err.response) {
       const { code } = err.response.data;

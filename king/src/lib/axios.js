@@ -21,6 +21,7 @@ client.interceptors.request.use(
 
     const isNicknameCheckRequest = config.url.includes('/user/nickname');
     const isTokenRefresh = config.url.includes('/user/token-refresh');
+    const isSignupRequest = config.url.includes('/user/signup');
     // console.log('isNicknameCheckRequest : ' + isNicknameCheckRequest);
     // console.log('isTokenRefresh : ' + isTokenRefresh);
 
@@ -34,8 +35,8 @@ client.interceptors.request.use(
 
         // 🔥 ROLE_REGISTERED가 아닌 경우 강제 이동
         // 🔥 ROLE_PENDING 사용자는 닉네임 중복 검사 API 요청만 가능하도록 예외 처리
-        if (userRole === 'ROLE_PENDING' && isNicknameCheckRequest) {
-          // console.log('✅ ROLE_PENDING 사용자, 닉네임 중복 검사 허용');
+        if (userRole === 'ROLE_PENDING' && (isNicknameCheckRequest || isSignupRequest)) {
+          console.log('✅ ROLE_PENDING 사용자, 닉네임 중복 검사 & 회원가입 요청 허용');
         } else if (userRole !== 'ROLE_REGISTERED') {
           console.warn('❌ 접근 불가: 해당 페이지는 ROLE_REGISTERED만 가능합니다.');
           window.location.replace('/');
