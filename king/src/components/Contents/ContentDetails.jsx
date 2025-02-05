@@ -89,11 +89,13 @@ const ContentDetails = () => {
               <p>{contentInfo.broadcast}</p>
             </IconText>
           </TitleSection>
-          {isFavorited ? (
-            <IcStar id="favor" onClick={toggleFavorite} />
-          ) : (
-            <IcStarBlank id="favor" onClick={toggleFavorite} />
-          )}
+          <BookmarkWrapper>
+            {isFavorited ? (
+              <IcStar id="favor" onClick={toggleFavorite} />
+            ) : (
+              <IcStarBlank id="favor" onClick={toggleFavorite} />
+            )}
+          </BookmarkWrapper>
         </Header>
 
         <Synopsis>
@@ -185,6 +187,12 @@ const TitleSection = styled.div`
   }
 `;
 
+const BookmarkWrapper = styled.div`
+  svg {
+    cursor: pointer;
+  }
+`;
+
 const Synopsis = styled.div`
   line-height: 1.6;
   margin-bottom: 2rem;
@@ -233,6 +241,8 @@ const CastMember = styled.div`
 
   flex: 0 0 104px;
   height: auto;
+
+  cursor: pointer;
 
   img {
     width: 100%;

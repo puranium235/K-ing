@@ -89,13 +89,14 @@ const CelebDetails = () => {
               <p>{celebInfo.participatingWorks}</p>
             </IconText>
           </TitleSection>
-          {isFavorited ? (
-            <IcStar id="favor" onClick={toggleFavorite} />
-          ) : (
-            <IcStarBlank id="favor" onClick={toggleFavorite} />
-          )}
+          <BookmarkWrapper>
+            {isFavorited ? (
+              <IcStar id="favor" onClick={toggleFavorite} />
+            ) : (
+              <IcStarBlank id="favor" onClick={toggleFavorite} />
+            )}
+          </BookmarkWrapper>
         </Header>
-
         <Synopsis>
           <IconText>
             <IcSmallStar />
@@ -202,6 +203,12 @@ const TitleSection = styled.div`
   }
 `;
 
+const BookmarkWrapper = styled.div`
+  svg {
+    cursor: pointer;
+  }
+`;
+
 const Synopsis = styled.div`
   line-height: 1.6;
   margin-bottom: 2rem;
@@ -254,6 +261,8 @@ const Work = styled.div`
   flex: 0 0 104px;
   width: 10rem;
 
+  cursor: pointer;
+
   img {
     width: 100%;
     flex: 8;
@@ -295,6 +304,8 @@ const WorkWrapper = styled.ul`
   }
 
   p {
+    cursor: pointer;
+
     margin-left: 5rem;
     ${({ theme }) => theme.fonts.Title6};
     color: ${({ theme }) => theme.colors.Gray1};

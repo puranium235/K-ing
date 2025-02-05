@@ -143,6 +143,8 @@ const CarouselItem = styled.li`
   overflow: hidden;
   border-radius: 20px;
 
+  cursor: pointer;
+
   img {
     width: 100%;
     object-fit: cover;

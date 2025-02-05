@@ -214,6 +214,10 @@ const Options = styled.div`
   align-items: center;
 
   margin: 0.5rem;
+
+  svg {
+    cursor: pointer;
+  }
 `;
 
 const FilterWrapper = styled.div`

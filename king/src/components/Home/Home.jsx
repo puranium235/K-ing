@@ -142,6 +142,8 @@ const CurationHeader = styled.div`
     margin: 1rem 0;
   }
   span {
+    cursor: pointer;
+
     ${({ theme }) => theme.fonts.Body4};
   }
 `;

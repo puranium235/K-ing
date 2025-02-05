@@ -68,4 +68,8 @@ const FilterWrapper = styled.div`
   gap: 0.5rem;
 
   width: 100%;
+
+  svg {
+    cursor: pointer;
+  }
 `;
