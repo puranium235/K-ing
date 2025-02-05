@@ -1,17 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Home from '../components/Home/Home';
-
-const UploadPage = () => {
-  return (
-    <>
-      <Home />
-    </>
-  );
+const CurationUploadPage = () => {
+  return <>큐레이션 업로드 페이지</>;
 };
 
-export default UploadPage;
+export default CurationUploadPage;
 
 const St = {
   Wrapper: styled.article`

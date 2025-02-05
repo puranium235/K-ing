@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EntityListeners(CastListener.class)
-@Setter
 public class Cast {
 
     @Id

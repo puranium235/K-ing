@@ -7,7 +7,7 @@ export const checkNickname = async (nickname, language = 'ko') => {
     const res = await client.get(`/user/nickname?nickname=${nickname}`);
     return { success: res.data.success, message: '' }; // 닉네임 사용 가능
   } catch (err) {
-    console.error('닉네임 중복 검사 실패:', err);
+    // console.error('닉네임 중복 검사 실패:', err);
 
     // 닉네임이 중복된 경우 (409 상태 코드)
     if (err.response?.status === 409) {
@@ -39,6 +39,7 @@ export const postSignup = async (nickname, language) => {
     return { success: true, message: '' };
   } catch (err) {
     console.error('회원가입 요청 실패:', err);
+    console.error('회원가입 요청 실패:', err.response ? err.response.data : err);
 
     if (err.response) {
       const { code } = err.response.data;

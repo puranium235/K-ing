@@ -12,6 +12,7 @@ import ContentPage from './pages/ContentPage';
 import CurationDetailPage from './pages/CurationDetailPage';
 import CurationMapPage from './pages/CurationMapPage';
 import CurationPage from './pages/CurationPage';
+import CurationUploadPage from './pages/CurationUploadPage';
 import ErrorPage from './pages/ErrorPage';
 import FavoritesDetailPage from './pages/FavoritesDetailPage';
 import FeedPage from './pages/FeedPage';
@@ -21,15 +22,16 @@ import LoadingPage from './pages/LoadingPage';
 import MapPage from './pages/MapPage';
 import MyPage from './pages/MyPage';
 import PlaceDetailPage from './pages/PlaceDetailPage';
+import PostUploadPage from './pages/PostCuraionPage';
 import ReviewFeedPage from './pages/ReviewFeedPage';
 import SearchFilterPage from './pages/SearchFilterPage';
 import SearchKeywordpage from './pages/SearchKeywordPage';
 import SearchResultPage from './pages/SearchResultPage';
+import SettingDetailPage from './pages/SettingDetailPage';
 import SettingPage from './pages/SettingPage';
 import SignupCompletePage from './pages/SignupCompletePage';
 import SignupPage from './pages/SignupPage';
 import TokenPage from './pages/TokenPage';
-import UploadPage from './pages/UploadPage';
 import UserPage from './pages/UserPage';
 
 const Router = () => {
@@ -41,17 +43,19 @@ const Router = () => {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/token" element={<TokenPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/signup/complete" element={<SignupCompletePage />} />
               <Route path="/home" element={<HomePage />} />
-              <Route path="/token" element={<TokenPage />} />
               <Route path="/chatbot" element={<ChatbotPage />} />
-              <Route path="/upload" element={<UploadPage />} />
+              <Route path="/upload/post" element={<PostUploadPage />} />
+              <Route path="/upload/curation" element={<CurationUploadPage />} />
               <Route path="/archive" element={<ArchivePage />} />
               <Route path="/favorites/:type" element={<FavoritesDetailPage />} />
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/user/:userId" element={<UserPage />} />
               <Route path="/setting" element={<SettingPage />} />
+              <Route path="/setting/:settingType" element={<SettingDetailPage />} />
               <Route path="/curation" element={<CurationPage />} />
               <Route path="/curation/:curationId" element={<CurationDetailPage />} />
               <Route path="/curation/map" element={<CurationMapPage />} />

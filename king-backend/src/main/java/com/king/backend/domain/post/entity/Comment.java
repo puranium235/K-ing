@@ -4,12 +4,13 @@ import com.king.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString
 public class Comment {
     @Id
@@ -18,7 +19,7 @@ public class Comment {
 
     private String content;
 
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
@@ -26,5 +27,5 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User writer;
 }

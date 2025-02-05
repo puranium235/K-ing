@@ -96,12 +96,12 @@ const Carousel = ({ carouselList }) => {
         <CarouselList ref={carouselRef}>
           {currList.map((item, idx) => (
             <CarouselItem
-              key={`${item.image}-${idx}`}
+              key={`${item.id}-${idx}`}
               onClick={() => {
                 handleClickCuration(item.id);
               }}
             >
-              <img src={item.image} alt="carousel-img" />
+              <img src={item.imageUrl} alt="carousel-img" />
               <p>{item.title}</p>
             </CarouselItem>
           ))}

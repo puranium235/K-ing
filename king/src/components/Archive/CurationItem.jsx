@@ -6,7 +6,7 @@ import { IcBookmarkBlank } from '../../assets/icons';
 import { IcBookmarkFill } from '../../assets/icons';
 
 const CurationItem = ({ item }) => {
-  const { id, title, image, author, bookmarked: initialBookmarked } = item; // 초기 bookmarked 값 가져오기
+  const { id, title, imageUrl, author, bookmarked: initialBookmarked } = item; // 초기 bookmarked 값 가져오기
   const [bookmarked, setBookmarked] = useState(initialBookmarked); // 초기 상태를 item.bookmarked로 설정
   const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ const CurationItem = ({ item }) => {
 
   return (
     <StCurationItemWrapper onClick={handleCurationClick}>
-      <St.Image src={image} alt={title} />
+      <St.Image src={imageUrl} alt={title} />
       <St.Info>
         <St.Author>@{author}</St.Author>
         <St.Title>{title}</St.Title>
