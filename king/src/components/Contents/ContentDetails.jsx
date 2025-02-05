@@ -258,7 +258,7 @@ const ActionButton = styled.button`
   align-items: center;
 
   margin: auto;
-  margin-bottom: 2rem;
+  margin-bottom: 10rem;
 
   border-radius: 20px;
   padding: 0.8rem 2rem;
