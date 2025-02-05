@@ -69,7 +69,7 @@ const ContentDetails = () => {
       <DramaPageContainer>
         <IconText>
           <BackButton onBack={handleGoBack} />
-          <h3> 세부정보</h3>
+          <p> 세부정보</p>
         </IconText>
 
         <Header>
@@ -141,13 +141,6 @@ const DramaPageContainer = styled.div`
   background-color: #fff;
 
   min-height: 80%;
-
-  h3 {
-    width: 100%;
-    padding: 1rem 0;
-    text-align: left;
-    ${({ theme }) => theme.fonts.Title3};
-  }
 `;
 
 const Header = styled.div`
@@ -155,7 +148,8 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   align-items: end;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
 
   min-height: 30vh;
 
@@ -182,6 +176,7 @@ const TitleSection = styled.div`
 
   h3 {
     ${({ theme }) => theme.fonts.Title4};
+    margin-bottom: 1rem;
   }
 
   p {
@@ -204,8 +199,6 @@ const IconText = styled.div`
   align-items: center;
   gap: 0.7rem;
 
-  margin-bottom: 1rem;
-
   svg {
     width: 1.8rem;
     height: 1.8rem;
@@ -214,7 +207,7 @@ const IconText = styled.div`
   p {
     padding: 0.5rem 0;
     text-align: left;
-    ${({ theme }) => theme.fonts.Title5};
+    ${({ theme }) => theme.fonts.Title4};
   }
 `;
 

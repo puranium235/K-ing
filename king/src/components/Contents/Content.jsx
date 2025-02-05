@@ -77,7 +77,7 @@ const Content = () => {
       <StHomeWrapper>
         <IconText>
           <BackButton onBack={handleGoBack} />
-          <h3> {getContentTypeKor(contentType)}</h3>
+          <p> {getContentTypeKor(contentType)}</p>
         </IconText>
         <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
         <GridContainer>
@@ -121,16 +121,11 @@ const IconText = styled.div`
   align-items: center;
   gap: 0.7rem;
 
-  svg {
-    width: 1.8rem;
-    height: 1.8rem;
-  }
-
-  h3 {
+  p {
     width: 100%;
     padding: 0.5rem 0;
     text-align: left;
-    ${({ theme }) => theme.fonts.Title3};
+    ${({ theme }) => theme.fonts.Title4};
   }
 `;
 

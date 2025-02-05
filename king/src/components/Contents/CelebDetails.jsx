@@ -65,7 +65,7 @@ const CelebDetails = () => {
       <CelebPageContainer>
         <IconText>
           <BackButton onBack={handleGoBack} />
-          <h3> 세부정보</h3>
+          <p> 세부정보</p>
         </IconText>
 
         <Header>
@@ -159,13 +159,6 @@ const CelebPageContainer = styled.div`
 
   padding: 2rem;
   background-color: #fff;
-
-  h3 {
-    width: 100%;
-    padding: 1rem 0;
-    text-align: left;
-    ${({ theme }) => theme.fonts.Title3};
-  }
 `;
 
 const Header = styled.div`
@@ -173,7 +166,8 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   align-items: end;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
 
   min-height: 30vh;
 
@@ -219,10 +213,9 @@ const Synopsis = styled.div`
 const IconText = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: center;
   align-items: center;
   gap: 0.7rem;
-
-  margin-bottom: 1rem;
 
   svg {
     width: 1.8rem;
@@ -230,7 +223,10 @@ const IconText = styled.div`
   }
 
   p {
-    ${({ theme }) => theme.fonts.Title5};
+    width: 100%;
+    padding: 0.5rem 0;
+    text-align: left;
+    ${({ theme }) => theme.fonts.Title4};
   }
 `;
 
