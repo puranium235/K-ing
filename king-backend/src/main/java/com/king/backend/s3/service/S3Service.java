@@ -39,7 +39,7 @@ public class S3Service {
 
     @Value("${spring.aws.region}")
     private String region;
-    
+
     // 1. 사용자가 직접 업로드
     public String uploadFile(MultipartFile file) {
         return uploadToS3(file);
@@ -88,7 +88,7 @@ public class S3Service {
             throw new RuntimeException("이미지 URL에서 파일명을 추출하는 중 오류 발생: " + imageUrl, e);
         }
     }
-    
+
     // 2. tmdb 사진 업로드
     @Transactional
     public String getOrUploadImage(Object entity){
@@ -113,7 +113,7 @@ public class S3Service {
             if (entity instanceof Content) {
                 Content content = (Content) entity;
                 content.setImageUrl(s3ImageUrl);
-                contentRepository.save(content);
+                content = contentRepository.save(content);
                 log.info("새로운 s3ImageUrl {}로 content 업데이트 완료", content.getImageUrl());
             } else if (entity instanceof Cast) {
                 Cast cast = (Cast) entity;
@@ -129,8 +129,20 @@ public class S3Service {
 
         // 2) null이면 기본 이미지 url 반환
         if ("null".equals(imageUrl)) {
+            String s3ImageUrl = String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", bucketName, region);
+            if (entity instanceof Content) {
+                Content content = (Content) entity;
+                content.setImageUrl(s3ImageUrl);
+                contentRepository.save(content);
+            } else if (entity instanceof Cast) {
+                Cast cast = (Cast) entity;
+                cast.setImageUrl(s3ImageUrl);
+                cast = castRepository.save(cast);
+            } else {
+                throw new CustomException(S3ErrorCode.UNSUPPORTED_ENTITY_TYPE);
+            }
             log.info("imageUrl이 null이므로 기본 이미지 반환");
-            return String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", bucketName, region);
+            return s3ImageUrl;
         }
 
         // 3) 이미 DB에 S3 주소가 저장되어 있으면 그대로 반환
@@ -140,7 +152,7 @@ public class S3Service {
     public String uploadTmdbImage(String tmdbUrl) {
         try {
             // TMDB 이미지 다운로드
-            byte[] imageBytes = restTemplate.getForObject(tmdbUrl, byte[].class); 
+            byte[] imageBytes = restTemplate.getForObject(tmdbUrl, byte[].class);
             if (imageBytes == null || imageBytes.length == 0) {
                 throw new CustomException(S3ErrorCode.TMDB_IMAGE_DOWNLOAD_FAILED);
             }
@@ -161,7 +173,7 @@ public class S3Service {
     }
 
     public void deleteFile(String fileUrl) {
-        
+
         log.info("deleteFile 메서드 시작");
         if (fileUrl == null || fileUrl.isEmpty()) {
             log.info("deleteFile에 fileUrl 비어있음");
