@@ -1,20 +1,20 @@
 package com.king.backend.domain.post.entity;
 
+import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.OffsetDateTime;
 
 @Entity
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,22 +22,26 @@ public class Post {
 
     private String content;
 
-    private LocalDateTime createdAt;
+    @CreationTimestamp
+    private OffsetDateTime createdAt;
 
-    private LocalDateTime updatedAt;
+    @UpdateTimestamp
+    private OffsetDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)
-    private User user;
+    private User writer;
 
-    private Long placeId;
+    @ManyToOne
+    @JoinColumn(name = "place_id", nullable = false)
+    private Place place;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostImage> postImages;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Like> likes;
+    public void update(String content, Place place) {
+        if (content != null) {
+            this.content = content;
+        }
+        if (place != null) {
+            this.place = place;
+        }
+    }
 }

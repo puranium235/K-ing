@@ -1,15 +1,13 @@
 package com.king.backend.domain.post.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString
 public class PostImage {
     @Id
