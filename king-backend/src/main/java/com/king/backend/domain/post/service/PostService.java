@@ -22,13 +22,15 @@ import com.king.backend.s3.service.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -72,10 +74,19 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostAllResponseDto> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
+    public PostAllResponseDto.CursorResponse getAllPosts(OffsetDateTime cursor, int size) {
+        Pageable pageable = PageRequest.of(0, size);
+        List<Post> posts;
 
-        return posts.stream().map(post -> {
+        if (cursor == null) {
+            posts = postRepository.findByOrderByCreatedAtDesc(pageable);
+        } else {
+            posts = postRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(cursor, pageable);
+        }
+
+        OffsetDateTime nextCursor = posts.isEmpty() ? null : posts.get(posts.size() - 1).getCreatedAt();
+
+        List<PostAllResponseDto> postDtos = posts.stream().map(post -> {
             String imageUrl = postImageRepository.findByPostId(post.getId())
                     .map(PostImage::getImageUrl)
                     .orElse(null);
@@ -93,7 +104,9 @@ public class PostService {
                     .createdAt(post.getCreatedAt())
                     .updatedAt(post.getUpdatedAt())
                     .build();
-        }).collect(Collectors.toList());
+        }).toList();
+
+        return new PostAllResponseDto.CursorResponse(postDtos, nextCursor);
     }
 
     @Transactional

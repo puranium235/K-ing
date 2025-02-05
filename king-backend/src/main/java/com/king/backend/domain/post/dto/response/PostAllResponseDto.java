@@ -3,6 +3,7 @@ package com.king.backend.domain.post.dto.response;
 import lombok.*;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,5 +25,13 @@ public class PostAllResponseDto {
     public static class Writer {
         private Long userId;
         private String nickname;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class CursorResponse {
+        private List<PostAllResponseDto> posts;
+        private OffsetDateTime nextCursor;
     }
 }

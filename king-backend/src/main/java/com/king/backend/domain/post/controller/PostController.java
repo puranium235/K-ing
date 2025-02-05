@@ -14,7 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/post")
@@ -33,11 +34,15 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postId));
     }
 
-    @Operation(summary = "게시글 전체 목록 조회(피드) API")
+    @Operation(summary = "게시글 전체 목록 조회(피드) API (커서 기반 페이징 지원)")
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<PostAllResponseDto>>> getAllPosts(){
-        List<PostAllResponseDto> posts = postService.getAllPosts();
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(posts));
+    public ResponseEntity<ApiResponse<PostAllResponseDto.CursorResponse>> getAllPosts(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        OffsetDateTime cursorTime = (cursor != null) ? OffsetDateTime.parse(cursor, DateTimeFormatter.ISO_DATE_TIME) : null;
+        PostAllResponseDto.CursorResponse response = postService.getAllPosts(cursorTime, size);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
     @Operation(summary = "게시글 상세 조회 API")
