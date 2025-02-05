@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
@@ -50,7 +51,7 @@ public class S3Service {
     // 사용자가 업로드한 파일을 S3에 업로드
     private String uploadToS3(MultipartFile file) {
         String fileName = "uploads/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
-
+        log.info("uploadToS3 메서드 fileName 확인: " + fileName);
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileName)
@@ -75,9 +76,18 @@ public class S3Service {
         URL url = s3Client.utilities().getUrl(request);
         return url.toString();
     }
+//    private String extractFileName(String imageUrl) {
+//        return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+//    }
     private String extractFileName(String imageUrl) {
-        return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+        try {
+            URL url = new URL(imageUrl);
+            return url.getPath().substring(url.getPath().lastIndexOf("/") + 1);
+        } catch (Exception e) {
+            throw new RuntimeException("이미지 URL에서 파일명을 추출하는 중 오류 발생: " + imageUrl, e);
+        }
     }
+
 
     
     // 2. tmdb 사진 업로드
@@ -142,6 +152,30 @@ public class S3Service {
             return getFileUrl(fileName);
         } catch (Exception e) {
             throw new CustomException(S3ErrorCode.TMDB_IMAGE_UPLOAD_FAILED);
+        }
+    }
+
+    public void deleteFile(String fileUrl) {
+        
+        log.info("deleteFile 메서드 시작");
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            log.info("deleteFile에 fileUrl 비어있음");
+            return;
+        }
+
+        String fileName = extractFileName(fileUrl);
+        log.info("deleteFile 삭제할 이미지명 {}", fileName);
+
+        try {
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+                    .build();
+            s3Client.deleteObject(deleteRequest);
+            log.info("deleteFile S3 파일 삭제 성공: {}", fileUrl);
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패: {} - 오류: {}", fileUrl, e.getMessage());
+            throw new CustomException(S3ErrorCode.S3_DELETE_FAILED);
         }
     }
 }

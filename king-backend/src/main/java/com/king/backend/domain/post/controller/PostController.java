@@ -47,5 +47,13 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(post));
     }
 
-
+    @Operation(summary = "게시글 수정 API")
+    @PostMapping(value="/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<Long>> updatePost(
+            @PathVariable Long postId,
+            @RequestPart("post") PostUploadRequestDto reqDto,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+        Long updatedPostId = postService.updatePost(postId, reqDto, imageFile);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(updatedPostId));
+    }
 }

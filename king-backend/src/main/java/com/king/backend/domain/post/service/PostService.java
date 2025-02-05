@@ -143,4 +143,47 @@ public class PostService {
                 .comments(comments)
                 .build();
     }
+
+    @Transactional
+    public Long updatePost(Long postId, PostUploadRequestDto reqDto, MultipartFile imageFile) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
+        Long userId = Long.parseLong(user.getName());
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+        if (!post.getWriter().getId().equals(userId)) {
+            throw new CustomException(PostErrorCode.POST_UPDATE_ACCESS_DENIED);
+        }
+
+        Place newPlace = null;
+        if (reqDto.getPlaceId() != null) {
+            newPlace = placeRepository.findById(reqDto.getPlaceId())
+                    .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
+        }
+        post.update(reqDto.getContent(), newPlace);
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            // 기존 이미지 삭제
+            PostImage postImage = postImageRepository.findByPostId(postId)
+                    .orElseThrow(() -> new RuntimeException("해당 Post ID에 대한 이미지가 존재하지 않습니다. Post ID: " + postId));
+
+            String imageUrl = postImage.getImageUrl();
+            log.info("postService : 삭제할 imageUrl {}", imageUrl);
+
+            s3Service.deleteFile(imageUrl);
+            postImageRepository.delete(postImage);
+            log.info("postService : 삭제했는가 imageUrl {}", postImage.getImageUrl());
+
+            // 새 이미지 업로드
+            String newImageUrl = s3Service.uploadFile(imageFile);
+            PostImage newPostImage = PostImage.builder()
+                    .imageUrl(newImageUrl)
+                    .post(post)
+                    .build();
+            postImageRepository.save(newPostImage);
+        }
+
+        return post.getId();
+    }
 }

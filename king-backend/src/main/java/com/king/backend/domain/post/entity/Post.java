@@ -35,4 +35,13 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
+
+    public void update(String content, Place place) {
+        if (content != null) {
+            this.content = content;
+        }
+        if (place != null) {
+            this.place = place;
+        }
+    }
 }
