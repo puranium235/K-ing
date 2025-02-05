@@ -164,5 +164,12 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserProfileResponseDTO>> getUserProfile(@PathVariable(value = "userId") String userId) {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(userService.getUserById(userId)));
-    }g
+    }
+
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteUser() {
+        userService.deleteUser();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
+    }
 }
