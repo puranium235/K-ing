@@ -54,7 +54,11 @@ const ContentDetails = () => {
   };
 
   const handleGoBack = () => {
-    navigate(`/content/${contentType}`);
+    if (contentType === 'search') {
+      navigate(`/search/result`);
+    } else {
+      navigate(`/content/${contentType}`);
+    }
   };
 
   useEffect(() => {
@@ -260,8 +264,7 @@ const CastMember = styled.div`
 
   img {
     width: 100%;
-    height: 100%;
-    /* min-height: 10rem; */
+    height: 80%;
     object-fit: cover;
   }
 
@@ -278,7 +281,7 @@ const ActionButton = styled.button`
   align-items: center;
 
   margin: auto;
-  margin-bottom: 10rem;
+  margin-bottom: 2rem;
 
   border-radius: 20px;
   padding: 0.8rem 2rem;
