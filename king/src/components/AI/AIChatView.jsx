@@ -147,14 +147,14 @@ const AIChatView = () => {
         </RefreshButton>
       </Header>
 
-      <IntroMessageContainer>
-        <img src={KingIcon} />
-        안녕하세요, 김싸피님
-        <br />
-        궁금한 것을 물어보세요!
-      </IntroMessageContainer>
-
       <MessagesContainer ref={messagesContainerRef}>
+        <IntroMessageContainer>
+          <img src={KingIcon} />
+          안녕하세요, 김싸피님
+          <br />
+          궁금한 것을 물어보세요!
+        </IntroMessageContainer>
+
         {messages.map((message, index) => (
           <Message key={index} $sender={message.sender}>
             {message.sender === 'option' ? (
@@ -214,12 +214,14 @@ const ChatContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   height: 100%;
 `;
 
 const Header = styled.div`
+  position: sticky;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -255,10 +257,10 @@ const IntroMessageContainer = styled.div`
 `;
 
 const MessagesContainer = styled.div`
-  width: 90%;
+  width: 100%;
   height: 100%;
-  padding: 1rem;
-  padding-bottom: 9rem;
+  padding: 1rem 2rem;
+  box-sizing: border-box;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -339,15 +341,15 @@ const InputContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 39rem;
+  width: 100%;
   padding: 1.2rem;
   box-sizing: border-box;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
   padding-bottom: 2rem;
 
-  position: fixed;
-  bottom: 0;
+  /* position: fixed;
+  bottom: 0; */
 `;
 
 const Input = styled.input`
