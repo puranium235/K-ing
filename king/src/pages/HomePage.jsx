@@ -1,7 +1,6 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
 
-import Home from "../components/Home/Home";
+import Home from '../components/Home/Home';
 
 const HomePage = () => {
   return (
@@ -12,11 +11,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-const St = {
-  Wrapper: styled.article`
-    background-color: ${({ theme }) => theme.colors.White};
-    color: ${({ theme }) => theme.colors.Gray0};
-    // ${({ theme }) => theme.fonts.Title3};
-  `,
-};
