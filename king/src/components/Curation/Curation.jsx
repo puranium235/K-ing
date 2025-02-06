@@ -32,7 +32,7 @@ const Curation = () => {
       <StCurationWrapper>
         <FixedContainer>
           <TopNav />
-          <SearchBar query="" onSearch={handleSearch} />
+          <SearchBar query="" type="curation" onSearch={handleSearch} />
         </FixedContainer>
         <CurationWrapper>
           <CurationsList data={curationList} />
@@ -60,8 +60,6 @@ const FixedContainer = styled.div`
   z-index: 1000;
 
   width: 100%;
-  padding-bottom: 2rem;
-  /* padding: 0 2rem 2rem 2rem; */
 
   background-color: ${({ theme }) => theme.colors.White};
 `;

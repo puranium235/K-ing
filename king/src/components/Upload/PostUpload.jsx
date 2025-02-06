@@ -179,7 +179,7 @@ const ImageUploadWrapper = styled.div`
 `;
 
 const CaptionInput = styled.input`
-  width: 100%;
+  width: 98%;
   height: 10rem;
 
   color: #626273;

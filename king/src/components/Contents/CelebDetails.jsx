@@ -86,7 +86,7 @@ const CelebDetails = () => {
             </IconText>
             <IconText>
               <IcTv />
-              <p>{celebInfo.participatingWorks}</p>
+              <p>{celebInfo.participatingWorks} 작품</p>
             </IconText>
           </TitleSection>
           <BookmarkWrapper>
@@ -170,7 +170,7 @@ const Header = styled.div`
   margin-bottom: 2rem;
   margin-top: 1rem;
 
-  min-height: 30vh;
+  min-height: 25rem;
 
   #poster {
     width: 50%;
@@ -191,7 +191,7 @@ const TitleSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
-  margin-top: 10px;
+  margin-top: 1rem;
 
   h3 {
     ${({ theme }) => theme.fonts.Title4};
@@ -258,7 +258,7 @@ const Work = styled.div`
   flex-direction: column;
   align-items: center;
 
-  flex: 0 0 104px;
+  flex: 0 0 9.5rem;
   width: 10rem;
 
   cursor: pointer;
@@ -266,6 +266,8 @@ const Work = styled.div`
   img {
     width: 100%;
     flex: 8;
+
+    object-fit: contain;
   }
 
   p {

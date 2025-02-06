@@ -39,7 +39,7 @@ const IconWrapper = styled.div`
 `;
 
 const Icons = styled.button`
-  width: 80%;
+  width: 100%;
   aspect-ratio: 1/1;
 
   display: flex;
@@ -47,7 +47,7 @@ const Icons = styled.button`
   justify-content: center;
 
   margin: 1rem 0;
-  border-radius: 16px;
+  border-radius: 1.6rem;
   background-color: ${({ theme }) => theme.colors.Beige};
 
   svg {

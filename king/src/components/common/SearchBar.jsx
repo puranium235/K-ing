@@ -6,28 +6,28 @@ import { IcSearch } from '../../assets/icons';
 import { getAutoKeyword } from '../../lib/search';
 import { getContentTypeKor } from '../../util/getContentType';
 
-const SearchBar = ({ type, query, onSearch }) => {
+const SearchBar = ({ type, query, onSearch, onFocus, onBlur }) => {
   const [keyword, setKeyword] = useState(query);
   const [category, setCategory] = useState('');
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
 
-  // debounce -> 호출 지연
   const handleSearchChange = useCallback(
     debounce(async (searchText) => {
       const res = await getAutoKeyword(searchText, type);
       setAutoCompleteOptions(res.results);
     }, 300),
-    [],
+    [type],
   );
 
   const onChangeData = (e) => {
     setKeyword(e.currentTarget.value);
-    handleSearchChange(e.currentTarget.value);
+    if (type !== 'curation') {
+      handleSearchChange(e.currentTarget.value);
+    }
   };
 
   const handleOptionClick = (option) => {
     setAutoCompleteOptions([]);
-
     setKeyword(option.name);
     setCategory(option.category);
   };
@@ -51,6 +51,8 @@ const SearchBar = ({ type, query, onSearch }) => {
         value={keyword}
         onChange={onChangeData}
         onKeyDown={handleKeyEnter}
+        onFocus={onFocus}
+        onBlur={onBlur}
       />
       <IcSearch onClick={handleSubmit} />
       {autoCompleteOptions.length > 0 && (
