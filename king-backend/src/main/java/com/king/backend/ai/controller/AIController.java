@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
@@ -26,6 +26,12 @@ import java.util.Map;
 @RequestMapping("/chatbot")
 public class AIController {
     private final ChatService chatService;
+
+    @MessageMapping("/message")
+    @SendTo("/topic/messages")
+    public String sendMessage(String message) {
+        return "Server: " + message;
+    }
 
     @GetMapping("/")
     public ResponseEntity<List<ChatHistory>> getChatHistory() {

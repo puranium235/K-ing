@@ -64,5 +64,5 @@ server:
 logging:
   level:
     root: info
-    org:
-      springframework: WARN
+    org.springframework: warn
+    org.springframework.security: debug
