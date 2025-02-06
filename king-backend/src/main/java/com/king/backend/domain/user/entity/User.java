@@ -3,6 +3,7 @@ package com.king.backend.domain.user.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "user")
+@SQLDelete(sql = "UPDATE user SET status = 'ROLE_DELETED' WHERE id = ?")
 public class User {
 
     @Id
