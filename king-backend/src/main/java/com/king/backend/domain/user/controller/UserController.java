@@ -13,6 +13,7 @@ import com.king.backend.domain.user.repository.TokenRepository;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.domain.user.service.TokenService;
 import com.king.backend.domain.user.service.UserService;
+import com.king.backend.domain.user.util.UserUtil;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -92,7 +93,7 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<SignUpResponseDTO>> signup(@RequestBody SignUpRequestDTO signUpRequestDTO) {
         String nickname = signUpRequestDTO.getNickname();
-        if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
+        if (!UserUtil.isValidNickname(nickname)) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
         nickname = nickname.trim();
@@ -103,7 +104,7 @@ public class UserController {
                 });
 
         String language = signUpRequestDTO.getLanguage();
-        if (!language.matches("^(ko|en|ja|zh)$")) {
+        if (!UserUtil.isValidLanguage(signUpRequestDTO.getLanguage())) {
             throw new CustomException(UserErrorCode.INVALID_LANGUAGE);
         }
 
@@ -149,7 +150,7 @@ public class UserController {
     @Operation(summary = "닉네임 중복 조회")
     @GetMapping("/nickname")
     public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname", required = false) String nickname) {
-        if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
+        if (!UserUtil.isValidNickname(nickname)) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
         nickname = nickname.trim();
