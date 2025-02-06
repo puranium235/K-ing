@@ -34,6 +34,15 @@ public class UserService {
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
+
+        Long requestUserId = Long.parseLong(authUser.getName());
+
+        if (userId == requestUserId) {
+            return UserProfileResponseDTO.fromSelfEntity(user);
+        }
+
         return UserProfileResponseDTO.fromEntity(user);
     }
 

@@ -14,6 +14,7 @@ import com.king.backend.domain.user.service.TokenService;
 import com.king.backend.domain.user.service.UserService;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +45,7 @@ public class UserController {
     private Long REFRESHTOKEN_EXPIRES_IN;
 
     @PostMapping("/token-refresh")
+    @Operation(summary = "refreshToken(cookie)로 accessToken 재발급")
     public ResponseEntity<ApiResponse<Void>> tokenRefresh(@CookieValue(value = "refreshToken", required = false) String oldRefreshToken) {
         if (oldRefreshToken == null) {
             throw new CustomException(UserErrorCode.INVALID_TOKEN);
@@ -88,6 +90,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
+    @Operation(summary = "닉네임 등록 및 가입")
     public ResponseEntity<ApiResponse<SignUpResponseDTO>> signup(@RequestBody SignUpRequestDTO signUpRequestDTO) {
         String nickname = signUpRequestDTO.getNickname();
         if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
@@ -145,6 +148,7 @@ public class UserController {
     }
 
     @GetMapping("/nickname")
+    @Operation(summary = "닉네임 중복 조회")
     public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname", required = false) String nickname) {
         if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
@@ -162,12 +166,14 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
+    @Operation(summary = "유저 정보 조회")
     public ResponseEntity<ApiResponse<UserProfileResponseDTO>> getUserProfile(@PathVariable(value = "userId") String userId) {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(userService.getUserById(userId)));
     }
 
 
     @DeleteMapping
+    @Operation(summary = "현재 로그인된 유저 탈퇴")
     public ResponseEntity<ApiResponse<Void>> deleteUser() {
         return userService.deleteUser();
     }
