@@ -339,17 +339,15 @@ const InputContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 375px;
+  width: 39rem;
   padding: 1.2rem;
   box-sizing: border-box;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
-  margin-bottom: 2rem;
+  padding-bottom: 2rem;
 
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
 `;
 
 const Input = styled.input`
