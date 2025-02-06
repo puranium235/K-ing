@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import ChatBotIcon from '../../assets/icons/chat-ai.png';
 import SendIcon from '../../assets/icons/chat-send.png';
+import KingIcon from '../../assets/icons/king_character.png';
 import RefreshIcon from '../../assets/icons/refresh.png';
 import { deleteChatHistory, getChatHistory, getResponse, saveChatHistory } from '../../lib/chatbot';
 import { splitIntoSentences } from '../../util/chatbot';
@@ -148,7 +149,7 @@ const AIChatView = () => {
       </Header>
 
       <IntroMessageContainer>
-        <img src={ChatBotIcon} />
+        <img src={KingIcon} />
         안녕하세요, 김싸피님
         <br />
         궁금한 것을 물어보세요!
@@ -213,7 +214,8 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 1.4rem 2rem;
-  width: 95%;
+  width: 100%;
+  box-sizing: border-box;
   ${({ theme }) => theme.fonts.Title4};
 `;
 
@@ -232,13 +234,13 @@ const IntroMessageContainer = styled.div`
   justify-content: center;
   align-items: center;
   gap: 1.2rem;
-  padding: 1.6rem;
+  padding: 0.8rem 0 1.2rem 0;
   width: 100%;
   ${({ theme }) => theme.fonts.Body2};
 
   img {
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3.6rem;
+    height: 3.6rem;
   }
 `;
 
@@ -247,10 +249,14 @@ const MessagesContainer = styled.div`
   width: 90%;
   height: 100%;
   padding: 1rem;
-  padding-bottom: 7rem;
+  padding-bottom: 9rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Message = styled.div`
@@ -324,10 +330,12 @@ const InputContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 90%;
+  width: 100%;
   padding: 1.2rem;
+  box-sizing: border-box;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
+  margin-bottom: 2rem;
 
   position: absolute;
   bottom: 0;
