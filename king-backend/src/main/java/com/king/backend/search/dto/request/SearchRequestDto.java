@@ -13,20 +13,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchRequestDto {
-    private String query; // 검색 키워드
-    private String category; // optional: 특정 카테고리 (CAST, SHOW, MOVIE, DRAMA, PLACE)
+    private String query;
+    private String category;
 
     private String relatedType;
 
-    private int size = 10; // 페이지 당 항목 수 (기본값 10)
+    private int size = 10;
 
-    private String sortBy; // 정렬 기준 (예: "name", "popularity", "createdAt")
-    private String sortOrder; // 정렬 순서 ("asc" 또는 "desc")
+    private String sortBy;
+    private String sortOrder;
 
-    // 장소 필터링을 위한 추가 필드
-//    private String placeType; // 장소 유형 필터 (optional)
     private List<String> placeTypeList;
-    private String region; // 지역 필터 (optional)
+    private String region;
 
-    private String cursor; // cursor for cursor-based pagination
+    private String cursor;
 }

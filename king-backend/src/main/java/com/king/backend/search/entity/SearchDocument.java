@@ -27,12 +27,12 @@ import java.util.List;
 public class SearchDocument {
     @Id
     private String id;
-    private String category; // CAST, SHOW, MOVIE, DRAMA, PLACE
-    private String type; // e.g., for Content: movie, show, drama; for Place: cafe, playground, etc.
-    private String name; // 명칭
-    private String details; // 상세 설명 및 추가 정보
-    private String imageUrl; // 이미지 URL
-    private Long originalId; // 원본 데이터의 ID (MySQL의 ID)
+    private String category;
+    private String type;
+    private String name;
+    private String details;
+    private String imageUrl;
+    private Long originalId;
     private int popularity;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
@@ -48,8 +48,6 @@ public class SearchDocument {
     private double lat;
     private double lng;
 
-    // 연관된 Cast 이름 리스트 (비정규화된 필드)
     private List<String> associatedCastNames;
-    // 연관된 Contents 이름 리스트 (비정규화된 필드)
     private List<String> associatedContentNames;
 }

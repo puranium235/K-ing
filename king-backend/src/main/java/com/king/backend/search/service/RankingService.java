@@ -24,16 +24,13 @@ public class RankingService {
     private final RedisTemplate<String, String> redisTemplate;
     private final SearchRankingRepository searchRankingRepository;
 
-    // Redis에서 실시간 랭킹을 저장할 key
     private static final String REALTIME_RANKING_KEY = "search:ranking:realtime";
 
-    // 일별, 주간 key는 날짜/주 번호를 포함하여 구분합니다.
     private String getDailyRankingKey() {
         return "search:ranking:daily:" + LocalDate.now().format(DateTimeFormatter.ISO_DATE);
     }
 
     private String getWeeklyRankingKey() {
-        // 예: "2025-W05" 형식
         LocalDate now = LocalDate.now();
         int week = now.get(java.time.temporal.IsoFields.WEEK_OF_WEEK_BASED_YEAR);
         int year = now.getYear();
@@ -51,16 +48,12 @@ public class RankingService {
         if (keyword == null || keyword.trim().isEmpty()) return;
         keyword = keyword.trim();
 
-        // 실시간 랭킹 업데이트
         redisTemplate.opsForZSet().incrementScore(REALTIME_RANKING_KEY, keyword, 1);
-        // 일별 랭킹 업데이트
         String dailyKey = getDailyRankingKey();
         redisTemplate.opsForZSet().incrementScore(dailyKey, keyword, 1);
-        // 주간 랭킹 업데이트
         String weeklyKey = getWeeklyRankingKey();
         redisTemplate.opsForZSet().incrementScore(weeklyKey, keyword, 1);
 
-        // TTL 설정: 예) 일별 키는 2일, 주간 키는 8일 후 만료 (상황에 맞게 조정)
         redisTemplate.expire(dailyKey, java.time.Duration.ofDays(2));
         redisTemplate.expire(weeklyKey, java.time.Duration.ofDays(8));
     }
@@ -85,7 +78,6 @@ public class RankingService {
                 break;
         }
 
-        // Redis에서 내림차순(점수가 높은 순)으로 상위 10개 조회
         Set<ZSetOperations.TypedTuple<String>> rankingSet =
                 redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, 7);
         List<RankingDto> rankingList = new ArrayList<>();
@@ -126,7 +118,6 @@ public class RankingService {
                 rank++;
             }
             searchRankingRepository.saveAll(rankings);
-            log.info("일별 검색어 랭킹 MySQL 저장 완료: {}건", rankings.size());
         }
     }
 
@@ -156,7 +147,6 @@ public class RankingService {
                 rank++;
             }
             searchRankingRepository.saveAll(rankings);
-            log.info("주간 검색어 랭킹 MySQL 저장 완료: {}건", rankings.size());
         }
     }
 }
