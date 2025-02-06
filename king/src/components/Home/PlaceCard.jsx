@@ -24,22 +24,34 @@ const PlaceCard = ({ place }) => {
 export default PlaceCard;
 
 const Card = styled.div`
-  overflow: hidden;
+  min-width: 5rem;
+  width: 100%;
+  height: 10rem;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
   cursor: pointer;
+  overflow: hidden;
 `;
 
 const CardImage = styled.img`
   width: 100%;
-  /* height: 8rem; */
+  height: 70%;
+
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 1rem;
 `;
 
 const CardContent = styled.div`
+  height: 30%;
   width: 100%;
-  padding: 1rem 0;
-  text-align: center;
+  padding: 0.5rem;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   background-color: ${({ theme }) => theme.colors.White};
   color: ${({ theme }) => theme.colors.Gray0};
@@ -48,7 +60,7 @@ const CardContent = styled.div`
 const CardTitle = styled.h3`
   margin: 0;
   max-width: 100%;
-
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -57,11 +69,9 @@ const CardTitle = styled.h3`
 
 const CardDescription = styled.p`
   max-width: 100%;
-  margin: 5px 0 0;
-
+  margin: 0; // Remove margin for better alignment and spacing control
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
   ${({ theme }) => theme.fonts.Body5};
 `;
