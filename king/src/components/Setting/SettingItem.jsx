@@ -1,14 +1,11 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcNavigateNext } from '../../assets/icons';
 
-const SettingItem = ({ title, path }) => {
-  const navigate = useNavigate();
-
+const SettingItem = ({ title, onClick }) => {
   return (
-    <StItemWrapper onClick={() => navigate(path)}>
+    <StItemWrapper onClick={onClick}>
       <St.Title>{title}</St.Title>
       <IcNavigateNext />
     </StItemWrapper>
@@ -21,13 +18,9 @@ const StItemWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.Gray2};
+  padding: 2rem;
+  border-bottom: 0.1rem solid ${({ theme }) => theme.colors.Gray2};
   cursor: pointer;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.Gray1};
-  }
 `;
 
 const St = {
