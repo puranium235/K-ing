@@ -29,6 +29,7 @@ const AIChatView = () => {
       type: 'message',
     };
     setMessages([initialMessage]);
+
     await saveChatHistory('assistant', initialMessage.text, 'message');
   };
 
@@ -63,17 +64,15 @@ const AIChatView = () => {
           }
         });
 
-        // 챗봇 유형에 따라 API 설정
-        if (detectedBotType === chatT) {
-          setCurrentApi('/chatbot/chatT');
-        } else if (detectedBotType === chatF) {
-          setCurrentApi('/chatbot/chatF');
+        if (detectedBotType) {
+          setCurrentApi(detectedBotType === chatT ? '/chatbot/chatT' : '/chatbot/chatF');
+          setIsBotSelected(true);
         }
 
         setMessages(newMessages);
-        setIsBotSelected(true);
       } else {
         saveInitialMessage();
+        setIsBotSelected(false);
       }
     };
 
@@ -159,10 +158,17 @@ const AIChatView = () => {
         {messages.map((message, index) => (
           <Message key={index} $sender={message.sender}>
             {message.sender === 'option' ? (
-              <OptionMessageBubble>{message.text}</OptionMessageBubble>
+              <OptionMessageBubble ref={index === messages.length - 1 ? messagesEndRef : null}>
+                {message.text}
+              </OptionMessageBubble>
             ) : message.sender === 'assistant' ? (
               <ChatBotContainer>
-                <MessageBubble $sender={message.sender}>{message.text}</MessageBubble>
+                <MessageBubble
+                  $sender={message.sender}
+                  ref={index === messages.length - 1 ? messagesEndRef : null}
+                >
+                  {message.text}
+                </MessageBubble>
                 {index === 0 && (
                   <ButtonContainer>
                     <OptionButton onClick={() => handleOptionClick(chatT)} disabled={isBotSelected}>
@@ -175,12 +181,16 @@ const AIChatView = () => {
                 )}
               </ChatBotContainer>
             ) : (
-              <MessageBubble $sender={message.sender}>{message.text}</MessageBubble>
+              <MessageBubble
+                $sender={message.sender}
+                ref={index === messages.length - 1 ? messagesEndRef : null}
+              >
+                {message.text}
+              </MessageBubble>
             )}
           </Message>
         ))}
         {isTyping && <TypingIndicator />}
-        <div ref={messagesEndRef} />
       </MessagesContainer>
 
       <InputContainer>
@@ -245,7 +255,6 @@ const IntroMessageContainer = styled.div`
 `;
 
 const MessagesContainer = styled.div`
-  flex: 1;
   width: 90%;
   height: 100%;
   padding: 1rem;
@@ -330,14 +339,14 @@ const InputContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  width: 375px;
   padding: 1.2rem;
   box-sizing: border-box;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
   margin-bottom: 2rem;
 
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
