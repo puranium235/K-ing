@@ -17,6 +17,7 @@ import { ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/a
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
+import Loading from '../Loading/Loading';
 
 const ContentDetails = () => {
   const { contentId } = useParams();
@@ -61,7 +62,11 @@ const ContentDetails = () => {
   }, [contentId]);
 
   if (!contentInfo) {
-    return null;
+    return (
+      <LoadingWrapper>
+        <Loading />
+      </LoadingWrapper>
+    );
   }
 
   return (
@@ -133,6 +138,14 @@ const ContentDetails = () => {
 };
 
 export default ContentDetails;
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+`;
 
 const DramaPageContainer = styled.div`
   display: flex;
