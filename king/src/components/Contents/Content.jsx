@@ -81,8 +81,6 @@ const Content = () => {
           <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
         </FixedContainer>
 
-        <Spacer />
-
         <GridContainer>
           {searchResultList.map((content, index) => (
             <Card
@@ -138,16 +136,12 @@ const IconText = styled.div`
 `;
 
 const FixedContainer = styled.div`
-  position: fixed;
+  position: sticky;
   top: 0;
   z-index: 1000;
-  width: 35rem;
+  width: 100%;
   background-color: ${({ theme }) => theme.colors.White};
   padding-top: 2rem;
-`;
-
-const Spacer = styled.div`
-  height: 11rem;
 `;
 
 const GridContainer = styled.div`
@@ -159,6 +153,7 @@ const GridContainer = styled.div`
   width: 100%;
   overflow-y: scroll;
 `;
+
 const Card = styled.div`
   position: relative;
   cursor: pointer;
