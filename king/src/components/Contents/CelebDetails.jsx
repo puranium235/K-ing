@@ -1,3 +1,4 @@
+import { constant } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -20,8 +21,10 @@ import Loading from '../Loading/Loading';
 
 const CelebDetails = () => {
   const { celebId } = useParams();
-  const [celebInfo, setcelebInfo] = useState(null);
+  const [celebInfo, setCelebInfo] = useState(null);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [displayedWorks, setDisplayedWorks] = useState([]);
 
   const navigate = useNavigate();
   const setSearchQuery = useSetRecoilState(SearchQueryState);
@@ -37,7 +40,7 @@ const CelebDetails = () => {
 
   const getDetails = async () => {
     const res = await getCelebDetails(celebId);
-    setcelebInfo(res);
+    setCelebInfo(res);
     setIsFavorited(res.favorite);
   };
 
@@ -50,12 +53,22 @@ const CelebDetails = () => {
   };
 
   const handleGoBack = () => {
-    navigate(`/content/${contentType}`);
+    if (contentType === 'search') {
+      navigate(`/search/result`);
+    } else {
+      navigate(`/content/${contentType}`);
+    }
   };
 
   useEffect(() => {
     getDetails();
   }, [celebId]);
+
+  useEffect(() => {
+    if (celebInfo?.works) {
+      setDisplayedWorks(isExpanded ? celebInfo.works : celebInfo.works.slice(0, 3));
+    }
+  }, [celebInfo, isExpanded]);
 
   if (!celebInfo) {
     return (
@@ -81,14 +94,18 @@ const CelebDetails = () => {
           />
           <TitleSection>
             <h3>{celebInfo.name}</h3>
-            <IconText>
-              <IcBirth />
-              <p>{celebInfo.birthDate}</p>
-            </IconText>
-            <IconText>
-              <IcMarker2 />
-              <p>{celebInfo.birthPlace}</p>
-            </IconText>
+            {celebInfo.birthDate && (
+              <IconText>
+                <IcBirth />
+                <p>{celebInfo.birthDate}</p>
+              </IconText>
+            )}
+            {celebInfo.birthPlace && (
+              <IconText>
+                <IcMarker2 />
+                <p>{celebInfo.birthPlace}</p>
+              </IconText>
+            )}
             <IconText>
               <IcTv />
               <p>{celebInfo.participatingWorks} 작품</p>
@@ -128,28 +145,28 @@ const CelebDetails = () => {
             <p>작품 활동</p>
           </IconText>
           <WorkWrapper>
-            {celebInfo.works.map((work) => (
-              <div key={work.contentId}>
-                <li>
-                  {work.year}
-                  <p
-                    onClick={() => {
-                      handleClickContent(work.contentId);
-                    }}
-                  >
-                    {work.title}
-                  </p>
-                </li>
-                <hr />
-              </div>
+            {displayedWorks.map((work) => (
+              <WorkItem key={work.contentId}>
+                <YearWrapper>{work.year}</YearWrapper>
+                <Title onClick={() => handleClickContent(work.contentId)}>{work.title}</Title>
+              </WorkItem>
             ))}
+
+            {celebInfo.works?.length > 3 && (
+              <ShowMoreButton onClick={() => setIsExpanded(!isExpanded)}>
+                {isExpanded ? '접기' : '더보기'}
+              </ShowMoreButton>
+            )}
           </WorkWrapper>
         </ListWrapper>
+        <ActionButton onClick={handleClickPlaceInfo}>
+          <IcMarker />
+          <PlaceText>
+            '{celebInfo.name.length > 5 ? ` ${celebInfo.name.slice(0, 5)}... ` : celebInfo.name}' 의
+            촬영지 알아보기
+          </PlaceText>
+        </ActionButton>
       </CelebPageContainer>
-      <ActionButton onClick={handleClickPlaceInfo}>
-        <IcMarker />
-        <p>'{celebInfo.name}'의 촬영지 알아보기</p>
-      </ActionButton>
     </>
   );
 };
@@ -258,6 +275,7 @@ const WorkGrid = styled.div`
 
   width: 100%;
   height: 100%;
+
   overflow-x: auto;
   white-space: nowrap;
 
@@ -269,7 +287,9 @@ const WorkGrid = styled.div`
 const Work = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
+  text-align: center;
 
   flex: 0 0 9.5rem;
   width: 10rem;
@@ -278,9 +298,8 @@ const Work = styled.div`
 
   img {
     width: 100%;
-    flex: 8;
-
-    object-fit: contain;
+    height: 80%;
+    object-fit: cover;
   }
 
   p {
@@ -299,14 +318,32 @@ const ListWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
-  margin-bottom: 2rem;
-
-  margin-bottom: 0.5rem;
 `;
+
+const WorkItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  border-bottom: 1px solid ${({ theme }) => theme.colors.Gray3};
+  padding-bottom: 0.7rem;
+`;
+
+const YearWrapper = styled.span`
+  min-width: 4rem;
+  text-align: right;
+  display: inline-block;
+
+  ${({ theme }) => theme.fonts.Body2};
+  color: #868181;
+`;
+
+const Title = styled.p``;
 
 const WorkWrapper = styled.ul`
   width: 100%;
   margin-top: 1rem;
+  text-align: center;
 
   li {
     display: flex;
@@ -320,7 +357,6 @@ const WorkWrapper = styled.ul`
 
   p {
     cursor: pointer;
-
     margin-left: 5rem;
     ${({ theme }) => theme.fonts.Title6};
     color: ${({ theme }) => theme.colors.Gray1};
@@ -336,18 +372,25 @@ const WorkWrapper = styled.ul`
   }
 `;
 
+const ShowMoreButton = styled.button`
+  margin-top: 1rem;
+`;
+
 const ActionButton = styled.button`
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 
   margin: auto;
-  margin-bottom: 10rem;
-  border-radius: 20px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+
+  border-radius: 2rem;
   padding: 0.8rem 2rem;
 
   text-align: center;
+  width: 100%;
 
   background-image: linear-gradient(to right, #0062ff, #71c8ff);
   ${({ theme }) => theme.fonts.Head2};
@@ -356,4 +399,12 @@ const ActionButton = styled.button`
   p {
     margin-left: 1.5rem;
   }
+`;
+
+const PlaceText = styled.p`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
 `;

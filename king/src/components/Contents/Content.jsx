@@ -28,6 +28,10 @@ const Content = () => {
   );
 
   useEffect(() => {
+    setSearchQuery('');
+  }, []);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [contentType]);
 
@@ -148,7 +152,8 @@ const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  padding: 1rem 0;
+  padding: 1rem 0.1rem;
+  box-sizing: border-box;
 
   width: 100%;
   overflow-y: scroll;
