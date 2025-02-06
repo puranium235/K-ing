@@ -4,6 +4,7 @@ import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.repository.CastRepository;
 import com.king.backend.domain.content.entity.Content;
 import com.king.backend.domain.content.repository.ContentRepository;
+import com.king.backend.domain.curation.entity.CurationList;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.post.entity.Post;
 import com.king.backend.domain.user.entity.User;
@@ -165,8 +166,10 @@ public class S3Service {
             folder = "post/";
         } else if (entity instanceof User){
             folder = "user/";
+        } else if (entity instanceof CurationList){
+            folder = "curationList/";
         } else {
-            folder = "uploads/";
+            folder = "draft/";
         }
         return folder + UUID.randomUUID() + "-" + originalFileName;
     }

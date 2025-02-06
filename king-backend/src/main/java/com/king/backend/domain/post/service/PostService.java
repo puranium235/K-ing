@@ -62,10 +62,18 @@ public class PostService {
                 .build();
         postRepository.save(post);
 
-        if(imageFile != null && !imageFile.isEmpty()){
-            String imageUrl = s3Service.uploadFile(post, imageFile);
+        String savedImageUrl = reqDto.getImageUrl();
+        String finalImageUrl = savedImageUrl;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            if (savedImageUrl != null) {
+                s3Service.deleteFile(savedImageUrl);
+            }
+            finalImageUrl = s3Service.uploadFile(post, imageFile);
+        }
+
+        if (finalImageUrl != null) {
             PostImage postImage = PostImage.builder()
-                    .imageUrl(imageUrl)
+                    .imageUrl(finalImageUrl)
                     .post(post)
                     .build();
             postImageRepository.save(postImage);
@@ -226,8 +234,6 @@ public class PostService {
         
         commentRepository.deleteByPostId(postId);
         log.info("postService: 게시글의 댓글 삭제 완료");
-        
-        // 임시저장 삭제
         
         postRepository.delete(post);
         log.info("postService: 게시글 삭제 완료 - postId: {}", postId);
