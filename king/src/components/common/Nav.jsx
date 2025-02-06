@@ -14,47 +14,81 @@ import {
   IcUpload,
   IcUploadSelected,
 } from '../../assets/icons';
+import useModal from '../../hooks/common/useModal';
+import { getUserIdFromToken } from '../../util/getUserIdFromToken';
+import UploadModal from './UploadModal';
 
 const Nav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const upload = useModal();
 
   const [selectedButton, setSelectedButton] = useState(location.pathname);
 
-  const handleButtonClick = (buttonName) => {
-    setSelectedButton(buttonName);
-    navigate(`/${buttonName}`);
+  const setButton = (pathname) => {
+    if (pathname == '/curation' || pathname == '/feed') {
+      return '/home';
+    }
+    return pathname;
   };
 
+  const handleButtonClick = (buttonName) => {
+    navigate(`/${buttonName}`);
+    setSelectedButton(`/${buttonName}`);
+  };
+
+  const handleUploadClick = () => {
+    upload.toggle();
+  };
+
+  const handleMyPageClick = () => {
+    const userId = getUserIdFromToken();
+    if (userId) {
+      navigate(`/user/${userId}`);
+      setSelectedButton(`/user/${userId}`);
+    } else {
+      navigate('/');
+    }
+  };
+
+  useEffect(() => {
+    setSelectedButton(setButton(location.pathname));
+  }, [location.pathname]);
+
   return (
-    <StNavWrapper>
-      <button type="button" onClick={() => handleButtonClick('home')}>
-        {selectedButton === '/home' ? <IcHomeSelected /> : <IcHome />}
+    <>
+      <StNavWrapper>
+        <button type="button" onClick={() => handleButtonClick('home')}>
+          {selectedButton === '/home' ? <IcHomeSelected /> : <IcHome />}
 
-        <p>Home</p>
-      </button>
+          <p>Home</p>
+        </button>
 
-      <button type="button" onClick={() => handleButtonClick('chatbot')}>
-        {selectedButton === '/chatbot' ? <IcChatbotSelected /> : <IcChatbot />}
+        <button type="button" onClick={() => handleButtonClick('chatbot')}>
+          {selectedButton === '/chatbot' ? <IcChatbotSelected /> : <IcChatbot />}
 
-        <p>K-ing</p>
-      </button>
-      <button type="button" onClick={() => handleButtonClick('upload')}>
-        {selectedButton === '/upload' ? <IcUploadSelected /> : <IcUpload />}
+          <p>K-ing</p>
+        </button>
+        <button type="button" onClick={handleUploadClick}>
+          {selectedButton === '/upload' ? <IcUploadSelected /> : <IcUpload />}
 
-        <p>Upload</p>
-      </button>
-      <button type="button" onClick={() => handleButtonClick('archive')}>
-        {selectedButton === '/archive' ? <IcArchiveSelected /> : <IcArchive />}
+          <p>Upload</p>
+        </button>
+        <button type="button" onClick={() => handleButtonClick('archive')}>
+          {selectedButton === '/archive' ? <IcArchiveSelected /> : <IcArchive />}
 
-        <p>Archive</p>
-      </button>
-      <button type="button" onClick={() => handleButtonClick('mypage')}>
-        {selectedButton === '/mypage' ? <IcMypageSelected /> : <IcMypage />}
+          <p>Archive</p>
+        </button>
+        <button type="button" onClick={handleMyPageClick}>
+          {selectedButton.startsWith('/user/') ? <IcMypageSelected /> : <IcMypage />}
 
-        <p>MyPage</p>
-      </button>
-    </StNavWrapper>
+          <p>MyPage</p>
+        </button>
+      </StNavWrapper>
+      <StUploadModalWrapper $showing={upload.isShowing} onClick={upload.toggle}>
+        <UploadModal isShowing={upload.isShowing} />
+      </StUploadModalWrapper>
+    </>
   );
 };
 
@@ -65,7 +99,7 @@ const StNavWrapper = styled.nav`
   grid-template-columns: repeat(5, 1fr);
 
   position: fixed;
-  bottom: 1rem;
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
 
@@ -89,4 +123,20 @@ const StNavWrapper = styled.nav`
       height: 2rem;
     }
   }
+`;
+
+const StUploadModalWrapper = styled.div`
+  display: ${({ $showing }) => ($showing ? 'block' : 'none')};
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  justify-content: center;
+  align-items: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-color: rgba(0, 0, 0, 0.5);
 `;

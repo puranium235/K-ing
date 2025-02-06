@@ -9,11 +9,11 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
 @EntityListeners(CastListener.class)
-@Setter
 public class Cast {
 
     @Id

@@ -12,7 +12,7 @@ const LandingPage = () => {
     // 3초 후 Splash -> Landing으로 변경
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 3300);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -51,7 +51,7 @@ export default LandingPage;
 const Wrapper = styled.div`
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
 `;
 

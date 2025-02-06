@@ -96,12 +96,12 @@ const Carousel = ({ carouselList }) => {
         <CarouselList ref={carouselRef}>
           {currList.map((item, idx) => (
             <CarouselItem
-              key={`${item.image}-${idx}`}
+              key={`${item.id}-${idx}`}
               onClick={() => {
                 handleClickCuration(item.id);
               }}
             >
-              <img src={item.image} alt="carousel-img" />
+              <img src={item.imageUrl} alt="carousel-img" />
               <p>{item.title}</p>
             </CarouselItem>
           ))}
@@ -118,7 +118,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin: 1rem 0;
+  margin-top: 1rem;
 `;
 
 const CarouselWrapper = styled.div`
@@ -142,6 +142,8 @@ const CarouselItem = styled.li`
   height: 186px;
   overflow: hidden;
   border-radius: 20px;
+
+  cursor: pointer;
 
   img {
     width: 100%;

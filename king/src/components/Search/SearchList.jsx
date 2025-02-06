@@ -41,10 +41,12 @@ const St = {
   Section: styled.div`
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 1rem;
 
-    /* margin-bottom: 2rem; */
-    padding: 16px;
+    width: 100%;
+
+    box-sizing: border-box;
+    padding: 1rem 0.5rem;
   `,
   Header: styled.div`
     display: flex;
@@ -71,12 +73,12 @@ const St = {
     color: ${({ theme }) => theme.colors.Gray2};
   `,
   List: styled.div`
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-columns: auto(3, 1fr);
+    display: flex;
+    flex-direction: row;
+
     gap: 1rem;
 
-    width: 29rem;
+    width: 100%;
     overflow-x: auto;
 
     &::-webkit-scrollbar {

@@ -4,17 +4,15 @@ services:
     container_name: ${MYSQL_HOST}
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 3s
-      retries: 5
+      interval: 30s
+      retries: 40
       start_period: 1s
       timeout: 10s
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    command:
-      --skip-character-set-client-handshake
+    command: --skip-character-set-client-handshake
     volumes:
-      - ./king-backend/init.sql:/docker-entrypoint-initdb.d/init.sql
       - mysql-data:/var/lib/mysql
     expose:
       - "3306"
@@ -25,7 +23,7 @@ services:
     image: redis:alpine
     container_name: redis
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 3s
       retries: 5
       start_period: 1s
@@ -44,7 +42,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
     container_name: elastic
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9200" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
       interval: 5s
       retries: 60
       start_period: 5s
@@ -92,6 +90,8 @@ services:
       AWS_SECRET_KEY: ${AWS_SECRET_KEY}
       AWS_REGION: ${AWS_REGION}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      # OpenAI
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     depends_on:
       mysql:
         condition: service_healthy

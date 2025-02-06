@@ -114,6 +114,7 @@ const Signup = () => {
     if (success) {
       navigate('/signup/complete');
     } else {
+      console.error('회원가입 실패:', message);
       setErrorMessage(message);
     }
   };
@@ -184,7 +185,7 @@ const StSignupWrapper = styled.div`
 
   gap: 5rem;
   position: relative;
-  height: 100vh;
+  height: 100%;
   background-color: ${({ theme }) => theme.colors.White};
 `;
 
@@ -194,9 +195,9 @@ const St = {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 350px;
-    padding: 0 20px;
-    gap: 20px;
+    max-width: 30rem;
+    padding: 0 2rem;
+    gap: 1.8rem;
   `,
   IconWrapper: styled.div`
     ${({ theme }) => theme.fonts.Title2}
@@ -205,20 +206,20 @@ const St = {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 1rem;
     width: 100%;
-    max-width: 350px;
+    max-width: 30rem;
   `,
   SelectWrapper: styled.div`
     width: 100%;
     position: relative;
   `,
   StatusMessageWrapper: styled.div`
-    height: 20px;
+    height: 1.6rem;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding-bottom: 20px;
+    padding-bottom: 1.8rem;
   `,
   LabelWrapper: styled.div`
     display: flex;
@@ -233,7 +234,7 @@ const Title = styled.h1`
 `;
 const Title2 = styled.h3`
   ${({ theme }) => theme.fonts.Title3}
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
   color: ${({ theme }) => theme.colors.Gray2};
 `;
 
@@ -245,16 +246,15 @@ const Label2 = styled.label`
   align-self: flex-start;
   ${({ theme }) => theme.fonts.Title6};
   color: ${({ theme }) => theme.colors.Gray2};
-  padding: 5px 0px 0px 0px;
+  padding: 0.5rem 0px 0px 0px;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 12px;
-  border: 1px solid ${({ theme }) => theme.colors.Gray2};
-  border-radius: 10px;
+  padding: 1.2rem;
+  border: 0.1rem solid ${({ theme }) => theme.colors.Gray2};
+  border-radius: 1rem;
   box-sizing: border-box;
-  font-size: 16px;
   font-weight: 500;
   background-color: ${({ theme }) => theme.colors.White};
   color: ${({ theme }) => theme.colors.Gray0};
@@ -262,11 +262,10 @@ const Input = styled.input`
 
 const Select = styled.select`
   width: 100%;
-  padding: 12px;
-  border: 1px solid ${({ theme }) => theme?.colors?.Gray2};
-  border-radius: 10px;
+  padding: 1.2rem;
+  border: 0.1rem solid ${({ theme }) => theme?.colors?.Gray2};
+  border-radius: 1rem;
   box-sizing: border-box;
-  font-size: 16px;
   font-weight: 500;
   background-color: ${({ theme }) => theme.colors.White};
   color: ${({ theme }) => theme.colors.Gray0};
@@ -281,35 +280,35 @@ const Select = styled.select`
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 1rem;
   width: 100%;
 `;
 
 const ErrorMessage = styled.p`
   color: red;
-  font-size: 14px;
-  margin-top: 5px;
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
 `;
 
 const InfoMessage = styled.p`
   color: ${({ theme }) => theme.colors.Gray1};
-  font-size: 14px;
-  margin-top: 5px;
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
 `;
 
 const SuccessMessage = styled.p`
   color: green;
-  font-size: 14px;
-  margin-top: 5px;
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
 `;
 
 const Button = styled.button`
   flex: 1;
-  padding: 12px;
+  padding: 1rem;
   ${({ theme }) => theme.fonts.Title4}
   font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.8rem;
   cursor: pointer;
   background-color: ${({ $primary, theme }) =>
     $primary ? theme.colors.MainBlue : theme.colors.Gray2};
@@ -318,7 +317,7 @@ const Button = styled.button`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 0.4rem;
 
   &:hover {
     opacity: 0.8;

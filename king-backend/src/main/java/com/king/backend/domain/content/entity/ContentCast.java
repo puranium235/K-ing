@@ -2,13 +2,11 @@ package com.king.backend.domain.content.entity;
 
 import com.king.backend.domain.cast.entity.Cast;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString

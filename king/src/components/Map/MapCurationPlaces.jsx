@@ -7,6 +7,7 @@ import DummyData from '../../assets/dummy/dummyMapPlace';
 import UpIcon from '../../assets/icons/up.png';
 import { getPlaceDetail } from '../../lib/place';
 import { CurationPlaceList } from '../../recoil/atom';
+import Bottom from '../common/Bottom';
 import CloseButton from '../common/CloseButton';
 import Nav from '../common/Nav';
 import Loading from '../Loading/Loading';
@@ -84,6 +85,7 @@ const MapCurationPlaces = () => {
             <ErrorMessage>장소 정보를 불러올 수 없습니다.</ErrorMessage>
           )}
         </Content>
+        <Bottom />
       </ContentSection>
 
       <CloseButton />
@@ -93,49 +95,39 @@ const MapCurationPlaces = () => {
 };
 
 const Container = styled.div`
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 `;
 
 const MapSection = styled.div`
   position: relative;
-  height: calc(100vh - 380px);
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const SlideBar = styled.div`
-  width: 60px;
-  height: 3px;
-  background-color: #cbcbcb;
-  border-radius: 2.5px;
-  margin: 10px auto;
-  margin-bottom: 20px;
-  cursor: pointer;
+  padding-bottom: 15rem;
 `;
 
 const UpButton = styled.button`
   border: none;
-  margin: 10px auto;
-  margin-bottom: 20px;
+  margin: 1rem auto;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
 
   img {
-    width: 60px;
-    height: 20px;
+    width: 6rem;
+    height: 2rem;
   }
 `;
 
 const ContentSection = styled.div`
   background-color: #ffffff;
-  height: 100%;
   position: absolute;
-  ${(props) => (props.$isExpanded ? 'top: 90px;' : 'top: calc(100vh - 400px);')}
+  ${(props) => (props.$isExpanded ? 'top: 8rem;' : 'top: calc(100vh - 20rem);')}
   left: 0;
   right: 0;
   transition: bottom 0.3s ease;
@@ -145,7 +137,7 @@ const ContentSection = styled.div`
 `;
 
 const Content = styled.div`
-  padding: 10px 20px;
+  padding: 0 2rem;
   position: relative;
 `;
 
@@ -163,9 +155,9 @@ const Title = styled.div`
 
 const Image = styled.img`
   width: 100%;
-  height: 200px;
+  height: 20rem;
   border-radius: 8px;
-  margin: 20px 0px;
+  margin: 1rem 0rem 2rem 0rem;
   object-fit: cover;
   display: block;
 `;

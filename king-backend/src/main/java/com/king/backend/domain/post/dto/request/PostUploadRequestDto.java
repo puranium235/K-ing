@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -15,5 +12,4 @@ import java.util.List;
 public class PostUploadRequestDto {
     private String content;
     private Long placeId;
-    private List<MultipartFile> imageUrls;
 }

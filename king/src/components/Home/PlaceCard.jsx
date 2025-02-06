@@ -25,6 +25,8 @@ export default PlaceCard;
 
 const Card = styled.div`
   overflow: hidden;
+
+  cursor: pointer;
 `;
 
 const CardImage = styled.img`

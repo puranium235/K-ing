@@ -1,68 +1,123 @@
-import axios from 'axios';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import ChatBotIcon from '../../assets/icons/chat-ai.png';
 import SendIcon from '../../assets/icons/chat-send.png';
 import RefreshIcon from '../../assets/icons/refresh.png';
+import { deleteChatHistory, getChatHistory, getResponse, saveChatHistory } from '../../lib/chatbot';
+import { splitIntoSentences } from '../../util/chatbot';
 import BackButton from '../common/BackButton';
+import TypingIndicator from './TypingIndicator';
 
 const AIChatView = () => {
-  const initialMessages = [
-    {
-      text: '어떤 MBTI의 챗봇을 원하시나요?',
-      sender: 'ai',
-    },
-  ];
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isBotSelected, setIsBotSelected] = useState(false);
   const [currentApi, setCurrentApi] = useState('');
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
 
   const chatT = '회차정보 기반 장소 검색 T봇';
   const chatF = '맞춤 큐레이션 추천 F봇';
 
-  const handleRefresh = () => {
-    setMessages(initialMessages);
-    setNewMessage('');
-    setCurrentApi('');
+  const saveInitialMessage = async () => {
+    const initialMessage = {
+      text: '어떤 MBTI의 챗봇을 원하시나요?',
+      sender: 'assistant',
+      type: 'message',
+    };
+    setMessages([initialMessage]);
+    await saveChatHistory('assistant', initialMessage.text, 'message');
   };
 
-  const handleOptionClick = (option) => {
-    const optionMessage = { text: option, sender: 'option' };
-    setMessages((prev) => [...prev, optionMessage]);
+  const handleRefresh = async () => {
+    await deleteChatHistory();
 
+    setMessages([]);
+    setNewMessage('');
+    setCurrentApi('');
+    setIsBotSelected(false);
+
+    saveInitialMessage();
+  };
+
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      const data = await getChatHistory();
+
+      if (data.length > 0) {
+        let newMessages = [];
+
+        data.forEach((msg) => {
+          if (msg.role === 'assistant') {
+            newMessages = [...newMessages, ...splitIntoSentences(msg.content, 'assistant')];
+          } else {
+            newMessages.push({ text: msg.content, sender: msg.role });
+          }
+        });
+
+        setMessages(newMessages);
+      } else {
+        saveInitialMessage();
+      }
+    };
+
+    fetchChatHistory();
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleOptionClick = async (option) => {
+    const optionMessage = { text: option, sender: 'option', type: 'option' };
+    setMessages((prev) => [...prev, optionMessage]);
+    await saveChatHistory('option', option, 'option');
+
+    let aiMessage;
     if (option === chatT) {
-      setCurrentApi('http://localhost:8080/api/ai/tbot');
-      const aiMessage = {
+      setCurrentApi(`/chatbot/chatT`);
+      aiMessage = {
         text: 'T 챗봇은 회차정보 기반 장소를 검색하는 데 특화되어 있습니다.',
-        sender: 'ai',
+        sender: 'assistant',
+        type: 'message',
       };
-      setMessages((prev) => [...prev, aiMessage]);
     } else if (option === chatF) {
-      setCurrentApi('http://localhost:8080/api/ai/fbot');
-      const aiMessage = {
+      setCurrentApi(`/chatbot/chatF`);
+      aiMessage = {
         text: 'F 챗봇은 맞춤 큐레이션 추천에 특화되어 있습니다.',
-        sender: 'ai',
+        sender: 'assistant',
+        type: 'message',
       };
-      setMessages((prev) => [...prev, aiMessage]);
     }
+    setMessages((prev) => [...prev, aiMessage]);
+    await saveChatHistory('assistant', aiMessage.text, 'message');
+    setIsBotSelected(true);
   };
 
   const sendMessage = async () => {
     if (newMessage.trim() === '') return;
 
-    const userMessage = { text: newMessage, sender: 'user' };
+    const userMessage = { text: newMessage, sender: 'user', type: 'message' };
     setMessages((prev) => [...prev, userMessage]);
+
     setNewMessage('');
     setIsTyping(true);
 
     try {
-      const response = await axios.post(currentApi, { userMessage: newMessage });
-      const aiResponse = { text: response.data.message, sender: 'ai' };
-      setMessages((prev) => [...prev, aiResponse]);
+      const responseMessage = await getResponse(currentApi, userMessage.text);
+      const assistantMessages = splitIntoSentences(responseMessage, 'assistant');
+
+      for (const msg of assistantMessages) {
+        setMessages((prev) => [...prev, msg]);
+        await new Promise((resolve) => setTimeout(resolve, 500)); // 메시지 간 0.5초 간격
+      }
     } catch (error) {
-      setMessages((prev) => [...prev, { text: 'AI 응답을 불러오지 못했습니다.', sender: 'ai' }]);
+      setMessages((prev) => [
+        ...prev,
+        { text: responseMessage, sender: 'assistant', type: 'message' },
+      ]);
       console.error('Error fetching AI response:', error);
     } finally {
       setIsTyping(false);
@@ -78,24 +133,30 @@ const AIChatView = () => {
           <img src={RefreshIcon} alt="Refresh" />
         </RefreshButton>
       </Header>
+
       <IntroMessageContainer>
         <img src={ChatBotIcon} />
         안녕하세요, 김싸피님
         <br />
         궁금한 것을 물어보세요!
       </IntroMessageContainer>
-      <MessagesContainer>
+
+      <MessagesContainer ref={messagesContainerRef}>
         {messages.map((message, index) => (
           <Message key={index} $sender={message.sender}>
             {message.sender === 'option' ? (
               <OptionMessageBubble>{message.text}</OptionMessageBubble>
-            ) : message.sender === 'ai' ? (
+            ) : message.sender === 'assistant' ? (
               <ChatBotContainer>
                 <MessageBubble $sender={message.sender}>{message.text}</MessageBubble>
                 {index === 0 && (
                   <ButtonContainer>
-                    <OptionButton onClick={() => handleOptionClick(chatT)}>{chatT}</OptionButton>
-                    <OptionButton onClick={() => handleOptionClick(chatF)}>{chatF}</OptionButton>
+                    <OptionButton onClick={() => handleOptionClick(chatT)} disabled={isBotSelected}>
+                      {chatT}
+                    </OptionButton>
+                    <OptionButton onClick={() => handleOptionClick(chatF)} disabled={isBotSelected}>
+                      {chatF}
+                    </OptionButton>
                   </ButtonContainer>
                 )}
               </ChatBotContainer>
@@ -104,17 +165,20 @@ const AIChatView = () => {
             )}
           </Message>
         ))}
-        {isTyping && <TypingIndicator>AI가 생각 중...</TypingIndicator>}
+        {isTyping && <TypingIndicator />}
+        <div ref={messagesEndRef} />
       </MessagesContainer>
+
       <InputContainer>
         <Input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-          placeholder="메시지를 입력하세요..."
+          onKeyDown={(e) => e.key === 'Enter' && isBotSelected && sendMessage()}
+          placeholder={isBotSelected ? '메시지를 입력하세요...' : '챗봇을 선택하세요!'}
+          disabled={!isBotSelected}
         />
-        <SendButton onClick={sendMessage}>
+        <SendButton onClick={isBotSelected ? sendMessage : null} disabled={!isBotSelected}>
           <img src={SendIcon} />
         </SendButton>
       </InputContainer>
@@ -127,14 +191,14 @@ const ChatContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  height: 100vh;
+  height: 100%;
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 20px;
+  padding: 1.4rem 2rem;
   width: 95%;
   ${({ theme }) => theme.fonts.Title4};
 `;
@@ -144,8 +208,8 @@ const RefreshButton = styled.button`
   align-items: center;
 
   img {
-    width: 16px;
-    height: 16px;
+    width: 1.6rem;
+    height: 1.6rem;
   }
 `;
 
@@ -153,14 +217,14 @@ const IntroMessageContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  gap: 1.2rem;
+  padding: 1.6rem;
   width: 100%;
   ${({ theme }) => theme.fonts.Body2};
 
   img {
-    width: 35px;
-    height: 35px;
+    width: 3.5rem;
+    height: 3.5rem;
   }
 `;
 
@@ -168,8 +232,10 @@ const MessagesContainer = styled.div`
   flex: 1;
   width: 90%;
   height: 100%;
-  padding: 10px;
-  position: relative;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Message = styled.div`
@@ -177,22 +243,26 @@ const Message = styled.div`
   flex-direction: column;
   align-items: ${({ $sender }) =>
     $sender === 'user' || $sender === 'option' ? 'flex-end' : 'flex-start'};
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 `;
 
 const MessageBubble = styled.div`
-  max-width: 70%;
-  padding: 8px 12px;
-  border-radius: 5px;
+  display: inline-block;
+  max-width: 90%;
+  min-width: 10%;
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
   background-color: ${({ $sender }) => ($sender === 'user' ? '#D9EAFF' : '#DFD9FF')};
   color: ${({ theme }) => theme.fonts.Body4};
   ${({ theme }) => theme.fonts.Body4};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.07);
-  white-space: pre-wrap;
+  word-wrap: break-word; // 단어가 길 경우 줄 바꿈
+  white-space: pre-wrap; // 줄 바꿈 및 공백 유지
+  width: fit-content; // 내용 길이에 따라 너비 조절
 `;
 
 const OptionMessageBubble = styled.div`
-  padding: 2px 5px;
+  padding: 0.2rem 0.5rem;
   background-color: #95b4dd;
   color: white;
   border: none;
@@ -205,7 +275,7 @@ const OptionMessageBubble = styled.div`
 `;
 
 const OptionButton = styled.button`
-  padding: 2px 5px;
+  padding: 0.2rem 0.5rem;
   background-color: #a6acd7;
   color: white;
   border: none;
@@ -224,7 +294,7 @@ const ChatBotContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 1rem;
   max-width: 80%;
   border-radius: 16px;
   white-space: pre-wrap;
@@ -232,7 +302,7 @@ const ChatBotContainer = styled.div`
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 7px;
+  gap: 0.7rem;
 `;
 
 const InputContainer = styled.div`
@@ -240,24 +310,27 @@ const InputContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 90%;
-  padding: 12px;
+  padding: 1.2rem;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
+
+  position: fixed;
+  bottom: 0;
 `;
 
 const Input = styled.input`
   flex: 1;
-  padding: 10px;
-  font-size: 14px;
+  padding: 1rem;
+  font-size: 1.4rem;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 2rem;
   outline: none;
-  margin-right: 10px;
+  margin-right: 1rem;
 `;
 
 const SendButton = styled.button`
-  padding: 10px 14px;
-  font-size: 14px;
+  padding: 1rem 1.4rem;
+  font-size: 1.4rem;
   background-color: ${({ theme }) => theme.colors.MainBlue};
   color: white;
   border: none;
@@ -272,15 +345,9 @@ const SendButton = styled.button`
   }
 
   img {
-    width: 18px;
-    height: 18px;
+    width: 1.8rem;
+    height: 1.8rem;
   }
-`;
-
-const TypingIndicator = styled.div`
-  font-size: 12px;
-  color: #aaa;
-  margin-top: 8px;
 `;
 
 export default AIChatView;

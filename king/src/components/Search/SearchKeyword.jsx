@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import { IcFilter, IcMap } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
-import { FilterOption, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { ContentId, FilterOption, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import FilterButton from '../common/FilterButton';
 import Nav from '../common/Nav';
@@ -27,6 +27,7 @@ const SearchKeyword = () => {
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   // const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
   const [relatedType, setRelatedType] = useRecoilState(SearchRelatedType);
+  const contentId = useRecoilValue(ContentId);
 
   const sortType = {
     가나다순: 'name',
@@ -108,6 +109,14 @@ const SearchKeyword = () => {
 
   const handleScrollUp = () => {};
 
+  const handleGoBack = () => {
+    if (relatedType === 'cast') {
+      navigate(`/content/cast/${contentId}`);
+    } else {
+      navigate(`/content/detail/${contentId}`);
+    }
+  };
+
   if (!results) {
     return null;
   }
@@ -116,7 +125,7 @@ const SearchKeyword = () => {
     <>
       <StHomeWrapper>
         <IconText>
-          <BackButton />
+          <BackButton onBack={handleGoBack} />
           <h3> 장소 조회</h3>
         </IconText>
         <SearchBar query={searchQuery || ''} onSearch={handleSearch} />
@@ -205,6 +214,10 @@ const Options = styled.div`
   align-items: center;
 
   margin: 0.5rem;
+
+  svg {
+    cursor: pointer;
+  }
 `;
 
 const FilterWrapper = styled.div`

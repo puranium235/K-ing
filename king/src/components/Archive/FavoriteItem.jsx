@@ -12,12 +12,12 @@ const FavoritesItem = ({ item, type }) => {
     console.log(`${type === 'works' ? item.title : item.name} 북마크 상태 변경`);
   };
   const handleClick = () => {
-    const routeType = type === 'works' ? 'detail' : 'cast'; // '작품' -> detail, '인물' -> people
-    navigate(`/content/${routeType}/${item.id}`); // 경로로 이동
+    const routeType = type === 'works' ? 'detail' : 'cast'; // '작품' -> detail, '인물' -> drama
+    navigate(`/content/${routeType}/${item.id}`);
   };
 
   return (
-    <St.Item onClick={handleClick}>
+    <StFavoriteItemWrapper onClick={handleClick}>
       <St.ImageWrapper>
         <St.Image src={item.image} alt={type === 'works' ? item.title : item.name} />
       </St.ImageWrapper>
@@ -35,19 +35,26 @@ const FavoritesItem = ({ item, type }) => {
           </St.Icon>
         )}
       </St.BookmarkButton>
-    </St.Item>
+    </StFavoriteItemWrapper>
   );
 };
 
 export default FavoritesItem;
 
+const StFavoriteItemWrapper = styled.div`
+  position: relative;
+  height: 16rem;
+  flex-shrink: 0;
+  background-color: ${({ theme }) => theme.colors.White};
+  cursor: pointer;
+`;
+
 const St = {
   Item: styled.div`
     position: relative;
-    height: 180px;
     flex-shrink: 0;
     background-color: ${({ theme }) => theme.colors.White};
-    cursor: pointer; /* 클릭 가능하도록 커서 스타일 변경 */
+    cursor: pointer;
   `,
   ImageWrapper: styled.div`
     width: 100%;
@@ -61,20 +68,19 @@ const St = {
   `,
   Info: styled.div`
     position: absolute;
-    bottom: 8px;
-    left: 8px;
+    bottom: 0.8rem;
+    left: 0.8rem;
     color: ${({ theme }) => theme.colors.White};
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
   `,
   Text: styled.span`
-    ${({ theme }) => theme.fonts.Body6};
-    font-size: 14px;
+    ${({ theme }) => theme.fonts.Body4};
     font-weight: bold;
   `,
   BookmarkButton: styled.button`
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 0.8rem;
+    right: 0.8rem;
     background: none;
     border: none;
     cursor: pointer;
@@ -86,12 +92,10 @@ const St = {
     position: absolute;
     top: 0;
     right: 0;
-    /* 별 아이콘 크기 조정 필요 */
-    /* width: 15px;
-    height: 15px; */
+
     svg {
-      width: 20px;
-      height: 20px;
+      width: 1.6rem;
+      height: 1.6rem;
     }
   `,
 };

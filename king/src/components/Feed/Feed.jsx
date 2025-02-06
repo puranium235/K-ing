@@ -44,11 +44,17 @@ const StFeedWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: center;
-
   padding: 2rem;
-  padding-top: 0rem;
   margin-bottom: 7rem;
+`;
+
+const FixedContainer = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  /* padding: 0 2rem; */
+  width: 100%;
+  background-color: ${({ theme }) => theme.colors.White};
 `;
 
 const FilterWrapper = styled.div`
@@ -62,15 +68,8 @@ const FilterWrapper = styled.div`
   gap: 0.5rem;
 
   width: 100%;
-`;
 
-const FixedContainer = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-
-  padding-top: 2rem;
-  width: 100%;
-
-  background-color: ${({ theme }) => theme.colors.White};
+  svg {
+    cursor: pointer;
+  }
 `;

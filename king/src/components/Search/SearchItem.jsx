@@ -31,31 +31,37 @@ export default SearchItem;
 
 const St = {
   Item: styled.div`
+    cursor: pointer;
+
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
 
-    min-height: 10rem;
-    max-height: 15rem;
+    gap: 0.5rem;
 
-    width: 7rem;
+    min-width: 10.5rem;
+    width: 10.5rem;
+    height: 100%;
     background-color: ${({ theme }) => theme.colors.White};
   `,
 };
 
 const ImageWrapper = styled.div`
   width: 100%;
-  height: 100%;
+  flex: 8;
+  overflow: hidden;
 `;
 
 const Image = styled.img`
-  max-width: 10rem;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 `;
 
 const Text = styled.span`
-  max-width: 10rem;
+  flex: 2;
+
   ${({ theme }) => theme.fonts.Body6};
   color: ${({ theme }) => theme.colors.Gray0};
 `;

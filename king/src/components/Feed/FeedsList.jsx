@@ -21,6 +21,6 @@ const St = {
     grid-template-columns: repeat(${(props) => props.$columns}, 1fr);
     gap: 0.7rem;
     overflow-y: auto;
-    padding: 0 0.5rem;
+    padding: 0.5rem;
   `,
 };

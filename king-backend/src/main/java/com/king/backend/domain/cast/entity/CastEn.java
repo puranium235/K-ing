@@ -2,9 +2,11 @@ package com.king.backend.domain.cast.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 public class CastEn {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

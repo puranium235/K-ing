@@ -106,38 +106,40 @@ const MapSearchPlaces = () => {
 };
 
 const Container = styled.div`
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 `;
 
 const MapSection = styled.div`
   position: relative;
-  height: calc(100vh - 380px);
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-bottom: 15rem;
 `;
 
 const UpButton = styled.button`
   border: none;
-  margin: 10px auto;
-  margin-bottom: 20px;
+  margin: 1rem auto;
+  margin-bottom: 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
 
   img {
-    width: 60px;
-    height: 20px;
+    width: 6rem;
+    height: 2rem;
   }
 `;
 
 const FilterContainer = styled.div`
-  padding: 1px 20px;
+  padding: 0.1rem 2rem;
   position: relative;
-  height: 40px;
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,7 +149,7 @@ const ContentSection = styled.div`
   background-color: #ffffff;
   height: 100%;
   position: absolute;
-  ${(props) => (props.$isExpanded ? 'top: 90px;' : 'top: calc(100vh - 400px);')}
+  ${(props) => (props.$isExpanded ? 'top: 8rem;' : 'top: calc(100vh - 18rem);')}
   left: 0;
   right: 0;
   transition: bottom 0.3s ease;
@@ -159,11 +161,11 @@ const ContentSection = styled.div`
 const ListContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 0.7rem;
   background-color: #f2f2f2;
 
   & > div:first-child {
-    padding: 25px;
+    padding: 2.5rem;
     display: flex;
     flex-direction: column;
     background-color: #fff;
@@ -177,7 +179,7 @@ const NoResultsContainer = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  height: 200px;
+  height: 10rem;
 `;
 
 const NoResultsText = styled.p`

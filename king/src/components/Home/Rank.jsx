@@ -1,9 +1,11 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { getKeywordRanking } from '../../lib/search';
+import { SearchQueryState } from '../../recoil/atom';
 
 const Rank = () => {
   const navigate = useNavigate();
@@ -13,6 +15,8 @@ const Rank = () => {
   const [currentRankSet, setCurrentRankSet] = useState(0);
   const [rankingsData, setRankingsData] = useState([]);
   const [displayedRankings, setDisplayedRankings] = useState([]);
+
+  const setQuery = useSetRecoilState(SearchQueryState);
 
   const periodOptions = [
     { label: '실시간', value: 'realtime' },
@@ -78,7 +82,8 @@ const Rank = () => {
   }, []);
 
   const handleClickTrend = (keyword) => {
-    navigate(`/search/keyword?query=${keyword}`);
+    setQuery(keyword);
+    navigate(`/search/result`);
   };
 
   return (
@@ -156,6 +161,8 @@ const TrendingKeyword = styled.div`
     margin: 1rem;
     text-align: left;
     p {
+      cursor: pointer;
+
       ${({ theme }) => theme.fonts.Body4};
       padding: 5px;
     }

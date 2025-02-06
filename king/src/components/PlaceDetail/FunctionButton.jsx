@@ -51,8 +51,8 @@ const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 6px 0px;
-  gap: 10px;
+  padding: 0.6rem 0rem;
+  gap: 1rem;
 `;
 
 const DirectionButton = styled.button`
@@ -63,11 +63,11 @@ const DirectionButton = styled.button`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-width: 70px;
-  height: 34px;
+  gap: 0.8rem;
+  min-width: 7rem;
+  height: 3.4rem;
   white-space: nowrap;
-  padding: 12px;
+  padding: 1.2rem;
   border: none;
   border-radius: 16px;
   cursor: pointer;
@@ -77,8 +77,8 @@ const DirectionButton = styled.button`
   }
 
   img {
-    width: 14px;
-    height: 14px;
+    width: 1.4rem;
+    height: 1.4rem;
   }
 `;
 
@@ -90,11 +90,11 @@ const ShareButton = styled.button`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-width: 70px;
-  height: 34px;
+  gap: 0.8rem;
+  min-width: 7rem;
+  height: 3.4rem;
   white-space: nowrap;
-  padding: 12px;
+  padding: 1.2rem;
   border: none;
   border-radius: 16px;
   cursor: pointer;
@@ -104,8 +104,8 @@ const ShareButton = styled.button`
   }
 
   img {
-    width: 14px;
-    height: 14px;
+    width: 1.4rem;
+    height: 1.4rem;
   }
 `;
 

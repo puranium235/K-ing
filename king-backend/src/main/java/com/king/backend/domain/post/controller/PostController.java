@@ -1,10 +1,21 @@
 package com.king.backend.domain.post.controller;
 
+import com.king.backend.domain.post.dto.request.PostUploadRequestDto;
+import com.king.backend.domain.post.dto.response.PostAllResponseDto;
+import com.king.backend.domain.post.dto.response.PostDetailResponseDto;
 import com.king.backend.domain.post.service.PostService;
+import com.king.backend.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/post")
@@ -14,4 +25,47 @@ public class PostController {
 
     private final PostService postService;
 
+    @Operation(summary = "게시글 업로드 API")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<Long>> uploadPost(
+            @RequestPart("post") PostUploadRequestDto reqDto,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+        Long postId = postService.uploadPost(reqDto, imageFile);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postId));
+    }
+
+    @Operation(summary = "게시글 전체 목록 조회(피드) API (커서 기반 페이징 지원)")
+    @GetMapping()
+    public ResponseEntity<ApiResponse<PostAllResponseDto.CursorResponse>> getAllPosts(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        OffsetDateTime cursorTime = (cursor != null) ? OffsetDateTime.parse(cursor, DateTimeFormatter.ISO_DATE_TIME) : null;
+        PostAllResponseDto.CursorResponse response = postService.getAllPosts(cursorTime, size);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "게시글 상세 조회 API")
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostDetailResponseDto>> getPostDetail(@PathVariable Long postId){
+        PostDetailResponseDto post = postService.getPostDetail(postId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(post));
+    }
+
+    @Operation(summary = "게시글 수정 API")
+    @PostMapping(value="/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<Long>> updatePost(
+            @PathVariable Long postId,
+            @RequestPart("post") PostUploadRequestDto reqDto,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+        Long updatedPostId = postService.updatePost(postId, reqDto, imageFile);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(updatedPostId));
+    }
+
+    @Operation(summary = "게시글 삭제 API")
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
+    }
 }

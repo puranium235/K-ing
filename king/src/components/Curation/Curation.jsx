@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { getCurationList } from '../../lib/curation';
-import { SearchQueryState } from '../../recoil/atom';
 import CurationsList from '../Archive/CurationsList';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
@@ -47,7 +45,6 @@ const Curation = () => {
 
 export default Curation;
 
-// ✅ 스타일 정의
 const StCurationWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -61,7 +58,11 @@ const FixedContainer = styled.div`
   position: sticky;
   top: 0;
   z-index: 1000;
-  padding: 0 2rem 2rem 2rem;
+
+  width: 100%;
+  padding-bottom: 2rem;
+  /* padding: 0 2rem 2rem 2rem; */
+
   background-color: ${({ theme }) => theme.colors.White};
 `;
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import {
@@ -14,7 +14,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getCelebDetails } from '../../lib/content';
-import { SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 
 const CelebDetails = () => {
@@ -25,6 +25,7 @@ const CelebDetails = () => {
   const navigate = useNavigate();
   const setSearchQuery = useSetRecoilState(SearchQueryState);
   const setRelatedType = useSetRecoilState(SearchRelatedType);
+  const contentType = useRecoilValue(ContentType);
 
   const handleClickPlaceInfo = () => {
     setSearchQuery(celebInfo.name);
@@ -47,6 +48,10 @@ const CelebDetails = () => {
     navigate(`/content/detail/${contentId}`);
   };
 
+  const handleGoBack = () => {
+    navigate(`/content/${contentType}`);
+  };
+
   useEffect(() => {
     getDetails();
   }, [celebId]);
@@ -59,8 +64,8 @@ const CelebDetails = () => {
     <>
       <CelebPageContainer>
         <IconText>
-          <BackButton />
-          <h3> 세부정보</h3>
+          <BackButton onBack={handleGoBack} />
+          <p> 세부정보</p>
         </IconText>
 
         <Header>
@@ -84,13 +89,14 @@ const CelebDetails = () => {
               <p>{celebInfo.participatingWorks}</p>
             </IconText>
           </TitleSection>
-          {isFavorited ? (
-            <IcStar id="favor" onClick={toggleFavorite} />
-          ) : (
-            <IcStarBlank id="favor" onClick={toggleFavorite} />
-          )}
+          <BookmarkWrapper>
+            {isFavorited ? (
+              <IcStar id="favor" onClick={toggleFavorite} />
+            ) : (
+              <IcStarBlank id="favor" onClick={toggleFavorite} />
+            )}
+          </BookmarkWrapper>
         </Header>
-
         <Synopsis>
           <IconText>
             <IcSmallStar />
@@ -98,7 +104,12 @@ const CelebDetails = () => {
           </IconText>
           <WorkGrid>
             {celebInfo.relatedContents.map((work) => (
-              <Work key={work.contentId}>
+              <Work
+                key={work.contentId}
+                onClick={() => {
+                  handleClickContent(work.contentId);
+                }}
+              >
                 <img src={work.imageUrl} alt="work Poster" />
                 <p>{work.title}</p>
               </Work>
@@ -147,15 +158,8 @@ const CelebPageContainer = styled.div`
 
   min-height: 80%;
 
-  padding: 20px;
+  padding: 2rem;
   background-color: #fff;
-
-  h3 {
-    width: 100%;
-    padding: 1rem 0;
-    text-align: left;
-    ${({ theme }) => theme.fonts.Title3};
-  }
 `;
 
 const Header = styled.div`
@@ -163,7 +167,8 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   align-items: end;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
 
   min-height: 30vh;
 
@@ -198,6 +203,12 @@ const TitleSection = styled.div`
   }
 `;
 
+const BookmarkWrapper = styled.div`
+  svg {
+    cursor: pointer;
+  }
+`;
+
 const Synopsis = styled.div`
   line-height: 1.6;
   margin-bottom: 2rem;
@@ -209,18 +220,20 @@ const Synopsis = styled.div`
 const IconText = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: center;
   align-items: center;
   gap: 0.7rem;
 
-  margin-bottom: 1rem;
-
   svg {
-    width: 20px;
-    height: 20px;
+    width: 1.8rem;
+    height: 1.8rem;
   }
 
   p {
-    ${({ theme }) => theme.fonts.Title6};
+    width: 100%;
+    padding: 0.5rem 0;
+    text-align: left;
+    ${({ theme }) => theme.fonts.Title4};
   }
 `;
 
@@ -231,6 +244,7 @@ const WorkGrid = styled.div`
   margin-top: 0.5rem;
 
   width: 100%;
+  height: 100%;
   overflow-x: auto;
   white-space: nowrap;
 
@@ -245,12 +259,13 @@ const Work = styled.div`
   align-items: center;
 
   flex: 0 0 104px;
-  height: auto;
-
   width: 10rem;
+
+  cursor: pointer;
 
   img {
     width: 100%;
+    flex: 8;
   }
 
   p {
@@ -275,19 +290,22 @@ const ListWrapper = styled.div`
 `;
 
 const WorkWrapper = styled.ul`
+  width: 100%;
+  margin-top: 1rem;
+
   li {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
 
-    margin-left: 3rem;
-
     ${({ theme }) => theme.fonts.Body2};
     color: #868181;
   }
 
   p {
+    cursor: pointer;
+
     margin-left: 5rem;
     ${({ theme }) => theme.fonts.Title6};
     color: ${({ theme }) => theme.colors.Gray1};
@@ -295,8 +313,8 @@ const WorkWrapper = styled.ul`
   }
 
   hr {
-    margin: 1rem 2rem;
-    width: 300px;
+    margin: 0.7rem 0;
+    width: 90%;
     height: 1px;
     border: 0;
     background: ${({ theme }) => theme.colors.Gray3};
@@ -309,10 +327,8 @@ const ActionButton = styled.button`
   justify-content: center;
   align-items: center;
 
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 3rem;
-
+  margin: auto;
+  margin-bottom: 10rem;
   border-radius: 20px;
   padding: 0.8rem 2rem;
 

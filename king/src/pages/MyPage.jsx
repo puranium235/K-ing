@@ -1,16 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const MyPage = () => {
-  return <>마이페이지</>;
-};
+function MyPage() {
+  return <Button onClick={() => window.location.replace('/user/2')}>유저!!</Button>;
+}
 
 export default MyPage;
 
-const St = {
-  Wrapper: styled.article`
-    background-color: ${({ theme }) => theme.colors.White};
-    color: ${({ theme }) => theme.colors.Gray0};
-    // ${({ theme }) => theme.fonts.Title3};
-  `,
-};
+const Button = styled.button`
+  position: absolute;
+  top: 15px;
+  background: none;
+  border: solid;
+  font-size: 20px;
+  cursor: pointer;
+`;

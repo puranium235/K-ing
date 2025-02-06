@@ -59,7 +59,7 @@ const Header = ({ title, isOption }) => {
   };
 
   return (
-    <>
+    <Container>
       <StHeader>
         <BackButton />
         <TitleContainer
@@ -89,28 +89,32 @@ const Header = ({ title, isOption }) => {
 
       {/* 옵션 모달 */}
       <OptionModal isModalVisible={isModalVisible} onClick={closeModal} />
-    </>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  position: relative;
+`;
 
 const StHeader = styled.div`
   display: flex;
   align-items: center;
-  padding: 14px 10px;
-  gap: 10px;
+  padding: 1.4rem 1rem;
+  gap: 1rem;
 `;
 
 const OptionButton = styled.button`
   display: flex;
   align-items: center;
   position: absolute;
-  right: 12px;
+  right: 1.2rem;
   background: none;
   border: none;
   cursor: pointer;
 
   img {
-    height: 18px;
+    height: 1.8rem;
   }
 `;
 
@@ -119,7 +123,7 @@ const TitleContainer = styled.div`
   overflow: hidden;
   white-space: nowrap;
   position: relative;
-  margin-right: 30px;
+  margin-right: 3rem;
 `;
 
 // 슬라이딩 애니메이션
