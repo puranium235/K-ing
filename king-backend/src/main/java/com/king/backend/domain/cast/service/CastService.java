@@ -29,12 +29,20 @@ public class CastService {
         String imageUrl = s3Service.getOrUploadImage(cast);
 
         if (cast != null) {
-            for (ContentCast contentCast : cast.getContentCasts()) {
+            List<ContentCast> sortedContentCasts = cast.getContentCasts().stream()
+                    .sorted((c1, c2) -> {
+                        if (c1.getContent().getCreatedAt() == null) return 1;  // null 값 뒤로 정렬
+                        if (c2.getContent().getCreatedAt() == null) return -1; // null 값 뒤로 정렬
+                        return c2.getContent().getCreatedAt().compareTo(c1.getContent().getCreatedAt()); // 최신순 정렬
+                    })
+                    .toList();
+
+            for (ContentCast contentCast : sortedContentCasts) {
                 Long contentId = contentCast.getContent().getId();
                 String title = contentCast.getContent().getTranslationKo().getTitle();
                 String contentImageUrl = s3Service.getOrUploadImage(contentCast.getContent());
-                int year = contentCast.getContent().getCreatedAt().getYear();
-
+//                int year = contentCast.getContent().getCreatedAt().getYear();
+                String year = (contentCast.getContent().getCreatedAt() == null) ? "" : String.valueOf(contentCast.getContent().getCreatedAt().getYear());
                 relatedContents.add(new CastDetailResponseDto.RelatedContent(
                         contentId,
                         title,
@@ -47,7 +55,7 @@ public class CastService {
         }
 
         // works 연도 기준으로 정렬 (내림차순)
-        works.sort((work1, work2)->Integer.compare(work2.getYear(), work1.getYear()));
+//        works.sort((work1, work2)->Integer.compare(work2.getYear(), work1.getYear()));
 
         return new CastDetailResponseDto(
                 cast.getId(),
