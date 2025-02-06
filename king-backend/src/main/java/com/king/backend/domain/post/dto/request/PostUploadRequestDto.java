@@ -12,4 +12,5 @@ import lombok.Setter;
 public class PostUploadRequestDto {
     private String content;
     private Long placeId;
+    private String imageUrl;
 }
