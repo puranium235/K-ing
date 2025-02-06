@@ -104,6 +104,7 @@ const SearchKeyword = () => {
   };
 
   const handleOpenMap = () => {
+    setSearchQuery(searchQuery);
     navigate(`/map`);
   };
 

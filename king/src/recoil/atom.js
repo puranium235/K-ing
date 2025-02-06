@@ -5,8 +5,8 @@ const FilterOption = atom({
   default: {
     categories: {
       RESTAURANT: false,
-      CAFE: true,
-      PLAYGROUND: true,
+      CAFE: false,
+      PLAYGROUND: false,
       STORE: false,
       STAY: false,
     },

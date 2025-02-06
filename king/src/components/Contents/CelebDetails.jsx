@@ -16,6 +16,7 @@ import {
 import { getCelebDetails } from '../../lib/content';
 import { ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
+import Loading from '../Loading/Loading';
 
 const CelebDetails = () => {
   const { celebId } = useParams();
@@ -57,7 +58,11 @@ const CelebDetails = () => {
   }, [celebId]);
 
   if (!celebInfo) {
-    return null;
+    return (
+      <LoadingWrapper>
+        <Loading />
+      </LoadingWrapper>
+    );
   }
 
   return (
@@ -150,6 +155,14 @@ const CelebDetails = () => {
 };
 
 export default CelebDetails;
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+`;
 
 const CelebPageContainer = styled.div`
   display: flex;
