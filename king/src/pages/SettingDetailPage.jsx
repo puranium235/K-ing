@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-import Setting from '../components/Setting/Setting';
+import SettingDetail from '../components/Setting/SettingDetail';
 
 const SettingDetailPage = () => {
   return (
     <StSettingDetailPageWrapper>
-      <Setting />
+      <SettingDetail />
     </StSettingDetailPageWrapper>
   );
 };

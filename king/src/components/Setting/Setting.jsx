@@ -1,24 +1,25 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import LogoutButton from './LogoutButton';
+import AccountActions from './AccountActions';
 import SettingHeader from './SettingHeader';
 import SettingList from './SettingList';
 
 const Setting = () => {
   return (
-    <StSettingPageWrapper>
+    <StSettingWrapper>
       <SettingHeader title="설정" />
       <SettingList />
-      <LogoutButton />
-    </StSettingPageWrapper>
+      <AccountActions />
+    </StSettingWrapper>
   );
 };
 
 export default Setting;
 
-const StSettingPageWrapper = styled.div`
+const StSettingWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  height: 100%;
   background-color: ${({ theme }) => theme.colors.White};
 `;
