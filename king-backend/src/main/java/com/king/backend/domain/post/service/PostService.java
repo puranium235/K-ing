@@ -63,7 +63,7 @@ public class PostService {
         postRepository.save(post);
 
         if(imageFile != null && !imageFile.isEmpty()){
-            String imageUrl = s3Service.uploadFile(imageFile);
+            String imageUrl = s3Service.uploadFile(post, imageFile);
             PostImage postImage = PostImage.builder()
                     .imageUrl(imageUrl)
                     .post(post)
@@ -189,7 +189,7 @@ public class PostService {
             log.info("postService : 삭제했는가 imageUrl {}", postImage.getImageUrl());
 
             // 새 이미지 업로드
-            String newImageUrl = s3Service.uploadFile(imageFile);
+            String newImageUrl = s3Service.uploadFile(post, imageFile);
             PostImage newPostImage = PostImage.builder()
                     .imageUrl(newImageUrl)
                     .post(post)
