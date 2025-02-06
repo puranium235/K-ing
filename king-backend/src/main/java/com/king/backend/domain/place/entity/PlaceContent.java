@@ -9,7 +9,6 @@ import lombok.*;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-@ToString
 public class PlaceContent {
 
     @Id
