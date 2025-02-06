@@ -39,12 +39,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 userEntity = new User();
                 userEntity.setGoogleId(googleUserDTO.getGoogleId());
                 userEntity.setStatus("ROLE_PENDING");
+                userEntity.setEmail(googleUserDTO.getEmail());
+                userEntity.setImageUrl(googleUserDTO.getImageUrl());
+
+                userRepository.save(userEntity);
             }
-
-            userEntity.setEmail(googleUserDTO.getEmail());
-            userEntity.setImageUrl(googleUserDTO.getImageUrl());
-
-            userRepository.save(userEntity);
         }
 
         if (userEntity == null) {
