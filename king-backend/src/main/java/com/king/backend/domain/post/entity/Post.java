@@ -13,7 +13,6 @@ import java.time.OffsetDateTime;
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
-@ToString
 @Builder
 public class Post {
     @Id

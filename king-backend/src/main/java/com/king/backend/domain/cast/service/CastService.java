@@ -9,6 +9,7 @@ import com.king.backend.s3.service.S3Service;
 import com.king.backend.global.exception.CustomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CastService {
     private final CastRepository castRepository;
     private final S3Service s3Service;

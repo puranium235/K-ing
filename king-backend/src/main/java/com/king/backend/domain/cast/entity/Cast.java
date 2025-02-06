@@ -12,7 +12,6 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-@ToString
 @EntityListeners(CastListener.class)
 public class Cast {
 

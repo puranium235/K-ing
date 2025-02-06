@@ -8,7 +8,6 @@ import lombok.*;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class PostImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

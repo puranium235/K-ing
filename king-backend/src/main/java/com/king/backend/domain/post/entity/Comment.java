@@ -12,7 +12,6 @@ import java.time.OffsetDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
