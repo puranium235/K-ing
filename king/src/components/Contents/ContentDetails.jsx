@@ -250,6 +250,7 @@ const CastGrid = styled.div`
 const CastMember = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
 
   flex: 0 0 104px;
@@ -259,6 +260,9 @@ const CastMember = styled.div`
 
   img {
     width: 100%;
+    height: 100%;
+    /* min-height: 10rem; */
+    object-fit: cover;
   }
 
   p {

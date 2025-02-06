@@ -64,14 +64,13 @@ const StyledSlider = styled(Slider)`
     display: flex;
     align-items: center;
     height: 100%;
+    /* width: 100% !important; */
   }
 
   .slick-slide {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
-    width: 100%;
   }
 `;
 
@@ -79,6 +78,7 @@ const CarouselItem = styled.div`
   position: relative;
   width: 100%;
   height: 18rem;
+  flex-shrink: 0;
 
   cursor: pointer;
 
