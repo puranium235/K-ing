@@ -19,6 +19,7 @@ public class AutocompleteResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AutocompleteResult {
+        private String originalId;
         private String category;
         private String name;
         private String details;
