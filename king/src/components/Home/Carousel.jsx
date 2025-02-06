@@ -45,28 +45,32 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
+  width: 30rem;
+  height: 18rem;
   overflow: hidden;
   border-radius: 2rem;
 `;
 
 const StyledSlider = styled(Slider)`
   width: 100%;
+  height: 100%;
 
   .slick-list {
     overflow: hidden;
+    height: 100%;
   }
 
   .slick-track {
     display: flex;
     align-items: center;
+    height: 100%;
   }
 
   .slick-slide {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100%;
     width: 100%;
   }
 `;
@@ -74,14 +78,14 @@ const StyledSlider = styled(Slider)`
 const CarouselItem = styled.div`
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 18rem;
 
   cursor: pointer;
 
   img {
-    width: 35rem;
-    height: 18rem;
-    object-fit: contain;
+    width: 30rem;
+    height: 100%;
+    object-fit: cover;
     object-position: center;
   }
 
@@ -90,10 +94,8 @@ const CarouselItem = styled.div`
     position: absolute;
     top: 0;
     left: 0;
-
     width: 100%;
     height: 100%;
-
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 1;
   }
@@ -102,10 +104,9 @@ const CarouselItem = styled.div`
     position: absolute;
     bottom: 1rem;
     left: 1rem;
-
     color: ${({ theme }) => theme.colors.White};
     padding: 0.5rem 1rem;
-    ${({ theme }) => theme.fonts.Title6}
+    ${({ theme }) => theme.fonts.Title6};
     z-index: 2;
   }
 `;
