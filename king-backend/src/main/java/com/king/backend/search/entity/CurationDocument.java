@@ -52,4 +52,9 @@ public class CurationDocument {
             format = DateFormat.date_optional_time,
             pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private OffsetDateTime createdAt;
+
+    /**
+     * 공개 여부 (true: 공개, false: 비공개)
+     */
+    private Boolean isPublic;
 }
