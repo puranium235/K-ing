@@ -14,11 +14,13 @@ import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.entity.PlaceCast;
 import com.king.backend.domain.place.entity.PlaceContent;
 import com.king.backend.domain.place.repository.PlaceRepository;
+import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.entity.CurationDocument;
 import com.king.backend.search.entity.SearchDocument;
 import com.king.backend.search.repository.ElasticsearchCurationListRepository;
 import com.king.backend.search.repository.SearchRepository;
 import com.king.backend.search.util.ElasticsearchUtil;
+import com.king.backend.search.util.SearchDocumentBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -47,10 +49,6 @@ public class SyncService implements CommandLineRunner {
     private final CurationListRepository curationListRepository;
     private final ElasticsearchCurationListRepository elasticsearchCurationListRepository;
 
-    private static final String SEARCH_INDEX_NAME = "search-index";
-
-    private static final String CURATION_INDEX_NAME = "curation-index";
-
     @Override
     @Transactional
     public void run(String... args) throws Exception {
@@ -62,31 +60,31 @@ public class SyncService implements CommandLineRunner {
         log.info("초기 mysql-elasticsearch 데이터 마이그레이션 시작");
 
         // 기존 인덱스가 있는지 확인하고 없으면 생성
-        if (elasticsearchUtil.indexExists(SEARCH_INDEX_NAME)) {
-            elasticsearchUtil.deleteIndex(SEARCH_INDEX_NAME);
+        if (elasticsearchUtil.indexExists(ElasticsearchConstants.SEARCH_INDEX)) {
+            elasticsearchUtil.deleteIndex(ElasticsearchConstants.SEARCH_INDEX);
         }
 
         log.info("인덱스가 존재하지 않음. 새로 생성합니다.");
 
         // Define properties with new fields
         Map<String, Property> properties = new HashMap<>();
-        properties.put("id", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
-        properties.put("category", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
-        properties.put("type", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()); // Added 'type'
-        properties.put("name", new Property.Builder().text(
+        properties.put(ElasticsearchConstants.FIELD_ID, new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put(ElasticsearchConstants.FIELD_CATEGORY, new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put(ElasticsearchConstants.FIELD_TYPE, new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()); // Added 'type'
+        properties.put(ElasticsearchConstants.FIELD_NAME, new Property.Builder().text(
                 new TextProperty.Builder()
-                        .analyzer("autocomplete_analyzer")
+                        .analyzer(ElasticsearchConstants.ANALYZER_AUTOCOMPLETE)
                         .searchAnalyzer("standard")
                         .fields(Map.of(
                                 "keyword",new Property.Builder().keyword(new KeywordProperty.Builder().build()).build()
                         ))
                         .build()
         ).build());
-        properties.put("details", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
-        properties.put("imageUrl", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
-        properties.put("originalId", new Property.Builder().long_(new LongNumberProperty.Builder().build()).build());
-        properties.put("popularity", new Property.Builder().integer(new IntegerNumberProperty.Builder().build()).build()); // Added 'popularity'
-        properties.put("createdAt", new Property.Builder()
+        properties.put(ElasticsearchConstants.FIELD_DETAILS, new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
+        properties.put(ElasticsearchConstants.FIELD_IMAGE_URL, new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        properties.put(ElasticsearchConstants.FIELD_ORIGINAL_ID, new Property.Builder().long_(new LongNumberProperty.Builder().build()).build());
+        properties.put(ElasticsearchConstants.FIELD_POPULARITY, new Property.Builder().integer(new IntegerNumberProperty.Builder().build()).build()); // Added 'popularity'
+        properties.put(ElasticsearchConstants.FIELD_CREATED_AT, new Property.Builder()
                 .date(new DateProperty.Builder()
                         .format("yyyy-MM-dd'T'HH:mm:ss.SSSX")
                         .build())
@@ -113,16 +111,16 @@ public class SyncService implements CommandLineRunner {
 
         // 2. TokenFilterDefinition을 Map에 등록
         Map<String, TokenFilter> tokenFiltersMap = new HashMap<>();
-        tokenFiltersMap.put("autocomplete_filter", tokenFilter);
+        tokenFiltersMap.put(ElasticsearchConstants.TOKEN_FILTER_AUTOCOMPLETE, tokenFilter);
 
         // 3. IndexSettings 생성: analyzer와 tokenFilters 모두 설정
         IndexSettings settings = new IndexSettings.Builder()
                         .analysis(analysis -> analysis
                         // "autocomplete_analyzer" 정의
-                        .analyzer("autocomplete_analyzer", a -> a
+                        .analyzer(ElasticsearchConstants.ANALYZER_AUTOCOMPLETE, a -> a
                                 .custom(ca -> ca
                                         .tokenizer("standard")                       // 원하는 tokenizer 설정
-                                        .filter("lowercase", "autocomplete_filter")  // 필터 적용 (등록된 토큰 필터 이름 사용)
+                                        .filter("lowercase", ElasticsearchConstants.TOKEN_FILTER_AUTOCOMPLETE)  // 필터 적용 (등록된 토큰 필터 이름 사용)
                                 )
                         )
                         // 별도로 등록한 token filter 설정 추가
@@ -132,7 +130,7 @@ public class SyncService implements CommandLineRunner {
                 .build();
 
 
-        elasticsearchUtil.createIndex(SEARCH_INDEX_NAME, properties,settings);
+        elasticsearchUtil.createIndex(ElasticsearchConstants.SEARCH_INDEX, properties,settings);
 
         migrateCasts();
         migrateContents();
@@ -145,13 +143,13 @@ public class SyncService implements CommandLineRunner {
         log.info("========== 큐레이션 리스트 데이터 동기화 시작 ==========");
 
         // 인덱스가 이미 존재한다면 삭제 후 재생성(테스트 및 초기 동기화를 위한 처리)
-        if (elasticsearchUtil.indexExists(CURATION_INDEX_NAME)) {
-            elasticsearchUtil.deleteIndex(CURATION_INDEX_NAME);
+        if (elasticsearchUtil.indexExists(ElasticsearchConstants.CURATION_INDEX)) {
+            elasticsearchUtil.deleteIndex(ElasticsearchConstants.CURATION_INDEX);
         }
-        log.info("새로운 인덱스 [{}]를 생성합니다.", CURATION_INDEX_NAME);
+        log.info("새로운 인덱스 [{}]를 생성합니다.", ElasticsearchConstants.CURATION_INDEX);
         // 인덱스 매핑 설정
         Map<String, Property> properties = new HashMap<>();
-        properties.put("id", new Property.Builder()
+        properties.put(ElasticsearchConstants.FIELD_ID, new Property.Builder()
                 .keyword(new KeywordProperty.Builder().build())
                 .build());
         properties.put("title", new Property.Builder()
@@ -170,17 +168,17 @@ public class SyncService implements CommandLineRunner {
         properties.put("imageUrl", new Property.Builder()
                 .keyword(new KeywordProperty.Builder().build())
                 .build());
-        properties.put("originalId", new Property.Builder()
+        properties.put(ElasticsearchConstants.FIELD_ORIGINAL_ID, new Property.Builder()
                 .long_(new LongNumberProperty.Builder().build())
                 .build());
-        properties.put("createdAt", new Property.Builder()
+        properties.put(ElasticsearchConstants.FIELD_CREATED_AT, new Property.Builder()
                 .date(new DateProperty.Builder()
                         .format("yyyy-MM-dd'T'HH:mm:ss.SSSX")
                         .build())
                 .build());
 
         // 인덱스 생성
-        elasticsearchUtil.createIndex(CURATION_INDEX_NAME, properties);
+        elasticsearchUtil.createIndex(ElasticsearchConstants.CURATION_INDEX, properties);
 
         migrateCurationLists();
 
@@ -206,7 +204,7 @@ public class SyncService implements CommandLineRunner {
                 .collect(Collectors.toList());
 
         elasticsearchCurationListRepository.saveAll(documents);
-        log.info("MySQL의 큐레이션 리스트 {}건을 인덱스 [{}]로 동기화 완료", documents.size(), CURATION_INDEX_NAME);
+        log.info("MySQL의 큐레이션 리스트 {}건을 인덱스 [{}]로 동기화 완료", documents.size(), ElasticsearchConstants.CURATION_INDEX);
     }
 
     /**
@@ -248,29 +246,9 @@ public class SyncService implements CommandLineRunner {
      */
     private void migrateCasts(){
         List<Cast> casts = castRepository.findAll();
-
         List<SearchDocument> documents = casts.stream()
-                .map(cast -> new SearchDocument(
-                        "CAST-"+cast.getId(),
-                        "CAST",
-                        "N/A", // 'type' for Cast is not applicable; set as "N/A" or null
-                        cast.getTranslationKo().getName(),
-                        "가수, 인물",
-                        cast.getImageUrl(),
-                        cast.getId(),
-                        0, // initial popularity, for Cast, could be set to 0 or another default
-                        cast.getCreatedAt(),
-                        "N/A",
-                        "N/A",
-                        "N/A",
-                        "N/A",
-                        0,
-                        0,
-                        null,
-                        null
-                ))
+                .map(SearchDocumentBuilder::fromCast)
                 .collect(Collectors.toList());
-
         searchRepository.saveAll(documents);
         log.info("Cast 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
     }
@@ -281,25 +259,8 @@ public class SyncService implements CommandLineRunner {
     private void migrateContents(){
         List<Content> contents = contentRepository.findAll();
         List<SearchDocument> documents = contents.stream()
-                .map(content -> new SearchDocument(
-                        "CONTENT-" + content.getId(),
-                        content.getType().toUpperCase(),
-                        content.getType().toUpperCase(), // 'type' field
-                        content.getTranslationKo().getTitle(),
-                        content.getTranslationKo().getDescription(),
-                        content.getImageUrl(),
-                        content.getId(),
-                        0, // initial popularity
-                        content.getCreatedAt(),
-                        "N/A",
-                        "N/A",
-                        "N/A",
-                        "N/A",
-                        0,
-                        0,
-                        null,
-                        null
-                )).collect(Collectors.toList());
+                .map(SearchDocumentBuilder::fromContent)
+                .collect(Collectors.toList());
         searchRepository.saveAll(documents);
         log.info("Content 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
     }
@@ -314,48 +275,16 @@ public class SyncService implements CommandLineRunner {
                     String key = "place:view:" + place.getId();
                     String viewCountStr = redisUtil.getValue(key);
                     int viewCount = 0;
-                    if(viewCountStr != null) {
-                        try{
+                    if (viewCountStr != null) {
+                        try {
                             viewCount = Integer.parseInt(viewCountStr);
-                        }catch (NumberFormatException e){
-                            log.warn("Invalid view count for place {}: {}",place.getId(),viewCountStr);
+                        } catch (NumberFormatException e) {
+                            log.warn("Invalid view count for place {}: {}", place.getId(), viewCountStr);
                         }
                     }
-
-                    // denormalization: Place와 연관된 Cast 이름 목록 수집 (예: 번역된 한국어 이름)
-                    List<PlaceCast> placeCasts = place.getPlaceCasts();
-                    List<String> associatedCastNames = (placeCasts == null) ? List.of() :
-                            placeCasts.stream()
-                                    .map(pc -> pc.getCast().getTranslationKo().getName())
-                                    .collect(Collectors.toList());
-                    // denormalization: Place와 연관된 Content 이름 목록 수집 (예: 번역된 한국어 이름)
-                    List<PlaceContent> placeContents = place.getPlaceContents();
-                    List<String> associatedContentNames = (placeContents == null) ? List.of() :
-                            placeContents.stream()
-                                    .map(pc -> pc.getContent().getTranslationKo().getTitle())
-                                    .collect(Collectors.toList());
-
-                    return new SearchDocument(
-                            "PLACE-" + place.getId(),
-                            "PLACE",
-                            place.getType().toUpperCase(),
-                            place.getName(),
-                            place.getDescription(),
-                            place.getImageUrl(),
-                            place.getId(),
-                            viewCount,
-                            place.getCreatedAt(),
-                            place.getOpenHour(),
-                            place.getBreakTime(),
-                            place.getClosedDay(),
-                            place.getAddress(),
-                            place.getLat(),
-                            place.getLng(),
-                            associatedCastNames,
-                            associatedContentNames
-                    );
+                    return SearchDocumentBuilder.fromPlace(place, viewCount);
                 })
-                        .collect(Collectors.toList());
+                .collect(Collectors.toList());
         searchRepository.saveAll(documents);
         log.info("Place 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
     }
@@ -365,25 +294,7 @@ public class SyncService implements CommandLineRunner {
      * Content 데이터 저장
      */
     public void indexContent(Content content) {
-        SearchDocument doc = new SearchDocument(
-                "CONTENT-" + content.getId(),
-                content.getType().toUpperCase(),
-                content.getType().toUpperCase(),
-                content.getTranslationKo().getTitle(),
-                content.getTranslationKo().getDescription(),
-                content.getImageUrl(),
-                content.getId(),
-                0,
-                content.getCreatedAt(),
-                "N/A",
-                "N/A",
-                "N/A",
-                "N/A",
-                0,
-                0,
-                null,
-                null
-        );
+        SearchDocument doc = SearchDocumentBuilder.fromContent(content);
         searchRepository.save(doc);
         log.info("Content 인덱싱 완료: {}", doc.getId());
     }
@@ -409,25 +320,7 @@ public class SyncService implements CommandLineRunner {
      * Cast 인덱싱 (생성 및 업데이트)
      */
     public void indexCast(Cast cast) {
-        SearchDocument doc = new SearchDocument(
-                "CAST-" + cast.getId(),
-                "CAST",
-                "N/A",
-                cast.getTranslationKo().getName(),
-                "가수, 인물", // 실제로는 더 구체적인 정보
-                cast.getImageUrl(),
-                cast.getId(),
-                0,
-                cast.getCreatedAt(),
-                "N/A",
-                "N/A",
-                "N/A",
-                "N/A",
-                0,
-                0,
-                null,
-                null
-        );
+        SearchDocument doc = SearchDocumentBuilder.fromCast(cast);
         searchRepository.save(doc);
         log.info("Cast 인덱싱 완료: {}", doc.getId());
     }
@@ -456,45 +349,14 @@ public class SyncService implements CommandLineRunner {
         String key = "place:view:" + place.getId();
         String viewCountStr = redisUtil.getValue(key);
         int viewCount = 0;
-        if(viewCountStr != null) {
-            try{
+        if (viewCountStr != null) {
+            try {
                 viewCount = Integer.parseInt(viewCountStr);
-            }catch (NumberFormatException e){
-                log.warn("Invalid view count for place {}: {}",place.getId(),viewCountStr);
+            } catch (NumberFormatException e) {
+                log.warn("Invalid view count for place {}: {}", place.getId(), viewCountStr);
             }
         }
-        // denormalization: Place와 연관된 Cast 이름 목록 수집 (예: 번역된 한국어 이름)
-        List<PlaceCast> placeCasts = place.getPlaceCasts();
-        List<String> associatedCastNames = (placeCasts == null) ? List.of() :
-                placeCasts.stream()
-                        .map(pc -> pc.getCast().getTranslationKo().getName())
-                        .collect(Collectors.toList());
-        // denormalization: Place와 연관된 Content 이름 목록 수집 (예: 번역된 한국어 이름)
-        List<PlaceContent> placeContents = place.getPlaceContents();
-        List<String> associatedContentNames = (placeContents == null) ? List.of() :
-                placeContents.stream()
-                        .map(pc -> pc.getContent().getTranslationKo().getTitle())
-                        .collect(Collectors.toList());
-
-        SearchDocument doc = new SearchDocument(
-                "PLACE-" + place.getId(),
-                "PLACE",
-                place.getType().toUpperCase(),
-                place.getName(),
-                place.getDescription(),
-                place.getImageUrl(),
-                place.getId(),
-                viewCount,
-                place.getCreatedAt(),
-                place.getOpenHour(),
-                place.getBreakTime(),
-                place.getClosedDay(),
-                place.getAddress(),
-                place.getLat(),
-                place.getLng(),
-                associatedCastNames,
-                associatedContentNames
-        );
+        SearchDocument doc = SearchDocumentBuilder.fromPlace(place, viewCount);
         searchRepository.save(doc);
         log.info("Place 인덱싱 완료: {}", doc.getId());
     }

@@ -1,0 +1,95 @@
+package com.king.backend.search.util;
+
+import com.king.backend.domain.cast.entity.Cast;
+import com.king.backend.domain.content.entity.Content;
+import com.king.backend.domain.place.entity.Place;
+import com.king.backend.search.entity.SearchDocument;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class SearchDocumentBuilder {
+
+    /**
+     * Cast 객체를 SearchDocument로 변환합니다.
+     *
+     * @param cast 도메인 Cast 객체
+     * @return 변환된 SearchDocument
+     */
+    public static SearchDocument fromCast(Cast cast) {
+        return new SearchDocument(
+                "CAST-" + cast.getId(),
+                "CAST",
+                "N/A", // Cast에 대해서는 type이 적용되지 않으므로 "N/A" 사용 (필요에 따라 변경)
+                cast.getTranslationKo().getName(),
+                "가수, 인물", // 추가 설명 – 필요 시 실제 데이터를 사용
+                cast.getImageUrl(),
+                cast.getId(),
+                0, // 초기 popularity (필요 시 0 또는 다른 기본값)
+                cast.getCreatedAt(),
+                "N/A", "N/A", "N/A", "N/A",
+                0, 0,
+                null, null
+        );
+    }
+
+    /**
+     * Content 객체를 SearchDocument로 변환합니다.
+     *
+     * @param content 도메인 Content 객체
+     * @return 변환된 SearchDocument
+     */
+    public static SearchDocument fromContent(Content content) {
+        return new SearchDocument(
+                "CONTENT-" + content.getId(),
+                content.getType().toUpperCase(),
+                content.getType().toUpperCase(), // type 필드
+                content.getTranslationKo().getTitle(),
+                content.getTranslationKo().getDescription(),
+                content.getImageUrl(),
+                content.getId(),
+                0, // 초기 popularity
+                content.getCreatedAt(),
+                "N/A", "N/A", "N/A", "N/A",
+                0, 0,
+                null, null
+        );
+    }
+
+    /**
+     * Place 객체를 SearchDocument로 변환합니다.
+     *
+     * @param place 도메인 Place 객체
+     * @param viewCount Redis에서 가져온 조회수
+     * @return 변환된 SearchDocument
+     */
+    public static SearchDocument fromPlace(Place place, int viewCount) {
+        List<String> associatedCastNames = (place.getPlaceCasts() == null) ? List.of() :
+                place.getPlaceCasts().stream()
+                        .map(pc -> pc.getCast().getTranslationKo().getName())
+                        .collect(Collectors.toList());
+        List<String> associatedContentNames = (place.getPlaceContents() == null) ? List.of() :
+                place.getPlaceContents().stream()
+                        .map(pc -> pc.getContent().getTranslationKo().getTitle())
+                        .collect(Collectors.toList());
+        return new SearchDocument(
+                "PLACE-" + place.getId(),
+                "PLACE",
+                place.getType().toUpperCase(),
+                place.getName(),
+                place.getDescription(),
+                place.getImageUrl(),
+                place.getId(),
+                viewCount,
+                place.getCreatedAt(),
+                place.getOpenHour(),
+                place.getBreakTime(),
+                place.getClosedDay(),
+                place.getAddress(),
+                place.getLat(),
+                place.getLng(),
+                associatedCastNames,
+                associatedContentNames
+        );
+    }
+}

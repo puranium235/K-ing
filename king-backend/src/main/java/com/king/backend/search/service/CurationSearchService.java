@@ -8,6 +8,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.dto.request.CurationListSearchRequestDto;
 import com.king.backend.search.dto.response.CurationListSearchResponseDto;
 import com.king.backend.search.entity.CurationDocument;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 public class CurationSearchService {
 
     private final CursorUtil cursorUtil;
-    private static final String INDEX_NAME = "curation-index";
+    private static final String INDEX_NAME = ElasticsearchConstants.CURATION_INDEX;
     private final ElasticsearchClient elasticsearchClient;
 
     /**
