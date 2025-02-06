@@ -13,7 +13,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     command: --skip-character-set-client-handshake
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../initdb:/docker-entrypoint-initdb.d
       - mysql-data:/var/lib/mysql
     ports:
       - "3305:3306"

@@ -1,14 +1,21 @@
 package com.king.backend.connection;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.king.backend.global.errorcode.RedisErrorCode;
+import com.king.backend.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class RedisUtil {
     private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
     public void setValue(String key, String data) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
@@ -25,5 +32,29 @@ public class RedisUtil {
      */
     public void incrementValue(String key) {
         redisTemplate.opsForValue().increment(key, 1);
+    }
+
+    public <T> void setJsonValue(String key, T data) {
+        try {
+            String jsonData = objectMapper.writeValueAsString(data);
+            ValueOperations<String, Object> values = redisTemplate.opsForValue();
+            values.set(key, jsonData);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
+        }
+    }
+
+    public <T> T getJsonValue(String key, Class<T> clazz) {
+        String jsonData = getValue(key);
+        if (jsonData == null) return null;
+        try {
+            return objectMapper.readValue(jsonData, clazz);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(RedisErrorCode.REDIS_FETCH_FAILED);
+        }
+    }
+
+    public void deleteValue(String key) {
+        redisTemplate.delete(key);
     }
 }

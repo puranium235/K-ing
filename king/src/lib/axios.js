@@ -11,6 +11,7 @@ const client = axios.create({
     'Content-type': 'application/json',
   },
   withCredentials: true, // 쿠키를 포함하여 요청 (refreshToken 자동 전송)
+  // credentials: 'include',
 });
 
 // ✅ 요청 인터셉터: 모든 요청에 `accessToken` 자동 추가

@@ -83,11 +83,54 @@ export const tokenRefresh = async () => {
 
     // ❌ 토큰이 유효하지 않거나 만료되었을 경우 -> 로그인 페이지로 이동
     if (err.response?.status === 401) {
-      // alert('세션이 만료되었습니다. 다시 로그인해주세요.');
       localStorage.removeItem('accessToken'); // 기존 accessToken 삭제
       window.location.href = '/'; // 로그인 페이지로 리디렉트
     }
 
     return null;
+  }
+};
+
+// 로그아웃 API 요청
+export const logout = async () => {
+  try {
+    const res = await client.post('/user/logout', {});
+    console.log('✅ 로그아웃 성공:', res.status);
+    return true;
+  } catch (err) {
+    console.error('❌ 로그아웃 실패:', err.response ? err.response.status : err);
+  }
+  return false;
+};
+
+// 회원 탈퇴 API 요청
+export const deleteAccount = async () => {
+  try {
+    const res = await client.delete('/user', {});
+
+    localStorage.removeItem('accessToken');
+
+    return {
+      success: true,
+      message: '계정이 삭제되었습니다.',
+    };
+  } catch (err) {
+    console.error('❌ 계정 삭제 실패:', err.response ? err.response.data : err);
+
+    if (err.response) {
+      const { status } = err.response;
+      if (status === 401) {
+        return { success: false, message: '권한이 없습니다. 다시 로그인해주세요.' };
+      } else if (status === 403) {
+        return { success: false, message: '계정 삭제 권한이 없습니다.' };
+      } else if (status === 404) {
+        return {
+          success: false,
+          message: '회원탈퇴하려는 사용자를 찾을 수 없습니다.',
+        };
+      }
+
+      return { success: false, message: '계정 삭제에 실패했습니다. 다시 시도해주세요.' };
+    }
   }
 };
