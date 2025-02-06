@@ -152,6 +152,10 @@ const GridContainer = styled.div`
 
   width: 100%;
   overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Card = styled.div`

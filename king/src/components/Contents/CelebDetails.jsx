@@ -277,8 +277,12 @@ const Work = styled.div`
   cursor: pointer;
 
   img {
-    width: 100%;
-    flex: 8;
+    img {
+      width: 100%;
+      height: 100%;
+      /* min-height: 10rem; */
+      object-fit: cover;
+    }
 
     object-fit: contain;
   }
