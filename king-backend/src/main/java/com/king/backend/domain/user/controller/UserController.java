@@ -1,5 +1,6 @@
 package com.king.backend.domain.user.controller;
 
+import com.king.backend.domain.user.dto.request.PatchUserRequestDTO;
 import com.king.backend.domain.user.dto.request.SignUpRequestDTO;
 import com.king.backend.domain.user.dto.response.NicknameResponseDTO;
 import com.king.backend.domain.user.dto.response.UserProfileResponseDTO;
@@ -17,13 +18,11 @@ import com.king.backend.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -44,8 +43,8 @@ public class UserController {
     @Value("${spring.jwt.refreshtoken-expires-in}")
     private Long REFRESHTOKEN_EXPIRES_IN;
 
-    @PostMapping("/token-refresh")
     @Operation(summary = "refreshToken(cookie)로 accessToken 재발급")
+    @PostMapping("/token-refresh")
     public ResponseEntity<ApiResponse<Void>> tokenRefresh(@CookieValue(value = "refreshToken", required = false) String oldRefreshToken) {
         if (oldRefreshToken == null) {
             throw new CustomException(UserErrorCode.INVALID_TOKEN);
@@ -89,8 +88,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(ApiResponse.success(null));
     }
 
-    @PostMapping("/signup")
     @Operation(summary = "닉네임 등록 및 가입")
+    @PostMapping("/signup")
     public ResponseEntity<ApiResponse<SignUpResponseDTO>> signup(@RequestBody SignUpRequestDTO signUpRequestDTO) {
         String nickname = signUpRequestDTO.getNickname();
         if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
@@ -147,8 +146,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).headers(headers).body(ApiResponse.success(responseDTO));
     }
 
-    @GetMapping("/nickname")
     @Operation(summary = "닉네임 중복 조회")
+    @GetMapping("/nickname")
     public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname", required = false) String nickname) {
         if (nickname == null || nickname.trim().length() == 0 || nickname.length() > 50) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
@@ -165,16 +164,24 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
-    @GetMapping("/{userId}")
     @Operation(summary = "유저 정보 조회")
+    @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserProfileResponseDTO>> getUserProfile(@PathVariable(value = "userId") String userId) {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(userService.getUserById(userId)));
     }
 
-
-    @DeleteMapping
     @Operation(summary = "현재 로그인된 유저 탈퇴")
+    @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deleteUser() {
         return userService.deleteUser();
+    }
+
+    @Operation(summary = "유저 정보 수정")
+    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<UserProfileResponseDTO>> patchUser(
+            @RequestPart(value = "user") PatchUserRequestDTO patchUserRequestDTO,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+
+        return userService.patchUser(patchUserRequestDTO, imageFile);
     }
 }
