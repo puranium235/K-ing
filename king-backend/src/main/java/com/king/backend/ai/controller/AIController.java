@@ -8,8 +8,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
@@ -68,4 +73,56 @@ public class AIController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+
+    // 🔹 논리적 챗봇 (Chat T) - 스트리밍 방식
+    @PostMapping(value = "/streamT", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<Flux<String>> streamChatT(
+            @RequestBody Map<String, String> requestBody,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        log.info("🔍 Authorization Header: {}", authHeader);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("🚨 401 Unauthorized - Missing or Invalid Token");
+            return ResponseEntity.status(401).body(Flux.just("Unauthorized: Missing token"));
+        }
+
+        try {
+            String userMessage = requestBody.get("userMessage");
+            log.info("📩 User Message Received: {}", userMessage);
+
+            // 🔹 OpenAI 스트리밍 응답을 Flux<String>으로 반환
+            Flux<String> responseStream = chatService.streamChatT(userMessage);
+
+            return ResponseEntity.ok().body(Flux.concat(
+                    Flux.just("[START]"), // ✅ 시작 신호
+                    responseStream, // ✅ 스트리밍 데이터
+                    Flux.just("[END]")  // ✅ 종료 신호 (프론트에서 종료 확인 가능)
+            ));
+        } catch (Exception e) {
+            log.error("❌ Error in /streamT endpoint: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Flux.just("{\"error\": \"" + e.getMessage() + "\"}"));
+        }
+    }
+
+
+
+    // 🔹 감성적 챗봇 (Chat F) - 스트리밍 방식
+    @PostMapping(value = "/streamF", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<Flux<ServerSentEvent<String>>> streamF(
+            @RequestBody Map<String, String> requestBody) {
+        try {
+            String userMessage = requestBody.get("userMessage");
+
+            // 🔹 `Flux<String>`을 `ServerSentEvent<String>`으로 변환하여 JSON 직렬화 문제 해결
+            Flux<ServerSentEvent<String>> eventStream = chatService.streamChatF(userMessage)
+                    .map(data -> ServerSentEvent.builder(data).build());
+
+            return ResponseEntity.ok(eventStream);
+        } catch (Exception e) {
+            log.error("Error occurred in /streamF endpoint: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Flux.just(ServerSentEvent.builder("Error: " + e.getMessage()).build()));
+        }
+    }
+
 }

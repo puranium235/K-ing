@@ -5,7 +5,13 @@ import ChatBotIcon from '../../assets/icons/chat-ai.png';
 import SendIcon from '../../assets/icons/chat-send.png';
 import KingIcon from '../../assets/icons/king_character.png';
 import RefreshIcon from '../../assets/icons/refresh.png';
-import { deleteChatHistory, getChatHistory, getResponse, saveChatHistory } from '../../lib/chatbot';
+import {
+  deleteChatHistory,
+  fetchStreamResponse,
+  getChatHistory,
+  getResponse,
+  saveChatHistory,
+} from '../../lib/chatbot';
 import { splitIntoSentences } from '../../util/chatbot';
 import BackButton from '../common/BackButton';
 import TypingIndicator from './TypingIndicator';
@@ -90,23 +96,20 @@ const AIChatView = () => {
 
     let aiMessage;
     if (option === chatT) {
-      setCurrentApi(`/chatbot/chatT`);
-      aiMessage = {
-        text: `안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.`,
-        sender: 'assistant',
-        type: 'message',
-      };
+      //setCurrentApi(`/chatbot/chatT`);
+      setCurrentApi(`/chatbot/streamT`);
+      aiMessage = `안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.`;
     } else if (option === chatF) {
       setCurrentApi(`/chatbot/chatF`);
-      aiMessage = {
-        text: `안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다. 💫🎭`,
-        sender: 'assistant',
-        type: 'message',
-      };
+      aiMessage = `안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다. 💫🎭`;
     }
-    setMessages((prev) => [...prev, aiMessage]);
-    await saveChatHistory('assistant', aiMessage.text, 'message');
     setIsBotSelected(true);
+    const splitMessages = splitIntoSentences(aiMessage, 'assistant');
+    for (const msg of splitMessages) {
+      setMessages((prev) => [...prev, msg]);
+      await new Promise((resolve) => setTimeout(resolve, 500)); // 메시지 간 0.5초 간격
+    }
+    await saveChatHistory('assistant', aiMessage, 'message');
   };
 
   const sendMessage = async () => {
@@ -118,18 +121,34 @@ const AIChatView = () => {
     setNewMessage('');
     setIsTyping(true);
 
+    const assistantMessage = { text: '', sender: 'assistant', type: 'message' };
+    setMessages((prev) => [...prev, assistantMessage]);
+
     try {
-      const responseMessage = await getResponse(currentApi, userMessage.text);
+      /*const responseMessage = await getResponse(currentApi, userMessage.text);
       const assistantMessages = splitIntoSentences(responseMessage, 'assistant');
 
       for (const msg of assistantMessages) {
         setMessages((prev) => [...prev, msg]);
         await new Promise((resolve) => setTimeout(resolve, 500)); // 메시지 간 0.5초 간격
-      }
+      }*/
+
+      const fullResponse = await fetchStreamResponse(
+        currentApi,
+        userMessage.text,
+        (updatedText) => {
+          setMessages((prev) => {
+            const lastIndex = prev.length - 1;
+            const newMessages = [...prev];
+            newMessages[lastIndex] = { ...newMessages[lastIndex], text: updatedText };
+            return newMessages;
+          });
+        },
+      );
     } catch (error) {
       setMessages((prev) => [
         ...prev,
-        { text: responseMessage, sender: 'assistant', type: 'message' },
+        { text: 'AI 응답을 불러오지 못했습니다.', sender: 'assistant', type: 'message' },
       ]);
       console.error('Error fetching AI response:', error);
     } finally {
@@ -196,10 +215,11 @@ const AIChatView = () => {
       <InputContainer>
         <Input
           type="text"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
+          inputMode="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && isBotSelected && sendMessage()}

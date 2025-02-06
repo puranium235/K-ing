@@ -6,7 +6,6 @@ import UpIcon from '../../assets/icons/up.png';
 import { searchMapView } from '../../lib/map';
 import { FilterOption, SearchQueryState, SearchRegionState } from '../../recoil/atom';
 import CloseButton from '../common/CloseButton';
-import Nav from '../common/Nav';
 import Loading from '../Loading/Loading';
 import FilterButtons from './FilterButtons';
 import GoogleMapView from './GoogleMapView';
@@ -100,7 +99,6 @@ const MapSearchPlaces = () => {
       </ContentSection>
 
       <CloseButton />
-      <Nav />
     </Container>
   );
 };
@@ -155,7 +153,7 @@ const ContentSection = styled.div`
   transition: bottom 0.3s ease;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
-  z-index: 1001;
+  z-index: 501;
 `;
 
 const ListContainer = styled.div`
@@ -179,7 +177,7 @@ const NoResultsContainer = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  height: 10rem;
+  height: 20rem;
 `;
 
 const NoResultsText = styled.p`
