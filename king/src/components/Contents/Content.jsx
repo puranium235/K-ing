@@ -1,66 +1,65 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
-import { getSearchResult } from '../../lib/search';
-import { ContentType } from '../../recoil/atom';
+import useGetSearchResult from '../../hooks/search/useGetSearchResult';
+import { ContentType, SearchQueryState } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
+import Loading from '../Loading/Loading';
 
 const Content = () => {
   const { contentType } = useParams();
-  // const [contentType, setContentType] = useRecoilState(ContentType);
-  const setContentType = useSetRecoilState(ContentType);
-  const [query, setQuery] = useState('');
+  const [contentTypeState, setContentTypeState] = useRecoilState(ContentType);
+  const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [favorites, setFavorites] = useState({});
-  const [results, setResults] = useState();
-  const [contentList, setContentList] = useState([]);
-
   const navigate = useNavigate();
 
-  const getResults = async (query) => {
-    const res = await getSearchResult({
-      query: query ? query : '',
-      category: contentType.toUpperCase(),
-    });
-    setResults(res.results);
-  };
+  //마지막 요소 감지
+  const lastElementRef = useRef(null);
+
+  const { searchResultList, getNextData, isLoading, isError } = useGetSearchResult(
+    searchQuery,
+    contentType.toUpperCase(),
+  );
 
   useEffect(() => {
-    getResults();
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [contentType]);
 
   useEffect(() => {
-    if (results) {
-      setContentList(results.filter((item) => item.category === contentType.toUpperCase()));
-    }
-  }, [results]);
+    if (isLoading || !lastElementRef.current) return;
 
-  if (!results) {
-    return null;
-  }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+          getNextData();
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    if (lastElementRef.current) {
+      observer.observe(lastElementRef.current);
+    }
+
+    return () => {
+      if (lastElementRef.current) {
+        observer.unobserve(lastElementRef.current);
+      }
+    };
+  }, [isLoading, getNextData]);
 
   const handleSearch = (searchQuery) => {
-    setQuery(searchQuery);
-    getResults(searchQuery ? searchQuery : '');
+    setSearchQuery(searchQuery);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const toggleFavorite = (event, id) => {
-    event.stopPropagation();
-    setFavorites((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
-
-  const handleDramaClick = (id) => {
-    setContentType(contentType);
-
+  const handleItemClick = (id) => {
     if (contentType === 'cast') {
       navigate(`/content/cast/${id}`);
     } else {
@@ -68,30 +67,33 @@ const Content = () => {
     }
   };
 
-  const handleGoBack = () => {
-    navigate(`/home`);
-  };
+  if (isLoading && searchResultList.length === 0) return <Loading />;
+  if (isError) return <div>Error loading data.</div>;
 
   return (
     <>
       <StHomeWrapper>
-        <IconText>
-          <BackButton onBack={handleGoBack} />
-          <p> {getContentTypeKor(contentType)}</p>
-        </IconText>
-        <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
+        <FixedContainer>
+          <IconText>
+            <BackButton onBack={() => navigate(`/home`)} />
+            <p>{getContentTypeKor(contentType)}</p>
+          </IconText>
+          <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
+        </FixedContainer>
+
+        <Spacer />
+
         <GridContainer>
-          {contentList.map((content, index) => (
-            <Card key={index} onClick={() => handleDramaClick(content.id)}>
+          {searchResultList.map((content, index) => (
+            <Card
+              key={index}
+              ref={index === searchResultList.length - 1 ? lastElementRef : null}
+              onClick={() => handleItemClick(content.id)}
+            >
               <CardImageContainer>
-                <CardImage
-                  src={content.imageUrl}
-                  alt={content.name}
-                  $defaultImage={content.imageUrl.includes('default.jpg')}
-                />
+                <CardImage src={content.imageUrl || '/default-image.jpg'} alt={content.name} />
               </CardImageContainer>
               <CardTitle>{content.name}</CardTitle>
-
               {favorites[content.id] ? (
                 <IcStar id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
               ) : (
@@ -100,8 +102,9 @@ const Content = () => {
             </Card>
           ))}
         </GridContainer>
-        <Nav />
       </StHomeWrapper>
+
+      <Nav />
     </>
   );
 };
@@ -115,7 +118,7 @@ const StHomeWrapper = styled.div`
   align-items: start;
   text-align: center;
 
-  padding: 2rem;
+  padding: 0 2rem;
   margin-bottom: 7rem;
 `;
 
@@ -134,13 +137,28 @@ const IconText = styled.div`
   }
 `;
 
+const FixedContainer = styled.div`
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  width: 35rem;
+  background-color: ${({ theme }) => theme.colors.White};
+  padding-top: 2rem;
+`;
+
+const Spacer = styled.div`
+  height: 11rem;
+`;
+
 const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  padding: 10px;
-`;
+  padding: 1rem 0;
 
+  width: 100%;
+  overflow-y: scroll;
+`;
 const Card = styled.div`
   position: relative;
   cursor: pointer;
@@ -152,8 +170,7 @@ const Card = styled.div`
 
   gap: 0.5rem;
 
-  min-width: 10.5rem;
-  width: 10.5rem;
+  width: 100%;
   background-color: ${({ theme }) => theme.colors.White};
 
   #favor {
@@ -165,7 +182,6 @@ const Card = styled.div`
     height: 20px;
   }
 `;
-
 const CardImageContainer = styled.div`
   display: flex;
   justify-content: end;
@@ -174,7 +190,6 @@ const CardImageContainer = styled.div`
   flex: 8;
   overflow: hidden;
 `;
-
 const CardImage = styled.img`
   width: 100%;
   height: 100%;
@@ -182,7 +197,6 @@ const CardImage = styled.img`
 
   overflow: hidden;
 `;
-
 const CardTitle = styled.span`
   flex: 1.5;
   ${({ theme }) => theme.fonts.Body6};

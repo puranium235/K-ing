@@ -5,7 +5,7 @@ import { tokenRefresh } from './auth';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-export const client = axios.create({
+const client = axios.create({
   baseURL,
   headers: {
     'Content-type': 'application/json',
@@ -116,3 +116,7 @@ client.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+const mainGetFetcher = (url) => client.get(url).then((res) => res.data);
+
+export { client, mainGetFetcher };
