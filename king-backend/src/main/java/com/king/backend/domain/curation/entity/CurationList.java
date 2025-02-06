@@ -13,6 +13,7 @@ import java.time.OffsetDateTime;
 @Table(name = "curation_list")
 @Getter
 @Setter
+@EntityListeners(CurationListListener.class)
 public class CurationList {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

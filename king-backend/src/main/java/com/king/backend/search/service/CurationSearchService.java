@@ -47,6 +47,8 @@ public class CurationSearchService {
                 boolQueryBuilder.must(m -> m.matchAll(ma -> ma));
             }
 
+            boolQueryBuilder.filter(f -> f.term(t -> t.field("isPublic").value(true)));
+
             // 최신순 정렬: createdAt 내림차순 → id 오름차순 (커서 생성용)
             List<SortOptions> sortOptions = new ArrayList<>();
             sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("createdAt").order(SortOrder.Desc))));

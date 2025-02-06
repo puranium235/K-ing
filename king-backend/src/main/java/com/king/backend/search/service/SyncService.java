@@ -198,7 +198,8 @@ public class SyncService implements CommandLineRunner {
                             writerNickname,                  // 작성자 닉네임
                             curation.getImageUrl(),          // 이미지 URL
                             curation.getId(),                // originalId
-                            curation.getCreatedAt()          // 생성일시
+                            curation.getCreatedAt(),         // 생성일시
+                            curation.isPublic()
                     );
                 })
                 .collect(Collectors.toList());
@@ -218,7 +219,8 @@ public class SyncService implements CommandLineRunner {
                 "@"+curationList.getWriter().getNickname(),
                 curationList.getImageUrl(),
                 curationList.getId(),
-                curationList.getCreatedAt()
+                curationList.getCreatedAt(),
+                curationList.isPublic()
         );
         elasticsearchCurationListRepository.save(doc);
         log.info("CurationList 인덱싱 완료: {}", doc.getId());
