@@ -2,6 +2,8 @@ package com.king.backend.connection;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.king.backend.global.errorcode.RedisErrorCode;
+import com.king.backend.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -38,19 +40,17 @@ public class RedisUtil {
             ValueOperations<String, Object> values = redisTemplate.opsForValue();
             values.set(key, jsonData);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Redis 저장 중 오류 발생", e); // 커스텀
+            throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
         }
     }
 
     public <T> T getJsonValue(String key, Class<T> clazz) {
         String jsonData = getValue(key);
-        log.info("getJsonValue 실행 시 jsonData값 : {}", jsonData);
         if (jsonData == null) return null;
         try {
-            log.info("objectMapper.readValue : {}", objectMapper.readValue(jsonData, clazz));
             return objectMapper.readValue(jsonData, clazz);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Redis 조회 중 오류 발생", e); // 커스텀
+            throw new CustomException(RedisErrorCode.REDIS_FETCH_FAILED);
         }
     }
 

@@ -24,14 +24,11 @@ public class PostDraftService {
             String imageUrl = s3Service.uploadFile(null, imageFile);
             reqDto.setImageUrl(imageUrl);
         }
-        log.info("saveDraft reqDto : {}", reqDto);
         redisUtil.setJsonValue(getDraftKey(), reqDto);
         String storedData = redisUtil.getValue(getDraftKey());
-        log.info("Redis에 저장된 데이터 reqDto :{}", storedData);
     }
 
     public PostDraftResponseDto getDraft() {
-        log.info("getDraft로 가져온 값 : {}", redisUtil.getJsonValue(getDraftKey(), PostDraftResponseDto.class));
         PostDraftRequestDto draft = redisUtil.getJsonValue(getDraftKey(), PostDraftRequestDto.class);
         if (draft == null) {
             return null;
