@@ -2,10 +2,8 @@ package com.king.backend.domain.post.entity;
 
 import com.king.backend.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
 
@@ -15,11 +13,13 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 @ToString
 @Table(name="`like`")
+@Builder
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @CreationTimestamp
     private OffsetDateTime createdAt;
 
     @ManyToOne
