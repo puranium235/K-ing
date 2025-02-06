@@ -196,6 +196,10 @@ const AIChatView = () => {
       <InputContainer>
         <Input
           type="text"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && isBotSelected && sendMessage()}
