@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class UserProfileResponseDTO {
-    private Long id;
+    private Long userId;
     private String email;
     private String nickname;
     private String imageUrl;
