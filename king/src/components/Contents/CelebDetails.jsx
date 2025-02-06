@@ -14,7 +14,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getCelebDetails } from '../../lib/content';
-import { ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import Loading from '../Loading/Loading';
 
@@ -27,13 +27,7 @@ const CelebDetails = () => {
   const setSearchQuery = useSetRecoilState(SearchQueryState);
   const setRelatedType = useSetRecoilState(SearchRelatedType);
   const contentType = useRecoilValue(ContentType);
-
-  const handleClickPlaceInfo = () => {
-    setSearchQuery(celebInfo.name);
-    setRelatedType('cast');
-
-    navigate(`/search/keyword`);
-  };
+  const setContentId = useSetRecoilState(ContentId);
 
   const getDetails = async () => {
     const res = await getCelebDetails(celebId);
@@ -51,6 +45,14 @@ const CelebDetails = () => {
 
   const handleGoBack = () => {
     navigate(`/content/${contentType}`);
+  };
+
+  const handleClickPlaceInfo = () => {
+    setSearchQuery(celebInfo.name);
+    setRelatedType('cast');
+    setContentId(celebId);
+
+    navigate(`/search/keyword`);
   };
 
   useEffect(() => {
