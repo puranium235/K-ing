@@ -16,12 +16,14 @@ import {
 } from '../../assets/icons';
 import useModal from '../../hooks/common/useModal';
 import { getUserIdFromToken } from '../../util/getUserIdFromToken';
-import UploadModal from './UploadModal';
+import UploadModal from '../Upload/Modal/UploadModal';
+import DraftModal from './DraftModal';
 
 const Nav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const upload = useModal();
+  const create = useModal();
 
   const [selectedButton, setSelectedButton] = useState(location.pathname);
 
@@ -85,8 +87,12 @@ const Nav = () => {
           <p>MyPage</p>
         </button>
       </StNavWrapper>
+
       <StUploadModalWrapper $showing={upload.isShowing} onClick={upload.toggle}>
         <UploadModal isShowing={upload.isShowing} />
+      </StUploadModalWrapper>
+      <StUploadModalWrapper $showing={create.isShowing}>
+        <DraftModal isShowing={create.isShowing} handleCancel={create.toggle} />
       </StUploadModalWrapper>
     </>
   );
