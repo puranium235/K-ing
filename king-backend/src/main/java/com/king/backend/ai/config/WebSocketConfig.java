@@ -27,8 +27,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(chatWebSocketHandler, "/ws/chatbot")
-                .setAllowedOrigins(CLIENT_URL)  // 🔥 CORS 허용
+        registry.addHandler(chatWebSocketHandler, "/ws/chatT", "/ws/chatF")
+                .setAllowedOrigins(CLIENT_URL)
                 .addInterceptors(webSocketSecurityInterceptor);
 
         log.info("✅ WebSocket 핸들러 등록 완료");

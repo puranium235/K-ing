@@ -19,6 +19,7 @@ const AIChatView = () => {
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
+  const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
   const chatT = '데이터 기반 장소 검색 T봇';
   const chatF = '맞춤 큐레이션 추천 F봇';
 
@@ -47,14 +48,12 @@ const AIChatView = () => {
   useEffect(() => {
     if (!isBotSelected) return;
 
-    const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
     const token = localStorage.getItem('accessToken');
-
     if (!token) {
       console.error('❌ WebSocket 연결 실패: 토큰 없음');
       return;
     }
-    socketRef.current = new WebSocket(`${WS_BASE_URL}/ws/chatbot?token=${token}`);
+    socketRef.current = new WebSocket(`${currentApi}?token=${token}`);
 
     socketRef.current.onopen = () => {
       console.log('✅ WebSocket 연결됨');
@@ -117,7 +116,9 @@ const AIChatView = () => {
         });
 
         if (detectedBotType) {
-          setCurrentApi(detectedBotType === chatT ? '/chatbot/chatT' : '/chatbot/chatF');
+          setCurrentApi(
+            detectedBotType === chatT ? `${WS_BASE_URL}/ws/chatT` : `${WS_BASE_URL}/ws/chatF`,
+          );
           setIsBotSelected(true);
         }
 
@@ -143,10 +144,10 @@ const AIChatView = () => {
 
     let aiMessage;
     if (option === chatT) {
-      setCurrentApi(`/chatbot/streamT`);
+      setCurrentApi(`${WS_BASE_URL}/ws/chatT`);
       aiMessage = `안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.`;
     } else if (option === chatF) {
-      setCurrentApi(`/chatbot/chatF`);
+      setCurrentApi(`${WS_BASE_URL}/ws/chatF`);
       aiMessage = `안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다. 💫🎭`;
     }
     setIsBotSelected(true);

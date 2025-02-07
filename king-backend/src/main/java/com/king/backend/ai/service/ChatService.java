@@ -6,6 +6,7 @@ import com.king.backend.ai.util.ChatPromptGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
@@ -55,6 +56,13 @@ public class ChatService {
         // 🔹 사용자 메시지 저장
         chatHistoryService.saveChatHistory(Long.valueOf(userId), "user", userMessage, "message");
         dialogueHistory.add(Map.of("role", "user", "content", userMessage));
+
+        // 대화 요약 및 ES 검색을 위한 키워드 추출 (JSON) {summary: "", keyword: ""}
+
+        // keyword로 service 계층의 ES 호출: 장소 리스트를 가공
+
+        // Map에 summary와 data로 전처리
+        //List<Map<String, String>> retrievalData;
 
         // 🔹 OpenAI 프롬프트 생성
         String prompt = promptGenerator.apply(dialogueHistory);
@@ -115,6 +123,16 @@ public class ChatService {
                 .filter(chat -> "message".equals(chat.getType()))
                 .map(chat -> Map.of("role", chat.getRole(), "content", chat.getContent()))
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, Object> summary(List<Map<String, String>> dialogueHistory, Function<List<Map<String, String>>, String> promptGenerator) {
+        String prompt = promptGenerator.apply(dialogueHistory);
+        ChatResponse chatResponse = chatModel.call(new Prompt(new UserMessage(prompt),
+                OpenAiChatOptions.builder().model("gpt-4o-mini").temperature(0.7).build()));
+
+        String gptResponse = chatResponse.getResults().get(0).getOutput().getText();
+
+        return Map.of("message", gptResponse);
     }
 
     /*REST API chat
