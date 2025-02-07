@@ -1,13 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+
+import { ContentType } from '../../recoil/atom';
 
 const SearchItem = ({ item }) => {
   const { id, category, name, imageUrl } = item;
+  const setContentType = useSetRecoilState(ContentType);
 
   const navigate = useNavigate();
 
   const handleClick = () => {
+    setContentType('search');
+
     if (category === 'PLACE') {
       navigate(`/place/${id}`);
     } else if (category === 'CAST') {

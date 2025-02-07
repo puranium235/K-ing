@@ -48,7 +48,11 @@ const ContentDetails = () => {
   };
 
   const handleGoBack = () => {
-    navigate(`/content/${contentType}`);
+    if (contentType === 'search') {
+      navigate(`/search/result`);
+    } else {
+      navigate(`/content/${contentType}`);
+    }
   };
 
   const handleClickPlaceInfo = () => {
@@ -298,7 +302,7 @@ const ActionButton = styled.button`
   align-items: center;
 
   margin: auto;
-  margin-bottom: 10rem;
+  margin-bottom: 2rem;
 
   border-radius: 20px;
   padding: 0.8rem 2rem;
