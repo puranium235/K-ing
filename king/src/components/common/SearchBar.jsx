@@ -21,7 +21,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur }) => {
     debounce(async (searchText) => {
       const res = await getAutoKeyword(searchText, type);
       setAutoCompleteOptions(res.results);
-      console.log(res.results);
+      // console.log(res.results);
     }, 300),
     [type],
   );

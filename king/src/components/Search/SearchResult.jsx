@@ -52,7 +52,6 @@ const SearchResult = () => {
   }, [getNextData]);
 
   useEffect(() => {
-    console.log(searchResultList);
     if (searchResultList) {
       setContentList(
         searchResultList.filter((item) => ['DRAMA', 'MOVIE', 'SHOW'].includes(item.category)),
