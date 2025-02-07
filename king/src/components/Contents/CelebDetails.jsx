@@ -57,6 +57,8 @@ const CelebDetails = () => {
   const handleGoBack = () => {
     if (contentType === 'search') {
       navigate(`/search/result`);
+    } else if (contentType === 'autocom') {
+      navigate(`/home`);
     } else {
       navigate(`/content/${contentType}`);
     }

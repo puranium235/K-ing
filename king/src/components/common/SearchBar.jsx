@@ -1,16 +1,19 @@
 import { debounce } from 'lodash';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcSearch } from '../../assets/icons';
 import { getAutoKeyword } from '../../lib/search';
+import { ContentType } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 
 const SearchBar = ({ type, query, onSearch, onFocus, onBlur }) => {
   const [keyword, setKeyword] = useState(query);
   const [category, setCategory] = useState('');
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
+  const setContentType = useSetRecoilState(ContentType);
 
   const navigate = useNavigate();
 
@@ -32,6 +35,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur }) => {
 
   const handleOptionClick = (option) => {
     const type = option.category.toLowerCase();
+    setContentType('autocom');
 
     if (category === 'CAST') {
       navigate(`/content/cast/${option.originalId}`);
