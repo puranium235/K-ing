@@ -60,7 +60,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/user/token-refresh").permitAll()
-                        .requestMatchers("/user/signup", "/user/nickname").hasRole("PENDING")
+                        .requestMatchers("/user/signup").hasRole("PENDING")
+                        .requestMatchers("/user/nickname").hasAnyRole("PENDING", "REGISTERED")
                         .anyRequest().hasRole("REGISTERED"))
 
                 .exceptionHandling((exception) -> exception

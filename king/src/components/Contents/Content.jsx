@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
-import { ContentType, SearchQueryState } from '../../recoil/atom';
+import { ScrollPosition, SearchQueryState } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
@@ -14,13 +15,17 @@ import Loading from '../Loading/Loading';
 
 const Content = () => {
   const { contentType } = useParams();
-  const [contentTypeState, setContentTypeState] = useRecoilState(ContentType);
+
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [scrollPosition, setScrollPosition] = useRecoilState(ScrollPosition);
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [favorites, setFavorites] = useState({});
+
   const navigate = useNavigate();
 
   //마지막 요소 감지
   const lastElementRef = useRef(null);
+  const containerRef = useRef(null);
 
   const { searchResultList, getNextData, isLoading, isError } = useGetSearchResult(
     searchQuery,
@@ -28,8 +33,38 @@ const Content = () => {
   );
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [contentType]);
+    setInitialLoading(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && initialLoading) {
+      const container = containerRef.current;
+      if (container && scrollPosition) {
+        container.scrollTop = scrollPosition;
+        setInitialLoading(false);
+      }
+    }
+  }, [isLoading]);
+
+  useEffect(() => {
+    // 스크롤 위치를 상태로 저장
+    const handleScroll = () => {
+      if (containerRef.current) {
+        setScrollPosition(containerRef.current.scrollTop);
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (isLoading || !lastElementRef.current) return;
@@ -60,6 +95,11 @@ const Content = () => {
   };
 
   const handleItemClick = (id) => {
+    if (containerRef.current) {
+      // sessionStorage.setItem('scrollPosition', containerRef.current.scrollTop);
+      setScrollPosition(containerRef.current.scrollTop);
+    }
+
     if (contentType === 'cast') {
       navigate(`/content/cast/${id}`);
     } else {
@@ -81,7 +121,7 @@ const Content = () => {
           <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
         </FixedContainer>
 
-        <GridContainer>
+        <GridContainer ref={containerRef}>
           {searchResultList.map((content, index) => (
             <Card
               key={index}
@@ -148,10 +188,16 @@ const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  padding: 1rem 0;
+  padding: 1rem 0.1rem;
+  box-sizing: border-box;
 
   width: 100%;
+  height: 60rem;
   overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Card = styled.div`
