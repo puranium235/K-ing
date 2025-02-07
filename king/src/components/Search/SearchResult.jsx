@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
@@ -23,6 +24,8 @@ const SearchResult = () => {
   const [contentList, setContentList] = useState([]);
   const [celebList, setCelebList] = useState([]);
   const [placeList, setPlaceList] = useState([]);
+
+  const navigate = useNavigate();
 
   const handleSearch = (query, category) => {
     setSearchQuery(query);
@@ -49,7 +52,6 @@ const SearchResult = () => {
   }, [getNextData]);
 
   useEffect(() => {
-    console.log(searchResultList);
     if (searchResultList) {
       setContentList(
         searchResultList.filter((item) => ['DRAMA', 'MOVIE', 'SHOW'].includes(item.category)),

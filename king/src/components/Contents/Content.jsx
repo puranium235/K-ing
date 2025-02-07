@@ -192,7 +192,6 @@ const GridContainer = styled.div`
   box-sizing: border-box;
 
   width: 100%;
-  height: 60rem;
   overflow-y: scroll;
 
   &::-webkit-scrollbar {
@@ -212,6 +211,7 @@ const Card = styled.div`
   gap: 0.5rem;
 
   width: 100%;
+  height: 15rem;
   background-color: ${({ theme }) => theme.colors.White};
 
   #favor {

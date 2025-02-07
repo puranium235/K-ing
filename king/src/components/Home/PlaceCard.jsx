@@ -61,9 +61,11 @@ const CardTitle = styled.h3`
   margin: 0;
   max-width: 100%;
   text-align: left;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
   ${({ theme }) => theme.fonts.Title7};
 `;
 
