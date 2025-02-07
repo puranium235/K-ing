@@ -8,7 +8,7 @@ const FeedDetails = () => {
         <FixedContainer>
           <IconText>
             <BackButton onBack={handleGoBack} />
-            <p> {getContentTypeKor(contentType)}</p>
+            <p> Post</p>
           </IconText>
           <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
         </FixedContainer>
