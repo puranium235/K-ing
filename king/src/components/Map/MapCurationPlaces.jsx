@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import DummyData from '../../assets/dummy/dummyMapPlace';
 import UpIcon from '../../assets/icons/up.png';
 import { getPlaceDetail } from '../../lib/place';
 import { CurationPlaceList } from '../../recoil/atom';
 import Bottom from '../common/Bottom';
-import CloseButton from '../common/CloseButton';
+import CloseButton from '../common/button/CloseButton';
 import Nav from '../common/Nav';
 import Loading from '../Loading/Loading';
 import ContentsInfo from '../PlaceDetail/ContentsInfo';

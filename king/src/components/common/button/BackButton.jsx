@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcBack } from '../../assets/icons';
+import { IcBack } from '../../../assets/icons';
 
 const BackButton = ({ onBack }) => {
   const navigate = useNavigate();

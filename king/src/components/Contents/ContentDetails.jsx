@@ -16,7 +16,7 @@ import { getContentDetails } from '../../lib/content';
 import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 import Loading from '../Loading/Loading';
 
 const ContentDetails = () => {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { IcComments, IcLikes } from '../../assets/icons';
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 import Comment from './Comment';
 
 const FeedDetails = () => {

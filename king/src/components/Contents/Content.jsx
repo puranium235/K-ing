@@ -8,7 +8,7 @@ import { IcStar, IcStarBlank } from '../../assets/icons';
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import { ScrollPosition, SearchQueryState } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import Loading from '../Loading/Loading';

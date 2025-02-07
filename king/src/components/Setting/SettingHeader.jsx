@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 
 const SettingHeader = ({ title }) => {
   return (

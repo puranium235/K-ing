@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { regionsDummyData } from '../../assets/dummy/dummyDataPlace';
 import { IcRefresh } from '../../assets/icons';
 import { FilterOption } from '../../recoil/atom';
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 
 function FilterScreen() {
   const CategoryCheckbox = ({ label, category, checked, onChange }) => {

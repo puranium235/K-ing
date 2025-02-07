@@ -7,7 +7,7 @@ import {
   FavoritePeopleDummyData,
   FavoriteWorksDummyData,
 } from '../../assets/dummy/dummyDataArchive';
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 import FavoriteItem from './FavoriteItem';
 
 const FavoritesDetail = () => {

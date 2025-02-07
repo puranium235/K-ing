@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { IcImageUpload, IcImageUploadTrue, IcToggleFalse, IcToggleTrue } from '../../assets/icons';
 import useToggle from '../../hooks/common/useToggle';
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 

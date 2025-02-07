@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import UpIcon from '../../assets/icons/up.png';
 import { searchMapView } from '../../lib/map';
 import { FilterOption, SearchQueryState, SearchRegionState } from '../../recoil/atom';
-import CloseButton from '../common/CloseButton';
+import CloseButton from '../common/button/CloseButton';
 import Nav from '../common/Nav';
 import Loading from '../Loading/Loading';
 import FilterButtons from './FilterButtons';
