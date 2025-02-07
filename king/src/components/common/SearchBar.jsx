@@ -9,7 +9,7 @@ import { getAutoKeyword } from '../../lib/search';
 import { ContentType } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 
-const SearchBar = ({ type, query, onSearch, onFocus, onBlur }) => {
+const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
   const [keyword, setKeyword] = useState(query);
   const [category, setCategory] = useState('');
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
@@ -36,6 +36,12 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur }) => {
   const handleOptionClick = (option) => {
     const type = option.category.toLowerCase();
     setContentType('autocom');
+
+    if (onSet) {
+      onSet(option);
+      setAutoCompleteOptions([]);
+      return;
+    }
 
     if (category === 'CAST') {
       navigate(`/content/cast/${option.originalId}`);

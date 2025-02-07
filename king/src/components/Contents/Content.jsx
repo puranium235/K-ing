@@ -32,6 +32,10 @@ const Content = () => {
     contentType.toUpperCase(),
   );
 
+  const toggleFavorite = () => {
+    setIsFavorited(!isFavorited);
+  };
+
   useEffect(() => {
     setInitialLoading(true);
   }, []);
@@ -118,7 +122,7 @@ const Content = () => {
             <BackButton onBack={() => navigate(`/home`)} />
             <p>{getContentTypeKor(contentType)}</p>
           </IconText>
-          <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
+          <SearchBar type={contentType.toUpperCase()} query={searchQuery} onSearch={handleSearch} />
         </FixedContainer>
 
         <GridContainer ref={containerRef}>
@@ -129,7 +133,7 @@ const Content = () => {
               onClick={() => handleItemClick(content.id)}
             >
               <CardImageContainer>
-                <CardImage src={content.imageUrl || '/default-image.jpg'} alt={content.name} />
+                <CardImage src={content.imageUrl} alt={content.name} />
               </CardImageContainer>
               <CardTitle>{content.name}</CardTitle>
               {favorites[content.id] ? (

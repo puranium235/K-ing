@@ -25,7 +25,6 @@ export const getSearchResult = async (searchOptions) => {
     );
 
     const { data } = await client.get('/search/search', { params });
-
     return data.data;
   } catch (err) {
     console.error(err);

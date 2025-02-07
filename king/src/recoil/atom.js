@@ -61,10 +61,16 @@ const CurationPlaceList = atom({
   default: [],
 });
 
+const DraftExist = atom({
+  key: 'draftExist',
+  default: false,
+});
+
 export {
   ContentId,
   ContentType,
   CurationPlaceList,
+  DraftExist,
   FilterOption,
   ScrollPosition,
   SearchCategoryState,
