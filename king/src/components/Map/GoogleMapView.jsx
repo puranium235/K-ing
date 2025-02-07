@@ -316,7 +316,7 @@ const HereButton = styled.button`
   justify-content: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  z-index: 1000;
+  z-index: 500;
 
   &:hover {
     background-color: #ccc;
@@ -345,7 +345,7 @@ const SearchButton = styled.button`
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  z-index: 1000;
+  z-index: 500;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
   &:hover {

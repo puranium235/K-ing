@@ -8,7 +8,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +24,12 @@ import java.util.Map;
 @RequestMapping("/chatbot")
 public class AIController {
     private final ChatService chatService;
+
+    @MessageMapping("/message")
+    @SendTo("/topic/messages")
+    public String sendMessage(String message) {
+        return "Server: " + message;
+    }
 
     @GetMapping("/")
     public ResponseEntity<List<ChatHistory>> getChatHistory() {
@@ -39,6 +48,7 @@ public class AIController {
         return ResponseEntity.ok("대화 기록이 저장되었습니다.");
     }
 
+    /*REST API chat
     @Operation(summary = "AI 챗봇과 T 대화", description = "사용자가 입력한 메시지를 기반으로 AI 챗봇이 논리적으로 응답을 생성합니다.")
     @PostMapping("/chatT")
     public ResponseEntity<Map<String, Object>> chatT(
@@ -68,4 +78,6 @@ public class AIController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+     */
+
 }
