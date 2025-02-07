@@ -3,6 +3,7 @@ package com.king.backend.domain.post.entity;
 import com.king.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
 
@@ -11,7 +12,6 @@ import java.time.OffsetDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +19,7 @@ public class Comment {
 
     private String content;
 
+    @CreationTimestamp
     private OffsetDateTime createdAt;
 
     @ManyToOne

@@ -14,6 +14,7 @@ import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.dto.request.AutocompleteRequestDto;
 import com.king.backend.search.dto.request.MapViewRequestDto;
 import com.king.backend.search.dto.request.SearchRequestDto;
@@ -26,12 +27,14 @@ import com.king.backend.search.repository.SearchRepository;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +46,12 @@ public class SearchService {
     private final ElasticsearchClient elasticsearchClient;
     private final CursorUtil cursorUtil;
     private final RankingService rankingService;
+
+    @Value("${spring.aws.s3-bucket}")
+    private String awsBucketName;
+
+    @Value("${spring.aws.region}")
+    private String awsRegion;
 
     /**
      * 자동완성 제안 가져오기
@@ -59,17 +68,19 @@ public class SearchService {
             String category = requestDto.getCategory();
 
             MatchPhrasePrefixQuery matchPhrasePrefixQuery = MatchPhrasePrefixQuery.of(builder -> builder
-                    .field("name")
+                    .field(ElasticsearchConstants.FIELD_NAME)
                     .query(query)
                     .maxExpansions(10)
+                    .boost(2.0F)
             );
 
             // 오타 보정을 위한 Fuzzy 쿼리 생성
             // fuzziness 옵션은 "AUTO"를 사용하면 입력 길이에 따라 적절한 편집 거리를 자동 적용합니다.
             Query fuzzyQuery = Query.of(q -> q.fuzzy(f -> f
-                    .field("name")
+                    .field(ElasticsearchConstants.FIELD_NAME)
                     .value(query)
                     .fuzziness("AUTO")
+                    .boost(0.5F)
             ));
 
             // BoolQuery 생성
@@ -78,17 +89,13 @@ public class SearchService {
 //                boolBuilder.must(Query.of(q -> q.matchPhrasePrefix(matchPhrasePrefixQuery)));
                 boolBuilder
                         .should(q -> q.matchPhrasePrefix(matchPhrasePrefixQuery))
-                        .should(q -> q.fuzzy(f -> f
-                                .field("name")
-                                .value(query)
-                                .fuzziness("AUTO")
-                        ))
+                        .should(fuzzyQuery)
                         .minimumShouldMatch("1");
 
                 // filter 쿼리 추가 (category가 비어있지 않은 경우)
                 if (category != null && !category.isEmpty()) {
                     boolBuilder.filter(Query.of(q -> q.term(TermQuery.of(term -> term
-                            .field("category")
+                            .field(ElasticsearchConstants.FIELD_CATEGORY)
                             .value(category)
                     ))));
                 }
@@ -97,15 +104,10 @@ public class SearchService {
 
             // SearchRequest 구성
             SearchRequest searchRequest = SearchRequest.of(request -> request
-                    .index("search-index") // Elasticsearch 인덱스 이름
+                    .index(ElasticsearchConstants.SEARCH_INDEX) // Elasticsearch 인덱스 이름
                     .query(boolQuery._toQuery()) // BoolQuery를 Query로 변환
                     .size(10) // 최대 검색 결과 수
                     .from(0)  // 검색 시작 위치
-                    .sort(List.of(
-                            new SortOptions.Builder()
-                                    .field(f -> f.field("name.keyword").order(SortOrder.Asc))
-                                    .build()
-                    )) // name 기준 오름차순 정렬 적용
                     .source(source -> source
                             .filter(f -> f.excludes("_class")))
             );
@@ -117,6 +119,7 @@ public class SearchService {
             List<AutocompleteResponseDto.AutocompleteResult> results = searchResponse.hits().hits().stream()
                     .map(Hit::source)
                     .map(doc -> new AutocompleteResponseDto.AutocompleteResult(
+                            doc.getOriginalId().toString(),
                             doc.getCategory(),
                             doc.getName(),
                             generateDetails(doc)
@@ -181,23 +184,24 @@ public class SearchService {
                 if ("place".equalsIgnoreCase(category)){
                     if ("place".equalsIgnoreCase(relatedType)) {
                         // 오직 장소만 결과로 검색: name 필드에 대해 match 쿼리 사용.
-                        boolQueryBuilder.must(q -> q.match(m -> m.field("name").query(query).fuzziness("AUTO")));
+                        boolQueryBuilder.must(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME).query(query).fuzziness("AUTO").boost(2.0f)));
                     }else if("cast".equalsIgnoreCase(relatedType)){
                         // 연예인 검색: associatedCastNames 필드에 대해 match 쿼리 사용
-                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedCastNames").query(query).fuzziness("AUTO")));
+                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedCastNames").query(query).fuzziness("AUTO").boost(2.0f)));
                     }else if("content".equalsIgnoreCase(relatedType)){
-                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedContentNames").query(query).fuzziness("AUTO")));
+                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedContentNames").query(query).fuzziness("AUTO").boost(2.0f)));
                     }else{
-                        boolQueryBuilder.should(q -> q.match(m -> m.field("name").query(query).fuzziness("AUTO")));
-                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedCastNames").query(query).fuzziness("AUTO")));
-                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedContentNames").query(query).fuzziness("AUTO")));
+                        boolQueryBuilder.should(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME).query(query).fuzziness("AUTO").boost(2.0f)));
+                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedCastNames").query(query).fuzziness("AUTO").boost(1.0f)));
+                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedContentNames").query(query).fuzziness("AUTO").boost(1.0f)));
                         boolQueryBuilder.minimumShouldMatch(String.valueOf(1L));
                     }
                 }else{
                     boolQueryBuilder.must(q -> q.match(m -> m
                             .query(query)
-                            .field("name")
+                            .field(ElasticsearchConstants.FIELD_NAME)
                             .fuzziness("AUTO")
+                            .boost(2.0f)
                     ));
                 }
             }else{
@@ -206,7 +210,7 @@ public class SearchService {
 
             // 카테고리 필터링
             if (category != null && !category.isEmpty()) {
-                boolQueryBuilder.filter(q -> q.term(t -> t.field("category").value(category)));
+                boolQueryBuilder.filter(q -> q.term(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY).value(category)));
             }
 
             // 장소 필터링
@@ -217,7 +221,7 @@ public class SearchService {
                             .map(String::toUpperCase)
                             .map(o -> FieldValue.of(fv -> fv.stringValue(o)))
                             .collect(Collectors.toList());
-                    boolQueryBuilder.filter(q -> q.terms(t -> t.field("type")
+                    boolQueryBuilder.filter(q -> q.terms(t -> t.field(ElasticsearchConstants.FIELD_TYPE)
                             .terms(termsBuilder -> termsBuilder.value(upperCasePlaceTypeList))));
                     //boolQueryBuilder.filter(q -> q.term(t -> t.field("type").value(placeType.toUpperCase())));
                 }
@@ -225,6 +229,29 @@ public class SearchService {
                     boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(region)));
                 }
             }
+
+
+
+            // 'search_after' 처리 (커서가 존재하는 경우)
+            List<Object> searchAfterValues = null;
+            if(cursor!=null && !cursor.isEmpty()){
+                try{
+                    searchAfterValues = cursorUtil.decodeCursor(cursor);
+                }catch (IllegalArgumentException e){
+                    log.error("유효하지 않은 커서: {}", cursor);
+                    throw new CustomException(SearchErrorCode.INVALID_CURSOR);
+                }
+            }
+
+            SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
+                    .index(ElasticsearchConstants.SEARCH_INDEX)
+                    .query(q -> q.bool(boolQueryBuilder.build()))
+                    .size(size)
+                    .source(s -> s
+                            .filter(f -> f
+                                    .excludes("_class")
+                            )
+                    );
 
             // 정렬 설정
             List<SortOptions> sortOptions = new ArrayList<>();
@@ -242,43 +269,13 @@ public class SearchService {
                                 .order(SortOrder.Asc)
                         )
                 ));
-            } else {
-                // 기본 정렬 : createdAt 내림차순, id 오름차순
-                sortOptions.add(SortOptions.of(s -> s
-                        .field(f -> f
-                                .field("createdAt")
-                                .order(SortOrder.Desc)
-                        )
-                ));
-                sortOptions.add(SortOptions.of(s -> s
-                        .field(f -> f
-                                .field("id")
-                                .order(SortOrder.Asc)
-                        )
-                ));
+            }else{
+                // 기본 정렬: 관련도(_score) 내림차순, id 오름차순
+                sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("_score").order(SortOrder.Desc))));
+                sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("id").order(SortOrder.Asc))));
             }
 
-            // 'search_after' 처리 (커서가 존재하는 경우)
-            List<Object> searchAfterValues = null;
-            if(cursor!=null && !cursor.isEmpty()){
-                try{
-                    searchAfterValues = cursorUtil.decodeCursor(cursor);
-                }catch (IllegalArgumentException e){
-                    log.error("유효하지 않은 커서: {}", cursor);
-                    throw new CustomException(SearchErrorCode.INVALID_CURSOR);
-                }
-            }
-
-            SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
-                    .index("search-index")
-                    .query(q -> q.bool(boolQueryBuilder.build()))
-                    .size(size)
-                    .sort(sortOptions)
-                    .source(s -> s
-                            .filter(f -> f
-                                    .excludes("_class")
-                            )
-                    );
+            searchRequestBuilder.sort(sortOptions);
 
             // 'search_after' 값이 존재하면 추가
             if (searchAfterValues != null && !searchAfterValues.isEmpty()) {
@@ -324,7 +321,7 @@ public class SearchService {
                             doc.getOriginalId(),
                             doc.getName(),
                             doc.getDetails(),
-                            doc.getImageUrl()
+                            Objects.requireNonNullElse(doc.getImageUrl(), String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
                     ))
                     .collect(Collectors.toList());
             // 총 문서 개수 조회
@@ -377,9 +374,9 @@ public class SearchService {
         String documentId = "PLACE-" + placeId;
         try {
             UpdateRequest<SearchDocument, Object> updateRequest = UpdateRequest.of(u -> u
-                    .index("search-index")
+                    .index(ElasticsearchConstants.SEARCH_INDEX)
                     .id(documentId)
-                    .doc(Map.of("popularity", popularity))
+                    .doc(Map.of(ElasticsearchConstants.FIELD_POPULARITY, popularity))
             );
 
             UpdateResponse<SearchDocument> updateResponse = elasticsearchClient.update(updateRequest, SearchDocument.class);
@@ -408,13 +405,13 @@ public class SearchService {
             // BoolQuery 생성
             BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
 
-            boolQueryBuilder.filter(q -> q.term(t -> t.field("category").value("place".toUpperCase())));
+            boolQueryBuilder.filter(q -> q.term(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY).value("place".toUpperCase())));
 
             // 검색어 처리
             if (query != null && !query.isEmpty()) {
                 boolQueryBuilder.must(q -> q.match(m -> m
                         .query(query)
-                        .field("name")
+                        .field(ElasticsearchConstants.FIELD_NAME)
                 ));
             }
 
@@ -428,13 +425,13 @@ public class SearchService {
 
             // SearchRequest 구성
             SearchRequest searchRequest = SearchRequest.of(request -> request
-                    .index("search-index")
+                    .index(ElasticsearchConstants.SEARCH_INDEX)
                     .query(q -> q.bool(boolQueryBuilder.build()))
                     .size(10000) // 페이지네이션 없이 모든 결과 가져오기 (최대 10,000건)
                     .sort(List.of(
                             SortOptions.of(s -> s
                                     .field(f -> f
-                                            .field("createdAt")
+                                            .field(ElasticsearchConstants.FIELD_ID)
                                             .order(SortOrder.Desc)
                                     )
                             )

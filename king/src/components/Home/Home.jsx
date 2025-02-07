@@ -18,6 +18,7 @@ const Home = () => {
   const [carouselList, setCarouselList] = useState([]);
   const [topCurations, setTopCurations] = useState([]);
   const [placeList, setPlaceList] = useState([]);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const setSearchQuery = useSetRecoilState(SearchQueryState);
   const setSearchCategory = useSetRecoilState(SearchCategoryState);
@@ -30,39 +31,29 @@ const Home = () => {
     { icon: IcCeleb, label: '연예인', contentType: 'cast' },
   ];
 
-  const getResults = async () => {
-    const res = await getCurationList('', '');
-    setCarouselList(res.items);
-  };
-
   useEffect(() => {
+    const getResults = async () => {
+      const res = await getCurationList('', '');
+      setCarouselList(res.items);
+    };
     getResults();
   }, []);
 
-  const handleSearch = (query, category) => {
-    setSearchQuery(query);
-    setSearchCategory(category);
-
-    navigate('/search/result');
-  };
-
-  const handleCurDetails = (id) => {
-    navigate(`/curation/${id}`);
-  };
-
-  const getCurationPlace = async () => {
-    const res = await getCurationDetail(topCurations[0].id);
-    setPlaceList(res.places);
-  };
-
   useEffect(() => {
-    if (carouselList) {
+    if (carouselList.length > 0) {
       setTopCurations(carouselList.slice(0, Math.min(3, carouselList.length)));
     }
+  }, [carouselList]);
+
+  useEffect(() => {
     if (topCurations.length > 0) {
+      const getCurationPlace = async () => {
+        const res = await getCurationDetail(topCurations[0].id);
+        setPlaceList(res.places);
+      };
       getCurationPlace();
     }
-  }, [carouselList]);
+  }, [topCurations]);
 
   if (!carouselList) {
     return null;
@@ -78,20 +69,27 @@ const Home = () => {
             <GenreButton key={item.label} buttonInfo={item} />
           ))}
         </GenreWrapper>
-        <SearchBar query="" onSearch={handleSearch} />
+
+        <SearchBar
+          query=""
+          onSearch={(query, category) => {
+            setSearchQuery(query);
+            setSearchCategory(category);
+            navigate('/search/result');
+          }}
+          onFocus={() => setIsSearchFocused(true)}
+          onBlur={() => setIsSearchFocused(false)}
+        />
+
         <Rank />
         <CurationWrapper>
           {topCurations.length > 0 && (
             <>
               <CurationHeader>
                 <h3>{topCurations[0].title}</h3>
-                <span
-                  onClick={() => {
-                    handleCurDetails(topCurations[0].id);
-                  }}
-                >
+                <span onClick={() => navigate(`/curation/${topCurations[0].id}`)}>
                   {' '}
-                  전체보기 {'>'}
+                  전체보기 {'>'}{' '}
                 </span>
               </CurationHeader>
               <CardContainer>
@@ -103,7 +101,8 @@ const Home = () => {
           )}
         </CurationWrapper>
       </StHomeWrapper>
-      <Nav />
+
+      {!isSearchFocused && <Nav />}
     </>
   );
 };
@@ -123,7 +122,7 @@ const StHomeWrapper = styled.div`
 const GenreWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: auto;
+  gap: 1rem;
   width: 100%;
 `;
 

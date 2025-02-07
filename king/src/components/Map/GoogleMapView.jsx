@@ -1,5 +1,5 @@
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import HereIcon from '/src/assets/icons/here.png';

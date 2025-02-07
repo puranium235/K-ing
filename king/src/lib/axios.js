@@ -5,12 +5,13 @@ import { tokenRefresh } from './auth';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-export const client = axios.create({
+const client = axios.create({
   baseURL,
   headers: {
     'Content-type': 'application/json',
   },
   withCredentials: true, // 쿠키를 포함하여 요청 (refreshToken 자동 전송)
+  // credentials: 'include',
 });
 
 // ✅ 요청 인터셉터: 모든 요청에 `accessToken` 자동 추가
@@ -116,3 +117,7 @@ client.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+const mainGetFetcher = (url) => client.get(url).then((res) => res.data);
+
+export { client, mainGetFetcher };

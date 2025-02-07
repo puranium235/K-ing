@@ -2,9 +2,11 @@ package com.king.backend.domain.content.entity;
 
 import com.king.backend.domain.place.entity.PlaceContent;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -13,7 +15,6 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-@ToString
 @EntityListeners(ContentListener.class)
 public class Content {
 

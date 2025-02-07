@@ -4,6 +4,10 @@ import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.repository.CastRepository;
 import com.king.backend.domain.content.entity.Content;
 import com.king.backend.domain.content.repository.ContentRepository;
+import com.king.backend.domain.curation.entity.CurationList;
+import com.king.backend.domain.place.entity.Place;
+import com.king.backend.domain.post.entity.Post;
+import com.king.backend.domain.user.entity.User;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.s3.errorcode.S3ErrorCode;
 import jakarta.transaction.Transactional;
@@ -41,52 +45,33 @@ public class S3Service {
     private String region;
 
     // 1. 사용자가 직접 업로드
-    public String uploadFile(MultipartFile file) {
-        return uploadToS3(file);
+    public String uploadFile(Object entity, MultipartFile file) {
+        return uploadToS3(entity, file);
     }
 
-    public List<String> uploadFiles(List<MultipartFile> files) {
+    public List<String> uploadFiles(Object entity, List<MultipartFile> files) {
         return files.stream()
-                .map(this::uploadToS3)
+                .map(file -> uploadToS3(entity, file))
                 .collect(Collectors.toList());
     }
 
     // 사용자가 업로드한 파일을 S3에 업로드
-    private String uploadToS3(MultipartFile file) {
-        String fileName = "uploads/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
-        log.info("uploadToS3 메서드 fileName 확인: " + fileName);
+    private String uploadToS3(Object entity, MultipartFile file) {
+        String filePath = getUploadPath(entity, file.getOriginalFilename());
+        log.info("S3 업로드 경로 filePath : {}", filePath);
+
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(fileName)
+                .key(filePath)
                 .contentType(file.getContentType())
                 .build();
-
         try {
             s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
         } catch (IOException e) {
             throw new CustomException(S3ErrorCode.S3_UPLOAD_FAILED);
         }
 
-        return getFileUrl(fileName);
-    }
-
-    // S3에 저장된 파일 URL 반환
-    public String getFileUrl(String fileName) {
-        GetUrlRequest request = GetUrlRequest.builder()
-                .bucket(bucketName)
-                .key(fileName)
-                .build();
-        URL url = s3Client.utilities().getUrl(request);
-        return url.toString();
-    }
-
-    private String extractFileName(String imageUrl) {
-        try {
-            URL url = new URL(imageUrl);
-            return url.getPath().substring(url.getPath().lastIndexOf("/") + 1);
-        } catch (Exception e) {
-            throw new RuntimeException("이미지 URL에서 파일명을 추출하는 중 오류 발생: " + imageUrl, e);
-        }
+        return getS3FileUrl(filePath);
     }
 
     // 2. tmdb 사진 업로드
@@ -106,42 +91,16 @@ public class S3Service {
 
         // 1) null이면 기본 이미지 url 반환
         if (imageUrl == null) {
-            String s3ImageUrl = String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", bucketName, region);
-            if (entity instanceof Content) {
-                Content content = (Content) entity;
-                content.setImageUrl(s3ImageUrl);
-                contentRepository.save(content);
-            } else if (entity instanceof Cast) {
-                Cast cast = (Cast) entity;
-                cast.setImageUrl(s3ImageUrl);
-                cast = castRepository.save(cast);
-            } else {
-                throw new CustomException(S3ErrorCode.UNSUPPORTED_ENTITY_TYPE);
-            }
-            log.info("imageUrl이 null이므로 기본 이미지 반환");
-            return s3ImageUrl;
+            String defaultImageUrl = String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", bucketName, region);
+            setEntityImage(entity, defaultImageUrl);
+            log.info("imageUrl이 null이므로 default 이미지 반환");
+            return defaultImageUrl;
         }
 
-        // 2) DB에 TMDB url 저장되어 있으면 S3에 업로드 후 DB에 S3 주소 업데이트
+        // 2) DB에 TMDB url이 저장되어 있으면 S3에 업로드 후 DB에 S3 주소 업데이트
 //        if(imageUrl.contains("image.tmdb.org")){
-//            // s3에 업로드 후 s3 주소 반환
-//            String s3ImageUrl = uploadTmdbImage(imageUrl);
-//            log.info("tmdbUrl {} -> s3ImageUrl 변환 완료: {}", imageUrl, s3ImageUrl);
-//
-//            if (entity instanceof Content) {
-//                Content content = (Content) entity;
-//                content.setImageUrl(s3ImageUrl);
-//                content = contentRepository.save(content);
-//                log.info("새로운 s3ImageUrl {}로 content 업데이트 완료", content.getImageUrl());
-//            } else if (entity instanceof Cast) {
-//                Cast cast = (Cast) entity;
-//                cast.setImageUrl(s3ImageUrl);
-//                cast = castRepository.save(cast);
-//                log.info("새로운 s3ImageUrl {} 로 cast 업데이트 완료", cast.getImageUrl());
-//            } else {
-//                throw new CustomException(S3ErrorCode.UNSUPPORTED_ENTITY_TYPE);
-//            }
-//
+//            String s3ImageUrl = uploadTmdbImage(entity, imageUrl);
+//            setEntityImage(entity, s3ImageUrl);
 //            return s3ImageUrl;
 //        }
 
@@ -149,7 +108,7 @@ public class S3Service {
         return imageUrl;
     }
 
-    public String uploadTmdbImage(String tmdbUrl) {
+    public String uploadTmdbImage(Object entity, String tmdbUrl) { //ToS3
         try {
             // TMDB 이미지 다운로드
             byte[] imageBytes = restTemplate.getForObject(tmdbUrl, byte[].class);
@@ -157,23 +116,22 @@ public class S3Service {
                 throw new CustomException(S3ErrorCode.TMDB_IMAGE_DOWNLOAD_FAILED);
             }
 
-            String fileName = "uploads/" + UUID.randomUUID() + "-" + extractFileName(tmdbUrl);
+            String filePath = getUploadPath(entity, extractFileName(tmdbUrl));
             PutObjectRequest request = PutObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(fileName)
+                    .key(filePath)
                     .contentType("image/jpeg")
                     .build();
 
             s3Client.putObject(request, RequestBody.fromBytes(imageBytes));
 
-            return getFileUrl(fileName);
+            return getS3FileUrl(filePath);
         } catch (Exception e) {
             throw new CustomException(S3ErrorCode.TMDB_IMAGE_UPLOAD_FAILED);
         }
     }
 
     public void deleteFile(String fileUrl) {
-
         log.info("deleteFile 메서드 시작");
         if (fileUrl == null || fileUrl.isEmpty()) {
             log.info("deleteFile에 fileUrl 비어있음");
@@ -195,4 +153,57 @@ public class S3Service {
             throw new CustomException(S3ErrorCode.S3_DELETE_FAILED);
         }
     }
+
+    private String getUploadPath(Object entity, String originalFileName) {
+        String folder;
+        if (entity instanceof Cast){
+            folder = "cast/";
+        } else if (entity instanceof Content){
+            folder = "content/";
+        } else if (entity instanceof Place){
+            folder = "place/";
+        } else if (entity instanceof Post){
+            folder = "post/";
+        } else if (entity instanceof User){
+            folder = "user/";
+        } else if (entity instanceof CurationList){
+            folder = "curationList/";
+        } else {
+            folder = "draft/";
+        }
+        return folder + UUID.randomUUID() + "-" + originalFileName;
+    }
+
+    // S3 URL 반환
+    public String getS3FileUrl(String filePath) {
+        GetUrlRequest request = GetUrlRequest.builder()
+                .bucket(bucketName)
+                .key(filePath)
+                .build();
+        URL url = s3Client.utilities().getUrl(request);
+        return url.toString();
+    }
+    
+    // tmdb 이미지 대상 (cast, content)
+    private void setEntityImage(Object entity, String imageUrl) {
+        if (entity instanceof Content) {
+            Content content = (Content) entity;
+            content.setImageUrl(imageUrl);
+            contentRepository.save(content);
+        } else if (entity instanceof Cast) {
+            Cast cast = (Cast) entity;
+            cast.setImageUrl(imageUrl);
+            castRepository.save(cast);
+        }
+    }
+
+    private String extractFileName(String imageUrl) {
+        try {
+            URL url = new URL(imageUrl);
+            return url.getPath().substring(url.getPath().lastIndexOf("/") + 1);
+        } catch (Exception e) {
+            throw new RuntimeException("이미지 URL에서 파일명을 추출하는 중 오류 발생: " + imageUrl, e);
+        }
+    }
+
 }

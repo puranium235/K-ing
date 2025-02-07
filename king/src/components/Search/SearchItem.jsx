@@ -1,13 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+
+import { ContentType } from '../../recoil/atom';
 
 const SearchItem = ({ item }) => {
   const { id, category, name, imageUrl } = item;
+  const setContentType = useSetRecoilState(ContentType);
 
   const navigate = useNavigate();
 
   const handleClick = () => {
+    setContentType('search');
+
     if (category === 'PLACE') {
       navigate(`/place/${id}`);
     } else if (category === 'CAST') {
@@ -20,7 +26,7 @@ const SearchItem = ({ item }) => {
   return (
     <St.Item onClick={handleClick}>
       <ImageWrapper>
-        <Image src={imageUrl} alt={name} />
+        <Image src={imageUrl} alt={name} $defaultImage={imageUrl.includes('default.jpg')} />
       </ImageWrapper>
       <Text>{name}</Text>
     </St.Item>
@@ -42,12 +48,13 @@ const St = {
 
     min-width: 10.5rem;
     width: 10.5rem;
-    height: 100%;
     background-color: ${({ theme }) => theme.colors.White};
   `,
 };
 
 const ImageWrapper = styled.div`
+  display: flex;
+  justify-content: end;
   width: 100%;
   flex: 8;
   overflow: hidden;
@@ -55,8 +62,9 @@ const ImageWrapper = styled.div`
 
 const Image = styled.img`
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  object-fit: ${({ $defaultImage }) => ($defaultImage ? 'contain' : 'cover')};
+
+  overflow: hidden;
 `;
 
 const Text = styled.span`

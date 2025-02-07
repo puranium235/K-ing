@@ -1,12 +1,18 @@
 import { atom } from 'recoil';
 
+//스크롤 위치 유지
+const ScrollPosition = atom({
+  key: 'scrollPosition',
+  default: 0,
+});
+
 const FilterOption = atom({
   key: 'filterOption',
   default: {
     categories: {
       RESTAURANT: false,
-      CAFE: true,
-      PLAYGROUND: true,
+      CAFE: false,
+      PLAYGROUND: false,
       STORE: false,
       STAY: false,
     },
@@ -60,6 +66,7 @@ export {
   ContentType,
   CurationPlaceList,
   FilterOption,
+  ScrollPosition,
   SearchCategoryState,
   SearchPrevQuery,
   SearchQueryState,

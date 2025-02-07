@@ -1,18 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+
+import { ContentType, SearchQueryState } from '../../recoil/atom';
 
 const GenreButton = ({ buttonInfo }) => {
   const { icon: Icon, label, contentType } = buttonInfo;
-  // const [contentType, setContentType] = useRecoilState(ContentType);
+  const [type, setContentType] = useRecoilState(ContentType);
+  const setSearchQuery = useSetRecoilState(SearchQueryState);
 
   const navigate = useNavigate();
 
   return (
     <IconWrapper
       onClick={() => {
-        // setContentType(label);
+        setSearchQuery('');
+        setContentType(contentType);
         navigate(`/content/${contentType}`);
       }}
     >
@@ -39,7 +43,7 @@ const IconWrapper = styled.div`
 `;
 
 const Icons = styled.button`
-  width: 80%;
+  width: 100%;
   aspect-ratio: 1/1;
 
   display: flex;
@@ -47,7 +51,7 @@ const Icons = styled.button`
   justify-content: center;
 
   margin: 1rem 0;
-  border-radius: 16px;
+  border-radius: 1.6rem;
   background-color: ${({ theme }) => theme.colors.Beige};
 
   svg {

@@ -46,7 +46,7 @@ const St = {
     width: 100%;
 
     box-sizing: border-box;
-    padding: 1rem 0.5rem;
+    padding: 0 0.5rem;
   `,
   Header: styled.div`
     display: flex;

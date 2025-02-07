@@ -15,6 +15,7 @@ import CurationPage from './pages/CurationPage';
 import CurationUploadPage from './pages/CurationUploadPage';
 import ErrorPage from './pages/ErrorPage';
 import FavoritesDetailPage from './pages/FavoritesDetailPage';
+import FeedDetailPage from './pages/FeedDetailPage';
 import FeedPage from './pages/FeedPage';
 import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
@@ -60,6 +61,7 @@ const Router = () => {
               <Route path="/curation/:curationId" element={<CurationDetailPage />} />
               <Route path="/curation/map" element={<CurationMapPage />} />
               <Route path="/feed" element={<FeedPage />} />
+              <Route path="/feed/:postId" element={<FeedDetailPage />} />
               <Route path="/content/:contentType" element={<ContentPage />} />
               <Route path="/content/cast/:celebId" element={<CelebDetailPage />} />
               <Route path="/content/detail/:contentId" element={<ContentDetailPage />} />

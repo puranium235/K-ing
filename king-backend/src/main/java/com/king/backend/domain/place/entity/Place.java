@@ -13,7 +13,6 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-@ToString
 @EntityListeners(PlaceListener.class)
 public class Place {
 

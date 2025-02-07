@@ -9,7 +9,6 @@ import lombok.*;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-@ToString
 public class ContentCast {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

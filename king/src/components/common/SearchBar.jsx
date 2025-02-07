@@ -1,35 +1,47 @@
 import { debounce } from 'lodash';
 import React, { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcSearch } from '../../assets/icons';
 import { getAutoKeyword } from '../../lib/search';
+import { ContentType } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 
-const SearchBar = ({ type, query, onSearch }) => {
+const SearchBar = ({ type, query, onSearch, onFocus, onBlur }) => {
   const [keyword, setKeyword] = useState(query);
   const [category, setCategory] = useState('');
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
+  const setContentType = useSetRecoilState(ContentType);
 
-  // debounce -> 호출 지연
+  const navigate = useNavigate();
+
   const handleSearchChange = useCallback(
     debounce(async (searchText) => {
       const res = await getAutoKeyword(searchText, type);
       setAutoCompleteOptions(res.results);
+      // console.log(res.results);
     }, 300),
-    [],
+    [type],
   );
 
   const onChangeData = (e) => {
     setKeyword(e.currentTarget.value);
-    handleSearchChange(e.currentTarget.value);
+    if (type !== 'curation') {
+      handleSearchChange(e.currentTarget.value);
+    }
   };
 
   const handleOptionClick = (option) => {
-    setAutoCompleteOptions([]);
+    const type = option.category.toLowerCase();
+    setContentType('autocom');
 
-    setKeyword(option.name);
-    setCategory(option.category);
+    if (category === 'CAST') {
+      navigate(`/content/cast/${option.originalId}`);
+    } else {
+      navigate(`/content/detail/${option.originalId}`);
+    }
   };
 
   const handleSubmit = () => {
@@ -51,6 +63,8 @@ const SearchBar = ({ type, query, onSearch }) => {
         value={keyword}
         onChange={onChangeData}
         onKeyDown={handleKeyEnter}
+        onFocus={onFocus}
+        onBlur={onBlur}
       />
       <IcSearch onClick={handleSubmit} />
       {autoCompleteOptions.length > 0 && (

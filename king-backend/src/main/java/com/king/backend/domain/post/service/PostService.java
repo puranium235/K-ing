@@ -62,10 +62,18 @@ public class PostService {
                 .build();
         postRepository.save(post);
 
-        if(imageFile != null && !imageFile.isEmpty()){
-            String imageUrl = s3Service.uploadFile(imageFile);
+        String savedImageUrl = reqDto.getImageUrl();
+        String finalImageUrl = savedImageUrl;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            if (savedImageUrl != null) {
+                s3Service.deleteFile(savedImageUrl);
+            }
+            finalImageUrl = s3Service.uploadFile(post, imageFile);
+        }
+
+        if (finalImageUrl != null) {
             PostImage postImage = PostImage.builder()
-                    .imageUrl(imageUrl)
+                    .imageUrl(finalImageUrl)
                     .post(post)
                     .build();
             postImageRepository.save(postImage);
@@ -115,27 +123,6 @@ public class PostService {
         User writer = post.getWriter();
         String imageUrl = postImageRepository.findByPostId(postId).map(PostImage::getImageUrl).orElse(null);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
-
-        boolean isLiked = likeRepository.existsByPostIdAndUserId(postId, userId);
-        Long likesCount = likeRepository.countByPostId(postId);
-        Long commentsCount = commentRepository.countByPostId(postId);
-
-        List<PostDetailResponseDto.Comment> comments = commentRepository.findByPostId(postId).stream()
-                .map(comment -> PostDetailResponseDto.Comment.builder()
-                        .commentId(comment.getId())
-                        .content(comment.getContent())
-                        .createdAt(comment.getCreatedAt())
-                        .writer(PostDetailResponseDto.Writer.builder()
-                                .userId(comment.getWriter().getId())
-                                .nickname(comment.getWriter().getNickname())
-                                .imageUrl(comment.getWriter().getImageUrl())
-                                .build())
-                        .build())
-                .toList();
-
         return PostDetailResponseDto.builder()
                 .postId(post.getId())
                 .content(post.getContent())
@@ -150,10 +137,6 @@ public class PostService {
                         .placeId(post.getPlace().getId())
                         .name(post.getPlace().getName())
                         .build())
-                .isLiked(isLiked)
-                .likesCount(likesCount)
-                .commentsCount(commentsCount)
-                .comments(comments)
                 .build();
     }
 
@@ -189,7 +172,7 @@ public class PostService {
             log.info("postService : 삭제했는가 imageUrl {}", postImage.getImageUrl());
 
             // 새 이미지 업로드
-            String newImageUrl = s3Service.uploadFile(imageFile);
+            String newImageUrl = s3Service.uploadFile(post, imageFile);
             PostImage newPostImage = PostImage.builder()
                     .imageUrl(newImageUrl)
                     .post(post)
@@ -226,8 +209,6 @@ public class PostService {
         
         commentRepository.deleteByPostId(postId);
         log.info("postService: 게시글의 댓글 삭제 완료");
-        
-        // 임시저장 삭제
         
         postRepository.delete(post);
         log.info("postService: 게시글 삭제 완료 - postId: {}", postId);

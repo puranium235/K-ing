@@ -53,7 +53,7 @@ public class ElasticsearchUtil {
             CreateIndexRequest request = new CreateIndexRequest.Builder()
                     .index(indexName)
                     .settings((IndexSettings) settings)
-                    .mappings(new TypeMapping.Builder().properties(properties).build()) // 매핑 적용
+                    .mappings(new TypeMapping.Builder().properties(properties).build())
                     .build();
             try {
                 CreateIndexResponse response = client.indices().create(request);

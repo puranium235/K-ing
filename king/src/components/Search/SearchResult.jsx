@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { getSearchResult } from '../../lib/search';
+import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import { SearchCategoryState, SearchPrevQuery, SearchQueryState } from '../../recoil/atom';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
+import Loading from '../Loading/Loading';
 import SearchList from './SearchList';
 
 const SearchResult = () => {
@@ -14,51 +16,60 @@ const SearchResult = () => {
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
 
-  const [results, setResults] = useState(null);
+  const { searchResultList, getNextData, isLoading, isError } = useGetSearchResult(
+    searchQuery,
+    searchCategory,
+  );
+
   const [contentList, setContentList] = useState([]);
   const [celebList, setCelebList] = useState([]);
   const [placeList, setPlaceList] = useState([]);
 
-  const getResults = async (query, category) => {
-    const res = await getSearchResult({ query: query || '', category: category || '' });
-    setResults(res.results);
-  };
+  const navigate = useNavigate();
 
   const handleSearch = (query, category) => {
     setSearchQuery(query);
     setSearchCategory(category);
     setPrevQuery(query);
-    getResults(query, category);
+  };
+
+  const handleGoBack = () => {
+    navigate(`/home`);
   };
 
   useEffect(() => {
-    getResults(searchQuery, searchCategory);
-  }, [searchQuery, searchCategory]);
+    const onScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight
+      ) {
+        getNextData();
+      }
+    };
+
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [getNextData]);
 
   useEffect(() => {
-    if (results) {
+    if (searchResultList) {
       setContentList(
-        results.filter(
-          (item) =>
-            item.category === 'DRAMA' || item.category === 'MOVIE' || item.category === 'SHOW',
-        ),
+        searchResultList.filter((item) => ['DRAMA', 'MOVIE', 'SHOW'].includes(item.category)),
       );
-      setCelebList(results.filter((item) => item.category === 'CAST'));
-      setPlaceList(results.filter((item) => item.category === 'PLACE'));
+      setCelebList(searchResultList.filter((item) => item.category === 'CAST'));
+      setPlaceList(searchResultList.filter((item) => item.category === 'PLACE'));
     }
-  }, [results]);
+  }, [isLoading]);
 
-  if (!results) {
-    return null;
-  }
+  if (isLoading) return <Loading />;
 
   return (
     <>
       <StHomeWrapper>
         <Header>
           <IconText>
-            <BackButton />
-            <h3> 통합검색</h3>
+            <BackButton onBack={handleGoBack} />
+            <h3>통합검색</h3>
           </IconText>
           <SearchBar query={searchQuery} onSearch={handleSearch} />
         </Header>
@@ -106,4 +117,5 @@ const IconText = styled.div`
 
 const ResultWrapper = styled.div`
   width: 100%;
+  margin-top: 1rem;
 `;

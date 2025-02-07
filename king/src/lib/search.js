@@ -24,9 +24,8 @@ export const getSearchResult = async (searchOptions) => {
       Object.entries(searchOptions).filter(([_, value]) => value !== undefined && value !== ''),
     );
 
-    // console.log(params);
-
     const { data } = await client.get('/search/search', { params });
+
     return data.data;
   } catch (err) {
     console.error(err);

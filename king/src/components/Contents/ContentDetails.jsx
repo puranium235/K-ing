@@ -13,10 +13,11 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getContentDetails } from '../../lib/content';
-import { ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
+import Loading from '../Loading/Loading';
 
 const ContentDetails = () => {
   const { contentId } = useParams();
@@ -27,15 +28,9 @@ const ContentDetails = () => {
   const setSearchQuery = useSetRecoilState(SearchQueryState);
   const setRelatedType = useSetRecoilState(SearchRelatedType);
   const contentType = useRecoilValue(ContentType);
+  const setContentId = useSetRecoilState(ContentId);
 
   const navigate = useNavigate();
-
-  const handleClickPlaceInfo = () => {
-    setSearchQuery(contentInfo.title);
-    setRelatedType('content');
-
-    navigate(`/search/keyword`);
-  };
 
   const handleClickCast = (celebId) => {
     navigate(`/content/cast/${celebId}`);
@@ -53,7 +48,21 @@ const ContentDetails = () => {
   };
 
   const handleGoBack = () => {
-    navigate(`/content/${contentType}`);
+    if (contentType === 'search') {
+      navigate(`/search/result`);
+    } else if (contentType === 'autocom') {
+      navigate(`/home`);
+    } else {
+      navigate(`/content/${contentType}`);
+    }
+  };
+
+  const handleClickPlaceInfo = () => {
+    setSearchQuery(contentInfo.title);
+    setRelatedType('content');
+    setContentId(contentId);
+
+    navigate(`/search/keyword`);
   };
 
   useEffect(() => {
@@ -61,7 +70,11 @@ const ContentDetails = () => {
   }, [contentId]);
 
   if (!contentInfo) {
-    return null;
+    return (
+      <LoadingWrapper>
+        <Loading />
+      </LoadingWrapper>
+    );
   }
 
   return (
@@ -71,7 +84,6 @@ const ContentDetails = () => {
           <BackButton onBack={handleGoBack} />
           <p> 세부정보</p>
         </IconText>
-
         <Header>
           <img
             id="poster"
@@ -84,10 +96,12 @@ const ContentDetails = () => {
               <IcTv />
               <p>{typeKor}</p>
             </IconText>
-            <IconText>
-              <IcMarker2 />
-              <p>{contentInfo.broadcast}</p>
-            </IconText>
+            {contentInfo.broadcast && (
+              <IconText>
+                <IcMarker2 />
+                <p>{contentInfo.broadcast}</p>
+              </IconText>
+            )}
           </TitleSection>
           <BookmarkWrapper>
             {isFavorited ? (
@@ -98,13 +112,15 @@ const ContentDetails = () => {
           </BookmarkWrapper>
         </Header>
 
-        <Synopsis>
-          <IconText>
-            <IcPencil />
-            <p>소개</p>
-          </IconText>
-          {contentInfo.description}
-        </Synopsis>
+        {contentInfo.description && (
+          <Synopsis>
+            <IconText>
+              <IcPencil />
+              <p>소개</p>
+            </IconText>
+            {contentInfo.description}
+          </Synopsis>
+        )}
 
         <IconText>
           <IcMan />
@@ -120,6 +136,11 @@ const ContentDetails = () => {
             >
               <img src={cast.imageUrl} alt="Cast" />
               <p>{cast.name}</p>
+              {cast.favorite ? (
+                <IcStar id="favor" onClick={toggleFavorite} />
+              ) : (
+                <IcStarBlank id="favor" onClick={toggleFavorite} />
+              )}
             </CastMember>
           ))}
         </CastGrid>
@@ -133,6 +154,14 @@ const ContentDetails = () => {
 };
 
 export default ContentDetails;
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+`;
 
 const DramaPageContainer = styled.div`
   display: flex;
@@ -237,20 +266,42 @@ const CastGrid = styled.div`
 const CastMember = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
 
+  position: relative;
+
   flex: 0 0 104px;
+  width: 10rem;
   height: auto;
 
   cursor: pointer;
 
   img {
     width: 100%;
+    height: 80%;
+    object-fit: cover;
   }
 
   p {
-    margin-top: 5px;
+    width: 100%;
+    text-align: center;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    margin-top: 0.5rem;
     ${({ theme }) => theme.fonts.Body2};
+  }
+
+  #favor {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+
+    width: 2rem;
+    height: 2rem;
   }
 `;
 
@@ -261,7 +312,7 @@ const ActionButton = styled.button`
   align-items: center;
 
   margin: auto;
-  margin-bottom: 10rem;
+  margin-bottom: 2rem;
 
   border-radius: 20px;
   padding: 0.8rem 2rem;

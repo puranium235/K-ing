@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class CastDetailResponseDto {
     @AllArgsConstructor
     public static class Work {
         private Long contentId;
-        private int year;
+        private String year;
         private String title;
     }
 }
