@@ -145,7 +145,7 @@ const Signup = () => {
         <St.StatusMessageWrapper>
           {/* 닉네임 유효성 및 중복 검사 메시지 */}
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-          {checkingName && <InfoMessage>{translations.nicknameChecking}</InfoMessage>}
+          {checkingName && <InfoMessage></InfoMessage>}
           {isValidName && isNameAvailable && (
             <SuccessMessage>{translations.nicknameAvailable}</SuccessMessage>
           )}
