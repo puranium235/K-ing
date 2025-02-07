@@ -1,29 +1,79 @@
 import React, { useRef, useState } from 'react';
+import { useEffect } from 'react';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import { IcImageUpload, IcImageUploadTrue, IcToggleFalse, IcToggleTrue } from '../../assets/icons';
 import useToggle from '../../hooks/common/useToggle';
+import { getPostDraft } from '../../lib/post';
+import { DraftExist } from '../../recoil/atom';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 
 const PostUpload = () => {
   const toggle = useToggle(false);
-  const [image, setImage] = useState(null);
   const fileInputRef = useRef(null);
 
   const [place, setPlace] = useState('');
+  const [placeId, setPlaceId] = useState(1);
+  const [image, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [caption, setCaption] = useState('');
+  const [isShareEnabled, setIsShareEnabled] = useState(false);
 
-  const handlePlaceChange = (query) => {
-    setPlace(query);
+  const isDraft = useRecoilValue(DraftExist);
+
+  const initData = async () => {
+    if (isDraft) {
+      const res = await getPostDraft();
+
+      const { content, place, imageUrl } = res.data;
+      setCaption(content);
+      setPlaceId(place.placeId);
+      setImage(imageUrl);
+    }
+  };
+
+  const saveDraft = () => {
+    const postData = {
+      content: caption,
+      placeId,
+      imageUrl: image,
+    };
+
+    console.log(image);
+    //post 요청
+  };
+
+  const sharePost = () => {
+    if (image && placeId && caption) {
+      const formData = new FormData();
+      formData.append('imageUrl', image);
+      formData.append('content', caption);
+      formData.append('placeId', placeId);
+
+      console.log(formData);
+      //post 요청
+    }
+  };
+
+  useEffect(() => {
+    initData();
+  }, [isDraft]);
+
+  useEffect(() => {
+    setIsShareEnabled(!!image && !!placeId && !!caption);
+  }, [image, placeId, caption]);
+
+  const handlePlaceChange = (item) => {
+    setPlaceId(item.originalId);
+    setPlace(item.name);
   };
 
   const handleCaptionChange = (event) => {
     setCaption(event.target.value);
   };
-
-  const isShareEnabled = image && place && caption;
 
   const handleToggle = () => {
     toggle.handleToggle();
@@ -53,6 +103,7 @@ const PostUpload = () => {
           <BackButton />
           <p>새 인증샷</p>
         </IconText>
+
         <ImageUploadWrapper
           $isImage={image ? true : false}
           style={{ backgroundImage: `url(${image})` }}
@@ -72,15 +123,18 @@ const PostUpload = () => {
           {image ? <h3>사진 재업로드하기</h3> : <h3>사진 업로드하기</h3>}
           <p>PNG, JPG 형식만 지원됩니다.</p>
         </ImageUploadWrapper>
+
         <SearchPlaceWrapper>
-          <SearchBar type={'PLACE'} query={place} onSearch={handlePlaceChange} />
+          <SearchBar type={'PLACE'} query={place} onSet={handlePlaceChange} />
           <p>{place}</p>
         </SearchPlaceWrapper>
+
         <CaptionInput
           placeholder="문구 추가.."
           value={caption}
           onChange={handleCaptionChange}
         ></CaptionInput>
+
         <PublicToggleWrapper>
           <h3>공개 / 비공개</h3>
           {toggle.toggle ? (
@@ -89,9 +143,12 @@ const PostUpload = () => {
             <IcToggleFalse onClick={handleToggle} />
           )}
         </PublicToggleWrapper>
+
         <ButtonWrapper>
-          <TemporaryButton>임시 저장</TemporaryButton>
-          <SaveButton disabled={!isShareEnabled}>공유</SaveButton>
+          <TemporaryButton onClick={saveDraft}>임시 저장</TemporaryButton>
+          <SaveButton disabled={!isShareEnabled} onClick={sharePost}>
+            공유
+          </SaveButton>
         </ButtonWrapper>
       </StHomeWrapper>
 
@@ -178,9 +235,12 @@ const ImageUploadWrapper = styled.div`
   }
 `;
 
-const CaptionInput = styled.input`
+const CaptionInput = styled.textarea`
   width: 98%;
   height: 10rem;
+  padding: 1rem;
+
+  box-sizing: border-box;
 
   color: #626273;
   ${({ theme }) => theme.fonts.Body3};
@@ -232,12 +292,16 @@ const TemporaryButton = styled.button`
 `;
 
 const SaveButton = styled.button`
-  background-color: ${({ theme }) => theme.colors.MainBlue};
+  background-color: ${({ theme, disabled }) =>
+    disabled ? theme.colors.Gray5 : theme.colors.MainBlue};
+  color: ${({ theme, disabled }) => (disabled ? theme.colors.Gray2 : theme.colors.White)};
   border-radius: 1rem;
-
-  width: 100%;
   padding: 1rem 2rem;
+  width: 100%;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
 
-  color: ${({ theme }) => theme.colors.White};
-  ${({ theme }) => theme.fonts.Body2};
+  &:hover {
+    background-color: ${({ theme, disabled }) =>
+      disabled ? theme.colors.Gray5 : theme.colors.LightBlue};
+  }
 `;
