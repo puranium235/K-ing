@@ -123,27 +123,6 @@ public class PostService {
         User writer = post.getWriter();
         String imageUrl = postImageRepository.findByPostId(postId).map(PostImage::getImageUrl).orElse(null);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
-
-        boolean isLiked = likeRepository.existsByPostIdAndUserId(postId, userId);
-        Long likesCount = likeRepository.countByPostId(postId);
-        Long commentsCount = commentRepository.countByPostId(postId);
-
-        List<PostDetailResponseDto.Comment> comments = commentRepository.findByPostId(postId).stream()
-                .map(comment -> PostDetailResponseDto.Comment.builder()
-                        .commentId(comment.getId())
-                        .content(comment.getContent())
-                        .createdAt(comment.getCreatedAt())
-                        .writer(PostDetailResponseDto.Writer.builder()
-                                .userId(comment.getWriter().getId())
-                                .nickname(comment.getWriter().getNickname())
-                                .imageUrl(comment.getWriter().getImageUrl())
-                                .build())
-                        .build())
-                .toList();
-
         return PostDetailResponseDto.builder()
                 .postId(post.getId())
                 .content(post.getContent())
@@ -158,10 +137,6 @@ public class PostService {
                         .placeId(post.getPlace().getId())
                         .name(post.getPlace().getName())
                         .build())
-                .isLiked(isLiked)
-                .likesCount(likesCount)
-                .commentsCount(commentsCount)
-                .comments(comments)
                 .build();
     }
 
