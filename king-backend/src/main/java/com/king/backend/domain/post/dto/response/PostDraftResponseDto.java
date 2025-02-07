@@ -10,7 +10,8 @@ import lombok.*;
 public class PostDraftResponseDto {
     private String content;
     private Place place;
-    private String imageUrl;
+    private byte[] imageData;
+    private Boolean isPublic;
 
     @Getter
     @Setter
