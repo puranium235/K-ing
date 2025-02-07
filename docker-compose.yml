@@ -11,6 +11,8 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      TZ: Asia/Seoul
+      LANG: C.UTF-8
     command: --skip-character-set-client-handshake
     volumes:
       - mysql-data:/var/lib/mysql
