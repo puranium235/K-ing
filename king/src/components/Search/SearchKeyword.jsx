@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
+import GoUpButton from '/src/assets/icons/ic_up.png';
+
 import { IcFilter, IcMap } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
 import { ContentId, FilterOption, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
@@ -25,7 +27,6 @@ const SearchKeyword = () => {
   const [results, setResults] = useState(null);
 
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
-  // const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
   const [relatedType, setRelatedType] = useRecoilState(SearchRelatedType);
   const contentId = useRecoilValue(ContentId);
 
@@ -168,7 +169,7 @@ const SearchKeyword = () => {
         )}
 
         <UpButton onClick={handleScrollUp}>
-          <img src="/src/assets/icons/ic_up.png" alt="up" />
+          <img src={GoUpButton} alt="up" />
         </UpButton>
         <Nav />
       </StHomeWrapper>
@@ -238,7 +239,7 @@ const ResultWrapper = styled.div`
   gap: 1rem;
 
   width: 100%;
-  padding: 1rem 0;
+  padding-bottom: 1rem;
 
   overflow-y: auto;
   &::-webkit-scrollbar {

@@ -30,6 +30,10 @@ const SearchResult = () => {
     setPrevQuery(query);
   };
 
+  const handleGoBack = () => {
+    navigate(`/home`);
+  };
+
   useEffect(() => {
     const onScroll = () => {
       if (
@@ -62,7 +66,7 @@ const SearchResult = () => {
       <StHomeWrapper>
         <Header>
           <IconText>
-            <BackButton />
+            <BackButton onBack={handleGoBack} />
             <h3>통합검색</h3>
           </IconText>
           <SearchBar query={searchQuery} onSearch={handleSearch} />
