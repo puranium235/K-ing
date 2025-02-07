@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
@@ -11,8 +12,11 @@ import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import Loading from '../Loading/Loading';
+
 const Content = () => {
   const { contentType } = useParams();
+
+  const [initialLoading, setInitialLoading] = useState(true);
   const [scrollPosition, setScrollPosition] = useRecoilState(ScrollPosition);
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [favorites, setFavorites] = useState({});
@@ -21,6 +25,7 @@ const Content = () => {
 
   //마지막 요소 감지
   const lastElementRef = useRef(null);
+  const containerRef = useRef(null);
 
   const { searchResultList, getNextData, isLoading, isError } = useGetSearchResult(
     searchQuery,
@@ -28,20 +33,36 @@ const Content = () => {
   );
 
   useEffect(() => {
-    if (!isLoading) {
-      window.scrollTo({ top: scrollPosition, behavior: 'instant' });
-    }
-  }, [isLoading, scrollPosition]);
+    setInitialLoading(true);
+  }, []);
 
   useEffect(() => {
+    if (!isLoading && initialLoading) {
+      const container = containerRef.current;
+      if (container && scrollPosition) {
+        container.scrollTop = scrollPosition;
+        setInitialLoading(false);
+      }
+    }
+  }, [isLoading]);
+
+  useEffect(() => {
+    // 스크롤 위치를 상태로 저장
     const handleScroll = () => {
-      setScrollPosition(window.scrollY);
+      if (containerRef.current) {
+        setScrollPosition(containerRef.current.scrollTop);
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+    }
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+      }
     };
   }, []);
 
@@ -74,8 +95,11 @@ const Content = () => {
   };
 
   const handleItemClick = (id) => {
-    console.log(window.scrollY);
-    setScrollPosition(window.scrollY);
+    if (containerRef.current) {
+      // sessionStorage.setItem('scrollPosition', containerRef.current.scrollTop);
+      setScrollPosition(containerRef.current.scrollTop);
+    }
+
     if (contentType === 'cast') {
       navigate(`/content/cast/${id}`);
     } else {
@@ -97,7 +121,7 @@ const Content = () => {
           <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
         </FixedContainer>
 
-        <GridContainer>
+        <GridContainer ref={containerRef}>
           {searchResultList.map((content, index) => (
             <Card
               key={index}
@@ -168,6 +192,7 @@ const GridContainer = styled.div`
   box-sizing: border-box;
 
   width: 100%;
+  height: 60rem;
   overflow-y: scroll;
 
   &::-webkit-scrollbar {
