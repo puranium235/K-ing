@@ -264,12 +264,13 @@ const CastGrid = styled.div`
 const CastMember = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
 
   position: relative;
 
   flex: 0 0 104px;
+  width: 10rem;
   height: auto;
 
   cursor: pointer;
@@ -281,6 +282,13 @@ const CastMember = styled.div`
   }
 
   p {
+    width: 100%;
+    text-align: center;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
     margin-top: 0.5rem;
     ${({ theme }) => theme.fonts.Body2};
   }

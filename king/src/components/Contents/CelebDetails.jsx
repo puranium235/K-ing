@@ -42,6 +42,14 @@ const CelebDetails = () => {
     setIsFavorited(!isFavorited);
   };
 
+  const handleClickPlaceInfo = () => {
+    setSearchQuery(celebInfo.name);
+    setRelatedType('cast');
+    setContentId(celebId);
+
+    navigate(`/search/keyword`);
+  };
+
   const handleClickContent = (contentId) => {
     navigate(`/content/detail/${contentId}`);
   };
@@ -367,13 +375,16 @@ const WorkWrapper = styled.ul`
 `;
 
 const ShowMoreButton = styled.button`
-  margin-top: 1rem;
+  margin-top: 0.5rem;
+
+  ${({ theme }) => theme.fonts.Body5};
+  color: ${({ theme }) => theme.colors.Gray0};
 `;
 
 const ActionButton = styled.button`
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-around;
   align-items: center;
 
   margin: auto;
@@ -387,7 +398,7 @@ const ActionButton = styled.button`
   width: 100%;
 
   background-image: linear-gradient(to right, #0062ff, #71c8ff);
-  ${({ theme }) => theme.fonts.Head2};
+  ${({ theme }) => theme.fonts.Title1};
   color: ${({ theme }) => theme.colors.White};
 
   p {

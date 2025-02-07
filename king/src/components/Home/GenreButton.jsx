@@ -1,19 +1,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { ContentType } from '../../recoil/atom';
+import { ContentType, SearchQueryState } from '../../recoil/atom';
 
 const GenreButton = ({ buttonInfo }) => {
   const { icon: Icon, label, contentType } = buttonInfo;
   const [type, setContentType] = useRecoilState(ContentType);
+  const setSearchQuery = useSetRecoilState(SearchQueryState);
 
   const navigate = useNavigate();
 
   return (
     <IconWrapper
       onClick={() => {
+        setSearchQuery('');
         setContentType(contentType);
         navigate(`/content/${contentType}`);
       }}
