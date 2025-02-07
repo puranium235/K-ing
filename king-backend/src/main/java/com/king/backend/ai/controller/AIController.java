@@ -48,7 +48,7 @@ public class AIController {
         return ResponseEntity.ok("대화 기록이 저장되었습니다.");
     }
 
-    /*REST API chat
+    /*REST API chat >> WebSocket 쪽으로 바꿈
     @Operation(summary = "AI 챗봇과 T 대화", description = "사용자가 입력한 메시지를 기반으로 AI 챗봇이 논리적으로 응답을 생성합니다.")
     @PostMapping("/chatT")
     public ResponseEntity<Map<String, Object>> chatT(

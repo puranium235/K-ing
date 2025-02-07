@@ -60,15 +60,23 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        log.info("📨 WebSocket 메시지 수신 - 사용자 ID: {}, 메시지: {}", userId, message.getPayload());
-//        try {
-//            Map<String, Object> response = chatService.chatT(message.getPayload(), userId);
-//            session.sendMessage(new TextMessage(response.toString()));
-//        } catch (IOException e) {
-//            log.error("❌ WebSocket 메시지 전송 실패", e);
-//        }
+        String path = session.getUri().getPath();  // WebSocket 경로 확인
+        log.info("📨 WebSocket 메시지 수신 - 사용자 ID: {}, 경로: {}, 메시지: {}", userId, path, message.getPayload());
+
         // 🔹 OpenAI API 스트리밍 호출
-        Flux<String> responseStream = chatService.streamChatT(message.getPayload(), userId);
+        Flux<String> responseStream;
+
+        if (path.equals("/api/ws/chatT")) {
+            log.info("🛠 K-Guide (정확한 장소 추천) 실행");
+            responseStream = chatService.streamChatT(message.getPayload(), userId);
+        } else if (path.equals("/api/ws/chatF")) {
+            log.info("🎭 K-Mood (감성 큐레이션 추천) 실행");
+            responseStream = chatService.streamChatF(message.getPayload(), userId);
+        } else {
+            log.warn("⚠️ 알 수 없는 WebSocket 경로 요청: {}", path);
+            session.sendMessage(new TextMessage("⚠️ 잘못된 요청입니다."));
+            return;
+        }
 
         // 🔹 WebSocket을 통해 클라이언트로 실시간 전송
         responseStream.subscribe(
