@@ -1,27 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import ChatBotIcon from '../../assets/icons/chat-ai.png';
 import SendIcon from '../../assets/icons/chat-send.png';
 import KingIcon from '../../assets/icons/king_character.png';
 import RefreshIcon from '../../assets/icons/refresh.png';
-import {
-  deleteChatHistory,
-  fetchStreamResponse,
-  getChatHistory,
-  getResponse,
-  saveChatHistory,
-} from '../../lib/chatbot';
+import { deleteChatHistory, getChatHistory, saveChatHistory } from '../../lib/chatbot';
 import { splitIntoSentences } from '../../util/chatbot';
 import BackButton from '../common/BackButton';
 import TypingIndicator from './TypingIndicator';
+import useStreamingMessages from './useStreamingMessages';
 
 const AIChatView = () => {
-  const [messages, setMessages] = useState([]);
+  const { messages, isTyping, updateMessages, setMessages } = useStreamingMessages();
   const [newMessage, setNewMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [isBotSelected, setIsBotSelected] = useState(false);
   const [currentApi, setCurrentApi] = useState('');
+
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
@@ -41,91 +35,65 @@ const AIChatView = () => {
   const handleRefresh = async () => {
     await deleteChatHistory();
 
-    setMessages([]);
+    updateMessages('[RESET]');
     setNewMessage('');
     setCurrentApi('');
     setIsBotSelected(false);
 
-    saveInitialMessage();
+    await saveInitialMessage();
   };
 
-  // 🔹 WebSocket 연결 관리 및 자동 재연결
+  // 🔹 WebSocket
   useEffect(() => {
     if (!isBotSelected) return;
 
-    const token = localStorage.getItem('accessToken'); // JWT 가져오기
-    console.log('🔍 WebSocket 연결 시도: token =', token);
+    const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
+    const token = localStorage.getItem('accessToken');
 
-    const connectWebSocket = () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
+    if (!token) {
+      console.error('❌ WebSocket 연결 실패: 토큰 없음');
+      return;
+    }
+    socketRef.current = new WebSocket(`${WS_BASE_URL}/ws/chatbot?token=${token}`);
 
-      socketRef.current = new WebSocket(`ws://localhost:8080/api/ws/chatbot?token=${token}`);
-      // socketRef.current = new WebSocket('ws://localhost:8080/api/ws/chatbot', [
-      //   'Authorization',
-      //   `Bearer ${token}`,
-      // ]);
-
-      socketRef.current.onopen = () => {
-        console.log('✅ WebSocket 연결됨');
-      };
-
-      socketRef.current.onmessage = (event) => {
-        setMessages((prev) => {
-          const lastIndex = prev.length - 1;
-          const newMessages = [...prev];
-          if (newMessages[lastIndex] && newMessages[lastIndex].sender === 'assistant') {
-            newMessages[lastIndex] = {
-              ...newMessages[lastIndex],
-              text: newMessages[lastIndex].text + event.data,
-            };
-          } else {
-            newMessages.push({ text: event.data, sender: 'assistant', type: 'message' });
-          }
-          return newMessages;
-        });
-        setIsTyping(false);
-      };
-
-      socketRef.current.onclose = () => {
-        console.log('⚠️ WebSocket 연결 종료됨, 5초 후 재연결 시도');
-        //setTimeout(connectWebSocket, 5000);
-      };
-
-      socketRef.current.onerror = (error) => {
-        console.error('❌ WebSocket 오류 발생:', error);
-        socketRef.current?.close();
-      };
+    socketRef.current.onopen = () => {
+      console.log('✅ WebSocket 연결됨');
     };
 
-    connectWebSocket();
+    socketRef.current.onmessage = (event) => {
+      //console.log('📩 메시지 수신:', event.data);
+      updateMessages(event.data);
+    };
+
+    socketRef.current.onclose = () => {
+      console.log('❌ WebSocket 연결 종료됨');
+    };
+
+    socketRef.current.onerror = (error) => {
+      console.error('⚠️ WebSocket 오류 발생:', error);
+    };
 
     return () => {
       socketRef.current?.close();
       socketRef.current = null;
     };
-  }, [isBotSelected]);
+  }, [isBotSelected, updateMessages]);
 
   const sendMessage = async () => {
     if (
       newMessage.trim() === '' ||
       !socketRef.current ||
       socketRef.current.readyState !== WebSocket.OPEN
-    )
+    ) {
+      console.error('⚠️ WebSocket이 닫혀 있음 또는 메시지가 비어 있음.');
       return;
+    }
 
     const userMessage = { text: newMessage, sender: 'user', type: 'message' };
-    setMessages((prev) => [
-      ...prev,
-      userMessage,
-      { text: '', sender: 'assistant', type: 'message' },
-    ]);
+    setMessages((prev) => [...prev, userMessage]);
     setNewMessage('');
-    setIsTyping(true);
 
     socketRef.current.send(newMessage);
-    await saveChatHistory('user', userMessage.text, 'message');
   };
 
   useEffect(() => {
@@ -167,6 +135,7 @@ const AIChatView = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // ✅ 챗봇 선택
   const handleOptionClick = async (option) => {
     const optionMessage = { text: option, sender: 'option', type: 'option' };
     setMessages((prev) => [...prev, optionMessage]);
@@ -174,7 +143,6 @@ const AIChatView = () => {
 
     let aiMessage;
     if (option === chatT) {
-      //setCurrentApi(`/chatbot/chatT`);
       setCurrentApi(`/chatbot/streamT`);
       aiMessage = `안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.`;
     } else if (option === chatF) {
@@ -182,57 +150,11 @@ const AIChatView = () => {
       aiMessage = `안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다. 💫🎭`;
     }
     setIsBotSelected(true);
-    const splitMessages = splitIntoSentences(aiMessage, 'assistant');
-    for (const msg of splitMessages) {
-      setMessages((prev) => [...prev, msg]);
-      await new Promise((resolve) => setTimeout(resolve, 500)); // 메시지 간 0.5초 간격
-    }
+
+    updateMessages(aiMessage);
+    updateMessages('[END]');
     await saveChatHistory('assistant', aiMessage, 'message');
   };
-
-  // const sendMessage = async () => {
-  //   if (newMessage.trim() === '') return;
-
-  //   const userMessage = { text: newMessage, sender: 'user', type: 'message' };
-  //   setMessages((prev) => [...prev, userMessage]);
-
-  //   setNewMessage('');
-  //   setIsTyping(true);
-
-  //   const assistantMessage = { text: '', sender: 'assistant', type: 'message' };
-  //   setMessages((prev) => [...prev, assistantMessage]);
-
-  //   try {
-  //     /*const responseMessage = await getResponse(currentApi, userMessage.text);
-  //     const assistantMessages = splitIntoSentences(responseMessage, 'assistant');
-
-  //     for (const msg of assistantMessages) {
-  //       setMessages((prev) => [...prev, msg]);
-  //       await new Promise((resolve) => setTimeout(resolve, 500)); // 메시지 간 0.5초 간격
-  //     }*/
-
-  //     const fullResponse = await fetchStreamResponse(
-  //       currentApi,
-  //       userMessage.text,
-  //       (updatedText) => {
-  //         setMessages((prev) => {
-  //           const lastIndex = prev.length - 1;
-  //           const newMessages = [...prev];
-  //           newMessages[lastIndex] = { ...newMessages[lastIndex], text: updatedText };
-  //           return newMessages;
-  //         });
-  //       },
-  //     );
-  //   } catch (error) {
-  //     setMessages((prev) => [
-  //       ...prev,
-  //       { text: 'AI 응답을 불러오지 못했습니다.', sender: 'assistant', type: 'message' },
-  //     ]);
-  //     console.error('Error fetching AI response:', error);
-  //   } finally {
-  //     setIsTyping(false);
-  //   }
-  // };
 
   return (
     <ChatContainer>

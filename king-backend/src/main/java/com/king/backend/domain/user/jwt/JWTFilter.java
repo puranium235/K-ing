@@ -24,18 +24,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("🛠️ JWTFilter 요청 처리 중... URI: {}", request.getRequestURI());
         String authorization = request.getHeader("Authorization");
 
-        String uri = request.getRequestURI();
-        if (uri.startsWith("/api/ws/")) {
-            log.info("🚨 WebSocket 요청은 JWTFilter에서 제외됩니다. URI: {}", uri);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            log.warn("🚨 Authorization 헤더가 없음 또는 형식이 잘못됨. URI: {}", request.getRequestURI());
             String requestUri = request.getRequestURI();
             String requestMethod = request.getMethod();
 
@@ -52,9 +43,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         try {
             jwtUtil.validToken(accessToken);
-            log.info("✅ JWT 인증 성공: {}", accessToken);
         } catch (Exception e) {
-            log.error("❌ JWT 인증 실패: {}", e.getMessage());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "accessToken이 유효하지 않습니다");
             return;
         }

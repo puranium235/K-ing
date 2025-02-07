@@ -64,7 +64,6 @@ public class SecurityConfig {
                         .requestMatchers("/user/token-refresh").permitAll()
                         .requestMatchers("/user/signup", "/user/nickname").hasRole("PENDING")
                         .requestMatchers("/api/chatbot/streamT").authenticated()
-                        .requestMatchers("/api/ws/chatbot").authenticated()
                         .anyRequest().hasRole("REGISTERED"))
 
                 .exceptionHandling((exception) -> exception
@@ -116,7 +115,8 @@ public class SecurityConfig {
                 "/webjars/**",
                 "/swagger-resources/**",
                 "/swagger-ui/**",
-                "/swagger-ui.html"
+                "/swagger-ui.html",
+                "/ws/**"
         );
     }
 

@@ -4,6 +4,7 @@ import com.king.backend.ai.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
@@ -11,6 +12,8 @@ import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import reactor.core.publisher.Flux;
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -18,16 +21,29 @@ import java.io.IOException;
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private final ChatService chatService;
+    private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("✅ WebSocket 연결 성공: sessionId={}, user={}", session.getId(), authentication.getName());
+    public void afterConnectionEstablished(WebSocketSession session) {
+        String userId = (String) session.getAttributes().get("userId");
+
+        if (userId == null) {
+            log.warn("❌ WebSocket 연결 실패 - 사용자 정보 없음");
+            return;
+        }
+
+        sessions.put(userId, session);
+        log.info("✅ WebSocket 연결 성공 - 사용자 ID: {}", userId);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        log.info("⚠️ WebSocket 연결 종료: sessionId={}, status={}", session.getId(), status);
+        String userId = (String) session.getAttributes().get("userId");
+
+        if (userId != null) {
+            sessions.remove(userId);
+            log.info("❌ WebSocket 연결 종료 - 사용자 ID: {}", userId);
+        }
     }
 
     @Override
@@ -37,11 +53,22 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
-        String userMessage = message.getPayload();
-        log.info("📩 WebSocket 메시지 수신: sessionId={}, message={}", session.getId(), userMessage); // ✅ WebSocket 메시지 로그
+        String userId = (String) session.getAttributes().get("userId");
 
+        if (userId == null) {
+            log.warn("❌ WebSocket 메시지 처리 실패 - 사용자 정보 없음");
+            return;
+        }
+
+        log.info("📨 WebSocket 메시지 수신 - 사용자 ID: {}, 메시지: {}", userId, message.getPayload());
+//        try {
+//            Map<String, Object> response = chatService.chatT(message.getPayload(), userId);
+//            session.sendMessage(new TextMessage(response.toString()));
+//        } catch (IOException e) {
+//            log.error("❌ WebSocket 메시지 전송 실패", e);
+//        }
         // 🔹 OpenAI API 스트리밍 호출
-        Flux<String> responseStream = chatService.streamChatT(userMessage);
+        Flux<String> responseStream = chatService.streamChatT(message.getPayload(), userId);
 
         // 🔹 WebSocket을 통해 클라이언트로 실시간 전송
         responseStream.subscribe(

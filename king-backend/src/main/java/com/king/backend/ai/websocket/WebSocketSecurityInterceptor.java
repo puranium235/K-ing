@@ -4,6 +4,7 @@ import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.jwt.JWTUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
@@ -37,39 +38,20 @@ public class WebSocketSecurityInterceptor implements HandshakeInterceptor {
 
         if (request instanceof ServletServerHttpRequest servletRequest) {
             HttpServletRequest httpRequest = servletRequest.getServletRequest();
-            String token = httpRequest.getParameter("token");
-
-            if (token == null || token.isEmpty()) {
-                log.warn("🚨 WebSocket 핸드셰이크 실패: 토큰 없음");
-                return false;
-            }
+            String token = httpRequest.getParameter("token");  // ✅ WebSocket URL에서 토큰 추출
+            log.info("🔑 WebSocket 인증 요청: {}", token);
 
             try {
-                Claims claims = jwtUtil.validToken(token);
-                String userId = claims.get("userId", String.class);
-                String role = claims.get("role", String.class);
-
-                log.info("✅ WebSocket 인증 성공: userId={}, role={}", userId, role);
-
-                // WebSocket 세션에 사용자 정보 저장
-                attributes.put("userId", userId);
-                attributes.put("role", role);
-
-                // 🔥 SecurityContext 설정 (WebSocket 요청을 Spring Security에서 인증할 수 있도록 함)
-                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null,
-                                Collections.singletonList(new SimpleGrantedAuthority(role)));
-
-                securityContext.setAuthentication(authentication);
-                SecurityContextHolder.setContext(securityContext);
-
-                log.info("🔒 SecurityContext 설정 완료: userId={}, role={}", userId, role);
-
+                jwtUtil.validToken(token);
+                log.info("✅ JWT 인증 성공: {}", token);
             } catch (Exception e) {
-                log.error("❌ WebSocket 인증 실패: {}", e.getMessage(), e);
+                log.error("❌ JWT 인증 실패: {}", e.getMessage());
                 return false;
             }
+
+            String userId = jwtUtil.getUserId(token);
+            attributes.put("userId", userId);
+            log.info("✅ WebSocket 인증 성공 - 사용자 ID: {}", userId);
         }
         return true;
     }
