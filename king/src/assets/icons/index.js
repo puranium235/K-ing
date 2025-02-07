@@ -12,6 +12,7 @@ export { ReactComponent as IcCeleb } from './ic_celeb.svg';
 export { ReactComponent as IcChatbot } from './ic_chatbot.svg';
 export { ReactComponent as IcChatbotSelected } from './ic_chatbot_selected.svg';
 export { ReactComponent as IcComments } from './ic_comments.svg';
+export { ReactComponent as IcDelete } from './ic_delete.svg';
 export { ReactComponent as IcDrama } from './ic_drama.svg';
 export { ReactComponent as IcFilter } from './ic_filter.svg';
 export { ReactComponent as IcFootprintLeft } from './ic_footprint_left.svg';

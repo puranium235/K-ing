@@ -9,16 +9,6 @@ import lombok.*;
 @Builder
 public class PostDraftRequestDto {
     private String content;
-    private Place place;
-    private String imageUrl;
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class Place {
-        private Long placeId;
-        private String name;
-    }
+    private Long placeId;
+    private Boolean isPublic;
 }

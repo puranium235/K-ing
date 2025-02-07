@@ -1,6 +1,6 @@
 package com.king.backend.domain.place.controller;
 
-import com.king.backend.connection.RedisUtil;
+import com.king.backend.global.util.RedisUtil;
 import com.king.backend.domain.place.dto.response.PlaceDetailResponseDto;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.service.PlaceService;
