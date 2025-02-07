@@ -21,6 +21,8 @@ public class Post {
 
     private String content;
 
+    private boolean isPublic;
+
     @CreationTimestamp
     private OffsetDateTime createdAt;
 

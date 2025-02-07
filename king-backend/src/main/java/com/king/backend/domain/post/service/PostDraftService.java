@@ -1,10 +1,14 @@
 package com.king.backend.domain.post.service;
 
-import com.king.backend.connection.RedisUtil;
+import com.king.backend.global.util.RedisUtil;
+import com.king.backend.domain.place.entity.Place;
+import com.king.backend.domain.place.errorcode.PlaceErrorCode;
+import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.post.dto.request.PostDraftRequestDto;
 import com.king.backend.domain.post.dto.response.PostDraftResponseDto;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
-import com.king.backend.s3.service.S3Service;
+import com.king.backend.global.errorcode.RedisErrorCode;
+import com.king.backend.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -12,53 +16,67 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PostDraftService {
     private final RedisUtil redisUtil;
-    private final S3Service s3Service;
+    private final PlaceRepository placeRepository;
 
     public void saveDraft(PostDraftRequestDto reqDto, MultipartFile imageFile) {
+        String draftKey = getDraftKey();
+        String imageKey = draftKey + ":image";
+
+        redisUtil.setJsonValue(draftKey, reqDto);
+
         if(imageFile != null && !imageFile.isEmpty()) {
-            String imageUrl = s3Service.uploadFile(null, imageFile);
-            reqDto.setImageUrl(imageUrl);
+            try {
+                byte[] imageBytes = imageFile.getBytes();
+                redisUtil.setBinaryValue(imageKey, imageBytes);
+            } catch (IOException e) {
+                throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
+            }
         }
-        redisUtil.setJsonValue(getDraftKey(), reqDto);
-        String storedData = redisUtil.getValue(getDraftKey());
     }
 
     public PostDraftResponseDto getDraft() {
-        PostDraftRequestDto draft = redisUtil.getJsonValue(getDraftKey(), PostDraftRequestDto.class);
+        String draftKey = getDraftKey();
+        String imageKey = draftKey + ":image";
+
+        PostDraftRequestDto draft = redisUtil.getJsonValue(draftKey, PostDraftRequestDto.class);
         if (draft == null) {
             return null;
         }
-        PostDraftResponseDto.Place place = null;
-        if (draft.getPlace() != null) {
-            place = PostDraftResponseDto.Place.builder()
-                    .placeId(draft.getPlace().getPlaceId())
-                    .name(draft.getPlace().getName())
-                    .build();
-        }
+
+        Place place = placeRepository.findById(draft.getPlaceId())
+                .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
+
+        byte[] imageData = redisUtil.getBinaryValue(imageKey);
 
         return PostDraftResponseDto.builder()
                 .content(draft.getContent())
-                .place(place)
-                .imageUrl(draft.getImageUrl())
+                .place(PostDraftResponseDto.Place.builder()
+                        .placeId(place.getId())
+                        .name(place.getName())
+                        .build())
+                .imageData(imageData)
+                .isPublic(draft.getIsPublic())
                 .build();
     }
 
     public void deleteDraft() {
-        PostDraftRequestDto existingDraft = redisUtil.getJsonValue(getDraftKey(), PostDraftRequestDto.class);
-        if(existingDraft != null && existingDraft.getImageUrl() != null) {
-            s3Service.deleteFile(existingDraft.getImageUrl());
-        }
-        redisUtil.deleteValue(getDraftKey());
+        String draftKey = getDraftKey();
+        String imageKey = draftKey + ":image";
+
+        redisUtil.deleteValue(draftKey);
+        redisUtil.deleteBinaryValue(imageKey);
     }
 
     private String getDraftKey() {
         Long userId = getCurrentUserId();
-        return "post:draft:" + userId;
+        return "post:draft:user" + userId;
     }
 
     private Long getCurrentUserId() {

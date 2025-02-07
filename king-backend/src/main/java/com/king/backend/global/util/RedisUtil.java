@@ -1,4 +1,4 @@
-package com.king.backend.connection;
+package com.king.backend.global.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class RedisUtil {
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, byte[]> redisBinaryTemplate;
     private final ObjectMapper objectMapper;
 
     public void setValue(String key, String data) {
@@ -56,5 +57,25 @@ public class RedisUtil {
 
     public void deleteValue(String key) {
         redisTemplate.delete(key);
+    }
+
+    public void deleteBinaryValue(String key) {
+        redisBinaryTemplate.delete(key);
+    }
+
+    public void setBinaryValue(String key, byte[] data) {
+        if (data == null || data.length == 0) {
+            throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
+        }
+        redisBinaryTemplate.opsForValue().set(key, data); // `byte[]` 그대로 저장
+    }
+
+    public byte[] getBinaryValue(String key) {
+        byte[] data = redisBinaryTemplate.opsForValue().get(key);
+        if (data == null) {
+            log.warn("Redis에서 키 {}의 바이너리 데이터를 찾을 수 없음", key);
+            return null;
+        }
+        return data;
     }
 }

@@ -57,23 +57,16 @@ public class PostService {
 
         Post post = Post.builder()
                 .content(reqDto.getContent())
+                .isPublic(reqDto.getIsPublic())
                 .writer(writer)
                 .place(place)
                 .build();
         postRepository.save(post);
 
-        String savedImageUrl = reqDto.getImageUrl();
-        String finalImageUrl = savedImageUrl;
         if (imageFile != null && !imageFile.isEmpty()) {
-            if (savedImageUrl != null) {
-                s3Service.deleteFile(savedImageUrl);
-            }
-            finalImageUrl = s3Service.uploadFile(post, imageFile);
-        }
-
-        if (finalImageUrl != null) {
+            String s3Url = s3Service.uploadFile(post, imageFile);
             PostImage postImage = PostImage.builder()
-                    .imageUrl(finalImageUrl)
+                    .imageUrl(s3Url)
                     .post(post)
                     .build();
             postImageRepository.save(postImage);
