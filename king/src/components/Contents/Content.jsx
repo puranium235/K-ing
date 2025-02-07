@@ -5,18 +5,18 @@ import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
-import { ContentType, SearchQueryState } from '../../recoil/atom';
+import { ScrollPosition, SearchQueryState } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import Loading from '../Loading/Loading';
-
 const Content = () => {
   const { contentType } = useParams();
-  const [contentTypeState, setContentTypeState] = useRecoilState(ContentType);
+  const [scrollPosition, setScrollPosition] = useRecoilState(ScrollPosition);
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [favorites, setFavorites] = useState({});
+
   const navigate = useNavigate();
 
   //마지막 요소 감지
@@ -28,8 +28,22 @@ const Content = () => {
   );
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [contentType]);
+    if (!isLoading) {
+      window.scrollTo({ top: scrollPosition, behavior: 'instant' });
+    }
+  }, [isLoading, scrollPosition]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     if (isLoading || !lastElementRef.current) return;
@@ -60,6 +74,8 @@ const Content = () => {
   };
 
   const handleItemClick = (id) => {
+    console.log(window.scrollY);
+    setScrollPosition(window.scrollY);
     if (contentType === 'cast') {
       navigate(`/content/cast/${id}`);
     } else {

@@ -1,5 +1,11 @@
 import { atom } from 'recoil';
 
+//스크롤 위치 유지
+const ScrollPosition = atom({
+  key: 'scrollPosition',
+  default: 0,
+});
+
 const FilterOption = atom({
   key: 'filterOption',
   default: {
@@ -60,6 +66,7 @@ export {
   ContentType,
   CurationPlaceList,
   FilterOption,
+  ScrollPosition,
   SearchCategoryState,
   SearchPrevQuery,
   SearchQueryState,

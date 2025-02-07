@@ -277,7 +277,7 @@ const CastMember = styled.div`
   }
 
   p {
-    margin-top: 5px;
+    margin-top: 0.5rem;
     ${({ theme }) => theme.fonts.Body2};
   }
 
