@@ -1,5 +1,6 @@
 import { debounce } from 'lodash';
 import React, { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcSearch } from '../../assets/icons';
@@ -11,10 +12,13 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur }) => {
   const [category, setCategory] = useState('');
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
 
+  const navigate = useNavigate();
+
   const handleSearchChange = useCallback(
     debounce(async (searchText) => {
       const res = await getAutoKeyword(searchText, type);
       setAutoCompleteOptions(res.results);
+      console.log(res.results);
     }, 300),
     [type],
   );
@@ -27,9 +31,13 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur }) => {
   };
 
   const handleOptionClick = (option) => {
-    setAutoCompleteOptions([]);
-    setKeyword(option.name);
-    setCategory(option.category);
+    const type = option.category.toLowerCase();
+
+    if (category === 'CAST') {
+      navigate(`/content/cast/${option.originalId}`);
+    } else {
+      navigate(`/content/detail/${option.originalId}`);
+    }
   };
 
   const handleSubmit = () => {
