@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -60,9 +61,8 @@ public class CurationService {
     public CurationListResponseDTO getCurations(CurationListRequestDTO requestDTO) {
         Long userId = requestDTO.getUserId();
         String cursor = requestDTO.getCursor();
+        int size = Optional.ofNullable(requestDTO.getSize()).orElse(10);
         List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
-
-        final int size = 6;
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();

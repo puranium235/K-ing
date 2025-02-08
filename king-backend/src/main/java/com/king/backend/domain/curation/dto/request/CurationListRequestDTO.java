@@ -9,5 +9,6 @@ import org.springdoc.core.annotations.ParameterObject;
 @ParameterObject
 public class CurationListRequestDTO {
     Long userId;
+    Integer size;
     String cursor;
 }
