@@ -100,7 +100,6 @@ public class CurationService {
 
     private List<CurationList> getPublicCurationList(User user, List<Object> sortValues, int size) {
         if (sortValues == null || sortValues.isEmpty()) {
-            // 첫 요청: 특정 유저의 공개된 데이터 조회
             return curationListRepository.findAllByIsPublicAndWriterOrderByIdDesc(true, user, PageRequest.of(0, size));
         } else {
             Long id = Long.parseLong(sortValues.get(0).toString());
