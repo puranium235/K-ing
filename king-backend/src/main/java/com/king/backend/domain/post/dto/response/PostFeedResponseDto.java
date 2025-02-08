@@ -11,7 +11,6 @@ import java.util.List;
 @Builder
 public class PostFeedResponseDto {
     private List<Post> posts;
-    private Long total;
     private String nextCursor;
 
     @Getter
