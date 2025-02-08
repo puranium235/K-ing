@@ -1,8 +1,13 @@
 package com.king.backend.ai.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.king.backend.ai.dto.ChatHistory;
+import com.king.backend.ai.dto.ChatSummary;
+import com.king.backend.ai.dto.RagSearchRequestDto;
+import com.king.backend.ai.dto.RagSearchResponseDto;
 import com.king.backend.ai.util.AuthUtil;
 import com.king.backend.ai.util.ChatPromptGenerator;
+import com.king.backend.ai.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -14,6 +19,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.*;
 import java.util.function.Function;
@@ -25,6 +31,8 @@ import java.util.stream.Collectors;
 public class ChatService {
     private final ChatHistoryService chatHistoryService;
     private final OpenAiChatModel chatModel;
+    private final RagSearchService ragSearchService;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public List<ChatHistory> getChatHistory() {
         return chatHistoryService.findByUserId(AuthUtil.getUserId());
@@ -49,7 +57,7 @@ public class ChatService {
     }
 
     // 🔹 OpenAI API 스트리밍 방식 호출
-    public Flux<String> streamChat(String userMessage, String userId, Function<List<Map<String, String>>, String> promptGenerator) {
+    public Flux<String> streamChat(String userMessage, String userId, Function<Map<String, String>, String> promptGenerator) {
         List<ChatHistory> chatHistoryList = chatHistoryService.findByUserId(Long.valueOf(userId));
         List<Map<String, String>> dialogueHistory = convertChatHistoryToDialogueHistory(chatHistoryList);
 
@@ -57,16 +65,42 @@ public class ChatService {
         chatHistoryService.saveChatHistory(Long.valueOf(userId), "user", userMessage, "message");
         dialogueHistory.add(Map.of("role", "user", "content", userMessage));
 
-        // 대화 요약 및 ES 검색을 위한 키워드 추출 (JSON) {summary: "", keyword: ""}
+        // ✅ 1. OpenAI를 사용하여 JSON 요약 생성
+        String json = summary(dialogueHistory, ChatPromptGenerator::generatePrompt);
+        log.info("📌 생성된 JSON: " + json);
 
-        // keyword로 service 계층의 ES 호출: 장소 리스트를 가공
+        // ✅ 2. JSON 유효성 검사 수행
+        ChatSummary response = JsonUtil.validateJson(json);
+        Map<String, String> retrievalData = new HashMap<>();
 
-        // Map에 summary와 data로 전처리
-        //List<Map<String, String>> retrievalData;
+        if (response != null) {
+            log.info("✅ JSON이 유효합니다!");
+            //System.out.println(response);  // DTO 전체 출력
+
+            // ✅ 3. Elasticsearch 검색 수행 (추천이 필요할 경우)
+            RagSearchResponseDto searchResults = null;
+            if (response.isRecommend()) {
+                searchResults = searchInElasticSearch(response.getType(), response.getKeyword());
+                printSearchResults(searchResults);
+            }
+
+            // ✅ 4. Retrieval Data 저장
+            retrievalData.put("summary", response.getSummary());
+
+            // ✅ 검색된 데이터가 있을 경우, data 추가
+            if (searchResults != null && searchResults.getPlaces() != null && !searchResults.getPlaces().isEmpty()) {
+                retrievalData.put("data", searchResults.toString()); // JSON 또는 텍스트 변환
+            }
+
+        } else {
+            // ❌ JSON이 유효하지 않다면 `summary` 대신 `dialogueHistory`를 사용
+            log.info("❌ JSON이 유효하지 않습니다. Retrieval Data에 대화 내역을 사용합니다.");
+            retrievalData.put("summary", userMessage);
+        }
 
         // 🔹 OpenAI 프롬프트 생성
-        String prompt = promptGenerator.apply(dialogueHistory);
-        log.info("prompt: {}", prompt);
+        String prompt = promptGenerator.apply(retrievalData);
+        log.info("🔹 OpenAI Prompt 생성: {}", prompt);
 
         StringBuilder responseBuffer = new StringBuilder();
 
@@ -125,14 +159,41 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-    public Map<String, Object> summary(List<Map<String, String>> dialogueHistory, Function<List<Map<String, String>>, String> promptGenerator) {
+    public String summary(List<Map<String, String>> dialogueHistory, Function<List<Map<String, String>>, String> promptGenerator) {
         String prompt = promptGenerator.apply(dialogueHistory);
         ChatResponse chatResponse = chatModel.call(new Prompt(new UserMessage(prompt),
                 OpenAiChatOptions.builder().model("gpt-4o-mini").temperature(0.7).build()));
 
         String gptResponse = chatResponse.getResults().get(0).getOutput().getText();
 
-        return Map.of("message", gptResponse);
+        return gptResponse;
+    }
+
+    public RagSearchResponseDto searchInElasticSearch(String type, String keyword) {
+        log.info("🔍 Elasticsearch에서 '" + keyword + "' 키워드로 장소 검색 수행...");
+
+        // 요청 DTO 생성
+        RagSearchRequestDto requestDto = new RagSearchRequestDto(type, keyword);
+        return ragSearchService.search(requestDto);
+    }
+
+    public static void printSearchResults(RagSearchResponseDto searchResults) {
+        if (searchResults != null && searchResults.getPlaces() != null && !searchResults.getPlaces().isEmpty()) {
+            System.out.print("🔍 검색된 장소 목록:");
+//            for (RagSearchResponseDto.PlaceResult place : searchResults.getPlaces()) {
+//                System.out.println("📍 장소 ID: " + place.getPlaceId());
+//                System.out.println("   이름: " + place.getName());
+//                System.out.println("   유형: " + place.getType());
+//                System.out.println("   주소: " + place.getAddress());
+//                System.out.println("   설명: " + place.getDescription());
+//                System.out.println("   위치: (" + place.getLat() + ", " + place.getLng() + ")");
+//                System.out.println("   이미지: " + place.getImageUrl());
+//                System.out.println("---------------------------------");
+//            }
+            System.out.println(searchResults.getPlaces().size());
+        } else {
+            System.out.println("❌ 검색된 장소가 없습니다.");
+        }
     }
 
     /*REST API chat
