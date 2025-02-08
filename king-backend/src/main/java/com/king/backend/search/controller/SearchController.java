@@ -30,7 +30,6 @@ public class SearchController {
      */
     @GetMapping("/autocomplete")
     public ResponseEntity<ApiResponse<AutocompleteResponseDto>> autocomplete(@ModelAttribute AutocompleteRequestDto requestDto) {
-        log.info("GET /autocomplete 요청 처리 시작");
         AutocompleteResponseDto response = searchService.getAutocompleteSuggestions(requestDto);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
@@ -42,7 +41,6 @@ public class SearchController {
      */
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<SearchResponseDto>> search(@ModelAttribute SearchRequestDto requestDto) {
-        log.info("GET /search 요청 처리 시작");
         SearchResponseDto response = searchService.search(requestDto);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
@@ -54,7 +52,6 @@ public class SearchController {
      */
     @GetMapping("/map-view")
     public ResponseEntity<ApiResponse<MapViewResponseDto>> mapView(@ModelAttribute MapViewRequestDto requestDto) {
-        log.info("GET /search/map-view 요청 처리 시작");
         MapViewResponseDto response = searchService.getMapViewPlaces(requestDto);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }

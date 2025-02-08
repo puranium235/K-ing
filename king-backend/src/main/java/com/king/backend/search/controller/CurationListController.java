@@ -29,7 +29,6 @@ public class CurationListController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<CurationListSearchResponseDto>> searchCurationLists(
             @ModelAttribute CurationListSearchRequestDto requestDto) {
-        log.info("큐레이션 리스트 검색 요청 - query: {}", requestDto.getQuery());
         CurationListSearchResponseDto response = curationSearchService.searchCurationLists(requestDto);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }

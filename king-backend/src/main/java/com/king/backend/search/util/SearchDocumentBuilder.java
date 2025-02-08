@@ -20,12 +20,12 @@ public class SearchDocumentBuilder {
         return new SearchDocument(
                 "CAST-" + cast.getId(),
                 "CAST",
-                "N/A", // Cast에 대해서는 type이 적용되지 않으므로 "N/A" 사용 (필요에 따라 변경)
+                "N/A",
                 cast.getTranslationKo().getName(),
-                "가수, 인물", // 추가 설명 – 필요 시 실제 데이터를 사용
+                "가수, 인물",
                 cast.getImageUrl(),
                 cast.getId(),
-                0, // 초기 popularity (필요 시 0 또는 다른 기본값)
+                0,
                 cast.getCreatedAt(),
                 "N/A", "N/A", "N/A", "N/A",
                 0, 0,
@@ -48,7 +48,7 @@ public class SearchDocumentBuilder {
                 content.getTranslationKo().getDescription(),
                 content.getImageUrl(),
                 content.getId(),
-                0, // 초기 popularity
+                0,
                 content.getCreatedAt(),
                 "N/A", "N/A", "N/A", "N/A",
                 0, 0,
