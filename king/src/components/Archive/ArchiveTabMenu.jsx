@@ -1,49 +1,54 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { IcArchiveBox } from '../../assets/icons';
-import { IcStar2 } from '../../assets/icons';
+import { IcArchiveBox, IcArchiveBoxWhite } from '../../assets/icons';
+import { IcStar2, IcStarWhite } from '../../assets/icons';
 
 const ArchiveTabMenu = ({ activeTab, onTabChange }) => {
-  const handleTabClick = (tab) => {
-    onTabChange(tab);
-  };
-
   const tabs = [
-    { id: 'Curations', label: 'Curations', icon: <IcArchiveBox /> },
-    { id: 'Favorites', label: 'Favorites', icon: <IcStar2 /> },
+    {
+      id: 'Curations',
+      label: 'Curations',
+      activeIcon: <IcArchiveBox />,
+      inactiveIcon: <IcArchiveBoxWhite />,
+    },
+    {
+      id: 'Favorites',
+      label: 'Favorites',
+      activeIcon: <IcStar2 />,
+      inactiveIcon: <IcStarWhite />,
+    },
   ];
+
   const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
 
   return (
-    <StArchiveTabMenuWrapper>
-      {tabs.map((tab) => (
-        <St.TabButton
-          key={tab.id}
-          isActive={activeTab === tab.id} // 활성화 상태 전달
-          onClick={() => handleTabClick(tab.id)}
-        >
-          <St.IconWrapper>{tab.icon}</St.IconWrapper>
-          <St.Label>{tab.label}</St.Label>
-        </St.TabButton>
-      ))}
+    <St.ArchiveTabMenuWrapper>
+      {tabs.map((tab) => {
+        const isActive = activeTab === tab.id;
+        return (
+          <St.TabButton key={tab.id} isActive={isActive} onClick={() => onTabChange(tab.id)}>
+            <St.IconWrapper>{isActive ? tab.activeIcon : tab.inactiveIcon}</St.IconWrapper>
+            <St.Label>{tab.label}</St.Label>
+          </St.TabButton>
+        );
+      })}
       <St.Slider activeIndex={activeIndex} />
-    </StArchiveTabMenuWrapper>
+    </St.ArchiveTabMenuWrapper>
   );
 };
 
 export default ArchiveTabMenu;
 
-const StArchiveTabMenuWrapper = styled.nav`
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.Gray2};
-`;
-
 const St = {
+  ArchiveTabMenuWrapper: styled.nav`
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.Gray2};
+  `,
   TabButton: styled.button.withConfig({
-    shouldForwardProp: (prop) => prop !== 'isActive', // isActive를 DOM에 전달하지 않음
+    shouldForwardProp: (prop) => prop !== 'isActive',
   })`
     flex: 1;
     display: flex;
@@ -72,7 +77,7 @@ const St = {
   `,
   Label: styled.span``,
   Slider: styled.div.withConfig({
-    shouldForwardProp: (prop) => prop !== 'activeIndex', // activeIndex를 DOM에 전달하지 않음
+    shouldForwardProp: (prop) => prop !== 'activeIndex',
   })`
     position: absolute;
     bottom: 0;

@@ -1,27 +1,35 @@
 import React from 'react';
-// import { FiCamera, FiFolder } from 'react-icons/fi'; // 아이콘 예시
 import styled from 'styled-components';
 
-const ProfileTabMenu = ({ activeTab, onTabChange }) => {
-  const tabs = [
-    { id: 'posts', label: 'Posts' },
-    { id: 'curations', label: 'Curations' },
-  ];
-  const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
+import { IcPosts, IcPostsWhite } from '../../assets/icons';
+import { IcArchiveBox, IcArchiveBoxWhite } from '../../assets/icons';
 
+const ProfileTabMenu = ({ activeTab, onTabChange }) => {
   return (
     <St.TabMenu>
-      {tabs.map((tab) => (
-        <St.TabButton
-          key={tab.id}
-          isActive={activeTab === tab.id}
-          onClick={() => onTabChange(tab.id)}
-        >
-          <St.IconWrapper>{tab.icon}</St.IconWrapper>
-          <St.Label>{tab.label}</St.Label>
-        </St.TabButton>
-      ))}
-      <St.Slider activeIndex={activeIndex} />
+      {[
+        {
+          id: 'posts',
+          label: 'Posts',
+          activeIcon: <IcPosts />,
+          inactiveIcon: <IcPostsWhite />,
+        },
+        {
+          id: 'curations',
+          label: 'Curations',
+          activeIcon: <IcArchiveBox />,
+          inactiveIcon: <IcArchiveBoxWhite />,
+        },
+      ].map((tab) => {
+        const isActive = activeTab === tab.id;
+        return (
+          <St.TabButton key={tab.id} isActive={isActive} onClick={() => onTabChange(tab.id)}>
+            <St.IconWrapper>{isActive ? tab.activeIcon : tab.inactiveIcon}</St.IconWrapper>
+            <St.Label>{tab.label}</St.Label>
+          </St.TabButton>
+        );
+      })}
+      <St.Slider activeIndex={activeTab === 'curations' ? 1 : 0} />
     </St.TabMenu>
   );
 };

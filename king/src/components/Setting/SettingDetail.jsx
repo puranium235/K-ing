@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import SettingDeleteAccount from './SettingDeleteAccount';
+import SettingLanguage from './SettingLanguage';
+import SettingNotification from './SettingNotification';
 import SettingProfile from './SettingProfile';
 
 const SettingDetail = () => {
@@ -15,9 +17,9 @@ const SettingDetail = () => {
       case 'delete-account':
         return <SettingDeleteAccount />;
       case 'notification':
-        return <div>알림 설정 페이지</div>;
+        return <SettingNotification />;
       case 'language':
-        return <div>언어 설정 페이지</div>;
+        return <SettingLanguage />;
       default:
         return <div>잘못된 접근입니다.</div>;
     }
