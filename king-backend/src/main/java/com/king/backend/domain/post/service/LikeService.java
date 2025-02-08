@@ -90,11 +90,6 @@ public class LikeService {
         redisStringTemplate.opsForZSet().incrementScore(POST_LIKES_KEY, postId.toString(), -1);
     }
 
-    public Long getLikeCount(Long postId) {
-        Double score = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, postId.toString());
-        return score != null ? score.longValue() : 0L;
-    }
-
     // 1시간마다 Redis 데이터를 DB로 저장
     @Scheduled(fixedRate = 3600000)
     @Transactional

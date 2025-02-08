@@ -86,6 +86,10 @@ public class PostService {
     }
 
     public PostHomeResponseDto getHomePostsWithCursor(PostHomeRequestDto reqDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
+        Long userId = Long.parseLong(user.getName());
+
         String cursor = reqDto.getCursor();
         int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
         List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
@@ -101,13 +105,21 @@ public class PostService {
                     .map(PostImage::getImageUrl)
                     .orElse(null);
 
-            Long likesCount = likeRepository.countByPostId(post.getId());
+            Double score = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, post.getId().toString());
+            Long likesCount = (score != null ? score.longValue() : 0L);
+
+            Boolean isLiked = false;
+            if (userId != null) {
+                isLiked = Boolean.TRUE.equals(redisStringTemplate.opsForSet().isMember("post:likes:" + post.getId(), userId.toString()));
+            }
+
             Long commentsCount = commentRepository.countByPostId(post.getId());
 
             return PostHomeResponseDto.Post.builder()
                     .postId(post.getId())
                     .imageUrl(imageUrl)
                     .likesCnt(likesCount)
+                    .isLiked(isLiked)
                     .commentsCnt(commentsCount)
                     .writer(new PostHomeResponseDto.Writer(post.getWriter().getId(), post.getWriter().getNickname()))
                     .content(post.getContent())
@@ -305,10 +317,5 @@ public class PostService {
         
         postRepository.delete(post);
         log.info("postService: 게시글 삭제 완료 - postId: {}", postId);
-    }
-
-    // 인기 게시글 ID 조회 (좋아요 개수 많은 순)
-    public Set<String> getPopularPostIds(int size) {
-        return redisStringTemplate.opsForZSet().reverseRange(POST_LIKES_KEY, 0, size - 1);
     }
 }
