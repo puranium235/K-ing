@@ -37,12 +37,15 @@ public class Post {
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
 
-    public void update(String content, Place place) {
+    public void update(String content, Place place, Boolean isPublic) {
         if (content != null) {
             this.content = content;
         }
         if (place != null) {
             this.place = place;
+        }
+        if (isPublic != null) {
+            this.isPublic = isPublic;
         }
     }
 }

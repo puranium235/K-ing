@@ -3,9 +3,10 @@ package com.king.backend.domain.post.service;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
+import com.king.backend.domain.post.dto.request.PostHomeAndMyPageRequestDto;
 import com.king.backend.domain.post.dto.request.PostUploadRequestDto;
-import com.king.backend.domain.post.dto.response.PostAllResponseDto;
 import com.king.backend.domain.post.dto.response.PostDetailResponseDto;
+import com.king.backend.domain.post.dto.response.PostHomeResponseDto;
 import com.king.backend.domain.post.entity.Post;
 import com.king.backend.domain.post.entity.PostImage;
 import com.king.backend.domain.post.errorcode.PostErrorCode;
@@ -19,18 +20,18 @@ import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.s3.service.S3Service;
+import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -44,6 +45,7 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
+    private final CursorUtil cursorUtil;
 
     @Transactional
     public Long uploadPost(PostUploadRequestDto reqDto, MultipartFile imageFile) {
@@ -57,7 +59,7 @@ public class PostService {
 
         Post post = Post.builder()
                 .content(reqDto.getContent())
-                .isPublic(reqDto.getIsPublic())
+                .isPublic(reqDto.isPublic())
                 .writer(writer)
                 .place(place)
                 .build();
@@ -74,20 +76,34 @@ public class PostService {
         return post.getId();
     }
 
-    @Transactional
-    public PostAllResponseDto.CursorResponse getAllPosts(OffsetDateTime cursor, int size) {
-        Pageable pageable = PageRequest.of(0, size);
+    public PostHomeResponseDto getHomeAndMyPagePostsWithCursor(PostHomeAndMyPageRequestDto reqDto) {
+        Long userId = reqDto.getUserId();
+        String cursor = reqDto.getCursor();
+        int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
+        List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
+
+        Long authId = Long.parseLong(authUser.getName());
+
         List<Post> posts;
 
-        if (cursor == null) {
-            posts = postRepository.findByOrderByCreatedAtDesc(pageable);
+        if(userId == null){
+            posts = getHomePosts(sortValues, size);
         } else {
-            posts = postRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(cursor, pageable);
+            User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
+                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+            posts = (userId.equals(authId))
+                    ? getMyPagePostList(user, sortValues, size)
+                    : getUserPostList(user, sortValues, size);
         }
 
-        OffsetDateTime nextCursor = posts.isEmpty() ? null : posts.get(posts.size() - 1).getCreatedAt();
+        String nextCursor = (posts.size() == size)
+                ? cursorUtil.encodeCursor(List.of(posts.get(posts.size() - 1).getId()))
+                : null;
 
-        List<PostAllResponseDto> postDtos = posts.stream().map(post -> {
+        List<PostHomeResponseDto.Post> postDtos = posts.stream().map(post -> {
             String imageUrl = postImageRepository.findByPostId(post.getId())
                     .map(PostImage::getImageUrl)
                     .orElse(null);
@@ -95,19 +111,46 @@ public class PostService {
             Long likesCount = likeRepository.countByPostId(post.getId());
             Long commentsCount = commentRepository.countByPostId(post.getId());
 
-            return PostAllResponseDto.builder()
+            return PostHomeResponseDto.Post.builder()
                     .postId(post.getId())
                     .imageUrl(imageUrl)
                     .likesCnt(likesCount)
                     .commentsCnt(commentsCount)
-                    .writer(new PostAllResponseDto.Writer(post.getWriter().getId(), post.getWriter().getNickname()))
+                    .writer(new PostHomeResponseDto.Writer(post.getWriter().getId(), post.getWriter().getNickname()))
                     .content(post.getContent())
                     .createdAt(post.getCreatedAt())
                     .updatedAt(post.getUpdatedAt())
                     .build();
         }).toList();
 
-        return new PostAllResponseDto.CursorResponse(postDtos, nextCursor);
+        return new PostHomeResponseDto(postDtos, nextCursor);
+    }
+
+    public List<Post> getHomePosts(List<Object> sortValues, int size) {
+        if(sortValues == null || sortValues.isEmpty()) {
+            return postRepository.findAllByIsPublicOrderByIdDesc(true, PageRequest.of(0, size));
+        } else {
+            Long id = Long.parseLong(sortValues.get(0).toString());
+            return postRepository.findByIsPublicAndIdLessThanOrderByIdDesc(true, id, PageRequest.of(0, size));
+        }
+    }
+
+    public List<Post> getMyPagePostList(User user, List<Object> sortValues, int size){
+        if (sortValues == null || sortValues.isEmpty()) {
+            return postRepository.findAllByWriterOrderByIdDesc(user, PageRequest.of(0, size));
+        } else {
+            Long id = Long.parseLong(sortValues.get(0).toString());
+            return postRepository.findByWriterAndIdLessThanOrderByIdDesc(user, id, PageRequest.of(0, size));
+        }
+    }
+
+    public List<Post> getUserPostList(User user, List<Object> sortValues, int size){
+        if (sortValues == null || sortValues.isEmpty()) {
+            return postRepository.findAllByIsPublicAndWriterOrderByIdDesc(true, user, PageRequest.of(0, size));
+        } else {
+            Long id = Long.parseLong(sortValues.get(0).toString());
+            return postRepository.findByIsPublicAndWriterAndIdLessThanOrderByIdDesc(true, user, id, PageRequest.of(0, size));
+        }
     }
 
     @Transactional
@@ -150,7 +193,7 @@ public class PostService {
             newPlace = placeRepository.findById(reqDto.getPlaceId())
                     .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
         }
-        post.update(reqDto.getContent(), newPlace);
+        post.update(reqDto.getContent(), newPlace, reqDto.isPublic());
 
         if (imageFile != null && !imageFile.isEmpty()) {
             // 기존 이미지 삭제

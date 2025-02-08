@@ -1,27 +1,36 @@
 package com.king.backend.domain.curation.controller;
 
+import com.king.backend.domain.curation.dto.request.CurationListRequestDTO;
 import com.king.backend.domain.curation.dto.response.CurationDetailResponseDTO;
+import com.king.backend.domain.curation.dto.response.CurationListResponseDTO;
 import com.king.backend.domain.curation.service.CurationService;
 import com.king.backend.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/curation")
 @RequiredArgsConstructor
+@Tag(name = "큐레이션 컨트롤러", description = "큐레이션 관련 CRUD")
 @SecurityRequirement(name = "BearerAuth")
 public class CurationController {
     private final CurationService curationService;
 
+    @Operation(summary = "큐레이션 상세 조회")
     @GetMapping("/{curationListId}")
-    public ResponseEntity<ApiResponse<CurationDetailResponseDTO>> getCurationDetail (@PathVariable(value = "curationListId") Long curationListId) {
+    public ResponseEntity<ApiResponse<CurationDetailResponseDTO>> getCurationDetail(@PathVariable(value = "curationListId") Long curationListId) {
         CurationDetailResponseDTO curationDetailResponseDTO = curationService.getCurationDetail(curationListId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(curationDetailResponseDTO));
+    }
+
+    @Operation(summary = "큐레이션 목록 조회")
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<CurationListResponseDTO>> getCurations(@ModelAttribute CurationListRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(curationService.getCurations(requestDTO)));
     }
 }
