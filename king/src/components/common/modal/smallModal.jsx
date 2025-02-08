@@ -20,14 +20,14 @@ const StSmallModalWrapper = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
 
-  width: 45.6rem;
+  width: 30rem;
   height: fit-content;
 
   border-radius: 2rem;
   box-shadow:
     0px 4px 100px 0px rgba(153, 133, 254, 0.2) inset,
     -30px 30px 100px 0px rgba(132, 139, 227, 0.15);
-  background-color: ${({ theme }) => theme.colors.LightGray1};
+  background-color: #e8e8f4;
 `;
 
 const StTitle = styled.div`
@@ -39,7 +39,7 @@ const StTitle = styled.div`
   height: 5.6rem;
 
   border-radius: 2rem 2rem 0 0;
-  background-color: ${({ theme }) => theme.colors.Purple4};
+  background-color: ${({ theme }) => theme.colors.Navy};
   color: ${({ theme }) => theme.colors.White};
-  ${({ theme }) => theme.fonts.Title1};
+  ${({ theme }) => theme.fonts.Title4};
 `;

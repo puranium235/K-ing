@@ -1,22 +1,27 @@
 import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import { IcImageUpload, IcImageUploadTrue, IcToggleFalse, IcToggleTrue } from '../../assets/icons';
+import useModal from '../../hooks/common/useModal';
 import useToggle from '../../hooks/common/useToggle';
-import { getPostDraft, postDraft } from '../../lib/post';
+import { createPost, getPostDraft, postDraft } from '../../lib/post';
 import { DraftExist } from '../../recoil/atom';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
+import DraftModal from './Modal/DraftModal';
 
 const PostUpload = () => {
+  const create = useModal();
   const toggle = useToggle(false);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const [place, setPlace] = useState('');
-  const [placeId, setPlaceId] = useState(1);
+  const [placeId, setPlaceId] = useState(0);
   const [image, setImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [caption, setCaption] = useState('');
@@ -24,34 +29,64 @@ const PostUpload = () => {
 
   const isDraft = useRecoilValue(DraftExist);
 
+  useEffect(() => {
+    if (isDraft && !create.isShowing) {
+      create.setShowing(true);
+    }
+  }, [isDraft]);
+
   const initData = async () => {
     if (isDraft) {
       const res = await getPostDraft();
+      console.log(res);
 
-      const { content, place, imageUrl } = res.data;
+      const {
+        content,
+        place: { placeId, place },
+        imageData,
+        isPublic,
+      } = res;
+
       setCaption(content);
-      setPlaceId(place.placeId);
-      setImage(imageUrl);
+      setPlaceId(placeId);
+      setPlace(place);
+      if (imageData) {
+        setImage(`data:image/jpeg;base64,${imageData}`);
+      }
+      toggle.setToggle(isPublic);
     }
   };
 
   const saveDraft = async () => {
     if (image || placeId || caption) {
-      const res = await postDraft(image, caption, placeId, toggle.toggle);
-      console.log(res);
+      const draftInfo = { isPublic: toggle.toggle };
+      if (caption) {
+        draftInfo.content = caption;
+      }
+      if (placeId) {
+        draftInfo.placeId = placeId;
+      }
+      const res = await postDraft(draftInfo, imageFile);
+      if (res.success) {
+        alert('임시저장이 완료되었습니다.');
+        navigate(`/home`);
+      }
     }
   };
 
-  const sharePost = () => {
-    if (image && placeId && caption) {
-      const formData = new FormData();
-      formData.append('imageUrl', image);
-      formData.append('content', caption);
-      formData.append('placeId', placeId);
-      formData.append('isPublic', toggle.toggle);
+  const sharePost = async () => {
+    if (isShareEnabled) {
+      const postInfo = {
+        content: caption,
+        placeId,
+        isPublic: toggle.toggle,
+      };
 
-      console.log(formData);
-      //post 요청
+      const res = await createPost(postInfo, imageFile);
+      if (res.data) {
+        alert('게시물을 성공적으로 공유하였습니다.');
+        navigate(`/feed/${res.data}`);
+      }
     }
   };
 
@@ -78,12 +113,10 @@ const PostUpload = () => {
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
+
+    setImageFile(file);
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImage(e.target.result);
-      };
-      reader.readAsDataURL(file);
+      setImage(URL.createObjectURL(file));
     }
   };
 
@@ -150,6 +183,10 @@ const PostUpload = () => {
       </StHomeWrapper>
 
       <Nav />
+
+      <StUploadModalWrapper $showing={create.isShowing}>
+        <DraftModal isShowing={create.isShowing} handleCancel={create.toggle} />
+      </StUploadModalWrapper>
     </>
   );
 };
@@ -301,4 +338,20 @@ const SaveButton = styled.button`
     background-color: ${({ theme, disabled }) =>
       disabled ? theme.colors.Gray5 : theme.colors.LightBlue};
   }
+`;
+
+const StUploadModalWrapper = styled.div`
+  display: ${({ $showing }) => ($showing ? 'block' : 'none')};
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  justify-content: center;
+  align-items: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-color: rgba(0, 0, 0, 0.5);
 `;

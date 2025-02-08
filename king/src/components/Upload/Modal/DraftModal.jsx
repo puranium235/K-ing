@@ -1,16 +1,23 @@
 import { useSetRecoilState } from 'recoil';
 import { styled } from 'styled-components';
 
-import { IcKing } from '../../assets/icons';
-import { DraftExist } from '../../recoil/atom';
-import CancelButton from './button/CancelButton';
-import ConfirmButton from './button/ConfirmButton';
+import { deletePostDraft } from '../../../lib/post';
+import { DraftExist } from '../../../recoil/atom';
+import CancelButton from '../../common/button/CancelButton';
+import ConfirmButton from '../../common/button/ConfirmButton';
+import SmallModal from '../../common/modal/smallModal';
 
 const DraftModal = ({ isShowing, handleCancel }) => {
   const setDraft = useSetRecoilState(DraftExist);
 
-  const handleConfirmDraft = async () => {
+  const handleConfirmDraft = () => {
     setDraft(true);
+    handleCancel();
+  };
+
+  const handleCancelDraft = async () => {
+    setDraft(false);
+    await deletePostDraft();
     handleCancel();
   };
 
@@ -19,17 +26,15 @@ const DraftModal = ({ isShowing, handleCancel }) => {
       <SmallModal title="임시저장 불러오기" isShowing={isShowing}>
         <StDraftModalWrapper>
           <StCommentWrapper>
-            <IcKing />
-            <p>임시저장된 컨텐츠를 불러오시겠습니까?</p>
+            <img src="/src/assets/icons/king_character.png" />
+            <p>
+              임시저장된 컨텐츠를 <br />
+              불러오시겠습니까?
+            </p>
           </StCommentWrapper>
           <StBtnWrapper>
-            <CancelButton btnName="취소" onClick={handleConfirmDraft} />
-            <ConfirmButton
-              btnName="확인"
-              onClick={() => {
-                handleCancel();
-              }}
-            />
+            <CancelButton btnName="취소" onClick={handleCancelDraft} />
+            <ConfirmButton btnName="확인" onClick={handleConfirmDraft} />
           </StBtnWrapper>
         </StDraftModalWrapper>
       </SmallModal>
@@ -51,16 +56,20 @@ const StDraftModalWrapper = styled.div`
 const StCommentWrapper = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
 
   width: 100%;
   margin: 1rem;
 
+  img {
+    width: 7rem;
+  }
+
   & > p {
-    margin-top: 5rem;
     margin-left: 2rem;
 
-    color: ${({ theme }) => theme.colors.MainbBlue};
-    ${({ theme }) => theme.fonts.Body2};
+    color: ${({ theme }) => theme.colors.Gray1};
+    ${({ theme }) => theme.fonts.Body1};
   }
 `;
 const StBtnWrapper = styled.div`

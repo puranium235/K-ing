@@ -5,7 +5,6 @@ import { StConfirmButtonWrapper } from './ConfirmButton';
 const CancelButton = ({ btnName, onClick }) => {
   return (
     <StCancelButtonWrapper type="button" onClick={onClick}>
-      <IcCancel />
       {btnName}
     </StCancelButtonWrapper>
   );
