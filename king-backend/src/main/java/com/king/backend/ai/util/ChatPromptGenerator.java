@@ -6,25 +6,40 @@ import java.util.Map;
 public class ChatPromptGenerator {
     public static String generatePrompt(List<Map<String, String>> dialogueHistory) {
         StringBuilder promptBuilder = new StringBuilder();
+
+        promptBuilder.append(
+                """
+                <instruction>
+                다음은 사용자와의 대화 기록입니다. 사용자의 요구사항을 정확하게 분석하여 다음 JSON 형식에 맞게 응답하세요.
+                                
+                **목표:** \s
+                1. 사용자의 대화 내용을 요약합니다. \s
+                2. 사용자가 특정 장소 추천이나 큐레이션 추천을 원하면 관련 키워드를 추출합니다. \s
+                3. 추천이 필요하지 않은 경우 `isRecommend: false`를 반환합니다. \s
+                4. 추천이 필요한 경우 `isRecommend: true`로 설정하고, 장소 및 큐레이션 추천 키워드를 각각 추출합니다. \s
+                                
+                **JSON 출력 형식:** \s
+                ```json
+                {
+                  "summary": "<사용자의 대화를 간결하게 요약>",
+                  "isRecommend": <true 또는 false>,
+                  "type": "<CAST, SHOW, MOVIE, DRAMA, CURATION 중 적절한 값>",
+                  "keyword": "<추천이 필요하면 키워드, 없으면 빈 문자열>"
+                }
+                규칙:
+                - 기본적으로 대화를 요약하고 isRecommend: false로 설정
+                - 사용자가 특정 연예인(배우, 가수, 방송인) 관련 장소를 원하면 "type": "CAST", "keyword": "<연예인 이름>"
+                - 사용자가 특정 드라마의 촬영지를 원하면 "type": "DRAMA", "keyword": "<드라마 제목>"
+                - 사용자가 특정 영화의 촬영지를 원하면 "type": "MOVIE", "keyword": "<영화 제목>"
+                - 사용자가 특정 예능 촬영지를 원하면 "type": "SHOW", "keyword": "<예능 제목>"
+                - 사용자가 특정 큐레이션을 원하면 "type": "CURATION", "keyword": "<큐레이션 주제>"
+                만약 사용자의 요청이 추천과 관련이 없으면 isRecommend: false로 설정하고 "type", "keyword" 빈 문자열로 유지            
+                </instruction>"""
+        );
         promptBuilder.append("<dialogue history>\n");
         for (Map<String, String> message : dialogueHistory) {
             promptBuilder.append(message.get("role")).append(": ").append(message.get("content")).append("\n");
         }
-        promptBuilder.append(
-                """
-                        <instruction>
-                        당신은 친절한 AI 챗봇 'King' 입니다.
-                        위 대화를 바탕으로 사용자의 요구를 분석하고 적절히 응답하세요.
-                        사용자는 한국 드라마, 영화, 예능, K-POP, 연예인 등에 관심이 많으며, 관련 주제로 가볍고 재미있는 대화를 나누고 싶어합니다.
-                        당신의 목표는 사용자가 편안하게 이야기할 수 있도록 친근한 말투로 응답하고, 한국 콘텐츠와 관련된 흥미로운 대화를 이어가는 것입니다.
-                        
-                        대화 스타일:
-                        - 따뜻하고 친근한 말투 사용
-                        - 사용자의 관심사(최애 배우, 드라마, K-POP 그룹 등)에 맞춰 공감형 응답 제공
-                        - 질문을 던지며 자연스럽게 대화 유도
-                        - 문장은 짧고 간결하게 표현
-                        </instruction>"""
-        );
         return promptBuilder.toString();
     }
 
