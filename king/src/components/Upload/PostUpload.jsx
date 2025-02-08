@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import { IcImageUpload, IcImageUploadTrue, IcToggleFalse, IcToggleTrue } from '../../assets/icons';
 import useToggle from '../../hooks/common/useToggle';
-import { getPostDraft } from '../../lib/post';
+import { getPostDraft, postDraft } from '../../lib/post';
 import { DraftExist } from '../../recoil/atom';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
@@ -35,15 +35,11 @@ const PostUpload = () => {
     }
   };
 
-  const saveDraft = () => {
-    const postData = {
-      content: caption,
-      placeId,
-      imageUrl: image,
-    };
-
-    console.log(image);
-    //post 요청
+  const saveDraft = async () => {
+    if (image || placeId || caption) {
+      const res = await postDraft(image, caption, placeId, toggle.toggle);
+      console.log(res);
+    }
   };
 
   const sharePost = () => {
@@ -52,6 +48,7 @@ const PostUpload = () => {
       formData.append('imageUrl', image);
       formData.append('content', caption);
       formData.append('placeId', placeId);
+      formData.append('isPublic', toggle.toggle);
 
       console.log(formData);
       //post 요청
@@ -136,7 +133,7 @@ const PostUpload = () => {
         ></CaptionInput>
 
         <PublicToggleWrapper>
-          <h3>공개 / 비공개</h3>
+          <h3>공개</h3>
           {toggle.toggle ? (
             <IcToggleTrue onClick={handleToggle} />
           ) : (
