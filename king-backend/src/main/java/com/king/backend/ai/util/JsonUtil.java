@@ -1,11 +1,15 @@
 package com.king.backend.ai.util;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.king.backend.ai.dto.ChatSummary;
 
 public class JsonUtil {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)  // 예상하지 못한 필드가 있어도 무시
+            .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true) // 단일 값도 배열로 처리 가능
+            .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false); // null이 boolean 등에 들어가도 허용
 
     /**
      * JSON이 ChatSummary 객체로 변환 가능한지 확인하는 함수
