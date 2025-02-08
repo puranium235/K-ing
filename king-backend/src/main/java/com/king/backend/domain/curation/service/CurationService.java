@@ -42,6 +42,10 @@ public class CurationService {
         CurationList curationList = curationListRepository.findById(curationListId)
                 .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
 
+        if (!curationList.isPublic() && !curationList.getWriter().getId().equals(userId)) {
+            throw new CustomException(CurationErrorCode.CURATION_NOT_FOUND);
+        }
+
         boolean bookmarked = curationListBookmarkRepository.existsByCurationListIdAndUserId(curationListId, userId);
 
         List<CurationDetailResponseDTO.PlaceDTO> places = curationListItemRepository.findByCurationListId(curationListId)
