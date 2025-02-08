@@ -57,23 +57,16 @@ public class PostService {
 
         Post post = Post.builder()
                 .content(reqDto.getContent())
+                .isPublic(reqDto.getIsPublic())
                 .writer(writer)
                 .place(place)
                 .build();
         postRepository.save(post);
 
-        String savedImageUrl = reqDto.getImageUrl();
-        String finalImageUrl = savedImageUrl;
         if (imageFile != null && !imageFile.isEmpty()) {
-            if (savedImageUrl != null) {
-                s3Service.deleteFile(savedImageUrl);
-            }
-            finalImageUrl = s3Service.uploadFile(post, imageFile);
-        }
-
-        if (finalImageUrl != null) {
+            String s3Url = s3Service.uploadFile(post, imageFile);
             PostImage postImage = PostImage.builder()
-                    .imageUrl(finalImageUrl)
+                    .imageUrl(s3Url)
                     .post(post)
                     .build();
             postImageRepository.save(postImage);
@@ -123,27 +116,6 @@ public class PostService {
         User writer = post.getWriter();
         String imageUrl = postImageRepository.findByPostId(postId).map(PostImage::getImageUrl).orElse(null);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
-
-        boolean isLiked = likeRepository.existsByPostIdAndUserId(postId, userId);
-        Long likesCount = likeRepository.countByPostId(postId);
-        Long commentsCount = commentRepository.countByPostId(postId);
-
-        List<PostDetailResponseDto.Comment> comments = commentRepository.findByPostId(postId).stream()
-                .map(comment -> PostDetailResponseDto.Comment.builder()
-                        .commentId(comment.getId())
-                        .content(comment.getContent())
-                        .createdAt(comment.getCreatedAt())
-                        .writer(PostDetailResponseDto.Writer.builder()
-                                .userId(comment.getWriter().getId())
-                                .nickname(comment.getWriter().getNickname())
-                                .imageUrl(comment.getWriter().getImageUrl())
-                                .build())
-                        .build())
-                .toList();
-
         return PostDetailResponseDto.builder()
                 .postId(post.getId())
                 .content(post.getContent())
@@ -158,10 +130,6 @@ public class PostService {
                         .placeId(post.getPlace().getId())
                         .name(post.getPlace().getName())
                         .build())
-                .isLiked(isLiked)
-                .likesCount(likesCount)
-                .commentsCount(commentsCount)
-                .comments(comments)
                 .build();
     }
 

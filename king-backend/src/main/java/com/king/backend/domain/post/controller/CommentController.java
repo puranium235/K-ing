@@ -1,6 +1,7 @@
 package com.king.backend.domain.post.controller;
 
 import com.king.backend.domain.post.dto.request.CommentUploadRequestDto;
+import com.king.backend.domain.post.dto.response.CommentAllResponseDto;
 import com.king.backend.domain.post.service.CommentService;
 import com.king.backend.domain.post.service.PostService;
 import com.king.backend.global.response.ApiResponse;
@@ -35,4 +36,10 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
     }
 
+    @Operation(summary = "댓글 조회 API")
+    @GetMapping
+    public ResponseEntity<ApiResponse<CommentAllResponseDto>> getComments(@PathVariable Long postId){
+        CommentAllResponseDto resDto = commentService.getComments(postId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(resDto));
+    }
 }

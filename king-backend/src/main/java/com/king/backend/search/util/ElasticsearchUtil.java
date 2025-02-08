@@ -32,9 +32,8 @@ public class ElasticsearchUtil {
             GetIndexResponse response = client.indices().get(request);
             return response.result().containsKey(indexName);
         } catch (ElasticsearchException e) {
-            // Elasticsearch에서 인덱스가 없을 때 발생하는 예외를 명확하게 처리
             if (e.getMessage().contains("index_not_found_exception")) {
-                System.out.println("🔍 인덱스가 존재하지 않음: " + indexName);
+                e.printStackTrace();
                 return false;
             }
             e.printStackTrace();
@@ -58,15 +57,11 @@ public class ElasticsearchUtil {
             try {
                 CreateIndexResponse response = client.indices().create(request);
                 if (response.acknowledged()) {
-                    System.out.println("인덱스 생성 완료: " + indexName);
                 } else {
-                    System.out.println("인덱스 생성 실패: " + indexName);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else {
-            System.out.println("이미 존재하는 인덱스: " + indexName);
         }
     }
 
@@ -80,9 +75,8 @@ public class ElasticsearchUtil {
     public void deleteIndex(String indexName) {
         try {
             client.indices().delete(d -> d.index(indexName));
-            System.out.println("인덱스 삭제 완료: " + indexName);
         } catch (IOException e) {
-            System.out.println("인덱스 삭제 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

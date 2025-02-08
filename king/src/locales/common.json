@@ -5,7 +5,8 @@
     "back": "돌아가기",
     "next": "다음",
     "signup": "회원가입",
-    "language": "언어"
+    "language": "언어",
+    "save": "저장"
   },
   "en": {
     "confirm": "Confirm",
@@ -13,7 +14,8 @@
     "back": "Back",
     "next": "Next",
     "signup": "Sign Up",
-    "language": "Language"
+    "language": "Language",
+    "save": "Save"
   },
   "ja": {
     "confirm": "確認",
@@ -21,7 +23,8 @@
     "back": "戻る",
     "next": "次へ",
     "signup": "登録",
-    "language": "言語"
+    "language": "言語",
+    "save": "保存"
   },
   "zh": {
     "confirm": "确认",
@@ -29,6 +32,7 @@
     "back": "返回",
     "next": "下一步",
     "signup": "注册",
-    "language": "语言"
+    "language": "语言",
+    "save": "保存"
   }
 }

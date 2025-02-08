@@ -3,7 +3,7 @@ package com.king.backend.search.service;
 import co.elastic.clients.elasticsearch._types.analysis.*;
 import co.elastic.clients.elasticsearch._types.mapping.*;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
-import com.king.backend.connection.RedisUtil;
+import com.king.backend.global.util.RedisUtil;
 import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.repository.CastRepository;
 import com.king.backend.domain.content.entity.Content;
@@ -11,8 +11,6 @@ import com.king.backend.domain.content.repository.ContentRepository;
 import com.king.backend.domain.curation.entity.CurationList;
 import com.king.backend.domain.curation.repository.CurationListRepository;
 import com.king.backend.domain.place.entity.Place;
-import com.king.backend.domain.place.entity.PlaceCast;
-import com.king.backend.domain.place.entity.PlaceContent;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.entity.CurationDocument;
@@ -57,16 +55,10 @@ public class SyncService implements CommandLineRunner {
     }
 
     private void settingBeforeSearchMigration(){
-        log.info("초기 mysql-elasticsearch 데이터 마이그레이션 시작");
-
-        // 기존 인덱스가 있는지 확인하고 없으면 생성
         if (elasticsearchUtil.indexExists(ElasticsearchConstants.SEARCH_INDEX)) {
             elasticsearchUtil.deleteIndex(ElasticsearchConstants.SEARCH_INDEX);
         }
 
-        log.info("인덱스가 존재하지 않음. 새로 생성합니다.");
-
-        // Define properties with new fields
         Map<String, Property> properties = new HashMap<>();
         properties.put(ElasticsearchConstants.FIELD_ID, new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put(ElasticsearchConstants.FIELD_CATEGORY, new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
@@ -98,32 +90,27 @@ public class SyncService implements CommandLineRunner {
         properties.put("associatedCastNames", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("associatedContentNames",new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
 
-        // 1. n-gram 토큰 필터 정의 (이름: "autocomplete_filter")
         TokenFilterDefinition autocompleteFilterDefinition = TokenFilterDefinition.of(tf -> tf
                 .ngram(ng -> ng
-                        .minGram(1)   // 최소 n-gram 길이
-                        .maxGram(20)  // 최대 n-gram 길이
+                        .minGram(1)
+                        .maxGram(20)
                 )
         );
 
         TokenFilter tokenFilter=TokenFilter.of(tf -> tf
                 .definition(autocompleteFilterDefinition));
 
-        // 2. TokenFilterDefinition을 Map에 등록
         Map<String, TokenFilter> tokenFiltersMap = new HashMap<>();
         tokenFiltersMap.put(ElasticsearchConstants.TOKEN_FILTER_AUTOCOMPLETE, tokenFilter);
 
-        // 3. IndexSettings 생성: analyzer와 tokenFilters 모두 설정
         IndexSettings settings = new IndexSettings.Builder()
                         .analysis(analysis -> analysis
-                        // "autocomplete_analyzer" 정의
                         .analyzer(ElasticsearchConstants.ANALYZER_AUTOCOMPLETE, a -> a
                                 .custom(ca -> ca
-                                        .tokenizer("standard")                       // 원하는 tokenizer 설정
-                                        .filter("lowercase", ElasticsearchConstants.TOKEN_FILTER_AUTOCOMPLETE)  // 필터 적용 (등록된 토큰 필터 이름 사용)
+                                        .tokenizer("standard")
+                                        .filter("lowercase", ElasticsearchConstants.TOKEN_FILTER_AUTOCOMPLETE)
                                 )
                         )
-                        // 별도로 등록한 token filter 설정 추가
                         .filter(tokenFiltersMap)
                 )
                 .maxNgramDiff(20)
@@ -135,19 +122,12 @@ public class SyncService implements CommandLineRunner {
         migrateCasts();
         migrateContents();
         migratePlaces();
-
-        log.info("초기 mysql-elasticsearch 데이터 마이그레이션 완료");
     }
 
     private void settingBeforeCurationMigration(){
-        log.info("========== 큐레이션 리스트 데이터 동기화 시작 ==========");
-
-        // 인덱스가 이미 존재한다면 삭제 후 재생성(테스트 및 초기 동기화를 위한 처리)
         if (elasticsearchUtil.indexExists(ElasticsearchConstants.CURATION_INDEX)) {
             elasticsearchUtil.deleteIndex(ElasticsearchConstants.CURATION_INDEX);
         }
-        log.info("새로운 인덱스 [{}]를 생성합니다.", ElasticsearchConstants.CURATION_INDEX);
-        // 인덱스 매핑 설정
         Map<String, Property> properties = new HashMap<>();
         properties.put(ElasticsearchConstants.FIELD_ID, new Property.Builder()
                 .keyword(new KeywordProperty.Builder().build())
@@ -177,35 +157,29 @@ public class SyncService implements CommandLineRunner {
                         .build())
                 .build());
 
-        // 인덱스 생성
         elasticsearchUtil.createIndex(ElasticsearchConstants.CURATION_INDEX, properties);
 
         migrateCurationLists();
-
-        log.info("========== 큐레이션 리스트 데이터 동기화 종료 ==========");
     }
 
     private void migrateCurationLists(){
-        // MySQL의 curation_list 데이터 조회
         List<CurationList> curationLists = curationListRepository.findAllWithWriter();
         List<CurationDocument> documents = curationLists.stream()
                 .map(curation -> {
-                    // 작성자 닉네임에 "@" 접두어 추가 (필요에 따라 프론트에서 처리할 수도 있음)
                     String writerNickname = "@" + curation.getWriter().getNickname();
                     return new CurationDocument(
-                            "CURATION-" + curation.getId(),  // 문서 id
-                            curation.getTitle(),             // 제목
-                            writerNickname,                  // 작성자 닉네임
-                            curation.getImageUrl(),          // 이미지 URL
-                            curation.getId(),                // originalId
-                            curation.getCreatedAt(),         // 생성일시
+                            "CURATION-" + curation.getId(),
+                            curation.getTitle(),
+                            writerNickname,
+                            curation.getImageUrl(),
+                            curation.getId(),
+                            curation.getCreatedAt(),
                             curation.isPublic()
                     );
                 })
                 .collect(Collectors.toList());
 
         elasticsearchCurationListRepository.saveAll(documents);
-        log.info("MySQL의 큐레이션 리스트 {}건을 인덱스 [{}]로 동기화 완료", documents.size(), ElasticsearchConstants.CURATION_INDEX);
     }
 
     /**
@@ -223,7 +197,6 @@ public class SyncService implements CommandLineRunner {
                 curationList.isPublic()
         );
         elasticsearchCurationListRepository.save(doc);
-        log.info("CurationList 인덱싱 완료: {}", doc.getId());
     }
 
     /**
@@ -231,7 +204,6 @@ public class SyncService implements CommandLineRunner {
      */
     public void updateCurationList(CurationList curationList) {
         indexCurationList(curationList);
-        log.info("curationList 업데이트 완료: {}", curationList.getId());
     }
 
     /**
@@ -240,7 +212,6 @@ public class SyncService implements CommandLineRunner {
     public void deleteCurationList(Long curationListId) {
         String documentId = "CURATION-" + curationListId;
         elasticsearchCurationListRepository.deleteById(documentId);
-        log.info("Content 인덱스 삭제 완료: {}", documentId);
     }
 
     /**
@@ -252,7 +223,6 @@ public class SyncService implements CommandLineRunner {
                 .map(SearchDocumentBuilder::fromCast)
                 .collect(Collectors.toList());
         searchRepository.saveAll(documents);
-        log.info("Cast 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
     }
 
     /**
@@ -264,7 +234,6 @@ public class SyncService implements CommandLineRunner {
                 .map(SearchDocumentBuilder::fromContent)
                 .collect(Collectors.toList());
         searchRepository.saveAll(documents);
-        log.info("Content 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
     }
 
     /**
@@ -281,14 +250,13 @@ public class SyncService implements CommandLineRunner {
                         try {
                             viewCount = Integer.parseInt(viewCountStr);
                         } catch (NumberFormatException e) {
-                            log.warn("Invalid view count for place {}: {}", place.getId(), viewCountStr);
+                            e.printStackTrace();
                         }
                     }
                     return SearchDocumentBuilder.fromPlace(place, viewCount);
                 })
                 .collect(Collectors.toList());
         searchRepository.saveAll(documents);
-        log.info("Place 데이터 mysql -> elasticsearch 마이그레이션 완료: {} 건", documents.size());
     }
 
     /**
@@ -298,7 +266,6 @@ public class SyncService implements CommandLineRunner {
     public void indexContent(Content content) {
         SearchDocument doc = SearchDocumentBuilder.fromContent(content);
         searchRepository.save(doc);
-        log.info("Content 인덱싱 완료: {}", doc.getId());
     }
 
     /**
@@ -306,7 +273,6 @@ public class SyncService implements CommandLineRunner {
      */
     public void updateContent(Content content) {
         indexContent(content);
-        log.info("Content 업데이트 완료: {}", content.getId());
     }
 
     /**
@@ -315,7 +281,6 @@ public class SyncService implements CommandLineRunner {
     public void deleteContent(Long contentId) {
         String documentId = "CONTENT-" + contentId;
         searchRepository.deleteById(documentId);
-        log.info("Content 인덱스 삭제 완료: {}", documentId);
     }
 
     /**
@@ -324,7 +289,6 @@ public class SyncService implements CommandLineRunner {
     public void indexCast(Cast cast) {
         SearchDocument doc = SearchDocumentBuilder.fromCast(cast);
         searchRepository.save(doc);
-        log.info("Cast 인덱싱 완료: {}", doc.getId());
     }
 
     /**
@@ -332,7 +296,6 @@ public class SyncService implements CommandLineRunner {
      */
     public void updateCast(Cast cast) {
         indexCast(cast);
-        log.info("Cast 업데이트 완료: {}", cast.getId());
     }
 
     /**
@@ -341,7 +304,6 @@ public class SyncService implements CommandLineRunner {
     public void deleteCast(Long castId) {
         String documentId = "CAST-" + castId;
         searchRepository.deleteById(documentId);
-        log.info("Cast 인덱스 삭제 완료: {}", documentId);
     }
 
     /**
@@ -355,12 +317,11 @@ public class SyncService implements CommandLineRunner {
             try {
                 viewCount = Integer.parseInt(viewCountStr);
             } catch (NumberFormatException e) {
-                log.warn("Invalid view count for place {}: {}", place.getId(), viewCountStr);
+                e.printStackTrace();
             }
         }
         SearchDocument doc = SearchDocumentBuilder.fromPlace(place, viewCount);
         searchRepository.save(doc);
-        log.info("Place 인덱싱 완료: {}", doc.getId());
     }
 
     /**
@@ -368,7 +329,6 @@ public class SyncService implements CommandLineRunner {
      */
     public void updatePlace(Place place) {
         indexPlace(place);
-        log.info("Place 업데이트 완료: {}", place.getId());
     }
 
     /**
@@ -377,6 +337,5 @@ public class SyncService implements CommandLineRunner {
     public void deletePlace(Long placeId) {
         String documentId = "PLACE-" + placeId;
         searchRepository.deleteById(documentId);
-        log.info("Place 인덱스 삭제 완료: {}", documentId);
     }
 }

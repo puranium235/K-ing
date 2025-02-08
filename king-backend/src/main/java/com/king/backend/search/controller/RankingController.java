@@ -29,7 +29,6 @@ public class RankingController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<RankingDto>>> getRanking(
             @RequestParam(value = "period", defaultValue = "realtime") String period) {
-        log.info("검색어 랭킹 조회 요청, period: {}", period);
         List<RankingDto> rankingList = rankingService.getRanking(period);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(rankingList));
     }

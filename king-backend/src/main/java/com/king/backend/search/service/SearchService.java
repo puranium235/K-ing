@@ -42,7 +42,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SearchService {
 
-    private final SearchRepository searchRepository;
     private final ElasticsearchClient elasticsearchClient;
     private final CursorUtil cursorUtil;
     private final RankingService rankingService;
@@ -60,62 +59,37 @@ public class SearchService {
         try{
             String query = requestDto.getQuery();
 
-            // 검색 로직 실행 전후에 검색어가 존재하면 랭킹 업데이트
             if (query != null && !query.trim().isEmpty()) {
                 rankingService.incrementKeywordCount(query.trim());
             }
 
             String category = requestDto.getCategory();
-
-            MatchPhrasePrefixQuery matchPhrasePrefixQuery = MatchPhrasePrefixQuery.of(builder -> builder
-                    .field(ElasticsearchConstants.FIELD_NAME)
-                    .query(query)
-                    .maxExpansions(10)
-                    .boost(2.0F)
-            );
-
-            // 오타 보정을 위한 Fuzzy 쿼리 생성
-            // fuzziness 옵션은 "AUTO"를 사용하면 입력 길이에 따라 적절한 편집 거리를 자동 적용합니다.
             Query fuzzyQuery = Query.of(q -> q.fuzzy(f -> f
                     .field(ElasticsearchConstants.FIELD_NAME)
                     .value(query)
                     .fuzziness("AUTO")
                     .boost(0.5F)
             ));
+            MatchPhrasePrefixQuery mppQuery = MatchPhrasePrefixQuery.of(builder -> builder
+                    .field(ElasticsearchConstants.FIELD_NAME)
+                    .query(query)
+                    .maxExpansions(10)
+                    .boost(2.0F)
+            );
 
-            // BoolQuery 생성
-            BoolQuery boolQuery = BoolQuery.of(boolBuilder -> {
-                // must 쿼리 추가
-//                boolBuilder.must(Query.of(q -> q.matchPhrasePrefix(matchPhrasePrefixQuery)));
-                boolBuilder
-                        .should(q -> q.matchPhrasePrefix(matchPhrasePrefixQuery))
-                        .should(fuzzyQuery)
-                        .minimumShouldMatch("1");
+            BoolQuery boolQuery = buildAutocompleteBoolQuery(query, category, mppQuery, fuzzyQuery);
 
-                // filter 쿼리 추가 (category가 비어있지 않은 경우)
-                if (category != null && !category.isEmpty()) {
-                    boolBuilder.filter(Query.of(q -> q.term(TermQuery.of(term -> term
-                            .field(ElasticsearchConstants.FIELD_CATEGORY)
-                            .value(category)
-                    ))));
-                }
-                return boolBuilder;
-            });
-
-            // SearchRequest 구성
             SearchRequest searchRequest = SearchRequest.of(request -> request
-                    .index(ElasticsearchConstants.SEARCH_INDEX) // Elasticsearch 인덱스 이름
-                    .query(boolQuery._toQuery()) // BoolQuery를 Query로 변환
-                    .size(10) // 최대 검색 결과 수
-                    .from(0)  // 검색 시작 위치
+                    .index(ElasticsearchConstants.SEARCH_INDEX)
+                    .query(boolQuery._toQuery())
+                    .size(10)
+                    .from(0)
                     .source(source -> source
                             .filter(f -> f.excludes("_class")))
             );
 
-            // Elasticsearch 검색 요청 실행
             SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
 
-            // 검색 결과 매핑
             List<AutocompleteResponseDto.AutocompleteResult> results = searchResponse.hits().hits().stream()
                     .map(Hit::source)
                     .map(doc -> new AutocompleteResponseDto.AutocompleteResult(
@@ -128,10 +102,24 @@ public class SearchService {
 
             return new AutocompleteResponseDto(results);
         }catch (IOException e){
-            e.printStackTrace();
-            return new AutocompleteResponseDto(null);
+            throw new CustomException(SearchErrorCode.SEARCH_FAILED);
         }
 
+    }
+
+    private BoolQuery buildAutocompleteBoolQuery(String query, String category, MatchPhrasePrefixQuery mppQuery, Query fuzzyQuery) {
+        return BoolQuery.of(boolBuilder -> {
+            boolBuilder.should(q -> q.matchPhrasePrefix(mppQuery));
+            boolBuilder.should(fuzzyQuery);
+            boolBuilder.minimumShouldMatch("1");
+            if (category != null && !category.isEmpty()) {
+                boolBuilder.filter(q -> q.term(TermQuery.of(term -> term
+                        .field(ElasticsearchConstants.FIELD_CATEGORY)
+                        .value(category)
+                )));
+            }
+            return boolBuilder;
+        });
     }
 
     /**
@@ -159,160 +147,30 @@ public class SearchService {
      */
     public SearchResponseDto search(SearchRequestDto requestDto) {
         try{
-            String query = requestDto.getQuery();
-            String category = requestDto.getCategory();
-            String relatedType = requestDto.getRelatedType();
-            int size = requestDto.getSize();
-            String sortByInput = requestDto.getSortBy();
-            String sortOrder = requestDto.getSortOrder();
-            List<String> placeTypeList = requestDto.getPlaceTypeList();
-            String region = requestDto.getRegion();
-            String cursor = requestDto.getCursor();
-
-            String sortBy;
-            if (sortByInput != null && sortByInput.equalsIgnoreCase("name")) {
-                sortBy = "name.keyword";
-            } else {
-                sortBy = sortByInput;
-            }
-
-            // BoolQuery 생성
-            BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
-
-            // 검색어 처리
-            if (query != null && !query.isEmpty()) {
-                if ("place".equalsIgnoreCase(category)){
-                    if ("place".equalsIgnoreCase(relatedType)) {
-                        // 오직 장소만 결과로 검색: name 필드에 대해 match 쿼리 사용.
-                        boolQueryBuilder.must(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME).query(query).fuzziness("AUTO").boost(2.0f)));
-                    }else if("cast".equalsIgnoreCase(relatedType)){
-                        // 연예인 검색: associatedCastNames 필드에 대해 match 쿼리 사용
-                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedCastNames").query(query).fuzziness("AUTO").boost(2.0f)));
-                    }else if("content".equalsIgnoreCase(relatedType)){
-                        boolQueryBuilder.must(q -> q.match(m -> m.field("associatedContentNames").query(query).fuzziness("AUTO").boost(2.0f)));
-                    }else{
-                        boolQueryBuilder.should(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME).query(query).fuzziness("AUTO").boost(2.0f)));
-                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedCastNames").query(query).fuzziness("AUTO").boost(1.0f)));
-                        boolQueryBuilder.should(q -> q.match(m -> m.field("associatedContentNames").query(query).fuzziness("AUTO").boost(1.0f)));
-                        boolQueryBuilder.minimumShouldMatch(String.valueOf(1L));
-                    }
-                }else{
-                    boolQueryBuilder.must(q -> q.match(m -> m
-                            .query(query)
-                            .field(ElasticsearchConstants.FIELD_NAME)
-                            .fuzziness("AUTO")
-                            .boost(2.0f)
-                    ));
-                }
-            }else{
-                boolQueryBuilder.must(q -> q.matchAll(m -> m));
-            }
-
-            // 카테고리 필터링
-            if (category != null && !category.isEmpty()) {
-                boolQueryBuilder.filter(q -> q.term(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY).value(category)));
-            }
-
-            // 장소 필터링
-            if ("PLACE".equalsIgnoreCase(category)) {
-                if (placeTypeList != null && !placeTypeList.isEmpty()) {
-                    // 리스트의 모든 문자열을 대문자로 변환
-                    List<FieldValue> upperCasePlaceTypeList = placeTypeList.stream()
-                            .map(String::toUpperCase)
-                            .map(o -> FieldValue.of(fv -> fv.stringValue(o)))
-                            .collect(Collectors.toList());
-                    boolQueryBuilder.filter(q -> q.terms(t -> t.field(ElasticsearchConstants.FIELD_TYPE)
-                            .terms(termsBuilder -> termsBuilder.value(upperCasePlaceTypeList))));
-                    //boolQueryBuilder.filter(q -> q.term(t -> t.field("type").value(placeType.toUpperCase())));
-                }
-                if (region != null && !region.isEmpty()) {
-                    boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(region)));
-                }
-            }
-
-
-
-            // 'search_after' 처리 (커서가 존재하는 경우)
-            List<Object> searchAfterValues = null;
-            if(cursor!=null && !cursor.isEmpty()){
-                try{
-                    searchAfterValues = cursorUtil.decodeCursor(cursor);
-                }catch (IllegalArgumentException e){
-                    log.error("유효하지 않은 커서: {}", cursor);
-                    throw new CustomException(SearchErrorCode.INVALID_CURSOR);
-                }
-            }
+            BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);
+            List<SortOptions> sortOptions = buildSortOptions(requestDto);
+            List<Object> searchAfterValues = buildSearchAfterValues(requestDto.getCursor());
 
             SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
                     .index(ElasticsearchConstants.SEARCH_INDEX)
                     .query(q -> q.bool(boolQueryBuilder.build()))
-                    .size(size)
-                    .source(s -> s
-                            .filter(f -> f
-                                    .excludes("_class")
-                            )
-                    );
+                    .size(requestDto.getSize())
+                    .source(s -> s.filter(f -> f.excludes("_class")))
+                    .sort(sortOptions);
 
-            // 정렬 설정
-            List<SortOptions> sortOptions = new ArrayList<>();
-            if (sortBy != null && !sortBy.isEmpty()) {
-                SortOrder order = "desc".equalsIgnoreCase(sortOrder) ? SortOrder.Desc : SortOrder.Asc;
-                sortOptions.add(SortOptions.of(s -> s
-                        .field(f -> f
-                                .field(sortBy)
-                                .order(order)
-                        )
-                ));
-                sortOptions.add(SortOptions.of(s -> s
-                        .field(f -> f
-                                .field("id")
-                                .order(SortOrder.Asc)
-                        )
-                ));
-            }else{
-                // 기본 정렬: 관련도(_score) 내림차순, id 오름차순
-                sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("_score").order(SortOrder.Desc))));
-                sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("id").order(SortOrder.Asc))));
-            }
-
-            searchRequestBuilder.sort(sortOptions);
-
-            // 'search_after' 값이 존재하면 추가
             if (searchAfterValues != null && !searchAfterValues.isEmpty()) {
-                searchRequestBuilder.searchAfter(searchAfterValues
-                        .stream()
-                        .map(o -> {
-                            if(o instanceof String){
-                                return FieldValue.of(fv -> fv.stringValue((String) o));
-                            }else if(o instanceof Integer){
-                                return FieldValue.of(fv -> fv.longValue(((Integer)o).longValue()));
-                            }else if(o instanceof Long){
-                                return FieldValue.of(fv -> fv.longValue((Long)o));
-                            }else if(o instanceof Double){
-                                return FieldValue.of(fv -> fv.doubleValue((Double)o));
-                            }else if(o instanceof Float){
-                                return FieldValue.of(fv -> fv.doubleValue(((Float)o).doubleValue()));
-                            }else if(o instanceof Boolean){
-                                return FieldValue.of(fv -> fv.booleanValue((Boolean)o));
-                            }else if (o instanceof java.util.Date){
-                                return FieldValue.of(fv -> fv.longValue(((java.util.Date)o).getTime()));
-                            }else{
-                                throw new IllegalArgumentException("Unsupported search type: " + o.getClass().getName());
-                            }
-                        })
-                        .collect(Collectors.toList())
+                searchRequestBuilder.searchAfter(
+                        searchAfterValues.stream()
+                                .map(this::convertToFieldValue)
+                                .collect(Collectors.toList())
                 );
             }
 
             SearchRequest searchRequest = searchRequestBuilder.build();
 
-            // 🔥 검색 요청 로그 출력
-            System.out.println("🔍 Elasticsearch Search Request: " + searchRequest.toString());
-
-            // Elasticsearch 검색 실행
             SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
 
-            // 검색 결과 매핑
+
             List<Hit<SearchDocument>> hits = searchResponse.hits().hits();
             List<SearchResponseDto.SearchResult> results = hits.stream()
                     .map(Hit::source)
@@ -321,46 +179,143 @@ public class SearchService {
                             doc.getOriginalId(),
                             doc.getName(),
                             doc.getDetails(),
-                            Objects.requireNonNullElse(doc.getImageUrl(), String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
+                            Objects.requireNonNullElse(doc.getImageUrl(),
+                                    String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
                     ))
                     .collect(Collectors.toList());
-            // 총 문서 개수 조회
-            long total = searchResponse.hits().total() != null ? searchResponse.hits().total().value() : 0;
 
-            // 다음 커서 생성
-            String nextCursor = null;
-            if(!hits.isEmpty()){
-                Hit<SearchDocument> lastHit = hits.get(hits.size()-1);
-                List<Object> lastSortValues = lastHit.sort().stream()
-                        .map(fieldValue -> {
-                            if(fieldValue.isString()){
-                                return fieldValue.stringValue();
-                            }else if(fieldValue.isLong()){
-                                return fieldValue.longValue();
-                            }else if(fieldValue.isDouble()){
-                                return fieldValue.doubleValue();
-                            }else if(fieldValue.isBoolean()){
-                                return fieldValue.booleanValue();
-                            }else{
-                                return fieldValue.anyValue();
-                            }
-                        })
-                        .collect(Collectors.toList());
-                nextCursor = cursorUtil.encodeCursor(lastSortValues);
-            }
-
-            return new SearchResponseDto(
-                    results,
-                    total,
-                    nextCursor
+            long total = (searchResponse.hits().total() != null) ? searchResponse.hits().total().value() : 0;
+            String nextCursor = (hits.isEmpty()) ? null : cursorUtil.encodeCursor(
+                    hits.get(hits.size() - 1).sort().stream()
+                            .map(fieldValue -> {
+                                if (fieldValue.isString()) return fieldValue.stringValue();
+                                else if (fieldValue.isLong()) return fieldValue.longValue();
+                                else if (fieldValue.isDouble()) return fieldValue.doubleValue();
+                                else if (fieldValue.isBoolean()) return fieldValue.booleanValue();
+                                else return fieldValue.anyValue();
+                            }).collect(Collectors.toList())
             );
+
+            return new SearchResponseDto(results, total, nextCursor);
         }catch (IOException e) {
-            e.printStackTrace();
-            return new SearchResponseDto(
-                    null,
-                    0,
-                    null
-            );
+            throw new CustomException(SearchErrorCode.SEARCH_FAILED);
+        }
+    }
+
+    private BoolQuery.Builder buildSearchBoolQuery(SearchRequestDto requestDto) {
+        BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+        String query = requestDto.getQuery();
+        String category = requestDto.getCategory();
+        String relatedType = requestDto.getRelatedType();
+
+        if (query != null && !query.isEmpty()) {
+            if ("place".equalsIgnoreCase(category)) {
+                if ("place".equalsIgnoreCase(relatedType)) {
+                    boolQueryBuilder.must(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
+                            .query(query)
+                            .fuzziness("AUTO")
+                            .boost(2.0f)));
+                } else if ("cast".equalsIgnoreCase(relatedType)) {
+                    boolQueryBuilder.must(q -> q.match(m -> m.field("associatedCastNames")
+                            .query(query)
+                            .fuzziness("AUTO")
+                            .boost(2.0f)));
+                } else if ("content".equalsIgnoreCase(relatedType)) {
+                    boolQueryBuilder.must(q -> q.match(m -> m.field("associatedContentNames")
+                            .query(query)
+                            .fuzziness("AUTO")
+                            .boost(2.0f)));
+                } else {
+                    boolQueryBuilder.should(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
+                            .query(query)
+                            .fuzziness("AUTO")
+                            .boost(2.0f)));
+                    boolQueryBuilder.should(q -> q.match(m -> m.field("associatedCastNames")
+                            .query(query)
+                            .fuzziness("AUTO")
+                            .boost(1.0f)));
+                    boolQueryBuilder.should(q -> q.match(m -> m.field("associatedContentNames")
+                            .query(query)
+                            .fuzziness("AUTO")
+                            .boost(1.0f)));
+                    boolQueryBuilder.minimumShouldMatch("1");
+                }
+            } else {
+                boolQueryBuilder.must(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
+                        .query(query)
+                        .fuzziness("AUTO")
+                        .boost(2.0f)));
+            }
+        } else {
+            boolQueryBuilder.must(q -> q.matchAll(m -> m));
+        }
+
+        if (category != null && !category.isEmpty()) {
+            boolQueryBuilder.filter(q -> q.term(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY).value(category)));
+        }
+
+        if ("PLACE".equalsIgnoreCase(category)) {
+            if (requestDto.getPlaceTypeList() != null && !requestDto.getPlaceTypeList().isEmpty()) {
+                List<FieldValue> upperCaseList = requestDto.getPlaceTypeList().stream()
+                        .map(String::toUpperCase)
+                        .map(val -> FieldValue.of(f -> f.stringValue(val)))
+                        .collect(Collectors.toList());
+                boolQueryBuilder.filter(q -> q.terms(t -> t.field(ElasticsearchConstants.FIELD_TYPE)
+                        .terms(terms -> terms.value(upperCaseList))));
+            }
+            if (requestDto.getRegion() != null && !requestDto.getRegion().isEmpty()) {
+                boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(requestDto.getRegion())));
+            }
+        }
+        return boolQueryBuilder;
+    }
+
+    private List<SortOptions> buildSortOptions(SearchRequestDto requestDto) {
+        List<SortOptions> sortOptions = new ArrayList<>();
+        String sortByInput = requestDto.getSortBy();
+        String sortBy = (sortByInput != null && sortByInput.equalsIgnoreCase("name"))
+                ? "name.keyword" : sortByInput;
+        String sortOrder = requestDto.getSortOrder();
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+            SortOrder order = ("desc".equalsIgnoreCase(sortOrder)) ? SortOrder.Desc : SortOrder.Asc;
+            sortOptions.add(SortOptions.of(s -> s.field(f -> f.field(sortBy).order(order))));
+            sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("id").order(SortOrder.Asc))));
+        } else {
+            sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("_score").order(SortOrder.Desc))));
+            sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("id").order(SortOrder.Asc))));
+        }
+        return sortOptions;
+    }
+
+    private List<Object> buildSearchAfterValues(String cursor) {
+        if (cursor != null && !cursor.isEmpty()) {
+            try {
+                return cursorUtil.decodeCursor(cursor);
+            } catch (IllegalArgumentException e) {
+                throw new CustomException(SearchErrorCode.INVALID_CURSOR);
+            }
+        }
+        return null;
+    }
+
+    private FieldValue convertToFieldValue(Object o) {
+        if (o instanceof String) {
+            return FieldValue.of(fv -> fv.stringValue((String) o));
+        } else if (o instanceof Integer) {
+            return FieldValue.of(fv -> fv.longValue(((Integer) o).longValue()));
+        } else if (o instanceof Long) {
+            return FieldValue.of(fv -> fv.longValue((Long) o));
+        } else if (o instanceof Double) {
+            return FieldValue.of(fv -> fv.doubleValue((Double) o));
+        } else if (o instanceof Float) {
+            return FieldValue.of(fv -> fv.doubleValue(((Float) o).doubleValue()));
+        } else if (o instanceof Boolean) {
+            return FieldValue.of(fv -> fv.booleanValue((Boolean) o));
+        } else if (o instanceof java.util.Date) {
+            return FieldValue.of(fv -> fv.longValue(((java.util.Date) o).getTime()));
+        } else {
+            throw new IllegalArgumentException("Unsupported search type: " + o.getClass().getName());
         }
     }
 
@@ -381,13 +336,7 @@ public class SearchService {
 
             UpdateResponse<SearchDocument> updateResponse = elasticsearchClient.update(updateRequest, SearchDocument.class);
 
-            if (updateResponse.result() == co.elastic.clients.elasticsearch._types.Result.Updated) {
-                log.info("Elasticsearch에서 Place {}의 popularity 업데이트 성공", placeId);
-            } else {
-                log.warn("Elasticsearch에서 Place {}의 popularity 업데이트 실패: {}", placeId, updateResponse.result());
-            }
         } catch (IOException e) {
-            log.error("Elasticsearch에서 Place {}의 popularity 업데이트 중 오류 발생: {}", placeId, e.getMessage());
             throw new CustomException(SearchErrorCode.SEARCH_FAILED);
         }
     }
@@ -402,12 +351,10 @@ public class SearchService {
             String query = requestDto.getQuery();
             String region = requestDto.getRegion();
 
-            // BoolQuery 생성
             BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
 
             boolQueryBuilder.filter(q -> q.term(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY).value("place".toUpperCase())));
 
-            // 검색어 처리
             if (query != null && !query.isEmpty()) {
                 boolQueryBuilder.must(q -> q.match(m -> m
                         .query(query)
@@ -415,7 +362,6 @@ public class SearchService {
                 ));
             }
 
-            // 지역 필터링 (address 필드 기준)
             if (region != null && !region.isEmpty()) {
                 boolQueryBuilder.filter(q -> q.match(m -> m
                         .field("address")
@@ -423,11 +369,10 @@ public class SearchService {
                 ));
             }
 
-            // SearchRequest 구성
             SearchRequest searchRequest = SearchRequest.of(request -> request
                     .index(ElasticsearchConstants.SEARCH_INDEX)
                     .query(q -> q.bool(boolQueryBuilder.build()))
-                    .size(10000) // 페이지네이션 없이 모든 결과 가져오기 (최대 10,000건)
+                    .size(10000)
                     .sort(List.of(
                             SortOptions.of(s -> s
                                     .field(f -> f
@@ -438,10 +383,8 @@ public class SearchService {
                     ))
             );
 
-            // Elasticsearch 검색 실행
             SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
 
-            // 검색 결과 매핑
             List<Hit<SearchDocument>> hits = searchResponse.hits().hits();
             List<MapViewResponseDto.PlaceDto> places = hits.stream()
                     .map(Hit::source)
@@ -461,7 +404,6 @@ public class SearchService {
 
             return new MapViewResponseDto(places);
         } catch (IOException e) {
-            log.error("지도 보기 검색 실패: {}", e.getMessage());
             throw new CustomException(SearchErrorCode.SEARCH_FAILED);
         }
     }

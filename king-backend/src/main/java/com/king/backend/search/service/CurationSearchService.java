@@ -39,7 +39,6 @@ public class CurationSearchService {
      */
     public CurationListSearchResponseDto searchCurationLists(CurationListSearchRequestDto requestDto) {
         try {
-            // 검색어가 있으면 title 필드에 match 쿼리, 없으면 match_all 쿼리 사용
             BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
             if (requestDto.getQuery() != null && !requestDto.getQuery().trim().isEmpty()) {
                 boolQueryBuilder.must(m -> m.match(match -> match.field("title").query(requestDto.getQuery())));
@@ -49,19 +48,16 @@ public class CurationSearchService {
 
             boolQueryBuilder.filter(f -> f.term(t -> t.field("isPublic").value(true)));
 
-            // 최신순 정렬: createdAt 내림차순 → id 오름차순 (커서 생성용)
             List<SortOptions> sortOptions = new ArrayList<>();
             sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("createdAt").order(SortOrder.Desc))));
             sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("id").order(SortOrder.Asc))));
 
-            // 검색 요청 구성
             SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
                     .index(INDEX_NAME)
                     .query(q -> q.bool(boolQueryBuilder.build()))
                     .size(10)
                     .sort(sortOptions);
 
-            // 커서(search_after) 값이 존재하면 적용
             if (requestDto.getCursor() != null && !requestDto.getCursor().isEmpty()) {
                 List<Object> searchAfterValues = cursorUtil.decodeCursor(requestDto.getCursor());
                 List<FieldValue> fieldValues = searchAfterValues.stream().map(o -> {
@@ -91,7 +87,6 @@ public class CurationSearchService {
                     })
                     .collect(Collectors.toList());
 
-            // 다음 커서 생성 (마지막 결과의 정렬 값을 이용)
             String nextCursor = null;
             if (!hits.isEmpty()) {
                 Hit<CurationDocument> lastHit = hits.get(hits.size() - 1);
@@ -113,7 +108,6 @@ public class CurationSearchService {
             return new CurationListSearchResponseDto(items, nextCursor);
 
         } catch (IOException e) {
-            log.error("큐레이션 리스트 검색 실패: {}", e.getMessage(), e);
             return new CurationListSearchResponseDto(new ArrayList<>(), null);
         }
     }

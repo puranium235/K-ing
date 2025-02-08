@@ -1,23 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import ChatBotIcon from '../../assets/icons/chat-ai.png';
 import SendIcon from '../../assets/icons/chat-send.png';
 import KingIcon from '../../assets/icons/king_character.png';
 import RefreshIcon from '../../assets/icons/refresh.png';
-import { deleteChatHistory, getChatHistory, getResponse, saveChatHistory } from '../../lib/chatbot';
+import { deleteChatHistory, getChatHistory, saveChatHistory } from '../../lib/chatbot';
 import { splitIntoSentences } from '../../util/chatbot';
 import TypingIndicator from './TypingIndicator';
+import useStreamingMessages from './useStreamingMessages';
 
 const AIChatView = () => {
-  const [messages, setMessages] = useState([]);
+  const { messages, isTyping, updateMessages, setMessages } = useStreamingMessages();
   const [newMessage, setNewMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [isBotSelected, setIsBotSelected] = useState(false);
   const [currentApi, setCurrentApi] = useState('');
-  const messagesEndRef = useRef(null);
-  const messagesContainerRef = useRef(null);
 
+  const messagesEndRef = useRef(null);
+  const socketRef = useRef(null);
+
+  const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
   const chatT = '데이터 기반 장소 검색 T봇';
   const chatF = '맞춤 큐레이션 추천 F봇';
 
@@ -28,19 +29,69 @@ const AIChatView = () => {
       type: 'message',
     };
     setMessages([initialMessage]);
-
     await saveChatHistory('assistant', initialMessage.text, 'message');
   };
 
   const handleRefresh = async () => {
     await deleteChatHistory();
 
-    setMessages([]);
+    updateMessages('[RESET]');
     setNewMessage('');
     setCurrentApi('');
     setIsBotSelected(false);
 
-    saveInitialMessage();
+    await saveInitialMessage();
+  };
+
+  // 🔹 WebSocket
+  useEffect(() => {
+    if (!isBotSelected) return;
+
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      console.error('❌ WebSocket 연결 실패: 토큰 없음');
+      return;
+    }
+    socketRef.current = new WebSocket(`${currentApi}?token=${token}`);
+
+    socketRef.current.onopen = () => {
+      console.log('✅ WebSocket 연결됨');
+    };
+
+    socketRef.current.onmessage = (event) => {
+      //console.log('📩 메시지 수신:', event.data);
+      updateMessages(event.data);
+    };
+
+    socketRef.current.onclose = () => {
+      console.log('❌ WebSocket 연결 종료됨');
+    };
+
+    socketRef.current.onerror = (error) => {
+      console.error('⚠️ WebSocket 오류 발생:', error);
+    };
+
+    return () => {
+      socketRef.current?.close();
+      socketRef.current = null;
+    };
+  }, [isBotSelected, updateMessages]);
+
+  const sendMessage = async () => {
+    if (
+      newMessage.trim() === '' ||
+      !socketRef.current ||
+      socketRef.current.readyState !== WebSocket.OPEN
+    ) {
+      console.error('⚠️ WebSocket이 닫혀 있음 또는 메시지가 비어 있음.');
+      return;
+    }
+
+    const userMessage = { text: newMessage, sender: 'user', type: 'message' };
+    setMessages((prev) => [...prev, userMessage]);
+    setNewMessage('');
+
+    socketRef.current.send(newMessage);
   };
 
   useEffect(() => {
@@ -49,11 +100,11 @@ const AIChatView = () => {
 
       if (data.length > 0) {
         let newMessages = [];
-        let detectedBotType = ''; // 챗봇 유형을 저장할 변수
+        let detectedBotType = '';
 
         data.forEach((msg) => {
           if (msg.type === 'option') {
-            detectedBotType = msg.content; // '데이터 기반 장소 검색 T봇' 또는 '맞춤 큐레이션 추천 F봇' 저장
+            detectedBotType = msg.content;
           }
 
           if (msg.role === 'assistant') {
@@ -64,7 +115,9 @@ const AIChatView = () => {
         });
 
         if (detectedBotType) {
-          setCurrentApi(detectedBotType === chatT ? '/chatbot/chatT' : '/chatbot/chatF');
+          setCurrentApi(
+            detectedBotType === chatT ? `${WS_BASE_URL}/ws/chatT` : `${WS_BASE_URL}/ws/chatF`,
+          );
           setIsBotSelected(true);
         }
 
@@ -82,6 +135,7 @@ const AIChatView = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // ✅ 챗봇 선택
   const handleOptionClick = async (option) => {
     const optionMessage = { text: option, sender: 'option', type: 'option' };
     setMessages((prev) => [...prev, optionMessage]);
@@ -89,51 +143,17 @@ const AIChatView = () => {
 
     let aiMessage;
     if (option === chatT) {
-      setCurrentApi(`/chatbot/chatT`);
-      aiMessage = {
-        text: `안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.`,
-        sender: 'assistant',
-        type: 'message',
-      };
+      setCurrentApi(`${WS_BASE_URL}/ws/chatT`);
+      aiMessage = `안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.`;
     } else if (option === chatF) {
-      setCurrentApi(`/chatbot/chatF`);
-      aiMessage = {
-        text: `안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다. 💫🎭`,
-        sender: 'assistant',
-        type: 'message',
-      };
+      setCurrentApi(`${WS_BASE_URL}/ws/chatF`);
+      aiMessage = `안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다. 💫🎭`;
     }
-    setMessages((prev) => [...prev, aiMessage]);
-    await saveChatHistory('assistant', aiMessage.text, 'message');
     setIsBotSelected(true);
-  };
 
-  const sendMessage = async () => {
-    if (newMessage.trim() === '') return;
-
-    const userMessage = { text: newMessage, sender: 'user', type: 'message' };
-    setMessages((prev) => [...prev, userMessage]);
-
-    setNewMessage('');
-    setIsTyping(true);
-
-    try {
-      const responseMessage = await getResponse(currentApi, userMessage.text);
-      const assistantMessages = splitIntoSentences(responseMessage, 'assistant');
-
-      for (const msg of assistantMessages) {
-        setMessages((prev) => [...prev, msg]);
-        await new Promise((resolve) => setTimeout(resolve, 500)); // 메시지 간 0.5초 간격
-      }
-    } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        { text: responseMessage, sender: 'assistant', type: 'message' },
-      ]);
-      console.error('Error fetching AI response:', error);
-    } finally {
-      setIsTyping(false);
-    }
+    updateMessages(aiMessage);
+    updateMessages('[END]');
+    await saveChatHistory('assistant', aiMessage, 'message');
   };
 
   return (
@@ -146,7 +166,7 @@ const AIChatView = () => {
         </RefreshButton>
       </Header>
 
-      <MessagesContainer ref={messagesContainerRef}>
+      <MessagesContainer>
         <IntroMessageContainer>
           <img src={KingIcon} />
           안녕하세요, 김싸피님
@@ -195,10 +215,11 @@ const AIChatView = () => {
       <InputContainer>
         <Input
           type="text"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
+          inputMode="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && isBotSelected && sendMessage()}

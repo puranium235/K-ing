@@ -16,6 +16,7 @@ public enum UserErrorCode implements ErrorCode {
     DUPLICATED_NICKNAME(HttpStatus.CONFLICT, "중복된 닉네임입니다"),
     INVALID_NICKNAME(HttpStatus.BAD_REQUEST, "유효하지 않은 닉네임입니다"),
     INVALID_LANGUAGE(HttpStatus.BAD_REQUEST, "유효하지 않은 언어코드입니다"),
+    INVALD_VALUE(HttpStatus.BAD_REQUEST, "잘못된 값으로 요청을 시도하고 있습니다"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 id의 유저를 찾을 수 없습니다");
 
     private final HttpStatus status;

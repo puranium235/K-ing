@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import User from '../components/Profile/User';
+import User from '../components/User/User';
 
 const UserPage = () => {
   return (

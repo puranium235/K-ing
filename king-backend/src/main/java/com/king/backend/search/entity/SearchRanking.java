@@ -20,7 +20,6 @@ public class SearchRanking {
     @Column(nullable = false)
     private String keyword;
 
-    // "realtime", "daily", "weekly" 등 구분
     @Column(nullable = false)
     private String period;
 

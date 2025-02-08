@@ -87,7 +87,6 @@ const MapCurationPlaces = () => {
       </ContentSection>
 
       <CloseButton />
-      <Nav />
     </Container>
   );
 };
