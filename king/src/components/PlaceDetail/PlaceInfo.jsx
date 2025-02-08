@@ -56,6 +56,9 @@ const DetailContainer = styled.div`
 `;
 
 const Details = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   ${({ theme }) => theme.fonts.Body2};
   color: ${({ theme }) => theme.colors.Gray1};
 `;
