@@ -27,6 +27,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -48,6 +51,8 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final CursorUtil cursorUtil;
+    private final RedisTemplate<String, String> redisStringTemplate;
+    private static final String POST_LIKES_KEY = "post:likes";
 
     @Transactional
     public Long uploadPost(PostUploadRequestDto reqDto, MultipartFile imageFile) {
@@ -66,6 +71,8 @@ public class PostService {
                 .place(place)
                 .build();
         postRepository.save(post);
+
+        redisStringTemplate.opsForZSet().add(POST_LIKES_KEY, post.getId().toString(), 0);
 
         if (imageFile != null && !imageFile.isEmpty()) {
             String s3Url = s3Service.uploadFile(post, imageFile);
@@ -134,11 +141,11 @@ public class PostService {
             }
             Place place = placeRepository.findById(placeId)
                     .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
-//            if("popular".equals(reqDto.getSortedBy())) {
-//                posts = getPopularReviewPosts(place, sortValues, size);
-//            } else {
+            if("popular".equals(reqDto.getSortedBy())) {
+                posts = getPopularReviewPosts(place, sortValues, size);
+            } else {
                 posts = getLatestReviewPosts(place, sortValues, size);
-//            }
+            }
         } else if ("myPage".equals(reqDto.getFeedType())) {
             Long userId = reqDto.getUserId();
             if (userId == null) {
@@ -166,14 +173,22 @@ public class PostService {
         return new PostFeedResponseDto(postDtos, nextCursor);
     }
 
-//    public List<Post> getPopularReviewPosts(Place place, List<Object> sortValues, int size) {
+    public List<Post> getPopularReviewPosts(Place place, List<Object> sortValues, int size) {
 //        if (sortValues == null) {
 //            return postRepository.findAllByIsPublicAndPlaceOrderByLikesCntDescIdDesc(true, place, PageRequest.of(0, size));
 //        } else {
 //            Long id = Long.parseLong(sortValues.get(0).toString());
 //            return postRepository.findByIsPublicAndPlaceAndIdLessThanOrderByLikesCntDescIdDesc(true, place, id, PageRequest.of(0, size));
 //        }
-//    }
+
+        Set<String> popularPostIds = redisStringTemplate.opsForZSet().reverseRange(POST_LIKES_KEY, 0, size - 1);
+        if (popularPostIds == null || popularPostIds.isEmpty()) {
+            return postRepository.findByIsPublicAndPlaceOrderByIdDesc(true, place, PageRequest.of(0, size));
+        }
+        List<Long> idList = popularPostIds.stream().map(Long::valueOf).collect(Collectors.toList());
+        List<Post> posts = postRepository.findAllById(idList);
+        return posts;
+    }
 
     public List<Post> getLatestReviewPosts(Place place, List<Object> sortValues, int size) {
         if (sortValues == null) {
@@ -281,6 +296,8 @@ public class PostService {
         });
         
         likeRepository.deleteByPostId(postId);
+        redisStringTemplate.delete("post:likes:" + postId);
+        redisStringTemplate.opsForZSet().remove(POST_LIKES_KEY, postId.toString());
         log.info("postService: 게시글의 좋아요 삭제 완료");
         
         commentRepository.deleteByPostId(postId);
@@ -288,5 +305,10 @@ public class PostService {
         
         postRepository.delete(post);
         log.info("postService: 게시글 삭제 완료 - postId: {}", postId);
+    }
+
+    // 인기 게시글 ID 조회 (좋아요 개수 많은 순)
+    public Set<String> getPopularPostIds(int size) {
+        return redisStringTemplate.opsForZSet().reverseRange(POST_LIKES_KEY, 0, size - 1);
     }
 }
