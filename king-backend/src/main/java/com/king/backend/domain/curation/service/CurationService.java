@@ -80,8 +80,6 @@ public class CurationService {
             curations = (userId.equals(authId))
                     ? getSelfCurationList(user, sortValues, size)
                     : getPublicCurationList(user, sortValues, size);
-
-
         }
 
         String nextCursor = (curations.size() == size)
