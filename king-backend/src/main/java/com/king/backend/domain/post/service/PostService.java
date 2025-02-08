@@ -3,9 +3,11 @@ package com.king.backend.domain.post.service;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
-import com.king.backend.domain.post.dto.request.PostHomeAndMyPageRequestDto;
+import com.king.backend.domain.post.dto.request.PostFeedRequestDto;
+import com.king.backend.domain.post.dto.request.PostHomeRequestDto;
 import com.king.backend.domain.post.dto.request.PostUploadRequestDto;
 import com.king.backend.domain.post.dto.response.PostDetailResponseDto;
+import com.king.backend.domain.post.dto.response.PostFeedResponseDto;
 import com.king.backend.domain.post.dto.response.PostHomeResponseDto;
 import com.king.backend.domain.post.entity.Post;
 import com.king.backend.domain.post.entity.PostImage;
@@ -76,28 +78,12 @@ public class PostService {
         return post.getId();
     }
 
-    public PostHomeResponseDto getHomeAndMyPagePostsWithCursor(PostHomeAndMyPageRequestDto reqDto) {
-        Long userId = reqDto.getUserId();
+    public PostHomeResponseDto getHomePostsWithCursor(PostHomeRequestDto reqDto) {
         String cursor = reqDto.getCursor();
         int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
         List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-
-        Long authId = Long.parseLong(authUser.getName());
-
-        List<Post> posts;
-
-        if(userId == null){
-            posts = getHomePosts(sortValues, size);
-        } else {
-            User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
-                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-            posts = (userId.equals(authId))
-                    ? getMyPagePostList(user, sortValues, size)
-                    : getUserPostList(user, sortValues, size);
-        }
+        List<Post> posts = getHomePosts(sortValues, size);
 
         String nextCursor = (posts.size() == size)
                 ? cursorUtil.encodeCursor(List.of(posts.get(posts.size() - 1).getId()))
@@ -135,21 +121,75 @@ public class PostService {
         }
     }
 
-    public List<Post> getMyPagePostList(User user, List<Object> sortValues, int size){
-        if (sortValues == null || sortValues.isEmpty()) {
+    public PostFeedResponseDto getFeedPostsWithCursor(PostFeedRequestDto reqDto) {
+        String cursor = reqDto.getCursor();
+        int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
+        List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
+
+        List<Post> posts;
+        if ("review".equals(reqDto.getFeedType())) {
+            Long placeId = reqDto.getPlaceId();
+            if (placeId == null) {
+                throw new CustomException(PlaceErrorCode.PLACE_NOT_FOUND);
+            }
+            Place place = placeRepository.findById(placeId)
+                    .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
+//            if("popular".equals(reqDto.getSortedBy())) {
+//                posts = getPopularReviewPosts(place, sortValues, size);
+//            } else {
+                posts = getLatestReviewPosts(place, sortValues, size);
+//            }
+        } else if ("myPage".equals(reqDto.getFeedType())) {
+            Long userId = reqDto.getUserId();
+            if (userId == null) {
+                throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+            }
+            User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
+                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+            posts = getMyPagePosts(user, sortValues, size);
+        } else {
+            throw new IllegalArgumentException("Invalid feedType: " + reqDto.getFeedType());
+        }
+
+        String nextCursor = (posts.size() == size)
+                ? cursorUtil.encodeCursor(List.of(posts.get(posts.size() - 1).getId()))
+                : null;
+
+        List<PostFeedResponseDto.Post> postDtos = posts.stream().map(post ->
+                PostFeedResponseDto.Post.builder()
+                        .postId(post.getId())
+                        .imageUrl(post.getPlace().getImageUrl())
+                        .isPublic(post.isPublic())
+                        .build()
+        ).toList();
+
+        return new PostFeedResponseDto(postDtos, nextCursor);
+    }
+
+//    public List<Post> getPopularReviewPosts(Place place, List<Object> sortValues, int size) {
+//        if (sortValues == null) {
+//            return postRepository.findAllByIsPublicAndPlaceOrderByLikesCntDescIdDesc(true, place, PageRequest.of(0, size));
+//        } else {
+//            Long id = Long.parseLong(sortValues.get(0).toString());
+//            return postRepository.findByIsPublicAndPlaceAndIdLessThanOrderByLikesCntDescIdDesc(true, place, id, PageRequest.of(0, size));
+//        }
+//    }
+
+    public List<Post> getLatestReviewPosts(Place place, List<Object> sortValues, int size) {
+        if (sortValues == null) {
+            return postRepository.findByIsPublicAndPlaceOrderByIdDesc(true, place, PageRequest.of(0, size));
+        } else {
+            Long id = Long.parseLong(sortValues.get(0).toString());
+            return postRepository.findByIsPublicAndPlaceAndIdLessThanOrderByIdDesc(true, place, id, PageRequest.of(0, size));
+        }
+    }
+
+    public List<Post> getMyPagePosts(User user, List<Object> sortValues, int size) {
+        if (sortValues == null) {
             return postRepository.findAllByWriterOrderByIdDesc(user, PageRequest.of(0, size));
         } else {
             Long id = Long.parseLong(sortValues.get(0).toString());
             return postRepository.findByWriterAndIdLessThanOrderByIdDesc(user, id, PageRequest.of(0, size));
-        }
-    }
-
-    public List<Post> getUserPostList(User user, List<Object> sortValues, int size){
-        if (sortValues == null || sortValues.isEmpty()) {
-            return postRepository.findAllByIsPublicAndWriterOrderByIdDesc(true, user, PageRequest.of(0, size));
-        } else {
-            Long id = Long.parseLong(sortValues.get(0).toString());
-            return postRepository.findByIsPublicAndWriterAndIdLessThanOrderByIdDesc(true, user, id, PageRequest.of(0, size));
         }
     }
 
@@ -249,5 +289,4 @@ public class PostService {
         postRepository.delete(post);
         log.info("postService: 게시글 삭제 완료 - postId: {}", postId);
     }
-
 }
