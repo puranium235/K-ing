@@ -12,5 +12,5 @@ import lombok.Setter;
 public class PostUploadRequestDto {
     private String content;
     private Long placeId;
-    private Boolean isPublic;
+    private boolean isPublic;
 }
