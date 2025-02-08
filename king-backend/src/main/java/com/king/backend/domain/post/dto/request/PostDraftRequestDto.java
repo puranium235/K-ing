@@ -10,5 +10,5 @@ import lombok.*;
 public class PostDraftRequestDto {
     private String content;
     private Long placeId;
-    private Boolean isPublic;
+    private boolean isPublic;
 }
