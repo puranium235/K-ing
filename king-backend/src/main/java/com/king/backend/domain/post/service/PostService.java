@@ -66,6 +66,10 @@ public class PostService {
         postRepository.save(post);
 
         if (imageFile != null && !imageFile.isEmpty()) {
+            long maxFileSize = 5 * 1024 * 1024;
+            if(imageFile.getSize() > maxFileSize) {
+                throw new CustomException(PostErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
+            }
             String s3Url = s3Service.uploadFile(post, imageFile);
             PostImage postImage = PostImage.builder()
                     .imageUrl(s3Url)
