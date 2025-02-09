@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import useGetFeedList from '../../hooks/feed/useGetFeedList';
-import { catchLastScrollItem } from '../../util/\bcatchLastScrollItem';
+import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import Loading from '../Loading/Loading';
 import PostItem from './PostItem';
 
