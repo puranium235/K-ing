@@ -2,12 +2,12 @@ import React from 'react';
 
 import PostUpload from '../components/Upload/PostUpload';
 
-const PostUploadPage = () => {
+const PostUpdatePage = () => {
   return (
     <>
-      <PostUpload />
+      <PostUpload state="update" />
     </>
   );
 };
 
-export default PostUploadPage;
+export default PostUpdatePage;

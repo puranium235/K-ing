@@ -23,7 +23,8 @@ import LoadingPage from './pages/LoadingPage';
 import MapPage from './pages/MapPage';
 import MyPage from './pages/MyPage';
 import PlaceDetailPage from './pages/PlaceDetailPage';
-import PostUploadPage from './pages/PostCuraionPage';
+import PostUpdatePage from './pages/PostUpdatePage';
+import PostUploadPage from './pages/PostUploadPage';
 import ReviewFeedPage from './pages/ReviewFeedPage';
 import SearchFilterPage from './pages/SearchFilterPage';
 import SearchKeywordpage from './pages/SearchKeywordPage';
@@ -50,6 +51,7 @@ const Router = () => {
               <Route path="/home" element={<HomePage />} />
               <Route path="/chatbot" element={<ChatbotPage />} />
               <Route path="/upload/post" element={<PostUploadPage />} />
+              <Route path="/update/post/:postId" element={<PostUpdatePage />} />
               <Route path="/upload/curation" element={<CurationUploadPage />} />
               <Route path="/archive" element={<ArchivePage />} />
               <Route path="/favorites/:type" element={<FavoritesDetailPage />} />
