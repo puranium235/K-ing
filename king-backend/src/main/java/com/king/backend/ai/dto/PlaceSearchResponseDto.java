@@ -1,18 +1,16 @@
 package com.king.backend.ai.dto;
 
-import com.king.backend.domain.curation.dto.response.CurationDetailResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 // ES 검색 결과 DTO
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RagSearchResponseDto {
+public class PlaceSearchResponseDto {
     private List<PlaceResult> places;
 
     @Data

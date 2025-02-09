@@ -1,10 +1,6 @@
 package com.king.backend.ai.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.king.backend.ai.dto.ChatHistory;
-import com.king.backend.ai.dto.ChatSummary;
-import com.king.backend.ai.dto.RagSearchRequestDto;
-import com.king.backend.ai.dto.RagSearchResponseDto;
+import com.king.backend.ai.dto.*;
 import com.king.backend.ai.util.AuthUtil;
 import com.king.backend.ai.util.ChatPromptGenerator;
 import com.king.backend.ai.util.JsonUtil;
@@ -80,13 +76,22 @@ public class ChatService {
 
             // ✅ 3. Elasticsearch 검색 수행 (추천이 필요할 경우)
             if (response.isRecommend()) {
-                RagSearchResponseDto searchResults = searchInElasticSearch(response.getType(), response.getKeyword());
+                if ("CURATION".equals(response.getType())) {
+                    // 🟢 큐레이션 검색 수행
+                    CurationSearchResponseDto searchResults = searchCurationsInElasticSearch(response.getKeyword());
 
-                // ✅ 검색된 데이터가 있을 경우, data 추가
-                if (searchResults != null && searchResults.getPlaces() != null && !searchResults.getPlaces().isEmpty()) {
-                    // ✅ 변환된 JSON 출력 (AI 프롬프트용)
-                    String formattedResults = SearchResultFormatter.formatSearchResultsForAI(searchResults);
-                    retrievalData.put("data", formattedResults);
+                    if (searchResults != null && !searchResults.getCurations().isEmpty()) {
+                        log.info("✅ 큐레이션 검색 결과 존재!");
+                        retrievalData.put("data", SearchResultFormatter.formatCurationSearchResultsForAI(searchResults));
+                    }
+                } else {
+                    // 🟢 장소 검색 수행
+                    PlaceSearchResponseDto searchResults = searchPlacesInElasticSearch(response.getType(), response.getKeyword());
+
+                    if (searchResults != null && !searchResults.getPlaces().isEmpty()) {
+                        log.info("✅ 장소 검색 결과 존재!");
+                        retrievalData.put("data", SearchResultFormatter.formatPlaceSearchResultsForAI(searchResults));
+                    }
                 }
             }
 
@@ -172,12 +177,17 @@ public class ChatService {
         return gptResponse;
     }
 
-    public RagSearchResponseDto searchInElasticSearch(String type, String keyword) {
+    public PlaceSearchResponseDto searchPlacesInElasticSearch(String type, String keyword) {
         log.info("🔍 Elasticsearch에서 '" + keyword + "' 키워드로 장소 검색 수행...");
 
-        // 요청 DTO 생성
         RagSearchRequestDto requestDto = new RagSearchRequestDto(type, keyword);
         return ragSearchService.search(requestDto);
+    }
+
+    public CurationSearchResponseDto searchCurationsInElasticSearch(String keyword) {
+        log.info("🔍 큐레이션 검색: '{}'", keyword);
+        RagSearchRequestDto requestDto = new RagSearchRequestDto("CURATION", keyword);
+        return ragSearchService.searchCurations(requestDto);
     }
 
     /*REST API chat
