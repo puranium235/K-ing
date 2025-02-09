@@ -1,17 +1,19 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import GoUpButton from '/src/assets/icons/ic_up.png';
 import NoResultImage from '/src/assets/icons/king_character_sorry.png';
 
 import { IcFilter, IcMap } from '../../assets/icons';
-import { getSearchResult } from '../../lib/search';
+import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
 import { ContentId, FilterOption, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import BackButton from '../common/button/BackButton';
 import FilterButton from '../common/button/FilterButton';
+import GoUpButton from '../common/button/GoUpButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import SortingRow from '../common/SortingRow';
@@ -25,7 +27,6 @@ const SearchKeyword = () => {
 
   const [isProvinceActive, setIsProvinceActive] = useState(false);
   const [isCategoryActive, setIsCategoryActive] = useState(false);
-  const [results, setResults] = useState(null);
 
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [relatedType, setRelatedType] = useRecoilState(SearchRelatedType);
@@ -37,30 +38,21 @@ const SearchKeyword = () => {
     최신순: 'createdAt',
   };
 
-  const getResults = async () => {
-    //장소 유형
-    const selectedPlaceType = Object.keys(filter.categories).filter(
-      (key) => filter.categories[key],
-    );
+  const { placeList, getNextData, isLoading, hasMore } = useGetPlaceSearchResult({
+    query: searchQuery,
+    category: 'PLACE',
+    region: [filter.province, filter.district].filter(Boolean).join(' '),
+    sortBy,
+    placeTypeList: Object.keys(filter.categories).filter((key) => filter.categories[key]),
+    relatedType,
+  });
 
-    //지역
-    const region = [filter.province, filter.district].filter(Boolean).join(' ');
-
-    const res = await getSearchResult({
-      query: searchQuery,
-      category: 'PLACE',
-      region,
-      sortBy,
-      placeTypeList: selectedPlaceType,
-      relatedType,
-    });
-
-    setResults(res.results);
-  };
+  const lastElementRef = useRef(null);
+  const resultWrapperRef = useRef(null);
 
   useEffect(() => {
-    getResults();
-  }, [searchQuery, filter, sortBy, , relatedType]);
+    catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
+  }, [isLoading]);
 
   const handleToggleFilter = (filterType) => {
     setFilter((prevFilter) => {
@@ -109,7 +101,9 @@ const SearchKeyword = () => {
     navigate(`/map`);
   };
 
-  const handleScrollUp = () => {};
+  const handleScrollUp = () => {
+    document.querySelector('html').scrollTo(0, 0);
+  };
 
   const handleGoBack = () => {
     setSearchQuery('');
@@ -121,46 +115,48 @@ const SearchKeyword = () => {
     }
   };
 
-  if (!results) {
-    return null;
-  }
-
   return (
     <>
       <StHomeWrapper>
-        <IconText>
-          <BackButton onBack={handleGoBack} />
-          <h3> 장소 조회</h3>
-        </IconText>
-        <SearchBar query={searchQuery || ''} onSearch={handleSearch} />
-        <OptionHeader>
-          <FilterWrapper>
-            <FilterButton
-              buttonName="필터"
-              buttonIcon={IcFilter}
-              onClickMethod={handleOpenFilter}
-              $isActive={isProvinceActive || isCategoryActive}
-            />
-            <FilterButton
-              buttonName="장소 유형"
-              $isActive={isCategoryActive}
-              onClickMethod={() => handleToggleFilter('category')}
-            />
-            <FilterButton
-              buttonName="지역"
-              $isActive={isProvinceActive}
-              onClickMethod={() => handleToggleFilter('province')}
-            />
-          </FilterWrapper>
-          <Options>
-            <IcMap onClick={handleOpenMap} />
-            <SortingRow onSortingChange={handleSorting} />
-          </Options>
-        </OptionHeader>
-        {results.length > 0 ? (
-          <ResultWrapper>
-            {results.map((card, index) => (
-              <PlaceCard key={index} place={card} />
+        <FixedContainer>
+          <IconText>
+            <BackButton onBack={handleGoBack} />
+            <h3> 장소 조회</h3>
+          </IconText>
+          <SearchBar query={searchQuery || ''} onSearch={handleSearch} />
+          <OptionHeader>
+            <FilterWrapper>
+              <FilterButton
+                buttonName="필터"
+                buttonIcon={IcFilter}
+                onClickMethod={handleOpenFilter}
+                $isActive={isProvinceActive || isCategoryActive}
+              />
+              <FilterButton
+                buttonName="장소 유형"
+                $isActive={isCategoryActive}
+                onClickMethod={() => handleToggleFilter('category')}
+              />
+              <FilterButton
+                buttonName="지역"
+                $isActive={isProvinceActive}
+                onClickMethod={() => handleToggleFilter('province')}
+              />
+            </FilterWrapper>
+            <Options>
+              <IcMap onClick={handleOpenMap} />
+              <SortingRow onSortingChange={handleSorting} />
+            </Options>
+          </OptionHeader>
+        </FixedContainer>
+        {placeList.length > 0 ? (
+          <ResultWrapper ref={resultWrapperRef}>
+            {placeList.map((card, index) => (
+              <PlaceCard
+                key={index}
+                place={card}
+                ref={index === placeList.length - 1 ? lastElementRef : null}
+              />
             ))}
           </ResultWrapper>
         ) : (
@@ -170,9 +166,7 @@ const SearchKeyword = () => {
           </NoResultsMessage>
         )}
 
-        <UpButton onClick={handleScrollUp}>
-          <img src={GoUpButton} alt="up" />
-        </UpButton>
+        <GoUpButton />
         <Nav />
       </StHomeWrapper>
     </>
@@ -182,6 +176,8 @@ const SearchKeyword = () => {
 export default SearchKeyword;
 
 const StHomeWrapper = styled.div`
+  position: relative;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -189,7 +185,19 @@ const StHomeWrapper = styled.div`
   text-align: center;
 
   padding: 2rem;
+  padding-top: 0;
   margin-bottom: 7rem;
+`;
+
+const FixedContainer = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  padding-top: 2rem;
+  width: 100%;
+
+  background-color: ${({ theme }) => theme.colors.White};
 `;
 
 const IconText = styled.div`
@@ -243,7 +251,7 @@ const ResultWrapper = styled.div`
   width: 100%;
   padding-bottom: 1rem;
 
-  overflow-y: auto;
+  /* overflow-y: auto; */
   &::-webkit-scrollbar {
     display: none;
   }
@@ -265,33 +273,5 @@ const NoResultsMessage = styled.div`
 
   img {
     width: 60%;
-  }
-`;
-
-const UpButton = styled.button`
-  position: absolute;
-  bottom: 9rem;
-  right: 20px;
-  background-color: #fff;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  z-index: 1000;
-
-  &:hover {
-    background-color: #ccc;
-  }
-
-  img {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
   }
 `;

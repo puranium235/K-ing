@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-const PlaceCard = ({ place }) => {
+const PlaceCard = forwardRef(({ place }, ref) => {
   const { id, imageUrl, name, details } = place;
   const navigate = useNavigate();
 
@@ -11,7 +11,7 @@ const PlaceCard = ({ place }) => {
   };
 
   return (
-    <Card onClick={handleClickPlace}>
+    <Card ref={ref} onClick={handleClickPlace}>
       <CardImage src={imageUrl} alt={name} />
       <CardContent>
         <CardTitle>{name}</CardTitle>
@@ -19,7 +19,7 @@ const PlaceCard = ({ place }) => {
       </CardContent>
     </Card>
   );
-};
+});
 
 export default PlaceCard;
 
