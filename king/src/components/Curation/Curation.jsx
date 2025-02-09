@@ -1,30 +1,26 @@
 import React, { useEffect, useState } from 'react';
+import { useRef } from 'react';
 import styled from 'styled-components';
 
-import { getCurationList } from '../../lib/curation';
+import useGetCurationList from '../../hooks/search/useGetCurationList';
+import { catchLastScrollItem } from '../../util/\bcatchLastScrollItem';
 import CurationsList from '../Archive/CurationsList';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
 
 const Curation = () => {
-  const [curationList, setCurationList] = useState([]);
   const [query, setQuery] = useState('');
-  const [cursor, setCursor] = useState('');
+  const { curationList, getNextData, isLoading, hasMore } = useGetCurationList(query);
 
-  const getResults = async (searchQuery) => {
-    const res = await getCurationList(searchQuery, cursor);
-    setCurationList(res.items);
-  };
+  const lastElementRef = useRef(null);
 
   useEffect(() => {
-    getResults(query);
-  }, [query]);
+    catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
+  }, [isLoading]);
 
   const handleSearch = (searchQuery) => {
     setQuery(searchQuery);
-    setCurationList([]);
-    getResults(searchQuery ? searchQuery : '');
   };
 
   return (
