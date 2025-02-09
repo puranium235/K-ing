@@ -1,23 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { useRef } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import useGetCurationList from '../../hooks/search/useGetCurationList';
-import { catchLastScrollItem } from '../../util/\bcatchLastScrollItem';
-import CurationsList from '../Archive/CurationsList';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
+import CurationsList from './CurationsList';
 
 const Curation = () => {
   const [query, setQuery] = useState('');
-  const { curationList, getNextData, isLoading, hasMore } = useGetCurationList(query);
-
-  const lastElementRef = useRef(null);
-
-  useEffect(() => {
-    catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
-  }, [isLoading]);
 
   const handleSearch = (searchQuery) => {
     setQuery(searchQuery);
@@ -31,7 +21,7 @@ const Curation = () => {
           <SearchBar query="" type="curation" onSearch={handleSearch} />
         </FixedContainer>
         <CurationWrapper>
-          <CurationsList data={curationList} />
+          <CurationsList query={query} />
         </CurationWrapper>
       </StCurationWrapper>
       <Nav />

@@ -23,7 +23,7 @@ const useGetCurationList = (query) => {
   }, [query, mutate, setSize]);
 
   const results = data ? [].concat(...data.map((res) => res.data.items)) : [];
-  const isEmpty = data?.[0]?.data?.results?.length === 0;
+  const isEmpty = data?.[0]?.data?.items?.length === 0;
   const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data?.items?.length < 15);
   const hasMore = !isEmpty && !isReachingEnd;
 
