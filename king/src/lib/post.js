@@ -63,7 +63,7 @@ export const createPost = async (postInfo, image) => {
 };
 
 // 게시글 조회
-export const getPostDetail = async () => {
+export const getPostDetail = async (postId) => {
   try {
     const { data } = await client.get(`/post/${postId}`);
     return data.data;

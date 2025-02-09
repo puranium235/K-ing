@@ -1,29 +1,68 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcComments, IcLikes } from '../../assets/icons';
+import { getPostDetail } from '../../lib/post';
+import { getRelativeDate } from '../../util/getRelativeDate';
 import BackButton from '../common/button/BackButton';
+import Loading from '../Loading/Loading';
 import Comment from './Comment';
 
 const FeedDetails = () => {
+  const { postId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [postInfo, setPostInfo] = useState(null);
+  const [writer, setWriter] = useState(null);
   const [isOriginLan, setIsOriginLan] = useState(true);
+
+  const handleGoBack = () => {
+    //이전 경로 구하기
+    const from = location.state?.from?.pathname;
+
+    if (from && from.includes('/upload')) {
+      navigate('/home');
+    } else {
+      navigate(-1);
+    }
+  };
+
+  const getPostInfo = async () => {
+    const res = await getPostDetail(postId);
+    setPostInfo(res);
+    setWriter(res.writer);
+  };
+
+  useEffect(() => {
+    getPostInfo();
+  }, [postId]);
+
+  if (!postInfo) {
+    return (
+      <LoadingWrapper>
+        <Loading />
+      </LoadingWrapper>
+    );
+  }
 
   return (
     <PostContainer>
       <Header>
         <IconText>
-          <BackButton />
+          <BackButton onBack={handleGoBack} />
           <h3>Post</h3>
         </IconText>
       </Header>
       <UserInfo>
-        <Profile src="/src/assets/icons/king_logo.png" alt="default" />
-        <UserName>babo_is_back</UserName>
+        <Profile src={writer.imageUrl} alt="default" />
+        <UserName>{writer.nickname}</UserName>
       </UserInfo>
 
-      <Location>석병 1리 방파제</Location>
+      <Location>{postInfo.place.name}</Location>
       <PostImageWrapper>
-        <PostImage src="/src/assets/icons/king_logo.png" alt="beach" />
+        <PostImage src={postInfo.imageUrl} alt="postImage" />
       </PostImageWrapper>
 
       <PostCount>
@@ -36,19 +75,15 @@ const FeedDetails = () => {
         </CommentCount>
       </PostCount>
 
-      <PostCaption>BTS 뮤비 촬영지 드디어 왔다.!!! 생각보다 별거없네ㅠㅜ ㅋㅋㅋㅋ</PostCaption>
+      <PostCaption>{postInfo.content}</PostCaption>
 
       <CommentWrapper>
         Comments
         <Comment />
       </CommentWrapper>
       <FooterWrapper>
-        <PostDate>March 7, 2025</PostDate>.
-        <TranslateOption
-          onClick={(prev) => {
-            !prev;
-          }}
-        >
+        <PostDate>{getRelativeDate(postInfo.createdAt)}</PostDate>·
+        <TranslateOption onClick={() => setIsOriginLan((prev) => !prev)}>
           {isOriginLan ? 'See translation' : 'See original'}
         </TranslateOption>
       </FooterWrapper>
@@ -57,6 +92,14 @@ const FeedDetails = () => {
 };
 
 export default FeedDetails;
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+`;
 
 const PostContainer = styled.div`
   display: flex;
@@ -121,14 +164,14 @@ const Location = styled.span`
 
 const PostImageWrapper = styled.div`
   width: 100%;
-  height: 100%;
   max-height: 30rem;
 
-  border: 1px solid ${({ theme }) => theme.colors.Gray1};
+  border: 1px solid ${({ theme }) => theme.colors.Gray2};
 `;
 
 const PostImage = styled.img`
   width: 100%;
+  max-height: 30rem;
 
   object-fit: contain;
 `;
