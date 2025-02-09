@@ -229,6 +229,8 @@ const PostImageWrapper = styled.div`
   width: 100%;
   height: 30rem;
 
+  display: flex;
+
   border: 1px solid ${({ theme }) => theme.colors.Gray2};
 `;
 
