@@ -1,14 +1,20 @@
 import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import { IcImageUpload, IcImageUploadTrue, IcToggleFalse, IcToggleTrue } from '../../assets/icons';
+import {
+  IcImageUpload,
+  IcImageUploadTrue,
+  IcMarker2,
+  IcToggleFalse,
+  IcToggleTrue,
+} from '../../assets/icons';
 import useModal from '../../hooks/common/useModal';
 import useToggle from '../../hooks/common/useToggle';
-import { createPost, getPostDraft, postDraft } from '../../lib/post';
-import { DraftExist } from '../../recoil/atom';
+import { createPost, deletePostDraft, getPostDraft, postDraft } from '../../lib/post';
+import { DraftExist, UseDraft } from '../../recoil/atom';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
@@ -19,6 +25,7 @@ const PostUpload = () => {
   const toggle = useToggle(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [place, setPlace] = useState('');
   const [placeId, setPlaceId] = useState(0);
@@ -28,44 +35,42 @@ const PostUpload = () => {
   const [isShareEnabled, setIsShareEnabled] = useState(false);
 
   const isDraft = useRecoilValue(DraftExist);
+  const useDraft = useRecoilValue(UseDraft);
 
   useEffect(() => {
-    if (isDraft && !create.isShowing) {
+    if (isDraft) {
       create.setShowing(true);
     }
   }, [isDraft]);
 
   const initData = async () => {
-    if (isDraft) {
+    if (isDraft && useDraft) {
       const res = await getPostDraft();
-      console.log(res);
 
-      const {
-        content,
-        place: { placeId, place },
-        imageData,
-        isPublic,
-      } = res;
-
-      setCaption(content);
-      setPlaceId(placeId);
-      setPlace(place);
-      if (imageData) {
-        setImage(`data:image/jpeg;base64,${imageData}`);
+      setCaption(res.content ? res.content : '');
+      if (res.place) {
+        setPlaceId(res.place.placeId);
+        setPlace(res.place.name);
       }
-      toggle.setToggle(isPublic);
+      if (res.imageData) {
+        setImage(`data:image/jpeg;base64,${res.imageData}`);
+      }
+      toggle.setToggle(res.isPublic);
+
+      await deletePostDraft();
     }
   };
 
   const saveDraft = async () => {
-    if (image || placeId || caption) {
-      const draftInfo = { isPublic: toggle.toggle };
+    if (imageFile || placeId || caption) {
+      const draftInfo = { public: toggle.toggle };
       if (caption) {
         draftInfo.content = caption;
       }
-      if (placeId) {
+      if (placeId !== 0) {
         draftInfo.placeId = placeId;
       }
+      console.log(draftInfo);
       const res = await postDraft(draftInfo, imageFile);
       if (res.success) {
         alert('임시저장이 완료되었습니다.');
@@ -79,20 +84,21 @@ const PostUpload = () => {
       const postInfo = {
         content: caption,
         placeId,
-        isPublic: toggle.toggle,
+        public: toggle.toggle,
       };
 
       const res = await createPost(postInfo, imageFile);
       if (res.data) {
         alert('게시물을 성공적으로 공유하였습니다.');
-        navigate(`/feed/${res.data}`);
+
+        navigate(`/feed/${res.data}`, { state: { from: { pathname: location.pathname } } });
       }
     }
   };
 
   useEffect(() => {
     initData();
-  }, [isDraft]);
+  }, [useDraft]);
 
   useEffect(() => {
     setIsShareEnabled(!!image && !!placeId && !!caption);
@@ -156,7 +162,10 @@ const PostUpload = () => {
 
         <SearchPlaceWrapper>
           <SearchBar type={'PLACE'} query={place} onSet={handlePlaceChange} />
-          <p>{place}</p>
+          <div id="place">
+            {place && <IcMarker2 />}
+            <p>{place}</p>
+          </div>
         </SearchPlaceWrapper>
 
         <CaptionInput
@@ -285,6 +294,24 @@ const CaptionInput = styled.textarea`
 
 const SearchPlaceWrapper = styled.div`
   width: 100%;
+
+  #place {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+
+    svg {
+      width: 2rem;
+      height: 2rem;
+
+      margin-left: 1rem;
+    }
+
+    p {
+      ${({ theme }) => theme.fonts.Body3};
+      color: ${({ theme }) => theme.colors.Gray1};
+    }
+  }
 `;
 
 const PublicToggleWrapper = styled.div`

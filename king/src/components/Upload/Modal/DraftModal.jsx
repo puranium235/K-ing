@@ -2,22 +2,23 @@ import { useSetRecoilState } from 'recoil';
 import { styled } from 'styled-components';
 
 import { deletePostDraft } from '../../../lib/post';
-import { DraftExist } from '../../../recoil/atom';
+import { UseDraft } from '../../../recoil/atom';
 import CancelButton from '../../common/button/CancelButton';
 import ConfirmButton from '../../common/button/ConfirmButton';
 import SmallModal from '../../common/modal/smallModal';
 
 const DraftModal = ({ isShowing, handleCancel }) => {
-  const setDraft = useSetRecoilState(DraftExist);
+  const setUseDraft = useSetRecoilState(UseDraft);
 
   const handleConfirmDraft = () => {
-    setDraft(true);
+    setUseDraft(true);
     handleCancel();
   };
 
   const handleCancelDraft = async () => {
-    setDraft(false);
-    await deletePostDraft();
+    setUseDraft(false);
+    // await deletePostDraft();
+    console.log('deletePostDraft');
     handleCancel();
   };
 

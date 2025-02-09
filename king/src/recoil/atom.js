@@ -66,6 +66,11 @@ const DraftExist = atom({
   default: false,
 });
 
+const UseDraft = atom({
+  key: 'useDraft',
+  default: false,
+});
+
 export {
   ContentId,
   ContentType,
@@ -78,4 +83,5 @@ export {
   SearchQueryState,
   SearchRegionState,
   SearchRelatedType,
+  UseDraft,
 };
