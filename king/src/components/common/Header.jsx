@@ -2,8 +2,9 @@ import React, { useRef, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 
 import OptionIcon from '/src/assets/icons/option.png';
-import BackButton from '/src/components/common/BackButton';
 import OptionModal from '/src/components/common/OptionModal';
+
+import BackButton from './button/BackButton';
 
 const Header = ({ title, isOption }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);

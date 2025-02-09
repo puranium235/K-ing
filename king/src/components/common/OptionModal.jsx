@@ -16,18 +16,21 @@ const closeModal = () => {
 <SortingModal isModalVisible={isModalVisible} onClick={closeModal} />
 */
 
-const OptionModal = ({ isModalVisible, onClick }) => {
+const OptionModal = ({ isModalVisible, onClick, onUpdate, onDelete }) => {
   return (
     <Container>
       <ModalBackground $isVisible={isModalVisible} onClick={onClick} />
 
       <ModalContainer $isVisible={isModalVisible}>
-        <OptionButton>수정하기</OptionButton>
-        <OptionButton>삭제하기</OptionButton>
+        <OptionButton onClick={onUpdate}>수정하기</OptionButton>
+        <OptionButton onClick={onDelete}> 삭제하기</OptionButton>
       </ModalContainer>
     </Container>
   );
 };
+
+export default OptionModal;
+
 const Container = styled.div`
   position: relative;
 `;
@@ -101,5 +104,3 @@ const OptionButton = styled.div`
     height: 1.2rem;
   }
 `;
-
-export default OptionModal;

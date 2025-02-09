@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import { SearchCategoryState, SearchPrevQuery, SearchQueryState } from '../../recoil/atom';
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import Loading from '../Loading/Loading';

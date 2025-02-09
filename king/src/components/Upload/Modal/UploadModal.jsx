@@ -1,13 +1,30 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+
+import { getPostDraft } from '../../../lib/post';
+import { DraftExist } from '../../../recoil/atom';
 
 const UploadModal = ({ isShowing }) => {
   const navigate = useNavigate();
   const options = ['인증샷 업로드', '큐레이션 발행'];
 
+  // 게시글 임시저장
+  const setDraftExist = useSetRecoilState(DraftExist);
+
+  const checkDraft = async () => {
+    const res = await getPostDraft();
+    if (res) {
+      setDraftExist(true);
+    } else {
+      setDraftExist(false);
+    }
+  };
+
   const onOptionClick = (option) => {
     if (option === '인증샷 업로드') {
+      checkDraft();
       navigate(`/upload/post`);
     } else {
       navigate(`/upload/curation`);

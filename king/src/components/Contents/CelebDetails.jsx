@@ -16,7 +16,7 @@ import {
 } from '../../assets/icons';
 import { getCelebDetails } from '../../lib/content';
 import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 import Loading from '../Loading/Loading';
 
 const CelebDetails = () => {

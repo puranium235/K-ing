@@ -16,7 +16,7 @@ import {
 } from '../../assets/icons';
 import useModal from '../../hooks/common/useModal';
 import { getUserIdFromToken } from '../../util/getUserIdFromToken';
-import UploadModal from './UploadModal';
+import UploadModal from '../Upload/Modal/UploadModal';
 
 const Nav = () => {
   const location = useLocation();
@@ -85,6 +85,7 @@ const Nav = () => {
           <p>MyPage</p>
         </button>
       </StNavWrapper>
+
       <StUploadModalWrapper $showing={upload.isShowing} onClick={upload.toggle}>
         <UploadModal isShowing={upload.isShowing} />
       </StUploadModalWrapper>

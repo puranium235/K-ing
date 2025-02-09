@@ -6,7 +6,6 @@ import KingIcon from '../../assets/icons/king_character.png';
 import RefreshIcon from '../../assets/icons/refresh.png';
 import { deleteChatHistory, getChatHistory, saveChatHistory } from '../../lib/chatbot';
 import { splitIntoSentences } from '../../util/chatbot';
-import BackButton from '../common/BackButton';
 import TypingIndicator from './TypingIndicator';
 import useStreamingMessages from './useStreamingMessages';
 

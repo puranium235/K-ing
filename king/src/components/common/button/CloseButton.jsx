@@ -2,9 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import CloseIcon from '../../assets/icons/close.png';
+import CloseIcon from '../../../assets/icons/close.png';
 
-const BackButton = () => {
+const CloseButton = () => {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
@@ -19,7 +19,7 @@ const BackButton = () => {
   );
 };
 
-export default BackButton;
+export default CloseButton;
 
 const ClosedButton = styled.button`
   position: absolute;

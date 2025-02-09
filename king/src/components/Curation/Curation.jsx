@@ -51,6 +51,7 @@ const StCurationWrapper = styled.div`
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  padding-bottom: 0;
   margin-bottom: 7rem;
 `;
 

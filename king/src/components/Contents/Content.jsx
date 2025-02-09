@@ -8,7 +8,7 @@ import { IcStar, IcStarBlank } from '../../assets/icons';
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import { ScrollPosition, SearchQueryState } from '../../recoil/atom';
 import { getContentTypeKor } from '../../util/getContentType';
-import BackButton from '../common/BackButton';
+import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import Loading from '../Loading/Loading';
@@ -31,6 +31,10 @@ const Content = () => {
     searchQuery,
     contentType.toUpperCase(),
   );
+
+  const toggleFavorite = () => {
+    setIsFavorited(!isFavorited);
+  };
 
   useEffect(() => {
     setInitialLoading(true);
@@ -87,7 +91,7 @@ const Content = () => {
         observer.unobserve(lastElementRef.current);
       }
     };
-  }, [isLoading, getNextData]);
+  }, [isLoading]);
 
   const handleSearch = (searchQuery) => {
     setSearchQuery(searchQuery);
@@ -118,7 +122,7 @@ const Content = () => {
             <BackButton onBack={() => navigate(`/home`)} />
             <p>{getContentTypeKor(contentType)}</p>
           </IconText>
-          <SearchBar type={contentType.toUpperCase()} query="" onSearch={handleSearch} />
+          <SearchBar type={contentType.toUpperCase()} query={searchQuery} onSearch={handleSearch} />
         </FixedContainer>
 
         <GridContainer ref={containerRef}>
@@ -129,7 +133,7 @@ const Content = () => {
               onClick={() => handleItemClick(content.id)}
             >
               <CardImageContainer>
-                <CardImage src={content.imageUrl || '/default-image.jpg'} alt={content.name} />
+                <CardImage src={content.imageUrl} alt={content.name} />
               </CardImageContainer>
               <CardTitle>{content.name}</CardTitle>
               {favorites[content.id] ? (
