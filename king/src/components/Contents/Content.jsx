@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLayoutEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
@@ -27,7 +26,7 @@ const Content = () => {
   const lastElementRef = useRef(null);
   const containerRef = useRef(null);
 
-  const { searchResultList, getNextData, isLoading, isError } = useGetSearchResult(
+  const { searchResultList, getNextData, isLoading } = useGetSearchResult(
     searchQuery,
     contentType.toUpperCase(),
     'createdAt',
@@ -113,7 +112,6 @@ const Content = () => {
   };
 
   if (isLoading && searchResultList.length === 0) return <Loading />;
-  if (isError) return <div>Error loading data.</div>;
 
   return (
     <>

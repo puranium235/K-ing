@@ -1,26 +1,63 @@
 import React from 'react';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
+import useGetFeedList from '../../hooks/feed/useGetFeedList';
+import Loading from '../Loading/Loading';
 import PostItem from './PostItem';
 
-const FeedsList = ({ data, columns }) => {
+const FeedsList = ({ columns }) => {
+  const lastElementRef = useRef(null);
+
+  const { feedList, getNextData, isLoading } = useGetFeedList();
+
+  useEffect(() => {
+    if (isLoading || !lastElementRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+          getNextData();
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    if (lastElementRef.current) {
+      observer.observe(lastElementRef.current);
+    }
+
+    return () => {
+      if (lastElementRef.current) {
+        observer.unobserve(lastElementRef.current);
+      }
+    };
+  }, [isLoading]);
+
+  if (isLoading && feedList.length === 0) return <Loading />;
+
   return (
-    <St.List $columns={columns}>
-      {data.map((post) => (
-        <PostItem key={post.id} post={post} />
+    <StList $columns={columns}>
+      {feedList.map((post, index) => (
+        <PostItem
+          key={post.postId}
+          post={post}
+          column={columns}
+          ref={index === feedList.length - 1 ? lastElementRef : null}
+        />
       ))}
-    </St.List>
+    </StList>
   );
 };
 
 export default FeedsList;
 
-const St = {
-  List: styled.div`
-    display: grid;
-    grid-template-columns: repeat(${(props) => props.$columns}, 1fr);
-    gap: 0.7rem;
-    overflow-y: auto;
-    padding: 0.5rem;
-  `,
-};
+const StList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(${(props) => props.$columns}, 1fr);
+  gap: 0.7rem;
+  overflow-y: auto;
+  padding: 0.5rem 2rem;
+
+  width: 100%;
+`;
