@@ -1,29 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import GoogleIcon from '../../assets/icons/google.png';
-import NaverIcon from '../../assets/icons/naver.png';
-
-const DeepLinkModal = ({ isModalVisible, onClick }) => {
+const ShareModal = ({ isModalVisible, onClick }) => {
   return (
-    <Container>
+    <>
       <ModalBackground $isVisible={isModalVisible} onClick={onClick} />
 
       <ModalContainer $isVisible={isModalVisible}>
-        <OptionButton onClick={() => window.open('https://map.naver.com')}>
-          네이버 지도 <img src={NaverIcon} alt="Naver" />
-        </OptionButton>
-        <OptionButton onClick={() => window.open('https://maps.google.com')}>
-          구글 지도 <img src={GoogleIcon} alt="Google" />
-        </OptionButton>
+        <OptionButton>링크 공유하기</OptionButton>
+        <OptionButton>앱 공유하기</OptionButton>
       </ModalContainer>
-    </Container>
+    </>
   );
 };
 
-const Container = styled.div`
-  position: relative;
-`;
+export default ShareModal;
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -82,7 +73,7 @@ const OptionButton = styled.div`
   padding: 1.6rem;
   background-color: white;
   border-radius: 16px;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.6rem;
   cursor: pointer;
 
   &:hover {
@@ -94,5 +85,3 @@ const OptionButton = styled.div`
     height: 1.2rem;
   }
 `;
-
-export default DeepLinkModal;
