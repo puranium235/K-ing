@@ -2,17 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
+import OptionIcon from '/src/assets/icons/option.png';
+
 import { IcComments, IcLikes } from '../../assets/icons';
-import { getPostDetail } from '../../lib/post';
+import useModal from '../../hooks/common/useModal';
+import { deletePost, getPostDetail } from '../../lib/post';
 import { getRelativeDate } from '../../util/getRelativeDate';
+import { getUserIdFromToken } from '../../util/getUserIdFromToken';
 import BackButton from '../common/button/BackButton';
+import OptionModal from '../common/OptionModal';
 import Loading from '../Loading/Loading';
 import Comment from './Comment';
-
 const FeedDetails = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const update = useModal();
+
+  const userId = getUserIdFromToken();
 
   const [postInfo, setPostInfo] = useState(null);
   const [writer, setWriter] = useState(null);
@@ -39,6 +46,20 @@ const FeedDetails = () => {
     getPostInfo();
   }, [postId]);
 
+  const handleUpdate = () => {};
+  const handleDelete = async () => {
+    if (window.confirm('게시글을 삭제하시겠습니까?')) {
+      const res = await deletePost(postId);
+      console.log(res);
+      if (res.success) {
+        alert('게시글이 삭제되었습니다.');
+        navigate('/home');
+      }
+    } else {
+      update.setShowing(false);
+    }
+  };
+
   if (!postInfo) {
     return (
       <LoadingWrapper>
@@ -48,46 +69,66 @@ const FeedDetails = () => {
   }
 
   return (
-    <PostContainer>
-      <Header>
-        <IconText>
-          <BackButton onBack={handleGoBack} />
-          <h3>Post</h3>
-        </IconText>
-      </Header>
-      <UserInfo>
-        <Profile src={writer.imageUrl} alt="default" />
-        <UserName>{writer.nickname}</UserName>
-      </UserInfo>
+    <>
+      <PostContainer>
+        <Header>
+          <IconText>
+            <BackButton onBack={handleGoBack} />
+            <h3>Post</h3>
+          </IconText>
+          {userId === writer.userId && (
+            <OptionButton
+              onClick={() => {
+                update.setShowing(true);
+              }}
+            >
+              <img src={OptionIcon} alt="Option" />
+            </OptionButton>
+          )}
+        </Header>
+        <UserInfo>
+          <Profile src={writer.imageUrl} alt="default" />
+          <UserName>{writer.nickname}</UserName>
+        </UserInfo>
 
-      <Location>{postInfo.place.name}</Location>
-      <PostImageWrapper>
-        <PostImage src={postInfo.imageUrl} alt="postImage" />
-      </PostImageWrapper>
+        <Location>{postInfo.place.name}</Location>
+        <PostImageWrapper>
+          <PostImage src={postInfo.imageUrl} alt="postImage" />
+        </PostImageWrapper>
 
-      <PostCount>
-        <LikeCount>
-          <IcLikes />
-          74
-        </LikeCount>
-        <CommentCount>
-          <IcComments />5
-        </CommentCount>
-      </PostCount>
+        <PostCount>
+          <LikeCount>
+            <IcLikes />
+            74
+          </LikeCount>
+          <CommentCount>
+            <IcComments />5
+          </CommentCount>
+        </PostCount>
 
-      <PostCaption>{postInfo.content}</PostCaption>
+        <PostCaption>{postInfo.content}</PostCaption>
 
-      <CommentWrapper>
-        Comments
-        <Comment />
-      </CommentWrapper>
-      <FooterWrapper>
-        <PostDate>{getRelativeDate(postInfo.createdAt)}</PostDate>·
-        <TranslateOption onClick={() => setIsOriginLan((prev) => !prev)}>
-          {isOriginLan ? 'See translation' : 'See original'}
-        </TranslateOption>
-      </FooterWrapper>
-    </PostContainer>
+        <CommentWrapper>
+          Comments
+          <Comment />
+        </CommentWrapper>
+        <FooterWrapper>
+          <PostDate>{getRelativeDate(postInfo.createdAt)}</PostDate>·
+          <TranslateOption onClick={() => setIsOriginLan((prev) => !prev)}>
+            {isOriginLan ? 'See translation' : 'See original'}
+          </TranslateOption>
+        </FooterWrapper>
+      </PostContainer>
+
+      <OptionModal
+        isModalVisible={update.isShowing}
+        onClick={() => {
+          update.setShowing(false);
+        }}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+      />
+    </>
   );
 };
 
@@ -113,6 +154,11 @@ const PostContainer = styled.div`
 `;
 
 const Header = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
   margin-top: 2rem;
 
   width: 100%;
@@ -130,6 +176,20 @@ const IconText = styled.div`
     padding: 0.5rem 0;
     text-align: left;
     ${({ theme }) => theme.fonts.Title3};
+  }
+`;
+
+const OptionButton = styled.button`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  img {
+    height: 1.8rem;
   }
 `;
 
@@ -164,7 +224,7 @@ const Location = styled.span`
 
 const PostImageWrapper = styled.div`
   width: 100%;
-  max-height: 30rem;
+  height: 30rem;
 
   border: 1px solid ${({ theme }) => theme.colors.Gray2};
 `;
