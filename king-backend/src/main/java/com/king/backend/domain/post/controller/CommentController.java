@@ -1,5 +1,6 @@
 package com.king.backend.domain.post.controller;
 
+import com.king.backend.domain.post.dto.request.CommentRequestDto;
 import com.king.backend.domain.post.dto.request.CommentUploadRequestDto;
 import com.king.backend.domain.post.dto.response.CommentAllResponseDto;
 import com.king.backend.domain.post.service.CommentService;
@@ -26,20 +27,22 @@ public class CommentController {
             @PathVariable Long postId,
             @RequestBody CommentUploadRequestDto reqDto){
         commentService.uploadComment(postId, reqDto);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
     }
 
     @Operation(summary = "댓글 삭제 API")
     @DeleteMapping("/{commentId}")
     public ResponseEntity<ApiResponse<Void>> deleteComment(@PathVariable Long commentId){
         commentService.deleteComment(commentId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
     }
 
-    @Operation(summary = "댓글 조회 API")
+    @Operation(summary = "댓글 목록 조회 API")
     @GetMapping
-    public ResponseEntity<ApiResponse<CommentAllResponseDto>> getComments(@PathVariable Long postId){
-        CommentAllResponseDto resDto = commentService.getComments(postId);
+    public ResponseEntity<ApiResponse<CommentAllResponseDto>> getComments(
+            @PathVariable Long postId,
+            @ModelAttribute CommentRequestDto reqDto){
+        CommentAllResponseDto resDto = commentService.getComments(postId, reqDto);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(resDto));
     }
 }
