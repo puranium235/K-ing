@@ -41,14 +41,13 @@ public class RagSearchService {
 
             // 2) 키워드가 있을 경우, 여러 필드에 대해 검색: name, details, address, associatedContentNames
             if (requestDto.getKeywords() != null && !requestDto.getKeywords().trim().isEmpty()) {
-                Query multiMatchQuery = Query.of(q -> q.multiMatch(m -> m
+                Query phraseMatchQuery = Query.of(q -> q.multiMatch(m -> m
                         .query(requestDto.getKeywords())
-                        // name에 boost 2.0, 나머지는 기본 boost (필요에 따라 조정)
                         .fields(List.of("name", "details", "associatedCastNames", "associatedContentNames"))
-                        .type(TextQueryType.BestFields)
-                        .fuzziness("AUTO")
+                        // 입력한 구문이 해당 필드에 연속된 문자열로 반드시 존재해야 함
+                        .type(TextQueryType.Phrase)
                 ));
-                boolQueryBuilder.must(multiMatchQuery);
+                boolQueryBuilder.must(phraseMatchQuery);
             } else {
                 // 키워드가 없으면 match_all
                 boolQueryBuilder.must(q -> q.matchAll(ma -> ma));
