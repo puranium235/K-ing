@@ -5,6 +5,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import GoUpButton from '/src/assets/icons/ic_up.png';
+import NoResultImage from '/src/assets/icons/king_character_sorry.png';
 
 import { IcFilter, IcMap } from '../../assets/icons';
 import { getSearchResult } from '../../lib/search';
@@ -61,7 +62,6 @@ const SearchKeyword = () => {
     getResults();
   }, [searchQuery, filter, sortBy, , relatedType]);
 
-  //필터 해제
   const handleToggleFilter = (filterType) => {
     setFilter((prevFilter) => {
       if (filterType === 'category') {
@@ -112,6 +112,8 @@ const SearchKeyword = () => {
   const handleScrollUp = () => {};
 
   const handleGoBack = () => {
+    setSearchQuery('');
+
     if (relatedType === 'cast') {
       navigate(`/content/cast/${contentId}`);
     } else {
@@ -163,7 +165,7 @@ const SearchKeyword = () => {
           </ResultWrapper>
         ) : (
           <NoResultsMessage>
-            <img src="/src/assets/icons/king_character_sorry.png" alt="검색 결과가 없습니다." />
+            <img src={NoResultImage} alt="검색 결과가 없습니다." />
             검색 결과가 없습니다.😭😭
           </NoResultsMessage>
         )}
