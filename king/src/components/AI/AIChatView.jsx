@@ -11,7 +11,7 @@ import TypingIndicator from './TypingIndicator';
 import useStreamingMessages from './useStreamingMessages';
 
 const AIChatView = () => {
-  const { messages, isTyping, updateMessages, setMessages } = useStreamingMessages();
+  const { messages, isTyping, updateMessages, setMessages, setIsTyping } = useStreamingMessages();
   const [newMessage, setNewMessage] = useState('');
   const [isBotSelected, setIsBotSelected] = useState(false);
   const [currentApi, setCurrentApi] = useState('');
@@ -97,6 +97,7 @@ const AIChatView = () => {
     const userMessage = { text: newMessage, sender: 'user', type: 'message' };
     setMessages((prev) => [...prev, userMessage]);
     setNewMessage('');
+    setIsTyping(true); // ✅ 유저 메시지 전송 시 타이핑 표시
 
     socketRef.current.send(newMessage);
   };

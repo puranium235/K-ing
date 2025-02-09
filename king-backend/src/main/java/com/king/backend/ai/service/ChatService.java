@@ -83,7 +83,10 @@ public class ChatService {
                     if (searchResults != null && !searchResults.getCurations().isEmpty()) {
                         log.info("✅ 큐레이션 검색 결과 존재!");
                         retrievalData.put("data", SearchResultFormatter.formatCurationSearchResultsForAI(searchResults));
+                    } else {
+                        retrievalData.put("data", "데이터베이스에 관련된 정보가 없습니다.");
                     }
+
                 } else {
                     // 🟢 장소 검색 수행
                     PlaceSearchResponseDto searchResults = searchPlacesInElasticSearch(response.getType(), response.getKeyword());
@@ -91,6 +94,8 @@ public class ChatService {
                     if (searchResults != null && !searchResults.getPlaces().isEmpty()) {
                         log.info("✅ 장소 검색 결과 존재!");
                         retrievalData.put("data", SearchResultFormatter.formatPlaceSearchResultsForAI(searchResults));
+                    } else {
+                        retrievalData.put("data", "데이터베이스에 관련된 정보가 없습니다.");
                     }
                 }
             }

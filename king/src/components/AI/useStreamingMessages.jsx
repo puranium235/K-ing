@@ -25,6 +25,7 @@ const useStreamingMessages = () => {
           : receivedText;
 
       if (receivedText === '[END]') {
+        setIsTyping(false); // ✅ 서버 응답 완료 시 타이핑 중지
         // ✅ 마지막 메시지를 완료 상태로 업데이트
         return prevMessages.map((msg, index) =>
           index === prevMessages.length - 1 ? { ...msg, isCompleted: true } : msg,
@@ -42,11 +43,9 @@ const useStreamingMessages = () => {
       // ✅ 새로운 메시지 추가
       return [...prevMessages, ...newMessages];
     });
-
-    setIsTyping(receivedText !== '[END]'); // [END]가 오면 타이핑 중지
   }, []);
 
-  return { messages, isTyping, updateMessages, setMessages };
+  return { messages, isTyping, updateMessages, setMessages, setIsTyping };
 };
 
 export default useStreamingMessages;
