@@ -239,6 +239,7 @@ public class PostService {
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
                 .imageUrl(imageUrl)
+                .isPublic(post.isPublic())
                 .writer(PostDetailResponseDto.Writer.builder()
                         .userId(writer.getId())
                         .nickname(writer.getNickname())
@@ -271,6 +272,10 @@ public class PostService {
         post.update(reqDto.getContent(), newPlace, reqDto.isPublic());
 
         if (imageFile != null && !imageFile.isEmpty()) {
+            long maxFileSize = 5 * 1024 * 1024;
+            if (imageFile.getSize() > maxFileSize) {
+                throw new CustomException(PostErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
+            }
             // 기존 이미지 삭제
             PostImage postImage = postImageRepository.findByPostId(postId)
                     .orElseThrow(() -> new RuntimeException("해당 Post ID에 대한 이미지가 존재하지 않습니다. Post ID: " + postId));

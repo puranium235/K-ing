@@ -15,6 +15,7 @@ public class PostDetailResponseDto {
     private Place place;
     private String content;
     private String imageUrl;
+    private boolean isPublic;
     private OffsetDateTime createdAt;
 
     @Getter
