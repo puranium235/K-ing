@@ -14,6 +14,7 @@ const AIChatView = () => {
   const [newMessage, setNewMessage] = useState('');
   const [isBotSelected, setIsBotSelected] = useState(false);
   const [currentApi, setCurrentApi] = useState('');
+  const [isComposing, setIsComposing] = useState(false); //맥북 한글입력 중복 방지,,
 
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
@@ -46,6 +47,11 @@ const AIChatView = () => {
   // 🔹 WebSocket
   useEffect(() => {
     if (!isBotSelected) return;
+
+    if (socketRef.current) {
+      console.log('🚀 기존 WebSocket 연결 존재 -> 새로운 연결 생성 방지');
+      return;
+    }
 
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -156,6 +162,17 @@ const AIChatView = () => {
     await saveChatHistory('assistant', aiMessage, 'message');
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && isBotSelected) {
+      if (isComposing) {
+        return; // ✅ IME 입력 중에는 Enter 키 무시
+      }
+
+      e.preventDefault();
+      sendMessage(); // ✅ IME 입력이 완료된 후 정상적으로 실행
+    }
+  };
+
   return (
     <ChatContainer>
       <Header>
@@ -222,7 +239,9 @@ const AIChatView = () => {
           inputMode="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && isBotSelected && sendMessage()}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={() => setIsComposing(false)}
+          onKeyDown={handleKeyDown}
           placeholder={isBotSelected ? '메시지를 입력하세요...' : '챗봇을 선택하세요!'}
           disabled={!isBotSelected}
         />
@@ -305,7 +324,6 @@ const Message = styled.div`
 const MessageBubble = styled.div`
   display: inline-block;
   max-width: 90%;
-  min-width: 10%;
   padding: 0.8rem 1.2rem;
   border-radius: 10px;
   background-color: ${({ $sender }) => ($sender === 'user' ? '#D9EAFF' : '#DFD9FF')};

@@ -62,7 +62,7 @@ public class PostDraftService {
                         .name(place.getName())
                         .build())
                 .imageData(imageData)
-                .isPublic(draft.getIsPublic())
+                .isPublic(draft.isPublic())
                 .build();
     }
 
