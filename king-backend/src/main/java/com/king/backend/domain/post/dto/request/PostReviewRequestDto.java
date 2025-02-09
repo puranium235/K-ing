@@ -7,8 +7,8 @@ import org.springdoc.core.annotations.ParameterObject;
 @Getter
 @Setter
 @ParameterObject
-public class PostHomeAndMyPageRequestDto {
-    Long userId;
+public class PostReviewRequestDto {
+    Long placeId;
     Integer size;
     String cursor;
 }

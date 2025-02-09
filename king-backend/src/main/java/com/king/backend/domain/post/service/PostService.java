@@ -3,9 +3,11 @@ package com.king.backend.domain.post.service;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
-import com.king.backend.domain.post.dto.request.PostHomeAndMyPageRequestDto;
+import com.king.backend.domain.post.dto.request.PostFeedRequestDto;
+import com.king.backend.domain.post.dto.request.PostHomeRequestDto;
 import com.king.backend.domain.post.dto.request.PostUploadRequestDto;
 import com.king.backend.domain.post.dto.response.PostDetailResponseDto;
+import com.king.backend.domain.post.dto.response.PostFeedResponseDto;
 import com.king.backend.domain.post.dto.response.PostHomeResponseDto;
 import com.king.backend.domain.post.entity.Post;
 import com.king.backend.domain.post.entity.PostImage;
@@ -25,6 +27,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -46,6 +51,8 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final CursorUtil cursorUtil;
+    private final RedisTemplate<String, String> redisStringTemplate;
+    private static final String POST_LIKES_KEY = "post:likes";
 
     @Transactional
     public Long uploadPost(PostUploadRequestDto reqDto, MultipartFile imageFile) {
@@ -65,6 +72,8 @@ public class PostService {
                 .build();
         postRepository.save(post);
 
+        redisStringTemplate.opsForZSet().add(POST_LIKES_KEY, post.getId().toString(), 0);
+
         if (imageFile != null && !imageFile.isEmpty()) {
             long maxFileSize = 5 * 1024 * 1024;
             if(imageFile.getSize() > maxFileSize) {
@@ -80,28 +89,16 @@ public class PostService {
         return post.getId();
     }
 
-    public PostHomeResponseDto getHomeAndMyPagePostsWithCursor(PostHomeAndMyPageRequestDto reqDto) {
-        Long userId = reqDto.getUserId();
+    public PostHomeResponseDto getHomePostsWithCursor(PostHomeRequestDto reqDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
+        Long userId = Long.parseLong(user.getName());
+
         String cursor = reqDto.getCursor();
         int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
         List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-
-        Long authId = Long.parseLong(authUser.getName());
-
-        List<Post> posts;
-
-        if(userId == null){
-            posts = getHomePosts(sortValues, size);
-        } else {
-            User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
-                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-            posts = (userId.equals(authId))
-                    ? getMyPagePostList(user, sortValues, size)
-                    : getUserPostList(user, sortValues, size);
-        }
+        List<Post> posts = getHomePosts(sortValues, size);
 
         String nextCursor = (posts.size() == size)
                 ? cursorUtil.encodeCursor(List.of(posts.get(posts.size() - 1).getId()))
@@ -112,13 +109,21 @@ public class PostService {
                     .map(PostImage::getImageUrl)
                     .orElse(null);
 
-            Long likesCount = likeRepository.countByPostId(post.getId());
+            Double score = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, post.getId().toString());
+            Long likesCount = (score != null ? score.longValue() : 0L);
+
+            Boolean isLiked = false;
+            if (userId != null) {
+                isLiked = Boolean.TRUE.equals(redisStringTemplate.opsForSet().isMember("post:likes:" + post.getId(), userId.toString()));
+            }
+
             Long commentsCount = commentRepository.countByPostId(post.getId());
 
             return PostHomeResponseDto.Post.builder()
                     .postId(post.getId())
                     .imageUrl(imageUrl)
                     .likesCnt(likesCount)
+                    .isLiked(isLiked)
                     .commentsCnt(commentsCount)
                     .writer(new PostHomeResponseDto.Writer(post.getWriter().getId(), post.getWriter().getNickname()))
                     .content(post.getContent())
@@ -139,21 +144,83 @@ public class PostService {
         }
     }
 
-    public List<Post> getMyPagePostList(User user, List<Object> sortValues, int size){
-        if (sortValues == null || sortValues.isEmpty()) {
+    public PostFeedResponseDto getFeedPostsWithCursor(PostFeedRequestDto reqDto) {
+        String cursor = reqDto.getCursor();
+        int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
+        List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
+
+        List<Post> posts;
+        if ("review".equals(reqDto.getFeedType())) {
+            Long placeId = reqDto.getPlaceId();
+            if (placeId == null) {
+                throw new CustomException(PlaceErrorCode.PLACE_NOT_FOUND);
+            }
+            Place place = placeRepository.findById(placeId)
+                    .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
+            if("popular".equals(reqDto.getSortedBy())) {
+                posts = getPopularReviewPosts(place, sortValues, size);
+            } else {
+                posts = getLatestReviewPosts(place, sortValues, size);
+            }
+        } else if ("myPage".equals(reqDto.getFeedType())) {
+            Long userId = reqDto.getUserId();
+            if (userId == null) {
+                throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+            }
+            User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
+                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+            posts = getMyPagePosts(user, sortValues, size);
+        } else {
+            throw new IllegalArgumentException("Invalid feedType: " + reqDto.getFeedType());
+        }
+
+        String nextCursor = (posts.size() == size)
+                ? cursorUtil.encodeCursor(List.of(posts.get(posts.size() - 1).getId()))
+                : null;
+
+        List<PostFeedResponseDto.Post> postDtos = posts.stream().map(post ->
+                PostFeedResponseDto.Post.builder()
+                        .postId(post.getId())
+                        .imageUrl(post.getPlace().getImageUrl())
+                        .isPublic(post.isPublic())
+                        .build()
+        ).toList();
+
+        return new PostFeedResponseDto(postDtos, nextCursor);
+    }
+
+    public List<Post> getPopularReviewPosts(Place place, List<Object> sortValues, int size) {
+//        if (sortValues == null) {
+//            return postRepository.findAllByIsPublicAndPlaceOrderByLikesCntDescIdDesc(true, place, PageRequest.of(0, size));
+//        } else {
+//            Long id = Long.parseLong(sortValues.get(0).toString());
+//            return postRepository.findByIsPublicAndPlaceAndIdLessThanOrderByLikesCntDescIdDesc(true, place, id, PageRequest.of(0, size));
+//        }
+
+        Set<String> popularPostIds = redisStringTemplate.opsForZSet().reverseRange(POST_LIKES_KEY, 0, size - 1);
+        if (popularPostIds == null || popularPostIds.isEmpty()) {
+            return postRepository.findByIsPublicAndPlaceOrderByIdDesc(true, place, PageRequest.of(0, size));
+        }
+        List<Long> idList = popularPostIds.stream().map(Long::valueOf).collect(Collectors.toList());
+        List<Post> posts = postRepository.findAllById(idList);
+        return posts;
+    }
+
+    public List<Post> getLatestReviewPosts(Place place, List<Object> sortValues, int size) {
+        if (sortValues == null) {
+            return postRepository.findByIsPublicAndPlaceOrderByIdDesc(true, place, PageRequest.of(0, size));
+        } else {
+            Long id = Long.parseLong(sortValues.get(0).toString());
+            return postRepository.findByIsPublicAndPlaceAndIdLessThanOrderByIdDesc(true, place, id, PageRequest.of(0, size));
+        }
+    }
+
+    public List<Post> getMyPagePosts(User user, List<Object> sortValues, int size) {
+        if (sortValues == null) {
             return postRepository.findAllByWriterOrderByIdDesc(user, PageRequest.of(0, size));
         } else {
             Long id = Long.parseLong(sortValues.get(0).toString());
             return postRepository.findByWriterAndIdLessThanOrderByIdDesc(user, id, PageRequest.of(0, size));
-        }
-    }
-
-    public List<Post> getUserPostList(User user, List<Object> sortValues, int size){
-        if (sortValues == null || sortValues.isEmpty()) {
-            return postRepository.findAllByIsPublicAndWriterOrderByIdDesc(true, user, PageRequest.of(0, size));
-        } else {
-            Long id = Long.parseLong(sortValues.get(0).toString());
-            return postRepository.findByIsPublicAndWriterAndIdLessThanOrderByIdDesc(true, user, id, PageRequest.of(0, size));
         }
     }
 
@@ -245,6 +312,8 @@ public class PostService {
         });
         
         likeRepository.deleteByPostId(postId);
+        redisStringTemplate.delete("post:likes:" + postId);
+        redisStringTemplate.opsForZSet().remove(POST_LIKES_KEY, postId.toString());
         log.info("postService: 게시글의 좋아요 삭제 완료");
         
         commentRepository.deleteByPostId(postId);
@@ -253,5 +322,4 @@ public class PostService {
         postRepository.delete(post);
         log.info("postService: 게시글 삭제 완료 - postId: {}", postId);
     }
-
 }

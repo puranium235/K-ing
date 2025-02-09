@@ -20,6 +20,7 @@ public class PostHomeResponseDto {
         private Long postId;
         private String imageUrl;
         private Long likesCnt;
+        private boolean isLiked;
         private Long commentsCnt;
         private Writer writer;
         private String content;
