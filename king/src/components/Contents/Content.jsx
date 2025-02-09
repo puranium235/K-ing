@@ -91,7 +91,7 @@ const Content = () => {
         observer.unobserve(lastElementRef.current);
       }
     };
-  }, [isLoading, getNextData]);
+  }, [isLoading]);
 
   const handleSearch = (searchQuery) => {
     setSearchQuery(searchQuery);
