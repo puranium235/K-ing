@@ -71,3 +71,14 @@ export const getPostDetail = async (postId) => {
     console.error(err);
   }
 };
+
+// 게시글 삭제
+export const deletePost = async (postId) => {
+  try {
+    const { data } = await client.delete(`/post/${postId}`);
+    console.log(data);
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
