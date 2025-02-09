@@ -39,7 +39,9 @@ const StList = styled.div`
   grid-template-columns: repeat(${(props) => props.$columns}, 1fr);
   gap: 0.7rem;
   overflow-y: auto;
+
   padding: 0.5rem 2rem;
+  margin-bottom: 6rem;
 
   width: 100%;
 `;

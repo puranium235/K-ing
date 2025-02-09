@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import GoUpButton from '../common/button/GoUpButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
@@ -24,6 +25,7 @@ const Curation = () => {
           <CurationsList query={query} />
         </CurationWrapper>
       </StCurationWrapper>
+      <GoUpButton />
       <Nav />
     </>
   );

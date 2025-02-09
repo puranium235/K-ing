@@ -6,9 +6,10 @@ import styled from 'styled-components';
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import { ScrollPosition, SearchQueryState } from '../../recoil/atom';
-import { catchLastScrollItem } from '../../util/\bcatchLastScrollItem';
+import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/button/BackButton';
+import GoUpButton from '../common/button/GoUpButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import Loading from '../Loading/Loading';
@@ -19,7 +20,7 @@ const Content = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [scrollPosition, setScrollPosition] = useRecoilState(ScrollPosition);
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
-  const [favorites, setFavorites] = useState({});
+  const [favorites, setFavorites] = useState(false);
 
   const navigate = useNavigate();
 
@@ -34,7 +35,7 @@ const Content = () => {
   );
 
   const toggleFavorite = () => {
-    setIsFavorited(!isFavorited);
+    setFavorites(!favorites);
   };
 
   useEffect(() => {
@@ -117,15 +118,16 @@ const Content = () => {
                 <CardImage src={content.imageUrl} alt={content.name} />
               </CardImageContainer>
               <CardTitle>{content.name}</CardTitle>
-              {favorites[content.id] ? (
-                <IcStar id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
+              {content.favorites ? (
+                <IcStar id="favor" onClick={toggleFavorite} />
               ) : (
-                <IcStarBlank id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
+                <IcStarBlank id="favor" onClick={toggleFavorite} />
               )}
             </Card>
           ))}
         </GridContainer>
       </StHomeWrapper>
+      <GoUpButton />
 
       <Nav />
     </>

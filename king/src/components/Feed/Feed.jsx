@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { IcOne, IcOneSelected, IcTwo, IcTwoSelected } from '../../assets/icons';
+import GoUpButton from '../common/button/GoUpButton';
 import Nav from '../common/Nav';
 import TopNav from '../common/TopNav';
 import FeedsList from './FeedsList';
@@ -29,6 +30,7 @@ const Feed = () => {
         </FixedContainer>
         <FeedsList columns={columns} />
       </StFeedWrapper>
+      <GoUpButton />
       <Nav />
     </>
   );
