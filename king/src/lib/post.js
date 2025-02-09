@@ -82,3 +82,24 @@ export const deletePost = async (postId) => {
     console.error(err);
   }
 };
+
+// 게시글 수정
+export const updatePost = async (postId, postInfo, image) => {
+  const requestBody = new FormData();
+  const jsonDraftData = JSON.stringify(postInfo);
+  const post = new Blob([jsonDraftData], { type: 'application/json' });
+  requestBody.append('post', post);
+
+  if (image) {
+    requestBody.append('imageFile', image);
+  }
+
+  try {
+    const { data } = await client.post(`/post/${postId}`, requestBody, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
