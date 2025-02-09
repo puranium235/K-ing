@@ -7,7 +7,7 @@ import MapIcon from '/src/assets/icons/map.png';
 
 import { getCurationDetail } from '../../lib/curation';
 import { CurationPlaceList } from '../../recoil/atom';
-import { formatDate } from '../../util/dateFormat';
+import { formatDate } from '../../util/formatDate';
 import Bottom from '../common/Bottom';
 import DetailHeader from '../common/DetailHeader';
 import Loading from '../Loading/Loading';

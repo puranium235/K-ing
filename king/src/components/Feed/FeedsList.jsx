@@ -9,14 +9,14 @@ import PostItem from './PostItem';
 const FeedsList = ({ columns }) => {
   const lastElementRef = useRef(null);
 
-  const { feedList, getNextData, isLoading } = useGetFeedList();
+  const { feedList, getNextData, isLoading, hasMore } = useGetFeedList();
 
-  useEffect(() => {
+  const catchLastItem = (isLoading, lastElementRef, getNextData, hasMore) => {
     if (isLoading || !lastElementRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoading) {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
           getNextData();
         }
       },
@@ -32,7 +32,11 @@ const FeedsList = ({ columns }) => {
         observer.unobserve(lastElementRef.current);
       }
     };
-  }, [isLoading]);
+  };
+
+  useEffect(() => {
+    catchLastItem(isLoading, lastElementRef, getNextData, hasMore);
+  }, [isLoading, hasMore, lastElementRef]);
 
   if (isLoading && feedList.length === 0) return <Loading />;
 
