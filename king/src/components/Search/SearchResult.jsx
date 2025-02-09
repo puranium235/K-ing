@@ -19,6 +19,7 @@ const SearchResult = () => {
   const { searchResultList, getNextData, isLoading, isError } = useGetSearchResult(
     searchQuery,
     searchCategory,
+    '',
   );
 
   const [contentList, setContentList] = useState([]);
