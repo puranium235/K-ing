@@ -7,14 +7,12 @@ import NaverIcon from '/src/assets/icons/naver.png';
 const DeepLinkModal = ({ dest, isModalVisible, onClick }) => {
   const handleGoogleNavigation = () => {
     //travelmode:driving,walking, 디폴트 사용자 관련성 높은 모드
-    () =>
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`);
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`);
   };
 
   const handleNaverNavigation = () => {
     //slat,slng : 시작 위경도 (디폴트 현재위치)
     //dlat,dlng: X -> dname: 도착지명 인코딩 문자열
-    () => window.open('https://map.naver.com');
     window.open(`nmap://route/public?dname=${encodeURIComponent(dest)}`);
   };
 
