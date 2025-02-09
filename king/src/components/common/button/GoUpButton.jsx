@@ -5,7 +5,7 @@ import UpButton from '/src/assets/icons/ic_up.png';
 
 const GoUpButton = () => {
   const handleScrollUp = () => {
-    document.querySelector('html').scrollTo(0, 0);
+    document.querySelector('html').scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (

@@ -1,12 +1,19 @@
 import React, { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+
+import { ScrollPosition } from '../../recoil/atom';
 
 const PlaceCard = forwardRef(({ place }, ref) => {
   const { id, imageUrl, name, details } = place;
   const navigate = useNavigate();
 
+  const setScrollPosition = useSetRecoilState(ScrollPosition);
+
   const handleClickPlace = () => {
+    setScrollPosition(document.querySelector('html').scrollTop);
+
     navigate(`/place/${id}`);
   };
 

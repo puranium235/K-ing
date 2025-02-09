@@ -10,6 +10,7 @@ import NoResultImage from '/src/assets/icons/king_character_sorry.png';
 import { IcFilter, IcMap } from '../../assets/icons';
 import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
 import { ContentId, FilterOption, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { ScrollPosition } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import BackButton from '../common/button/BackButton';
 import FilterButton from '../common/button/FilterButton';
@@ -27,9 +28,11 @@ const SearchKeyword = () => {
 
   const [isProvinceActive, setIsProvinceActive] = useState(false);
   const [isCategoryActive, setIsCategoryActive] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [relatedType, setRelatedType] = useRecoilState(SearchRelatedType);
+  const scrollPosition = useRecoilValue(ScrollPosition);
   const contentId = useRecoilValue(ContentId);
 
   const sortType = {
@@ -48,10 +51,16 @@ const SearchKeyword = () => {
   });
 
   const lastElementRef = useRef(null);
-  const resultWrapperRef = useRef(null);
 
   useEffect(() => {
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (!isLoading && initialLoading) {
+      document.querySelector('html').scrollTo({ top: scrollPosition, behavior: 'smooth' });
+      setInitialLoading(false);
+    }
   }, [isLoading]);
 
   const handleToggleFilter = (filterType) => {
@@ -78,7 +87,6 @@ const SearchKeyword = () => {
   useEffect(() => {
     if (filter && filter.categories) {
       setIsProvinceActive(filter.province !== '');
-
       setIsCategoryActive(Object.values(filter.categories).some((value) => value));
     }
   }, [filter]);
@@ -99,10 +107,6 @@ const SearchKeyword = () => {
   const handleOpenMap = () => {
     setSearchQuery(searchQuery);
     navigate(`/map`);
-  };
-
-  const handleScrollUp = () => {
-    document.querySelector('html').scrollTo(0, 0);
   };
 
   const handleGoBack = () => {
@@ -150,7 +154,7 @@ const SearchKeyword = () => {
           </OptionHeader>
         </FixedContainer>
         {placeList.length > 0 ? (
-          <ResultWrapper ref={resultWrapperRef}>
+          <ResultWrapper>
             {placeList.map((card, index) => (
               <PlaceCard
                 key={index}

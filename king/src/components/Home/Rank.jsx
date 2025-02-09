@@ -48,7 +48,7 @@ const Rank = () => {
   const getFilterText = () => {
     switch (period) {
       case 'realtime':
-        return '🔥지금 인기있는🔥';
+        return '🔥 지금 인기있는🔥';
       case 'daily':
         return formattedToday;
       case 'weekly':

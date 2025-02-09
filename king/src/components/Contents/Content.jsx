@@ -26,7 +26,6 @@ const Content = () => {
 
   //마지막 요소 감지
   const lastElementRef = useRef(null);
-  const containerRef = useRef(null);
 
   const { searchResultList, getNextData, isLoading, hasMore } = useGetSearchResult(
     searchQuery,
@@ -44,33 +43,10 @@ const Content = () => {
 
   useEffect(() => {
     if (!isLoading && initialLoading) {
-      const container = containerRef.current;
-      if (container && scrollPosition) {
-        container.scrollTop = scrollPosition;
-        setInitialLoading(false);
-      }
+      document.querySelector('html').scrollTo({ top: scrollPosition, behavior: 'smooth' });
+      setInitialLoading(false);
     }
   }, [isLoading]);
-
-  useEffect(() => {
-    // 스크롤 위치를 상태로 저장
-    const handleScroll = () => {
-      if (containerRef.current) {
-        setScrollPosition(containerRef.current.scrollTop);
-      }
-    };
-
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-    }
-
-    return () => {
-      if (container) {
-        container.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
@@ -78,14 +54,11 @@ const Content = () => {
 
   const handleSearch = (searchQuery) => {
     setSearchQuery(searchQuery);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelector('html').scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleItemClick = (id) => {
-    if (containerRef.current) {
-      // sessionStorage.setItem('scrollPosition', containerRef.current.scrollTop);
-      setScrollPosition(containerRef.current.scrollTop);
-    }
+    setScrollPosition(document.querySelector('html').scrollTop);
 
     if (contentType === 'cast') {
       navigate(`/content/cast/${id}`);
@@ -101,13 +74,18 @@ const Content = () => {
       <StHomeWrapper>
         <FixedContainer>
           <IconText>
-            <BackButton onBack={() => navigate(`/home`)} />
+            <BackButton
+              onBack={() => {
+                navigate(`/home`);
+                setScrollPosition(0);
+              }}
+            />
             <p>{getContentTypeKor(contentType)}</p>
           </IconText>
           <SearchBar type={contentType.toUpperCase()} query={searchQuery} onSearch={handleSearch} />
         </FixedContainer>
 
-        <GridContainer ref={containerRef}>
+        <GridContainer>
           {searchResultList.map((content, index) => (
             <Card
               key={index}
