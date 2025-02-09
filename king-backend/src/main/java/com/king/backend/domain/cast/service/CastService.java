@@ -33,6 +33,9 @@ public class CastService {
         if (cast != null) {
             List<ContentCast> sortedContentCasts = cast.getContentCasts().stream()
                     .sorted((c1, c2) -> {
+                        if (c1.getContent().getCreatedAt() == null && c2.getContent().getCreatedAt() == null) {
+                            return 0;
+                        }
                         if (c1.getContent().getCreatedAt() == null) return 1;
                         if (c2.getContent().getCreatedAt() == null) return -1;
                         return c2.getContent().getCreatedAt().compareTo(c1.getContent().getCreatedAt());
