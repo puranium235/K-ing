@@ -19,7 +19,7 @@ public class LikeController {
 
     @Operation(summary = "게시글 좋아요 등록 API")
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> like(@RequestParam("postId") Long postId) {
+    public ResponseEntity<ApiResponse<Void>> like(@PathVariable Long postId) {
         likeService.likePost(postId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
     }

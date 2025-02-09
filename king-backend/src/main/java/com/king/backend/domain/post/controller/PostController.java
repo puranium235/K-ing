@@ -1,8 +1,10 @@
 package com.king.backend.domain.post.controller;
 
-import com.king.backend.domain.post.dto.request.PostHomeAndMyPageRequestDto;
+import com.king.backend.domain.post.dto.request.PostHomeRequestDto;
+import com.king.backend.domain.post.dto.request.PostFeedRequestDto;
 import com.king.backend.domain.post.dto.request.PostUploadRequestDto;
 import com.king.backend.domain.post.dto.response.PostDetailResponseDto;
+import com.king.backend.domain.post.dto.response.PostFeedResponseDto;
 import com.king.backend.domain.post.dto.response.PostHomeResponseDto;
 import com.king.backend.domain.post.service.PostService;
 import com.king.backend.global.response.ApiResponse;
@@ -35,9 +37,17 @@ public class PostController {
     @Operation(summary = "게시글 전체 목록(홈피드) 조회 API (커서 기반 페이징 지원)")
     @GetMapping("/home")
     public ResponseEntity<ApiResponse<PostHomeResponseDto>> getHomePosts(
-            @ModelAttribute PostHomeAndMyPageRequestDto reqDto
+            @ModelAttribute PostHomeRequestDto reqDto
     ){
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postService.getHomeAndMyPagePostsWithCursor(reqDto)));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postService.getHomePostsWithCursor(reqDto)));
+    }
+
+    @Operation(summary = "마이페이지 피드 조회 API (커서 기반 페이징 지원)")
+    @GetMapping("/feed")
+    public ResponseEntity<ApiResponse<PostFeedResponseDto>> getMyPagePosts(
+            @ModelAttribute PostFeedRequestDto reqDto
+    ){
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postService.getFeedPostsWithCursor(reqDto)));
     }
 
     @Operation(summary = "게시글 상세 조회 API")
