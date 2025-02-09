@@ -190,19 +190,23 @@ public class PostService {
     }
 
     public List<Post> getPopularReviewPosts(Place place, List<Object> sortValues, int size) {
-//        if (sortValues == null) {
-//            return postRepository.findAllByIsPublicAndPlaceOrderByLikesCntDescIdDesc(true, place, PageRequest.of(0, size));
-//        } else {
-//            Long id = Long.parseLong(sortValues.get(0).toString());
-//            return postRepository.findByIsPublicAndPlaceAndIdLessThanOrderByLikesCntDescIdDesc(true, place, id, PageRequest.of(0, size));
-//        }
-
         Set<String> popularPostIds = redisStringTemplate.opsForZSet().reverseRange(POST_LIKES_KEY, 0, size - 1);
         if (popularPostIds == null || popularPostIds.isEmpty()) {
             return postRepository.findByIsPublicAndPlaceOrderByIdDesc(true, place, PageRequest.of(0, size));
         }
+
         List<Long> idList = popularPostIds.stream().map(Long::valueOf).collect(Collectors.toList());
         List<Post> posts = postRepository.findAllById(idList);
+        posts = posts.stream()
+                .filter(p -> p.getPlace().getId().equals(place.getId()) && p.isPublic())
+                .collect(Collectors.toList());
+
+        posts.sort((p1, p2) -> {
+            int index1 = idList.indexOf(p1.getId());
+            int index2 = idList.indexOf(p2.getId());
+            return Integer.compare(index1, index2);
+        });
+
         return posts;
     }
 

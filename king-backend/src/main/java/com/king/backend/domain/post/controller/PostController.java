@@ -42,7 +42,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postService.getHomePostsWithCursor(reqDto)));
     }
 
-    @Operation(summary = "마이페이지 피드 조회 API (커서 기반 페이징 지원)")
+    @Operation(summary = "장소 리뷰, 마이페이지 피드 조회 API (커서 기반 페이징 지원)")
     @GetMapping("/feed")
     public ResponseEntity<ApiResponse<PostFeedResponseDto>> getMyPagePosts(
             @ModelAttribute PostFeedRequestDto reqDto
