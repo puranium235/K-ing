@@ -15,6 +15,7 @@ public class CommentAllResponseDto {
     private Long likesCount;
     private Long commentsCount;
     private List<Comment> comments;
+    private String nextCursor;
 
     @Getter
     @AllArgsConstructor

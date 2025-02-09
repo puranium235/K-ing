@@ -21,13 +21,13 @@ public class LikeController {
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> like(@RequestParam("postId") Long postId) {
         likeService.likePost(postId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
     }
 
     @Operation(summary = "게시글 좋아요 취소 API")
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> unlikePost(@PathVariable Long postId) {
         likeService.unlikePost(postId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
     }
 }
