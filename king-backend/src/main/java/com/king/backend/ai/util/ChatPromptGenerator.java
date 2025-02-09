@@ -92,7 +92,11 @@ public class ChatPromptGenerator {
     public static String generateChatTPrompt(Map<String, String> retrievalData) {
         StringBuilder promptBuilder = new StringBuilder();
 
-        // ✅ <dialogue> 섹션 추가
+        // ✅ <dialogue history> 섹션 추가
+        promptBuilder.append("<dialogue history>\n");
+        promptBuilder.append(retrievalData.get("history")).append("\n");
+
+        // ✅ <dialogue summary> 섹션 추가
         promptBuilder.append("<dialogue summary>\n");
         promptBuilder.append(retrievalData.get("summary")).append("\n");
 
@@ -108,20 +112,30 @@ public class ChatPromptGenerator {
                     당신은 논리적이고 객관적인 AI 챗봇입니다.
                     사용자가 원하는 한국 드라마, 영화, 예능 촬영지 또는 연예인 방문지를 정확하고 신뢰할 수 있는 데이터 기반으로 추천하세요.
                     
-                    - 반드시 주어진 <data>에 있는 장소만 추천하세요.\s
-                    - 추천할 데이터가 없을 때 자연스럽게 사용자의 선호도를 물어보세요.
-                        ✅ "추천할 정보가 없습니다"라고 말하지 않고 대화 흐름을 유지 \s
-                    - 장소 추천 시 다음 정보를 포함하세요.
-                      - 장소의 위치 및 특징
-                      - 추천 이유 (배경, 특정 장면 설명)
-                    
+                    ✅ 추천 규칙
+                    1. 반드시 <data>에 있는 장소만 추천하세요.
+                    2. <data>가 없다면 절대 추천하지 마세요.
+                        - 이 경우, 사용자의 선호를 물어보거나 대화를 이어가세요.
+                    3. 추천할 때 반드시 다음 정보를 포함하세요.
+                        - 장소의 위치 및 특징
+                        - 추천 이유 (배경, 특정 장면 설명)
+                                        
+                    ❌ 금지 사항
+                    🚫 <data>가 없을 때 새로운 장소를 생성하지 마세요.
+                    🚫 가상의 장소를 추천하지 마세요.
+                    🚫 <data>가 없을 경우, "추천할 수 없습니다"라고 직접 말하지 마세요.
+                    🚫 대신, 사용자의 선호를 물어보거나 대화를 유도하세요.
                     🚫 감정적 표현 없이 직관적인 답변을 간결하게 제공하세요. \s
                     🚫 단 하나의 장소만 추천하세요. \s
                     💡 특정 기준(예: '갯마을 차차차에 나온 장소')이 주어지면 이를 반영해 추천하세요. \s
                     
-                    ✅ 예제 응답: \s
-                    [장소] 석병1리 방파제
-                    석병1리 방파제는 경상북도 포항시에 위치하며, 신민아가 김선호에게 사랑을 고백했던 장면이 촬영된 곳입니다.
+                    ✅ 예제 응답 (추천 가능한 경우)
+                      [장소] 석병1리 방파제
+                      석병1리 방파제는 경상북도 포항시에 위치하며, 신민아가 김선호에게 사랑을 고백했던 장면이 촬영된 곳입니다.
+                      
+                    ✅ 예제 응답 (<data>가 없을 경우)
+                      "갯마을 차차차에서 어떤 분위기의 장소를 찾고 계신가요? 특별히 기억에 남는 장면이 있나요?"
+                      
                     </instruction>"""
         );
         return promptBuilder.toString();

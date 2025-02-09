@@ -8,6 +8,7 @@ import com.king.backend.ai.dto.RagSearchResponseDto;
 import com.king.backend.ai.util.AuthUtil;
 import com.king.backend.ai.util.ChatPromptGenerator;
 import com.king.backend.ai.util.JsonUtil;
+import com.king.backend.ai.util.SearchResultFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -78,25 +79,27 @@ public class ChatService {
             //System.out.println(response);  // DTO 전체 출력
 
             // ✅ 3. Elasticsearch 검색 수행 (추천이 필요할 경우)
-            RagSearchResponseDto searchResults = null;
             if (response.isRecommend()) {
-                searchResults = searchInElasticSearch(response.getType(), response.getKeyword());
-                printSearchResults(searchResults);
+                RagSearchResponseDto searchResults = searchInElasticSearch(response.getType(), response.getKeyword());
+
+                // ✅ 검색된 데이터가 있을 경우, data 추가
+                if (searchResults != null && searchResults.getPlaces() != null && !searchResults.getPlaces().isEmpty()) {
+                    // ✅ 변환된 JSON 출력 (AI 프롬프트용)
+                    String formattedResults = SearchResultFormatter.formatSearchResultsForAI(searchResults);
+                    retrievalData.put("data", formattedResults);
+                }
             }
 
-            // ✅ 4. Retrieval Data 저장
+            // ✅ 4. 대화 요약 저장
             retrievalData.put("summary", response.getSummary());
 
-            // ✅ 검색된 데이터가 있을 경우, data 추가
-            if (searchResults != null && searchResults.getPlaces() != null && !searchResults.getPlaces().isEmpty()) {
-                retrievalData.put("data", searchResults.toString()); // JSON 또는 텍스트 변환
-            }
-
-        } else {
-            // ❌ JSON이 유효하지 않다면 `summary` 대신 `dialogueHistory`를 사용
-            log.info("❌ JSON이 유효하지 않습니다. Retrieval Data에 대화 내역을 사용합니다.");
-            retrievalData.put("summary", userMessage);
         }
+        // 전체 대화 내역 넣어 말어
+        StringBuilder sb = new StringBuilder();
+        for (Map<String, String> message : dialogueHistory) {
+            sb.append(message.get("role")).append(": ").append(message.get("content")).append("\n");
+        }
+        retrievalData.put("history", sb.toString());
 
         // 🔹 OpenAI 프롬프트 생성
         String prompt = promptGenerator.apply(retrievalData);
@@ -175,25 +178,6 @@ public class ChatService {
         // 요청 DTO 생성
         RagSearchRequestDto requestDto = new RagSearchRequestDto(type, keyword);
         return ragSearchService.search(requestDto);
-    }
-
-    public static void printSearchResults(RagSearchResponseDto searchResults) {
-        if (searchResults != null && searchResults.getPlaces() != null && !searchResults.getPlaces().isEmpty()) {
-            System.out.print("🔍 검색된 장소 목록:");
-//            for (RagSearchResponseDto.PlaceResult place : searchResults.getPlaces()) {
-//                System.out.println("📍 장소 ID: " + place.getPlaceId());
-//                System.out.println("   이름: " + place.getName());
-//                System.out.println("   유형: " + place.getType());
-//                System.out.println("   주소: " + place.getAddress());
-//                System.out.println("   설명: " + place.getDescription());
-//                System.out.println("   위치: (" + place.getLat() + ", " + place.getLng() + ")");
-//                System.out.println("   이미지: " + place.getImageUrl());
-//                System.out.println("---------------------------------");
-//            }
-            System.out.println(searchResults.getPlaces().size());
-        } else {
-            System.out.println("❌ 검색된 장소가 없습니다.");
-        }
     }
 
     /*REST API chat
