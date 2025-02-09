@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import { ScrollPosition, SearchQueryState } from '../../recoil/atom';
+import { catchLastScrollItem } from '../../util/\bcatchLastScrollItem';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
@@ -26,7 +27,7 @@ const Content = () => {
   const lastElementRef = useRef(null);
   const containerRef = useRef(null);
 
-  const { searchResultList, getNextData, isLoading } = useGetSearchResult(
+  const { searchResultList, getNextData, isLoading, hasMore } = useGetSearchResult(
     searchQuery,
     contentType.toUpperCase(),
     'createdAt',
@@ -71,26 +72,7 @@ const Content = () => {
   }, []);
 
   useEffect(() => {
-    if (isLoading || !lastElementRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !isLoading) {
-          getNextData();
-        }
-      },
-      { threshold: 0.5 },
-    );
-
-    if (lastElementRef.current) {
-      observer.observe(lastElementRef.current);
-    }
-
-    return () => {
-      if (lastElementRef.current) {
-        observer.unobserve(lastElementRef.current);
-      }
-    };
+    catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
   }, [isLoading]);
 
   const handleSearch = (searchQuery) => {

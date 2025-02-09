@@ -23,6 +23,9 @@ const useGetSearchResult = (query, category, sortOption) => {
   }, [query, category, mutate, setSize]);
 
   const results = data ? [].concat(...data.map((res) => res.data.results)) : [];
+  const isEmpty = data?.[0]?.data?.results.length === 0;
+  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data.results?.length < 15);
+  const hasMore = !isEmpty && !isReachingEnd;
 
   return {
     searchResultList: results,
@@ -33,6 +36,7 @@ const useGetSearchResult = (query, category, sortOption) => {
     },
     isLoading: isValidating,
     isError: error,
+    hasMore,
   };
 };
 

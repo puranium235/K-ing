@@ -8,8 +8,8 @@ const useGetFeedList = () => {
     if (previousPageData && !previousPageData.data.nextCursor) return null; // 마지막 페이지
 
     return pageIndex === 0
-      ? `/post/home?size=3`
-      : `/post/home?size=3&cursor=${previousPageData.data.nextCursor}`;
+      ? `/post/home?size=8`
+      : `/post/home?size=8&cursor=${previousPageData.data.nextCursor}`;
   };
 
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
@@ -25,7 +25,7 @@ const useGetFeedList = () => {
   const posts = data ? [].concat(...data.map((res) => res.data.posts)) : [];
 
   const isEmpty = data?.[0]?.data?.posts.length === 0;
-  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data.posts?.length < 3);
+  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data.posts?.length < 8);
   const hasMore = !isEmpty && !isReachingEnd;
 
   return {

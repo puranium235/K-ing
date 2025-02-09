@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import useGetFeedList from '../../hooks/feed/useGetFeedList';
+import { catchLastScrollItem } from '../../util/\bcatchLastScrollItem';
 import Loading from '../Loading/Loading';
 import PostItem from './PostItem';
 
@@ -11,31 +12,8 @@ const FeedsList = ({ columns }) => {
 
   const { feedList, getNextData, isLoading, hasMore } = useGetFeedList();
 
-  const catchLastItem = (isLoading, lastElementRef, getNextData, hasMore) => {
-    if (isLoading || !lastElementRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-          getNextData();
-        }
-      },
-      { threshold: 0.5 },
-    );
-
-    if (lastElementRef.current) {
-      observer.observe(lastElementRef.current);
-    }
-
-    return () => {
-      if (lastElementRef.current) {
-        observer.unobserve(lastElementRef.current);
-      }
-    };
-  };
-
   useEffect(() => {
-    catchLastItem(isLoading, lastElementRef, getNextData, hasMore);
+    catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
   }, [isLoading, hasMore, lastElementRef]);
 
   if (isLoading && feedList.length === 0) return <Loading />;
