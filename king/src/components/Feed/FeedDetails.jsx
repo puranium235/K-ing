@@ -29,7 +29,7 @@ const FeedDetails = () => {
     //이전 경로 구하기
     const from = location.state?.from?.pathname;
 
-    if (from && from.includes('/upload')) {
+    if (from && from.includes('/post')) {
       navigate('/home');
     } else {
       navigate(-1);
@@ -46,7 +46,10 @@ const FeedDetails = () => {
     getPostInfo();
   }, [postId]);
 
-  const handleUpdate = () => {};
+  const handleUpdate = () => {
+    navigate(`/update/post/${postId}`);
+  };
+
   const handleDelete = async () => {
     if (window.confirm('게시글을 삭제하시겠습니까?')) {
       const res = await deletePost(postId);
@@ -76,7 +79,7 @@ const FeedDetails = () => {
             <BackButton onBack={handleGoBack} />
             <h3>Post</h3>
           </IconText>
-          {userId === writer.userId && (
+          {userId === String(writer?.userId) && (
             <OptionButton
               onClick={() => {
                 update.setShowing(true);

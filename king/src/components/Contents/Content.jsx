@@ -30,6 +30,7 @@ const Content = () => {
   const { searchResultList, getNextData, isLoading, isError } = useGetSearchResult(
     searchQuery,
     contentType.toUpperCase(),
+    'createdAt',
   );
 
   const toggleFavorite = () => {

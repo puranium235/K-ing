@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
@@ -13,14 +13,22 @@ import {
 } from '../../assets/icons';
 import useModal from '../../hooks/common/useModal';
 import useToggle from '../../hooks/common/useToggle';
-import { createPost, deletePostDraft, getPostDraft, postDraft } from '../../lib/post';
+import {
+  createPost,
+  deletePostDraft,
+  getPostDetail,
+  getPostDraft,
+  postDraft,
+  updatePost,
+} from '../../lib/post';
 import { DraftExist, UseDraft } from '../../recoil/atom';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import DraftModal from './Modal/DraftModal';
 
-const PostUpload = () => {
+const PostUpload = ({ state }) => {
+  const { postId } = useParams();
   const create = useModal();
   const toggle = useToggle(false);
   const fileInputRef = useRef(null);
@@ -44,19 +52,31 @@ const PostUpload = () => {
   }, [isDraft]);
 
   const initData = async () => {
-    if (isDraft && useDraft) {
-      const res = await getPostDraft();
+    let res;
 
-      setCaption(res.content ? res.content : '');
-      if (res.place) {
-        setPlaceId(res.place.placeId);
-        setPlace(res.place.name);
-      }
+    if (postId) {
+      //업데이트
+      res = await getPostDetail(postId);
+      setImage(res.imageUrl);
+    } else if (isDraft && useDraft) {
+      //초기 업로드
+      res = await getPostDraft();
       if (res.imageData) {
         setImage(`data:image/jpeg;base64,${res.imageData}`);
       }
-      toggle.setToggle(res.isPublic);
+    } else {
+      return;
+    }
 
+    setCaption(res.content ? res.content : '');
+    if (res.place) {
+      setPlaceId(res.place.placeId);
+      setPlace(res.place.name);
+    }
+
+    toggle.setToggle(res.isPublic);
+
+    if (isDraft && useDraft) {
       await deletePostDraft();
     }
   };
@@ -96,9 +116,27 @@ const PostUpload = () => {
     }
   };
 
+  const handleUpdatePost = async () => {
+    if (isShareEnabled) {
+      const postInfo = {
+        content: caption,
+        placeId,
+        public: toggle.toggle,
+      };
+
+      const res = await updatePost(postId, postInfo, imageFile);
+
+      if (res.success) {
+        alert('게시물을 성공적으로 수정하였습니다.');
+
+        navigate(`/feed/${postId}`, { state: { from: { pathname: location.pathname } } });
+      }
+    }
+  };
+
   useEffect(() => {
     initData();
-  }, [useDraft]);
+  }, [useDraft, postId]);
 
   useEffect(() => {
     setIsShareEnabled(!!image && !!placeId && !!caption);
@@ -190,13 +228,21 @@ const PostUpload = () => {
             <IcToggleFalse onClick={handleToggle} />
           )}
         </PublicToggleWrapper>
-
-        <ButtonWrapper>
-          <TemporaryButton onClick={saveDraft}>임시 저장</TemporaryButton>
-          <SaveButton disabled={!isShareEnabled} onClick={sharePost}>
-            공유
-          </SaveButton>
-        </ButtonWrapper>
+        {state === 'upload' ? (
+          <ButtonWrapper>
+            <TemporaryButton onClick={saveDraft}>임시 저장</TemporaryButton>
+            <SaveButton disabled={!isShareEnabled} onClick={sharePost}>
+              공유
+            </SaveButton>
+          </ButtonWrapper>
+        ) : (
+          <ButtonWrapper>
+            <TemporaryButton onClick={() => navigate(-1)}>취소</TemporaryButton>
+            <SaveButton disabled={!isShareEnabled} onClick={handleUpdatePost}>
+              저장
+            </SaveButton>
+          </ButtonWrapper>
+        )}
       </StHomeWrapper>
 
       <Nav />

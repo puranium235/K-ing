@@ -3,13 +3,13 @@ import useSWRInfinite from 'swr/infinite';
 
 import { mainGetFetcher } from '../../lib/axios';
 
-const useGetSearchResult = (query, category) => {
+const useGetSearchResult = (query, category, sortOption) => {
   const getKey = (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.data.nextCursor) return null; // 마지막 페이지
 
     return pageIndex === 0
-      ? `/search/search?query=${encodeURIComponent(query)}&category=${category}&size=15&sortBy=createdAt&sortOrder=desc`
-      : `/search/search?query=${encodeURIComponent(query)}&category=${category}&size=15&cursor=${previousPageData.data.nextCursor}&sortBy=createdAt&sortOrder=desc`;
+      ? `/search/search?query=${encodeURIComponent(query)}&category=${category}&size=15&sortBy=${sortOption}&sortOrder=desc`
+      : `/search/search?query=${encodeURIComponent(query)}&category=${category}&size=15&cursor=${previousPageData.data.nextCursor}&sortBy=${sortOption}&sortOrder=desc`;
   };
 
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
