@@ -8,10 +8,9 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchPhrasePrefixQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.UpdateRequest;
-import co.elastic.clients.elasticsearch.core.UpdateResponse;
+import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.elasticsearch.core.msearch.MultiSearchResponseItem;
+import co.elastic.clients.elasticsearch.core.msearch.RequestItem;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.search.config.ElasticsearchConstants;
@@ -31,10 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -147,59 +143,195 @@ public class SearchService {
      */
     public SearchResponseDto search(SearchRequestDto requestDto) {
         try{
-            BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);
-            List<SortOptions> sortOptions = buildSortOptions(requestDto);
-            List<Object> searchAfterValues = buildSearchAfterValues(requestDto.getCursor());
+            if(requestDto.getCategory()==null||requestDto.getCategory().trim().isEmpty()){
+                // 기존 검색 쿼리(전체 대상)를 기반으로 aggregation 쿼리 생성
+                System.out.println("검색 시작");
+                BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);
+                List<SortOptions> sortOptions = buildSortOptions(requestDto);
 
-            SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
-                    .index(ElasticsearchConstants.SEARCH_INDEX)
-                    .query(q -> q.bool(boolQueryBuilder.build()))
-                    .size(requestDto.getSize())
-                    .source(s -> s.filter(f -> f.excludes("_class")))
-                    .sort(sortOptions);
-
-            if (searchAfterValues != null && !searchAfterValues.isEmpty()) {
-                searchRequestBuilder.searchAfter(
-                        searchAfterValues.stream()
-                                .map(this::convertToFieldValue)
-                                .collect(Collectors.toList())
+                // 상위 레벨 hit는 필요 없으므로 size는 0으로 설정하고,
+                // "by_category" terms aggregation과 그 하위에 "top_hits" 서브 애그리게이션을 사용합니다.
+                SearchRequest searchRequest = SearchRequest.of(s -> s
+                        .index(ElasticsearchConstants.SEARCH_INDEX)
+                        .query(q -> q.bool(boolQueryBuilder.build()))
+                        .size(0)
+                        .aggregations("by_category", a -> a
+//                                .terms(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY))
+                                        .filters(f -> f.filters(
+                                                bq -> bq.keyed(Map.of(
+                                                                "grouped", Query.of(q -> q.bool(b -> b
+                                                                        .should(k -> k.term(t -> t
+                                                                                .field(ElasticsearchConstants.FIELD_CATEGORY)
+                                                                                .value("SHOW")))
+                                                                        .should(k -> k.term(t -> t
+                                                                                .field(ElasticsearchConstants.FIELD_CATEGORY)
+                                                                                .value("MOVIE")))
+                                                                        .should(k -> k.term(t -> t
+                                                                                .field(ElasticsearchConstants.FIELD_CATEGORY)
+                                                                                .value("DRAMA")))
+                                                                        .minimumShouldMatch("1")
+                                                                ))
+                                                                ,"cast", Query.of(q -> q.term(t -> t
+                                                                        .field(ElasticsearchConstants.FIELD_CATEGORY)
+                                                                        .value("CAST")
+                                                                )),
+                                                                "place", Query.of(q -> q.term(t -> t
+                                                                        .field(ElasticsearchConstants.FIELD_CATEGORY)
+                                                                        .value("PLACE")
+                                                                ))
+                                        ))))
+                                .aggregations("top_hits", a2 -> a2.topHits(th -> th
+                                        .size(10)
+                                        .sort(sortOptions)
+                                ))
+                        )
                 );
+
+                SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
+
+                List<SearchResponseDto.SearchResult> combinedResults = new ArrayList<>();
+                long total = 0;
+
+                // aggregation 결과 파싱
+                if (searchResponse.aggregations() != null && searchResponse.aggregations().containsKey("by_category")) {
+                    var byCategoryAgg = searchResponse.aggregations().get("by_category").filters();
+                    if (byCategoryAgg != null && byCategoryAgg.buckets() != null) {
+                        var buckets = byCategoryAgg.buckets().keyed();
+                        for (var entry : buckets.entrySet()) {
+                            var key = entry.getKey(); // "grouped", "cast", "place" 등
+                            var bucket = entry.getValue();
+                            total += bucket.docCount();
+                            if (bucket.aggregations() != null && bucket.aggregations().containsKey("top_hits")) {
+                                var topHitsAgg = bucket.aggregations().get("top_hits").topHits();
+                                if (topHitsAgg != null &&
+                                        topHitsAgg.hits() != null &&
+                                        topHitsAgg.hits().hits() != null) {
+                                    for (var hit : topHitsAgg.hits().hits()) {
+                                        SearchDocument doc = hit.source().to(SearchDocument.class);
+                                        combinedResults.add(new SearchResponseDto.SearchResult(
+                                                doc.getCategory(),
+                                                doc.getOriginalId(),
+                                                doc.getName(),
+                                                doc.getDetails(),
+                                                Objects.requireNonNullElse(doc.getImageUrl(),
+                                                        String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
+                                        ));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                for(SearchResponseDto.SearchResult searchResult:combinedResults){
+                    System.out.println(searchResult.getName());
+
+                }
+
+                // aggregation 방식에서는 커서 기반 페이지네이션을 지원하지 않으므로 nextCursor는 null
+                return new SearchResponseDto(combinedResults, total, null);
+            }else {
+                BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);
+                List<SortOptions> sortOptions = buildSortOptions(requestDto);
+                List<Object> searchAfterValues = buildSearchAfterValues(requestDto.getCursor());
+
+                SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
+                        .index(ElasticsearchConstants.SEARCH_INDEX)
+                        .query(q -> q.bool(boolQueryBuilder.build()))
+                        .size(requestDto.getSize())
+                        .source(s -> s.filter(f -> f.excludes("_class")))
+                        .sort(sortOptions);
+
+                if (searchAfterValues != null && !searchAfterValues.isEmpty()) {
+                    searchRequestBuilder.searchAfter(
+                            searchAfterValues.stream()
+                                    .map(this::convertToFieldValue)
+                                    .collect(Collectors.toList())
+                    );
+                }
+
+                SearchRequest searchRequest = searchRequestBuilder.build();
+
+                SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
+
+
+                List<Hit<SearchDocument>> hits = searchResponse.hits().hits();
+                List<SearchResponseDto.SearchResult> results = hits.stream()
+                        .map(Hit::source)
+                        .map(doc -> new SearchResponseDto.SearchResult(
+                                doc.getCategory(),
+                                doc.getOriginalId(),
+                                doc.getName(),
+                                doc.getDetails(),
+                                Objects.requireNonNullElse(doc.getImageUrl(),
+                                        String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
+                        ))
+                        .collect(Collectors.toList());
+
+                long total = (searchResponse.hits().total() != null) ? searchResponse.hits().total().value() : 0;
+                String nextCursor = (hits.isEmpty()) ? null : cursorUtil.encodeCursor(
+                        hits.get(hits.size() - 1).sort().stream()
+                                .map(fieldValue -> {
+                                    if (fieldValue.isString()) return fieldValue.stringValue();
+                                    else if (fieldValue.isLong()) return fieldValue.longValue();
+                                    else if (fieldValue.isDouble()) return fieldValue.doubleValue();
+                                    else if (fieldValue.isBoolean()) return fieldValue.booleanValue();
+                                    else return fieldValue.anyValue();
+                                }).collect(Collectors.toList())
+                );
+
+                return new SearchResponseDto(results, total, nextCursor);
             }
-
-            SearchRequest searchRequest = searchRequestBuilder.build();
-
-            SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
-
-
-            List<Hit<SearchDocument>> hits = searchResponse.hits().hits();
-            List<SearchResponseDto.SearchResult> results = hits.stream()
-                    .map(Hit::source)
-                    .map(doc -> new SearchResponseDto.SearchResult(
-                            doc.getCategory(),
-                            doc.getOriginalId(),
-                            doc.getName(),
-                            doc.getDetails(),
-                            Objects.requireNonNullElse(doc.getImageUrl(),
-                                    String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
-                    ))
-                    .collect(Collectors.toList());
-
-            long total = (searchResponse.hits().total() != null) ? searchResponse.hits().total().value() : 0;
-            String nextCursor = (hits.isEmpty()) ? null : cursorUtil.encodeCursor(
-                    hits.get(hits.size() - 1).sort().stream()
-                            .map(fieldValue -> {
-                                if (fieldValue.isString()) return fieldValue.stringValue();
-                                else if (fieldValue.isLong()) return fieldValue.longValue();
-                                else if (fieldValue.isDouble()) return fieldValue.doubleValue();
-                                else if (fieldValue.isBoolean()) return fieldValue.booleanValue();
-                                else return fieldValue.anyValue();
-                            }).collect(Collectors.toList())
-            );
-
-            return new SearchResponseDto(results, total, nextCursor);
         }catch (IOException e) {
             throw new CustomException(SearchErrorCode.SEARCH_FAILED);
         }
+    }
+
+    /**
+     * Multi-Search 방식에서 각 카테고리에 대해 상위 10개의 SearchRequest를 생성합니다.
+     */
+    private SearchRequest buildSearchRequestForCategory(SearchRequestDto requestDto, String category) {
+        BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+        String query = requestDto.getQuery();
+
+        if (query != null && !query.trim().isEmpty()) {
+            boolQueryBuilder.must(m -> m.match(mm -> mm
+                    .field(ElasticsearchConstants.FIELD_NAME)
+                    .query(query)
+                    .fuzziness("AUTO")
+                    .boost(2.0f)
+            ));
+        } else {
+            boolQueryBuilder.must(m -> m.matchAll(mm -> mm));
+        }
+        // 카테고리 필터 추가
+        boolQueryBuilder.filter(f -> f.term(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY).value(category)));
+
+        // PLACE인 경우 추가 필터 적용
+        if ("PLACE".equalsIgnoreCase(category)) {
+            if (requestDto.getPlaceTypeList() != null && !requestDto.getPlaceTypeList().isEmpty()) {
+                List<FieldValue> upperCaseList = requestDto.getPlaceTypeList().stream()
+                        .map(String::toUpperCase)
+                        .map(val -> FieldValue.of(f -> f.stringValue(val)))
+                        .collect(Collectors.toList());
+                boolQueryBuilder.filter(q -> q.terms(t -> t.field(ElasticsearchConstants.FIELD_TYPE)
+                        .terms(terms -> terms.value(upperCaseList))));
+            }
+            if (requestDto.getRegion() != null && !requestDto.getRegion().isEmpty()) {
+                boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(requestDto.getRegion())));
+            }
+        }
+
+        // 정렬 옵션은 필요에 따라 조정 (여기서는 기존의 buildSortOptions() 재사용)
+        List<SortOptions> sortOptions = buildSortOptions(requestDto);
+
+        return SearchRequest.of(s -> s
+                .index(ElasticsearchConstants.SEARCH_INDEX)
+                .query(q -> q.bool(boolQueryBuilder.build()))
+                .size(10)  // 각 카테고리별 최대 10개
+                .source(src -> src.filter(f -> f.excludes("_class")))
+                .sort(sortOptions)
+        );
     }
 
     private BoolQuery.Builder buildSearchBoolQuery(SearchRequestDto requestDto) {
