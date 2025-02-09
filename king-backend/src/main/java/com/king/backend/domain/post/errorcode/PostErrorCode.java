@@ -13,7 +13,8 @@ public enum PostErrorCode implements ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,  "서버 내부 에러"),
     POST_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글 이미지를 찾을 수 없습니다."),
     POST_UPDATE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "본인이 작성한 게시글만 수정할 수 있습니다."),
-    POST_DELETE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "본인이 작성한 게시글만 삭제할 수 있습니다.");
+    POST_DELETE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "본인이 작성한 게시글만 삭제할 수 있습니다."),
+    MAX_UPLOAD_SIZE_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, "업로드된 파일이 너무 큽니다. 최대 허용 크기는 5MB입니다.");
 
     private final HttpStatus status;
     private final String message;

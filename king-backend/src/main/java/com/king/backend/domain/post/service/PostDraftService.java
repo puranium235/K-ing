@@ -1,14 +1,15 @@
 package com.king.backend.domain.post.service;
 
-import com.king.backend.global.util.RedisUtil;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.post.dto.request.PostDraftRequestDto;
 import com.king.backend.domain.post.dto.response.PostDraftResponseDto;
+import com.king.backend.domain.post.errorcode.PostErrorCode;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.global.errorcode.RedisErrorCode;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -32,6 +33,10 @@ public class PostDraftService {
         redisUtil.setJsonValue(draftKey, reqDto);
 
         if(imageFile != null && !imageFile.isEmpty()) {
+            long maxFileSize = 5 * 1024 * 1024;
+            if(imageFile.getSize() > maxFileSize) {
+                throw new CustomException(PostErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
+            }
             try {
                 byte[] imageBytes = imageFile.getBytes();
                 redisUtil.setBinaryValue(imageKey, imageBytes);
@@ -50,17 +55,21 @@ public class PostDraftService {
             return null;
         }
 
-        Place place = placeRepository.findById(draft.getPlaceId())
-                .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
+        PostDraftResponseDto.Place placeDto = null;
+        if (draft.getPlaceId() != null) {
+            Place place = placeRepository.findById(draft.getPlaceId())
+                    .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
+            placeDto = PostDraftResponseDto.Place.builder()
+                    .placeId(place.getId())
+                    .name(place.getName())
+                    .build();
+        }
 
         byte[] imageData = redisUtil.getBinaryValue(imageKey);
 
         return PostDraftResponseDto.builder()
                 .content(draft.getContent())
-                .place(PostDraftResponseDto.Place.builder()
-                        .placeId(place.getId())
-                        .name(place.getName())
-                        .build())
+                .place(placeDto)
                 .imageData(imageData)
                 .isPublic(draft.isPublic())
                 .build();

@@ -54,6 +54,10 @@ spring:
     secret-key: ${AWS_SECRET_KEY}
     region: ${AWS_REGION}
     s3-bucket: ${AWS_S3_BUCKET}
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
 server:
   port: 8080
   forward-headers-strategy: framework
