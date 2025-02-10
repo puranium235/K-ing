@@ -58,7 +58,7 @@ const Content = () => {
   };
 
   const handleItemClick = (id) => {
-    setScrollPosition(document.querySelector('html').scrollTop);
+    setScrollPosition(document.body.scrollTop || document.documentElement.scrollTop);
 
     if (contentType === 'cast') {
       navigate(`/content/cast/${id}`);
