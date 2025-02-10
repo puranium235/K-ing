@@ -33,7 +33,7 @@ spring:
             client-secret: ${OAUTH2_LINE_CLIENT_SECRET}
             authorization-grant-type: authorization_code
             redirect-uri: ${SERVER_BASE_URL}/login/oauth2/code/line
-            scope: email, profile
+            scope: openid, email, profile
         provider:
           line:
             authorization-uri: https://access.line.me/oauth2/v2.1/authorize
