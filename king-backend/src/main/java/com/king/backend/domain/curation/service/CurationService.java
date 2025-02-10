@@ -61,9 +61,9 @@ public class CurationService {
 
         boolean bookmarked = curationListBookmarkRepository.existsByCurationListIdAndUserId(curationListId, userId);
 
-        List<CurationDetailResponseDTO.PlaceDTO> places = curationListItemRepository.findByCurationListId(curationListId)
+        List<Place> places = curationListItemRepository.findByCurationListId(curationListId)
                 .stream()
-                .map((item) -> CurationDetailResponseDTO.PlaceDTO.fromEntity(item.getPlace()))
+                .map(CurationListItem::getPlace)
                 .toList();
 
         return CurationDetailResponseDTO.fromEntity(curationList, bookmarked, places);
@@ -170,9 +170,9 @@ public class CurationService {
 
         boolean bookmarked = curationListBookmarkRepository.existsByCurationListIdAndUserId(curation.getId(), userId);
 
-        List<CurationDetailResponseDTO.PlaceDTO> places = curationListItemRepository.findByCurationListId(curation.getId())
+        List<Place> places = curationListItemRepository.findByCurationListId(curation.getId())
                 .stream()
-                .map((item) -> CurationDetailResponseDTO.PlaceDTO.fromEntity(item.getPlace()))
+                .map(CurationListItem::getPlace)
                 .toList();
 
         return CurationDetailResponseDTO.fromEntity(curation, bookmarked, places);

@@ -27,7 +27,7 @@ public class CurationDetailResponseDTO {
     public static CurationDetailResponseDTO fromEntity(
             CurationList curationList,
             boolean bookmarked,
-            List<PlaceDTO> places
+            List<Place> places
     ) {
         return new CurationDetailResponseDTO(
                 curationList.getId(),
@@ -37,7 +37,9 @@ public class CurationDetailResponseDTO {
                 curationList.getCreatedAt(),
                 bookmarked,
                 WriterDTO.fromEntity(curationList.getWriter()),
-                places
+                places.stream()
+                        .map(PlaceDTO::fromEntity)
+                        .toList()
         );
     }
 
