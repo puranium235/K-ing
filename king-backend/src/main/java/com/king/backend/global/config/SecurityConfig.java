@@ -1,6 +1,7 @@
 package com.king.backend.global.config;
 
 import com.king.backend.domain.user.CustomLogoutFilter;
+import com.king.backend.domain.user.CustomOAuthFailureHandler;
 import com.king.backend.domain.user.CustomSuccessHandler;
 import com.king.backend.domain.user.jwt.JWTFilter;
 import com.king.backend.domain.user.jwt.JWTUtil;
@@ -36,6 +37,7 @@ public class SecurityConfig {
 
     private final OAuth2UserService oAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
+    private final CustomOAuthFailureHandler customOAuthFailureHandler;
     private final JWTUtil jwtUtil;
     private final TokenRepository tokenRepository;
 
@@ -83,7 +85,8 @@ public class SecurityConfig {
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
                                 .userService(oAuth2UserService))
-                        .successHandler(customSuccessHandler))
+                        .successHandler(customSuccessHandler)
+                        .failureHandler(customOAuthFailureHandler))
 
                 .cors((corsCustomizer) -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
                     @Override

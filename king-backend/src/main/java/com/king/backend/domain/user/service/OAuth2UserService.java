@@ -1,5 +1,6 @@
 package com.king.backend.domain.user.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.king.backend.domain.user.dto.domain.GoogleUserDTO;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
@@ -20,11 +21,14 @@ import java.util.List;
 public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws CustomException {
 
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
+        System.out.println(oAuth2UserRequest.getAccessToken().getTokenValue());
+        System.out.println(oAuth2UserRequest.getAccessToken().getScopes());
 
         String registrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
 
@@ -44,6 +48,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
                 userRepository.save(userEntity);
             }
+        }
+
+        if (registrationId.equals("line")) {
+            System.out.println(oAuth2User.getAttributes());
+            System.out.println(oAuth2User);
         }
 
         if (userEntity == null) {
