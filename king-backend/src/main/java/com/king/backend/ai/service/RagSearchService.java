@@ -1,11 +1,10 @@
 package com.king.backend.ai.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import com.king.backend.ai.dto.RagSearchRequestDto;
-import com.king.backend.ai.dto.RagSearchResponseDto;
+import com.king.backend.ai.dto.PlaceSearchRequestDto;
+import com.king.backend.ai.dto.PlaceSearchResponseDto;
 import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.entity.SearchDocument;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,7 @@ public class RagSearchService {
      * - place의 name, details, address 및 연결된(associated) Cast/Content의 각 이름/설명 필드를 대상으로 match_phrase 쿼리 적용
      * - 반환 결과의 relatedName, description은 연결된 Cast/Content 중 키워드가 완전한 단어로 포함된 항목의 값을 사용 (발견되지 않으면 빈 값)
      */
-    public RagSearchResponseDto search(RagSearchRequestDto requestDto) {
+    public PlaceSearchResponseDto search(PlaceSearchRequestDto requestDto) {
         try {
             // ES 검색 쿼리 구성
             SearchRequest searchRequest = SearchRequest.of(s -> s
@@ -73,9 +72,9 @@ public class RagSearchService {
                     elasticsearchClient.search(searchRequest, SearchDocument.class);
 
             // 검색 결과 도큐먼트를 PlaceResult로 매핑
-            List<RagSearchResponseDto.PlaceResult> results = searchResponse.hits().hits().stream().map(hit -> {
+            List<PlaceSearchResponseDto.PlaceResult> results = searchResponse.hits().hits().stream().map(hit -> {
                 SearchDocument doc = hit.source();
-                RagSearchResponseDto.PlaceResult result = new RagSearchResponseDto.PlaceResult();
+                PlaceSearchResponseDto.PlaceResult result = new PlaceSearchResponseDto.PlaceResult();
                 result.setPlaceId(doc.getOriginalId());
                 result.setName(doc.getName());
                 result.setType(doc.getType());
@@ -117,7 +116,7 @@ public class RagSearchService {
                 return result;
             }).collect(Collectors.toList());
 
-            return new RagSearchResponseDto(results);
+            return new PlaceSearchResponseDto(results);
         } catch (IOException e) {
             throw new RuntimeException("Elasticsearch 검색 실패", e);
         }
