@@ -34,7 +34,6 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
   };
 
   const handleOptionClick = (option) => {
-    const type = option.category.toLowerCase();
     setContentType('autocom');
 
     if (onSet) {
@@ -43,7 +42,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
       return;
     }
 
-    if (category === 'CAST') {
+    if (option.category === 'CAST') {
       navigate(`/content/cast/${option.originalId}`);
     } else {
       navigate(`/content/detail/${option.originalId}`);

@@ -3,20 +3,14 @@ import styled from 'styled-components';
 
 import RouteIcon from '/src/assets/icons/route.png';
 import ShareIcon from '/src/assets/icons/send-outline.png';
-import DeepLinkModal from '/src/components/common/DeepLinkModal';
-import ShareModal from '/src/components/common/ShareModal';
 
-const FunctionButton = () => {
-  const [isDeepLinkModalVisible, setIsDeepLinkModalVisible] = useState(false);
+import useModal from '../../hooks/common/useModal';
+import ShareModal from '../common/modal/ShareModal';
+import DeepLinkModal from './Modal/DeepLinkModal';
+
+const FunctionButton = ({ dest }) => {
+  const link = useModal();
   const [isShareModalVisible, setIsShareModalVisible] = useState(false);
-
-  const openDeepLinkModal = () => {
-    setIsDeepLinkModalVisible(true);
-  };
-
-  const closeDeepLinkModal = () => {
-    setIsDeepLinkModalVisible(false);
-  };
 
   const openShareModal = () => {
     setIsShareModalVisible(true);
@@ -28,13 +22,13 @@ const FunctionButton = () => {
 
   return (
     <ButtonContainer>
-      <DirectionButton onClick={openDeepLinkModal}>
+      <DirectionButton onClick={link.toggle}>
         <img src={RouteIcon} alt="FindRoute" />
         길찾기
       </DirectionButton>
 
       {/* 길찾기 모달 */}
-      <DeepLinkModal isModalVisible={isDeepLinkModalVisible} onClick={closeDeepLinkModal} />
+      <DeepLinkModal dest={dest} isModalVisible={link.isShowing} onClick={link.toggle} />
 
       {/* <ShareButton onClick={openShareModal}>
         <img src={ShareIcon} alt="Share" />

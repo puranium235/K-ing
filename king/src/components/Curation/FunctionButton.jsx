@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import ShareIcon from '/src/assets/icons/send-outline.png';
-import ShareModal from '/src/components/common/ShareModal';
 
 import { IcBookmark } from '../../assets/icons';
 import { IcBookmarkFillBlack } from '../../assets/icons';
+import ShareModal from '../common/modal/ShareModal';
 
 const FunctionButton = ({ bookmarked, onBookmarkClick }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
