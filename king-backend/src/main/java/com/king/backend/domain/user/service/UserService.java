@@ -91,7 +91,9 @@ public class UserService {
 
             userRepository.findByNickname(nickname)
                     .ifPresent((findUser) -> {
-                        throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
+                        if (!findUser.getId().equals(userId)) {
+                            throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
+                        }
                     });
 
             user.setNickname(nickname);
