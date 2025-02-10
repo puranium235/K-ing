@@ -1,10 +1,9 @@
 package com.king.backend.ai.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.king.backend.ai.dto.ChatHistory;
 import com.king.backend.ai.dto.ChatSummary;
-import com.king.backend.ai.dto.RagSearchRequestDto;
-import com.king.backend.ai.dto.RagSearchResponseDto;
+import com.king.backend.ai.dto.PlaceSearchRequestDto;
+import com.king.backend.ai.dto.PlaceSearchResponseDto;
 import com.king.backend.ai.util.AuthUtil;
 import com.king.backend.ai.util.ChatPromptGenerator;
 import com.king.backend.ai.util.JsonUtil;
@@ -78,7 +77,7 @@ public class ChatService {
             //System.out.println(response);  // DTO 전체 출력
 
             // ✅ 3. Elasticsearch 검색 수행 (추천이 필요할 경우)
-            RagSearchResponseDto searchResults = null;
+            PlaceSearchResponseDto searchResults = null;
             if (response.isRecommend()) {
                 searchResults = searchInElasticSearch(response.getType(), response.getKeyword());
                 printSearchResults(searchResults);
@@ -169,15 +168,15 @@ public class ChatService {
         return gptResponse;
     }
 
-    public RagSearchResponseDto searchInElasticSearch(String type, String keyword) {
+    public PlaceSearchResponseDto searchInElasticSearch(String type, String keyword) {
         log.info("🔍 Elasticsearch에서 '" + keyword + "' 키워드로 장소 검색 수행...");
 
         // 요청 DTO 생성
-        RagSearchRequestDto requestDto = new RagSearchRequestDto(type, keyword);
+        PlaceSearchRequestDto requestDto = new PlaceSearchRequestDto(type, keyword);
         return ragSearchService.search(requestDto);
     }
 
-    public static void printSearchResults(RagSearchResponseDto searchResults) {
+    public static void printSearchResults(PlaceSearchResponseDto searchResults) {
         if (searchResults != null && searchResults.getPlaces() != null && !searchResults.getPlaces().isEmpty()) {
             System.out.print("🔍 검색된 장소 목록:");
 //            for (RagSearchResponseDto.PlaceResult place : searchResults.getPlaces()) {
