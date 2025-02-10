@@ -69,7 +69,7 @@ public class ChatService {
         // ✅ 2. JSON 유효성 검사 수행
         ChatSummary response = JsonUtil.validateJson(json);
         Map<String, String> retrievalData = new HashMap<>();
-
+        
         if (response != null) {
             log.info("✅ JSON이 유효합니다!");
             //System.out.println(response);  // DTO 전체 출력
@@ -125,25 +125,13 @@ public class ChatService {
                                 .streamUsage(true)  // 🚀 스트리밍 활성화
                                 .build()))
                 .flatMap(chatResult -> {
-                    if (chatResult == null) {
-                        log.warn("⚠️ chatResult is null");
+                    if (chatResult == null || chatResult.getResult() == null || chatResult.getResult().getOutput() == null) {
+                        log.warn("⚠️ chatResult is null or empty");
                         return Flux.empty();
                     }
 
-                    var result = chatResult.getResult();
-                    if (result == null || result.getOutput() == null) {
-                        log.warn("⚠️ chatResult.getResult() or result.getOutput() is null");
-                        return Flux.empty();
-                    }
-
-                    String text = result.getOutput().getText();
-                    if (text == null || text.isEmpty()) {
-                        log.warn("⚠️ AI Response is empty or null");
-                        return Flux.empty();
-                    }
-
-                    //log.info("📝 AI Response: {}", text);
-                    return Flux.just(text);
+                    String text = chatResult.getResult().getOutput().getText();
+                    return text == null || text.isEmpty() ? Flux.empty() : Flux.just(text);
                 })
 
                 .doOnNext(responseBuffer::append)  // 🔹 전체 응답을 누적
@@ -183,17 +171,41 @@ public class ChatService {
     }
 
     public PlaceSearchResponseDto searchPlacesInElasticSearch(String type, String keyword) {
-        log.info("🔍 Elasticsearch에서 '" + keyword + "' 키워드로 장소 검색 수행...");
+        log.info("🔍 Elasticsearch에서 '{}' 키워드로 장소 검색 수행...", keyword);
 
         RagSearchRequestDto requestDto = new RagSearchRequestDto(type, keyword);
-        return ragSearchService.search(requestDto);
+        PlaceSearchResponseDto placeSearchResults = ragSearchService.search(requestDto);
+
+        if (placeSearchResults != null && !placeSearchResults.getPlaces().isEmpty()) {
+            log.info("✅ 장소 검색 성공! 총 {}개의 장소가 검색됨", placeSearchResults.getPlaces().size());
+            placeSearchResults.getPlaces().forEach(place ->
+                    log.info("   - 장소 이름: {}, 장소 ID: {}, 카테고리: {}", place.getName(), place.getPlaceId(), place.getType())
+            );
+        } else {
+            log.info("⚠️ 장소 검색 결과 없음");
+        }
+
+        return placeSearchResults;
     }
 
     public CurationSearchResponseDto searchCurationsInElasticSearch(String keyword) {
-        log.info("🔍 큐레이션 검색: '{}'", keyword);
+        log.info("🔍 Elasticsearch에서 '{}' 키워드로 큐레이션 검색 수행...", keyword);
+
         RagSearchRequestDto requestDto = new RagSearchRequestDto("CURATION", keyword);
-        return ragSearchService.searchCurations(requestDto);
+        CurationSearchResponseDto curationSearchResults = ragSearchService.searchCurations(requestDto);
+
+        if (curationSearchResults != null && !curationSearchResults.getCurations().isEmpty()) {
+            log.info("✅ 큐레이션 검색 성공! 총 {}개의 큐레이션이 검색됨", curationSearchResults.getCurations().size());
+            curationSearchResults.getCurations().forEach(curation ->
+                    log.info("   - 큐레이션 제목: {}, 큐레이션 ID: {}", curation.getTitle(), curation.getCurationId())
+            );
+        } else {
+            log.info("⚠️ 큐레이션 검색 결과 없음");
+        }
+
+        return curationSearchResults;
     }
+
 
     /*REST API chat
     public Map<String, Object> chatT(String userMessage, String userId) {
