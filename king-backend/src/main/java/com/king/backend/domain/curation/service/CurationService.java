@@ -244,4 +244,23 @@ public class CurationService {
 
         return CurationDetailResponseDTO.fromEntity(curation, bookmarked, places);
     }
+
+    @Transactional
+    public void deleteCuration(Long curationId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
+        Long userId = Long.parseLong(authUser.getName());
+        User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        CurationList curation = curationListRepository.findById(curationId)
+                .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
+
+        if (!curation.getWriter().equals(user)) {
+            throw new CustomException(CurationErrorCode.FORBIDDEN_CURATION);
+        }
+
+        curationListItemRepository.deleteAllByCurationList(curation);
+        curationListRepository.delete(curation);
+    }
 }
