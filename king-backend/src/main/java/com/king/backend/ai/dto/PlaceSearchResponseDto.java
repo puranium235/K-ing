@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RagSearchResponseDto {
+public class PlaceSearchResponseDto {
     private List<PlaceResult> places;
 
     @Data
