@@ -1,3 +1,4 @@
+import heic2any from 'heic2any';
 import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -155,9 +156,11 @@ const PostUpload = ({ state }) => {
     toggle.handleToggle();
   };
 
-  const handleImageChange = (event) => {
+  const handleImageChange = async (event) => {
     const file = event.target.files[0];
 
+    if (!file) return;
+    console.log(file);
     if (file.size > 5 * 1024 * 1024) {
       //5MB
       alert('업로드 가능한 최대 용량은 5MB입니다. ');
@@ -166,8 +169,32 @@ const PostUpload = ({ state }) => {
       return;
     }
 
-    setImageFile(file);
-    if (file) {
+    if (file.name.endsWith('.heic') || file.name.endsWith('.heif')) {
+      //heic 이미지 처리
+      try {
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+        });
+
+        console.log(convertedBlob);
+
+        const newFilename = file.name.replace(/\.(heic|heif)$/i, '.jpg'); // Regex to replace both .heic and .heif
+        const newFile = new File([convertedBlob], newFilename, {
+          type: 'image/jpeg',
+          lastModified: new Date().getTime(),
+        });
+
+        console.log(newFile);
+
+        setImageFile(newFile);
+        setImage(URL.createObjectURL(newFile));
+      } catch (error) {
+        console.error(error);
+        alert('HEIC 파일 변환에 실패했습니다.');
+      }
+    } else {
+      setImageFile(file);
       setImage(URL.createObjectURL(file));
     }
   };
@@ -192,7 +219,7 @@ const PostUpload = ({ state }) => {
         >
           <input
             type="file"
-            accept="image/png, image/jpeg"
+            accept="image/png, image/jpeg, image/heic"
             onChange={handleImageChange}
             style={{ display: 'none' }}
             ref={fileInputRef}
