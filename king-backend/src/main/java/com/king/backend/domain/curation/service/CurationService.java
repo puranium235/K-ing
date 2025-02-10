@@ -1,30 +1,40 @@
 package com.king.backend.domain.curation.service;
 
 import com.king.backend.domain.curation.dto.request.CurationListRequestDTO;
+import com.king.backend.domain.curation.dto.request.CurationPostRequestDTO;
 import com.king.backend.domain.curation.dto.response.CurationDetailResponseDTO;
 import com.king.backend.domain.curation.dto.response.CurationListResponseDTO;
 import com.king.backend.domain.curation.entity.CurationList;
+import com.king.backend.domain.curation.entity.CurationListItem;
 import com.king.backend.domain.curation.errorcode.CurationErrorCode;
 import com.king.backend.domain.curation.repository.CurationListBookmarkRepository;
 import com.king.backend.domain.curation.repository.CurationListItemRepository;
 import com.king.backend.domain.curation.repository.CurationListRepository;
+import com.king.backend.domain.place.entity.Place;
+import com.king.backend.domain.place.errorcode.PlaceErrorCode;
+import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.ValidationUtil;
+import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CurationService {
     private final CursorUtil cursorUtil;
@@ -32,6 +42,8 @@ public class CurationService {
     private final CurationListBookmarkRepository curationListBookmarkRepository;
     private final CurationListItemRepository curationListItemRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
+    private final PlaceRepository placeRepository;
 
     @Transactional
     public CurationDetailResponseDTO getCurationDetail(Long curationListId) {
@@ -114,5 +126,55 @@ public class CurationService {
             Long id = Long.parseLong(sortValues.get(0).toString());
             return curationListRepository.findByWriterAndIdLessThanOrderByIdDesc(user, id, PageRequest.of(0, size));
         }
+    }
+
+    @Transactional
+    public CurationDetailResponseDTO postCuration(CurationPostRequestDTO requestDTO, MultipartFile imageFile) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
+        Long userId = Long.parseLong(authUser.getName());
+        User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        if (!ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getTitle(), 50)
+                || requestDTO.getDescription().length() > 1000
+                || requestDTO.getIsPublic() == null
+                || requestDTO.getPlaceIds().isEmpty()) {
+            throw new CustomException(CurationErrorCode.INVALID_VALUE);
+        }
+
+        if (imageFile == null || imageFile.isEmpty()) {
+            throw new CustomException(CurationErrorCode.INVALID_IMAGEFILE);
+        }
+
+        CurationList curation = new CurationList();
+        String imageUrl = s3Service.uploadFile(curation, imageFile);
+        curation.setTitle(requestDTO.getTitle());
+        curation.setDescription(requestDTO.getDescription());
+        curation.setPublic(requestDTO.getIsPublic());
+        curation.setImageUrl(imageUrl);
+        curation.setWriter(user);
+
+        curationListRepository.save(curation);
+
+        for (Long placeId : requestDTO.getPlaceIds()) {
+            Place place = placeRepository.findById(placeId)
+                    .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
+
+            CurationListItem curationListItem = new CurationListItem();
+            curationListItem.setCurationList(curation);
+            curationListItem.setPlace(place);
+
+            curationListItemRepository.save(curationListItem);
+        }
+
+        boolean bookmarked = curationListBookmarkRepository.existsByCurationListIdAndUserId(curation.getId(), userId);
+
+        List<CurationDetailResponseDTO.PlaceDTO> places = curationListItemRepository.findByCurationListId(curation.getId())
+                .stream()
+                .map((item) -> CurationDetailResponseDTO.PlaceDTO.fromEntity(item.getPlace()))
+                .toList();
+
+        return CurationDetailResponseDTO.fromEntity(curation, bookmarked, places);
     }
 }
