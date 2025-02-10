@@ -64,13 +64,20 @@ public class SearchDocumentBuilder {
      * @return 변환된 SearchDocument
      */
     public static SearchDocument fromPlace(Place place, int viewCount) {
-        List<String> associatedCastNames = (place.getPlaceCasts() == null) ? List.of() :
+        List<SearchDocument.AssociatedCast> associatedCasts = (place.getPlaceCasts() == null) ? List.of() :
                 place.getPlaceCasts().stream()
-                        .map(pc -> pc.getCast().getTranslationKo().getName())
+                        .map(pc -> new SearchDocument.AssociatedCast(
+                                pc.getCast().getTranslationKo().getName(),
+                                pc.getDescription() == null ? "" : pc.getDescription()
+                        ))
                         .collect(Collectors.toList());
-        List<String> associatedContentNames = (place.getPlaceContents() == null) ? List.of() :
+        // 연결된 컨텐츠 정보를 nested 객체 리스트로 생성
+        List<SearchDocument.AssociatedContent> associatedContents = (place.getPlaceContents() == null) ? List.of() :
                 place.getPlaceContents().stream()
-                        .map(pc -> pc.getContent().getTranslationKo().getTitle())
+                        .map(pc -> new SearchDocument.AssociatedContent(
+                                pc.getContent().getTranslationKo().getTitle(),
+                                pc.getDescription() == null ? "" : pc.getDescription()
+                        ))
                         .collect(Collectors.toList());
         return new SearchDocument(
                 "PLACE-" + place.getId(),
@@ -88,8 +95,8 @@ public class SearchDocumentBuilder {
                 place.getAddress(),
                 place.getLat(),
                 place.getLng(),
-                associatedCastNames,
-                associatedContentNames
+                associatedCasts,
+                associatedContents
         );
     }
 }

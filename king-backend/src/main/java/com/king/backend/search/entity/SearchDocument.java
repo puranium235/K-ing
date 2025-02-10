@@ -48,6 +48,25 @@ public class SearchDocument {
     private double lat;
     private double lng;
 
-    private List<String> associatedCastNames;
-    private List<String> associatedContentNames;
+    @Field(type = FieldType.Nested)
+    private List<AssociatedCast> associatedCasts;
+
+    @Field(type = FieldType.Nested)
+    private List<AssociatedContent> associatedContents;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AssociatedCast {
+        private String castName;
+        private String castDescription;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AssociatedContent {
+        private String contentTitle;
+        private String contentDescription;
+    }
 }
