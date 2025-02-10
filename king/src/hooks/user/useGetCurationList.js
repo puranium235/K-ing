@@ -6,7 +6,6 @@ import { mainGetFetcher } from '../../lib/axios';
 const useGetCurationList = (userId) => {
   const getKey = (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.data.nextCursor) {
-      console.log('🚨 마지막 페이지, 더 이상 요청 안 함');
       return null; // 마지막 페이지
     }
 

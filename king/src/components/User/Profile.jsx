@@ -3,7 +3,7 @@ import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { getUserProfile } from '../../lib/user';
-import { ProfileState } from '../../recoil/atom';
+import { ActiveUserTabState, ProfileState } from '../../recoil/atom';
 import Loading from '../Loading/Loading';
 import CurationsList from './CurationsList';
 import PostsGrid from './PostsGrid';
@@ -13,7 +13,7 @@ import SettingsButton from './SettingsButton';
 
 function Profile({ isMyPage, userId }) {
   const [profileData, setProfileData] = useRecoilState(ProfileState);
-  const [activeTab, setActiveTab] = useState('posts');
+  const [activeTab, setActiveTab] = useRecoilState(ActiveUserTabState);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,9 +21,7 @@ function Profile({ isMyPage, userId }) {
 
     const fetchProfile = async () => {
       try {
-        console.log(`🔍 요청 URL: /user/${userId}`);
         const data = await getUserProfile(userId);
-        console.log(data);
         if (isMounted) setProfileData(data.data);
       } catch (error) {
         if (isMounted) setProfileData(null);
@@ -47,9 +45,6 @@ function Profile({ isMyPage, userId }) {
       </ErrorContainer>
     );
   }
-
-  console.log('🟢 isMyPage:', isMyPage);
-  console.log('🟢 userId:', userId);
 
   return (
     <ProfileContainer>

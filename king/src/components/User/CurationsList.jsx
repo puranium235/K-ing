@@ -13,13 +13,10 @@ const CurationsList = ({ userId }) => {
   const { curationList, getNextData, isLoading, hasMore } = useGetCurationList(userId);
 
   useEffect(() => {
-    console.log('📌 무한 스크롤 감지:', { isLoading, hasMore });
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
   }, [isLoading, hasMore, lastElementRef]);
 
   if (isLoading && curationList === 0) return <Loading />;
-
-  console.log('curationList : ', curationList);
 
   if (!curationList || curationList.length === 0) {
     return <EmptyMessage>등록된 큐레이션이 없습니다.</EmptyMessage>;

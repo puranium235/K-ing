@@ -80,7 +80,13 @@ const ProfileState = atom({
   },
 });
 
+const ActiveUserTabState = atom({
+  key: 'activeUserTabState',
+  default: 'posts', // 기본값은 'posts'
+});
+
 export {
+  ActiveUserTabState,
   ContentId,
   ContentType,
   CurationPlaceList,
