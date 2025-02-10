@@ -7,7 +7,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class CastKo {
+public class CastKo implements CastTranslation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

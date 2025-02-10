@@ -44,7 +44,7 @@ public class PostController {
 
     @Operation(summary = "장소 리뷰, 마이페이지 피드 조회 API (커서 기반 페이징 지원)")
     @GetMapping("/feed")
-    public ResponseEntity<ApiResponse<PostFeedResponseDto>> getMyPagePosts(
+    public ResponseEntity<ApiResponse<PostFeedResponseDto>> getFeedPosts(
             @ModelAttribute PostFeedRequestDto reqDto
     ){
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postService.getFeedPostsWithCursor(reqDto)));

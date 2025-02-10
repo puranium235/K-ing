@@ -56,4 +56,17 @@ public class Content {
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContentZh translationZh;
 
+    public ContentTranslation getTranslation(String language) {
+        if("ko".equalsIgnoreCase(language)) {
+            return translationKo;
+        } else if("en".equalsIgnoreCase(language)) {
+            return translationEn;
+        } else if("zh".equalsIgnoreCase(language)) {
+            return translationZh;
+        } else if("ja".equalsIgnoreCase(language)) {
+            return translationJa;
+        } else {
+            return translationEn;
+        }
+    }
 }
