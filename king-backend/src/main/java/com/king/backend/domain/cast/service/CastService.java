@@ -62,24 +62,53 @@ public class CastService {
                         contentImageUrl,
                         true
                 ));
-
                 works.add(new CastDetailResponseDto.Work(contentId, year, title));
             }
         }
 
         CastTranslation castTrans = cast.getTranslation(language);
+        String rawBirthPlace = castTrans.getBirthPlace();
+        String parsedBirthPlace = parseBirthPlace(rawBirthPlace);
 
         return new CastDetailResponseDto(
                 cast.getId(),
                 castTrans.getName(),
                 imageUrl,
                 cast.getBirthDate(),
-                castTrans.getBirthPlace(),
+                parsedBirthPlace,
                 cast.getParticipatingWork(),
                 cast.getCreatedAt(),
                 true,
                 relatedContents,
                 works
         );
+    }
+
+    private String parseBirthPlace(String birthPlace) {
+        if (birthPlace == null || birthPlace.isEmpty()) {
+            return birthPlace;
+        }
+
+        String parsedBirthPlace = birthPlace;
+
+        // [now] 존재 시 [now] 정보만 추출
+        int nowStart = birthPlace.indexOf("[now");
+        if (nowStart != -1) {
+            int nowEnd = birthPlace.indexOf("]", nowStart);
+            if (nowEnd != -1) {
+                String nowContent = birthPlace.substring(nowStart + "[now".length(), nowEnd).trim();
+                parsedBirthPlace = nowContent;
+            }
+        }
+
+        // [now] 없으면 쉼표로 분리/ 지역,국가 정보만 반환
+        String[] parts = parsedBirthPlace.split(",");
+        if (parts.length >= 3) {
+            String region = parts[parts.length - 2].trim();
+            String country = parts[parts.length - 1].trim();
+            return region + ", " + country;
+        } else {
+            return parsedBirthPlace.trim();
+        }
     }
 }
