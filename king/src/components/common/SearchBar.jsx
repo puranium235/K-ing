@@ -44,6 +44,8 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
 
     if (option.category === 'CAST') {
       navigate(`/content/cast/${option.originalId}`);
+    } else if (option.category === 'PLACE') {
+      navigate(`/place/${option.originalId}`);
     } else {
       navigate(`/content/detail/${option.originalId}`);
     }
