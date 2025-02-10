@@ -35,6 +35,11 @@ export const updateUserProfile = async (profileData, imageFile) => {
       },
     });
 
+    const accessToken = response.headers.authorization?.split(' ')[1];
+    if (accessToken) {
+      localStorage.setItem('accessToken', accessToken);
+    }
+
     // console.log('✅ 서버 응답:', response.data);
 
     return response.data;
