@@ -193,6 +193,13 @@ public class CurationService {
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
+        CurationList curation = curationListRepository.findById(curationId)
+                .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
+
+        if (!curation.getWriter().equals(user)) {
+            throw new CustomException(CurationErrorCode.FORBIDDEN_CURATION);
+        }
+
         if (!ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getTitle(), 50)
                 || requestDTO.getDescription().length() > 1000
                 || requestDTO.getIsPublic() == null
@@ -200,8 +207,6 @@ public class CurationService {
             throw new CustomException(CurationErrorCode.INVALID_VALUE);
         }
 
-        CurationList curation = curationListRepository.findById(curationId)
-                .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = s3Service.uploadFile(curation, imageFile);
             curation.setImageUrl(imageUrl);
