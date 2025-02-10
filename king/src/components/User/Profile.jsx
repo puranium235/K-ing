@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { getUserProfile } from '../../lib/user';
 import { ProfileState } from '../../recoil/atom';
 import Loading from '../Loading/Loading';
-import CurationsGrid from './CurationsGrid';
+import CurationsList from './CurationsList';
 import PostsGrid from './PostsGrid';
 import ProfileHeader from './ProfileHeader';
 import ProfileTabMenu from './ProfileTabMenu';
@@ -62,7 +62,11 @@ function Profile({ isMyPage, userId }) {
       {activeTab === 'posts' ? (
         <PostsGrid posts={profileData.posts || []} isMyPage={isMyPage} />
       ) : (
-        <CurationsGrid curations={profileData.curations || []} isMyPage={isMyPage} />
+        <CurationsList
+          curations={profileData.curations || []}
+          isMyPage={isMyPage}
+          userId={userId}
+        />
       )}
     </ProfileContainer>
   );
