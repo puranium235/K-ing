@@ -3,8 +3,10 @@ package com.king.backend.domain.user.service;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.dto.request.PatchUserRequestDTO;
 import com.king.backend.domain.user.dto.response.UserProfileResponseDTO;
+import com.king.backend.domain.user.entity.TokenEntity;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
+import com.king.backend.domain.user.jwt.JWTUtil;
 import com.king.backend.domain.user.repository.TokenRepository;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.domain.user.util.UserUtil;
@@ -12,6 +14,7 @@ import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
 import com.king.backend.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -27,6 +30,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final S3Service s3Service;
+    private final JWTUtil jwtUtil;
+
+    @Value("${spring.jwt.accesstoken-expires-in}")
+    private Long ACCESSTOKEN_EXPIRES_IN;
+
+    @Value("${spring.jwt.refreshtoken-expires-in}")
+    private Long REFRESHTOKEN_EXPIRES_IN;
 
     public UserProfileResponseDTO getUserById(String id) {
         long userId;
@@ -130,6 +140,22 @@ public class UserService {
 
         userRepository.save(user);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(UserProfileResponseDTO.fromSelfEntity(user)));
+        String accessToken = jwtUtil.createJwt("accessToken", userId.toString(), user.getLanguage(), "ROLE_REGISTERED", ACCESSTOKEN_EXPIRES_IN);
+        String refreshToken = jwtUtil.createJwt("refreshToken", userId.toString(), user.getLanguage(), "ROLE_REGISTERED", REFRESHTOKEN_EXPIRES_IN);
+
+        tokenRepository.deleteById(userId);
+        tokenRepository.save(new TokenEntity(userId, refreshToken, REFRESHTOKEN_EXPIRES_IN));
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(REFRESHTOKEN_EXPIRES_IN)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(ApiResponse.success(UserProfileResponseDTO.fromSelfEntity(user)));
     }
 }
