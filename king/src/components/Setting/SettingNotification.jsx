@@ -16,7 +16,7 @@ const SettingNotification = () => {
     try {
       // 🔹 API 요청 (알람 설정 변경)
       const response = await updateNotificationSetting(newToggleState);
-      console.log('✅ 알람 설정 변경 성공:', response);
+      // console.log('✅ 알람 설정 변경 성공:', response);
 
       // 🔹 Recoil 상태 업데이트
       setProfile((prev) => ({
@@ -24,7 +24,7 @@ const SettingNotification = () => {
         contentAlarmOn: response.data.contentAlarmOn,
       }));
     } catch (error) {
-      console.error('❌ 알람 설정 변경 실패:', error);
+      // console.error('❌ 알람 설정 변경 실패:', error);
       alert('알람 설정 변경 중 오류가 발생했습니다.');
     }
   };

@@ -32,9 +32,9 @@ const SettingLanguage = () => {
         language: updatedProfile.data.language,
       }));
 
-      console.log(`🌍 언어 변경 성공: ${updatedProfile.data.language}`);
+      // console.log(`🌍 언어 변경 성공: ${updatedProfile.data.language}`);
     } catch (error) {
-      console.error('❌ 언어 변경 실패:', error);
+      // console.error('❌ 언어 변경 실패:', error);
       alert('언어 변경 중 오류가 발생했습니다.');
     }
   };
