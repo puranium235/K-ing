@@ -6,8 +6,8 @@ import styled from 'styled-components';
 import { IcBookmarkBlank } from '../../assets/icons';
 import { IcBookmarkFill } from '../../assets/icons';
 
-const CurationItem = ({ item }, ref) => {
-  const { id, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item; // 초기 bookmarked 값 가져오기
+const CurationItem = forwardRef(({ item }, ref) => {
+  const { curationId, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item; // 초기 bookmarked 값 가져오기
   const [bookmarked, setBookmarked] = useState(initialBookmarked); // 초기 상태를 item.bookmarked로 설정
   const navigate = useNavigate();
 
@@ -17,22 +17,8 @@ const CurationItem = ({ item }, ref) => {
   };
 
   const handleCurationClick = () => {
-    navigate(`/curation/${id}`);
+    navigate(`/curation/${curationId}`);
   };
-
-  // BE 연결 후 테스트 필요
-  // const CurationItem = ({ item, onRemoveBookmark }) => {
-  //   const { id, title, image, author, bookmarked } = item;
-  //   const navigate = useNavigate();
-
-  //   const handleBookmarkClick = (event) => {
-  //     event.stopPropagation();
-  //     onRemoveBookmark(id); // ✅ 부모 컴포넌트에서 북마크 해제 처리
-  //   };
-
-  //   const handleCurationClick = () => {
-  //     navigate(`/curation/${id}`);
-  //   };
 
   return (
     <StCurationItemWrapper ref={ref} onClick={handleCurationClick}>
@@ -46,7 +32,7 @@ const CurationItem = ({ item }, ref) => {
       </St.BookmarkButton>
     </StCurationItemWrapper>
   );
-};
+});
 
 export default CurationItem;
 

@@ -7,7 +7,7 @@ import { IcBookmarkBlank } from '../../assets/icons';
 import { IcBookmarkFill } from '../../assets/icons';
 
 const CurationItem = forwardRef(({ item }, ref) => {
-  const { id, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item;
+  const { id: curationId, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item;
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const navigate = useNavigate();
 
@@ -17,7 +17,7 @@ const CurationItem = forwardRef(({ item }, ref) => {
   };
 
   const handleCurationClick = () => {
-    navigate(`/curation/${id}`);
+    navigate(`/curation/${curationId}`);
   };
 
   return (

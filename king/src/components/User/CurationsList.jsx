@@ -7,12 +7,13 @@ import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import Loading from '../Loading/Loading';
 import CurationItem from './CurationItem';
 
-const CurationsList = () => {
+const CurationsList = ({ userId }) => {
   const lastElementRef = useRef(null);
 
-  const { curationList, getNextData, isLoading, hasMore } = useGetCurationList();
+  const { curationList, getNextData, isLoading, hasMore } = useGetCurationList(userId);
 
   useEffect(() => {
+    console.log('📌 무한 스크롤 감지:', { isLoading, hasMore });
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
   }, [isLoading, hasMore, lastElementRef]);
 
@@ -28,9 +29,9 @@ const CurationsList = () => {
     <GridContainer>
       {curationList.map((curation, index) => (
         <CurationItem
-          key={curation.id}
+          key={index}
           item={curation}
-          ref={index === feedList.length - 1 ? lastElementRef : null}
+          ref={index === curationList.length - 1 ? lastElementRef : null}
         />
       ))}
     </GridContainer>
