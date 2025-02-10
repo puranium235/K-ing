@@ -13,7 +13,9 @@ const DeepLinkModal = ({ dest, isModalVisible, onClick }) => {
   const handleNaverNavigation = () => {
     //slat,slng : 시작 위경도 (디폴트 현재위치)
     //dlat,dlng: X -> dname: 도착지명 인코딩 문자열
-    window.open(`nmap://route/public?dname=${encodeURIComponent(dest)}`);
+    window.open(
+      `nmap://route/public?dname=${encodeURIComponent(dest)}&appname=https://i12a507.p.ssafy.io`,
+    );
   };
 
   return (
