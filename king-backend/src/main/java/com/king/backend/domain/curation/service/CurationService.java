@@ -163,6 +163,11 @@ public class CurationService {
             Place place = placeRepository.findById(placeId)
                     .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
 
+            curationListItemRepository.findByCurationListAndPlace(curation, place)
+                    .ifPresent((item) -> {
+                        throw new CustomException(CurationErrorCode.DUPLICATED_PLACE);
+                    });
+
             CurationListItem curationListItem = new CurationListItem();
             curationListItem.setCurationList(curation);
             curationListItem.setPlace(place);
