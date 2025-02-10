@@ -23,12 +23,14 @@ const useGetComments = (postId) => {
   }, [postId, mutate, setSize]);
 
   const results = data ? [].concat(...data.map((res) => res.data)) : [];
+  const commentList = data ? [].concat(...data.map((res) => res.data.comments)) : [];
   const isEmpty = data?.[0]?.data?.comments?.length === 0;
   const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data?.comments?.length < 3);
   const hasMore = !isEmpty && !isReachingEnd;
 
   return {
     reactionList: results[0],
+    commentList,
     getNextData: () => {
       if (!isValidating) {
         setSize(size + 1);

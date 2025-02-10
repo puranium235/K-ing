@@ -34,10 +34,11 @@ const FeedDetails = () => {
   const [postInfo, setPostInfo] = useState(null);
   const [writer, setWriter] = useState(null);
   const [isOriginLan, setIsOriginLan] = useState(true);
-  const [commentList, setCommentList] = useState(null);
+  // const [commentList, setCommentList] = useState(null);
   const [newComment, setNewComment] = useState('');
 
-  const { reactionList, getNextData, isLoading, hasMore, mutate } = useGetComments(postId);
+  const { reactionList, commentList, getNextData, isLoading, hasMore, mutate } =
+    useGetComments(postId);
 
   //userInfo
   useEffect(() => {
@@ -51,7 +52,7 @@ const FeedDetails = () => {
 
   useEffect(() => {
     if (reactionList && reactionList.comments) {
-      setCommentList(reactionList.comments);
+      // setCommentList(reactionList.comments);
       toggle.setToggle(reactionList.liked);
     }
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
@@ -157,86 +158,83 @@ const FeedDetails = () => {
     );
   }
 
-  if (isLoading && reactionList && reactionList.comments) return <Loading />;
+  if (isLoading && !reactionList) return <Loading />;
 
   return (
-    <>
-      <PostContainer>
-        <Header>
-          <IconText>
-            <BackButton onBack={handleGoBack} />
-            <h3>Post</h3>
-          </IconText>
-          {userId === String(writer?.userId) && (
-            <OptionButton
-              onClick={() => {
-                update.setShowing(true);
-              }}
-            >
-              <img src={OptionIcon} alt="Option" />
-            </OptionButton>
+    <PostContainer>
+      <Header>
+        <IconText>
+          <BackButton onBack={handleGoBack} />
+          <h3>Post</h3>
+        </IconText>
+        {userId === String(writer?.userId) && (
+          <OptionButton
+            onClick={() => {
+              update.setShowing(true);
+            }}
+          >
+            <img src={OptionIcon} alt="Option" />
+          </OptionButton>
+        )}
+      </Header>
+      <UserInfo>
+        <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="default" />
+        <UserName>{writer.nickname}</UserName>
+      </UserInfo>
+
+      <Location>{postInfo.place.name}</Location>
+      <PostImageWrapper>
+        <PostImage src={postInfo.imageUrl} alt="postImage" />
+      </PostImageWrapper>
+
+      <PostCount>
+        <LikeCount>
+          {toggle.toggle ? (
+            <IcHeartTrue onClick={handleLikePost} />
+          ) : (
+            <IcLikes onClick={handleLikePost} />
           )}
-        </Header>
-        <UserInfo>
-          <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="default" />
-          <UserName>{writer.nickname}</UserName>
-        </UserInfo>
+          {reactionList && reactionList.likesCount}
+        </LikeCount>
+        <CommentCount>
+          <IcComments />
+          {reactionList && reactionList.commentsCount}
+        </CommentCount>
+      </PostCount>
 
-        <Location>{postInfo.place.name}</Location>
-        <PostImageWrapper>
-          <PostImage src={postInfo.imageUrl} alt="postImage" />
-        </PostImageWrapper>
+      <PostCaption>{postInfo.content}</PostCaption>
 
-        <PostCount>
-          <LikeCount>
-            {toggle.toggle ? (
-              <IcHeartTrue onClick={handleLikePost} />
-            ) : (
-              <IcLikes onClick={handleLikePost} />
-            )}
-            {reactionList && reactionList.likesCount}
-          </LikeCount>
-          <CommentCount>
-            <IcComments />
-            {reactionList && reactionList.commentsCount}
-          </CommentCount>
-        </PostCount>
-
-        <PostCaption>{postInfo.content}</PostCaption>
-
-        <CommentWrapper>
-          Comments
-          <CommentContainer>
-            {commentList &&
-              commentList.map((comment, index) => (
-                <Comment
-                  key={comment.commentId}
-                  data={comment}
-                  ref={index === commentList?.length - 1 ? lastElementRef : null}
-                />
-              ))}
-          </CommentContainer>
-          <NewCommentContainer>
-            <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="profile" />
-            <CommentInput
-              type="text"
-              placeholder={`${writer.nickname}님에게 댓글 추가..`}
-              value={newComment}
-              onChange={handleCommentChange}
-            />
-            <SendButton onClick={handleCommentSubmit}>
-              <img src={SendIcon} alt="sendBtn" />
-            </SendButton>
-          </NewCommentContainer>
-        </CommentWrapper>
-        <FooterWrapper>
-          <PostDate>{getRelativeDate(postInfo.createdAt)}</PostDate>·
-          <TranslateOption onClick={() => setIsOriginLan((prev) => !prev)}>
-            {isOriginLan ? 'See translation' : 'See original'}
-          </TranslateOption>
-        </FooterWrapper>
-      </PostContainer>
-
+      <CommentWrapper>
+        Comments
+        <CommentContainer>
+          {commentList &&
+            commentList.map((comment, index) => (
+              <Comment
+                key={comment.commentId}
+                data={comment}
+                ref={index === commentList?.length - 1 ? lastElementRef : null}
+              />
+            ))}
+        </CommentContainer>
+        <NewCommentContainer>
+          <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="profile" />
+          <CommentInput
+            type="text"
+            placeholder={`${writer.nickname}님에게 댓글 추가..`}
+            value={newComment}
+            onChange={handleCommentChange}
+          />
+          <SendButton onClick={handleCommentSubmit}>
+            <img src={SendIcon} alt="sendBtn" />
+          </SendButton>
+        </NewCommentContainer>
+      </CommentWrapper>
+      <FooterWrapper>
+        <PostDate>{getRelativeDate(postInfo.createdAt)}</PostDate>·
+        <TranslateOption onClick={() => setIsOriginLan((prev) => !prev)}>
+          {isOriginLan ? 'See translation' : 'See original'}
+        </TranslateOption>
+      </FooterWrapper>
       <OptionModal
         isModalVisible={update.isShowing}
         onClick={() => {
@@ -245,7 +243,7 @@ const FeedDetails = () => {
         onUpdate={handleUpdate}
         onDelete={handleDelete}
       />
-    </>
+    </PostContainer>
   );
 };
 
@@ -271,6 +269,8 @@ const PostContainer = styled.div`
 `;
 
 const Header = styled.div`
+  position: relative;
+
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -300,7 +300,7 @@ const OptionButton = styled.button`
   display: flex;
   align-items: center;
   position: absolute;
-  right: 1.2rem;
+  right: 0;
   background: none;
   border: none;
   cursor: pointer;
@@ -311,8 +311,6 @@ const OptionButton = styled.button`
 `;
 
 const UserInfo = styled.div`
-  width: 100%;
-
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -334,8 +332,6 @@ const UserName = styled.span`
 `;
 
 const Location = styled.span`
-  width: 100%;
-
   margin-left: 4rem;
 
   ${({ theme }) => theme.fonts.Body3};
@@ -402,6 +398,12 @@ const CommentWrapper = styled.div`
 
   ${({ theme }) => theme.fonts.Title5};
   color: ${({ theme }) => theme.colors.Gray1};
+
+  overflow-y: auto;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const CommentContainer = styled.div`
@@ -421,7 +423,6 @@ const NewCommentContainer = styled.div`
   align-items: center;
   gap: 0.5rem;
 
-  width: 100%;
   margin-top: 1rem;
 `;
 
