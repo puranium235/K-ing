@@ -3,6 +3,8 @@ package com.king.backend.search.service;
 import co.elastic.clients.elasticsearch._types.analysis.*;
 import co.elastic.clients.elasticsearch._types.mapping.*;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import com.king.backend.domain.place.entity.PlaceCast;
+import com.king.backend.domain.place.entity.PlaceContent;
 import com.king.backend.global.util.RedisUtil;
 import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.repository.CastRepository;
@@ -21,6 +23,7 @@ import com.king.backend.search.util.ElasticsearchUtil;
 import com.king.backend.search.util.SearchDocumentBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,8 +90,31 @@ public class SyncService implements CommandLineRunner {
         properties.put("address", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
         properties.put("lat", new Property.Builder().double_(new DoubleNumberProperty.Builder().build()).build());
         properties.put("lng", new Property.Builder().double_(new DoubleNumberProperty.Builder().build()).build());
-        properties.put("associatedCastNames", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
-        properties.put("associatedContentNames",new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
+        // 기존의 연결 테이블 관련 필드는 삭제하고 nested 객체로 매핑
+        properties.put("associatedCasts", new Property.Builder()
+                .nested(nested -> nested
+                        .properties(Map.of(
+                                "castName", new Property.Builder()
+                                        .keyword(new KeywordProperty.Builder().build())
+                                        .build(),
+                                "castDescription", new Property.Builder()
+                                        .text(new TextProperty.Builder().analyzer("standard").build())
+                                        .build()
+                        ))
+                )
+                .build());
+        properties.put("associatedContents", new Property.Builder()
+                .nested(nested -> nested
+                        .properties(Map.of(
+                                "contentTitle", new Property.Builder()
+                                        .keyword(new KeywordProperty.Builder().build())
+                                        .build(),
+                                "contentDescription", new Property.Builder()
+                                        .text(new TextProperty.Builder().analyzer("standard").build())
+                                        .build()
+                        ))
+                )
+                .build());
 
         TokenFilterDefinition autocompleteFilterDefinition = TokenFilterDefinition.of(tf -> tf
                 .ngram(ng -> ng
@@ -166,7 +192,7 @@ public class SyncService implements CommandLineRunner {
         List<CurationList> curationLists = curationListRepository.findAllWithWriter();
         List<CurationDocument> documents = curationLists.stream()
                 .map(curation -> {
-                    String writerNickname = "@" + curation.getWriter().getNickname();
+                    String writerNickname = curation.getWriter().getNickname();
                     return new CurationDocument(
                             "CURATION-" + curation.getId(),
                             curation.getTitle(),
@@ -240,7 +266,20 @@ public class SyncService implements CommandLineRunner {
      * Place 데이터 마이그레이션
      */
     private void migratePlaces() {
+        // **중요**: fetch join 메서드를 사용하여 연관 데이터를 미리 가져옵니다.
         List<Place> places = placeRepository.findAll();
+
+        // 강제로 초기화 (Hibernate.initialize() 사용)
+        for (Place place : places) {
+            if (place.getPlaceCasts() != null) {
+                Hibernate.initialize(place.getPlaceCasts());
+            }
+            if (place.getPlaceContents() != null) {
+                Hibernate.initialize(place.getPlaceContents());
+            }
+
+        }
+
         List<SearchDocument> documents = places.stream()
                 .map(place -> {
                     String key = "place:view:" + place.getId();

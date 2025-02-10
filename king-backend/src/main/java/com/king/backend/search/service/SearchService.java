@@ -144,8 +144,6 @@ public class SearchService {
     public SearchResponseDto search(SearchRequestDto requestDto) {
         try{
             if(requestDto.getCategory()==null||requestDto.getCategory().trim().isEmpty()){
-                // 기존 검색 쿼리(전체 대상)를 기반으로 aggregation 쿼리 생성
-                System.out.println("검색 시작");
                 BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);
                 List<SortOptions> sortOptions = buildSortOptions(requestDto);
 
@@ -221,11 +219,6 @@ public class SearchService {
                             }
                         }
                     }
-                }
-
-                for(SearchResponseDto.SearchResult searchResult:combinedResults){
-                    System.out.println(searchResult.getName());
-
                 }
 
                 // aggregation 방식에서는 커서 기반 페이지네이션을 지원하지 않으므로 nextCursor는 null
@@ -348,28 +341,36 @@ public class SearchService {
                             .fuzziness("AUTO")
                             .boost(2.0f)));
                 } else if ("cast".equalsIgnoreCase(relatedType)) {
-                    boolQueryBuilder.must(q -> q.match(m -> m.field("associatedCastNames")
-                            .query(query)
-                            .fuzziness("AUTO")
-                            .boost(2.0f)));
+                    boolQueryBuilder.must(q -> q.nested(n -> n
+                            .path("associatedCasts")
+                            .query(nq -> nq.match(m -> m.field("associatedCasts.castName")
+                                    .query(query)
+                                    .fuzziness("AUTO")
+                                    .boost(2.0f)))));
                 } else if ("content".equalsIgnoreCase(relatedType)) {
-                    boolQueryBuilder.must(q -> q.match(m -> m.field("associatedContentNames")
-                            .query(query)
-                            .fuzziness("AUTO")
-                            .boost(2.0f)));
+                    boolQueryBuilder.must(q -> q.nested(n -> n
+                            .path("associatedContents")
+                            .query(nq -> nq.match(m -> m.field("associatedContents.contentTitle")
+                                    .query(query)
+                                    .fuzziness("AUTO")
+                                    .boost(2.0f)))));
                 } else {
                     boolQueryBuilder.should(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
                             .query(query)
                             .fuzziness("AUTO")
                             .boost(2.0f)));
-                    boolQueryBuilder.should(q -> q.match(m -> m.field("associatedCastNames")
-                            .query(query)
-                            .fuzziness("AUTO")
-                            .boost(1.0f)));
-                    boolQueryBuilder.should(q -> q.match(m -> m.field("associatedContentNames")
-                            .query(query)
-                            .fuzziness("AUTO")
-                            .boost(1.0f)));
+                    boolQueryBuilder.should(q -> q.nested(n -> n
+                            .path("associatedCasts")
+                            .query(nq -> nq.match(m -> m.field("associatedCasts.castName")
+                                    .query(query)
+                                    .fuzziness("AUTO")
+                                    .boost(1.0f)))));
+                    boolQueryBuilder.should(q -> q.nested(n -> n
+                            .path("associatedContents")
+                            .query(nq -> nq.match(m -> m.field("associatedContents.contentTitle")
+                                    .query(query)
+                                    .fuzziness("AUTO")
+                                    .boost(1.0f)))));
                     boolQueryBuilder.minimumShouldMatch("1");
                 }
             } else {
