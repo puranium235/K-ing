@@ -17,7 +17,7 @@ const CurationsList = ({ query }) => {
   return (
     <StCurationList>
       {curationList &&
-        curationList.map((item) => (
+        curationList.map((item, index) => (
           <CurationItem
             key={item.id}
             item={item}
