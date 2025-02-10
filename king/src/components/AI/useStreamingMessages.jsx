@@ -44,18 +44,18 @@ const useStreamingMessages = () => {
 
         // ✅ 문자열로 변환하여 처리
         const lastAssistantMessage = lastAssistantMessages.join(' '); // 여러 메시지를 하나로 변환
-        console.log('🔍 마지막 Assistant 메시지:', lastAssistantMessage);
+        //console.log('🔍 마지막 Assistant 메시지:', lastAssistantMessage);
 
         // ✅ [추천] 키워드가 있는지 검사
         if (lastAssistantMessage.includes('[추천]')) {
-          console.log('✅ [추천] 키워드 감지됨!');
+          //console.log('✅ [추천] 키워드 감지됨!');
 
           // ✅ 추천된 장소 이름 추출
           const recommendNameMatch = lastAssistantMessage.match(/\[추천\]\s+\[(.+?)\]/);
           const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
 
           if (recommendName) {
-            console.log('✅ 감지된 추천 장소:', recommendName);
+            //console.log('✅ 감지된 추천 장소:', recommendName);
 
             // ✅ 추천 메시지 추가
             const recommendMessage = {
@@ -109,7 +109,7 @@ const saveRecommendationMessage = async (recommendName) => {
 
   try {
     await saveChatHistory(recommendMessage.sender, recommendMessage.text, recommendMessage.type);
-    console.log('✅ 추천 메시지 저장 완료:', recommendMessage);
+    //console.log('✅ 추천 메시지 저장 완료:', recommendMessage);
   } catch (error) {
     console.error('❌ 추천 메시지 저장 실패:', error);
   }

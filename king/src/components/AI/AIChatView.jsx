@@ -7,6 +7,7 @@ import RefreshIcon from '../../assets/icons/refresh.png';
 import { deleteChatHistory, getChatHistory, saveChatHistory } from '../../lib/chatbot';
 import { splitIntoSentences } from '../../util/chatbot';
 import BackButton from '../common/button/BackButton';
+import ButtonMessageBubbleComponent from './ButtonMessageBubbleComponent';
 import TypingIndicator from './TypingIndicator';
 import useStreamingMessages from './useStreamingMessages';
 
@@ -83,7 +84,7 @@ const AIChatView = () => {
 
     return () => {
       if (socketRef.current === ws) {
-        console.log('🔌 WebSocket 연결 해제 중...');
+        //console.log('🔌 WebSocket 연결 해제 중...');
         socketRef.current?.close();
         socketRef.current = null;
       }
@@ -224,10 +225,7 @@ const AIChatView = () => {
                 )}
               </ChatBotContainer>
             ) : message.sender === 'recommend' ? (
-              <ButtonMessageBubble ref={index === messages.length - 1 ? messagesEndRef : null}>
-                {message.text}
-                <MessageButton>바로 가기</MessageButton>
-              </ButtonMessageBubble>
+              <ButtonMessageBubbleComponent message={message} />
             ) : (
               <MessageBubble
                 $sender={message.sender}
@@ -347,37 +345,37 @@ const MessageBubble = styled.div`
   width: fit-content; // 내용 길이에 따라 너비 조절
 `;
 
-const ButtonMessageBubble = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  max-width: 50%;
-  padding: 0.8rem 1.2rem;
-  border-radius: 10px;
-  background-color: #dfd9ff;
-  color: ${({ theme }) => theme.colors.Gray0};
-  ${({ theme }) => theme.fonts.Title6};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.07);
-  word-wrap: break-word; // 단어가 길 경우 줄 바꿈
-  white-space: pre-wrap; // 줄 바꿈 및 공백 유지
-  width: fit-content; // 내용 길이에 따라 너비 조절
-`;
+// const ButtonMessageBubble = styled.div`
+//   display: flex;
+//   align-items: center;
+//   gap: 0.7rem;
+//   max-width: 50%;
+//   padding: 0.8rem 1.2rem;
+//   border-radius: 10px;
+//   background-color: #dfd9ff;
+//   color: ${({ theme }) => theme.colors.Gray0};
+//   ${({ theme }) => theme.fonts.Title6};
+//   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.07);
+//   word-wrap: break-word; // 단어가 길 경우 줄 바꿈
+//   white-space: pre-wrap; // 줄 바꿈 및 공백 유지
+//   width: fit-content; // 내용 길이에 따라 너비 조절
+// `;
 
-const MessageButton = styled.button`
-  padding: 0.2rem 0.5rem;
-  background-color: #fff;
-  color: #5c3eff;
-  ${({ theme }) => theme.fonts.Title7};
-  border: none;
-  border-radius: 5px;
-  white-space: nowrap;
-  cursor: pointer;
+// const MessageButton = styled.button`
+//   padding: 0.2rem 0.5rem;
+//   background-color: #fff;
+//   color: #5c3eff;
+//   ${({ theme }) => theme.fonts.Title7};
+//   border: none;
+//   border-radius: 5px;
+//   white-space: nowrap;
+//   cursor: pointer;
 
-  &:hover {
-    background-color: #a597f1;
-    color: white;
-  }
-`;
+//   &:hover {
+//     background-color: #a597f1;
+//     color: white;
+//   }
+// `;
 
 const OptionMessageBubble = styled.div`
   padding: 0.2rem 0.5rem;
