@@ -37,8 +37,14 @@ public class ContentService {
 
         Content content = contentRepository.findById(id).orElseThrow(() -> new CustomException(ContentErrorCode.CONTENT_NOT_FOUND));
         ContentTranslation contentTrans = content.getTranslation(language);
-
         String imageUrl = s3Service.getOrUploadImage(content);
+        String broadcast = content.getBroadcast();
+        if(broadcast != null && broadcast.contains(",")) {
+            String[] parts = broadcast.split(",");
+            if(parts.length > 0) {
+                broadcast = parts[0].trim();
+            }
+        }
 
         List<ContentDetailResponseDto.RelatedCast> relatedCasts = content.getContentCasts().stream()
                 .map(cc -> mapToRelatedCasts(cc, language))
@@ -48,7 +54,7 @@ public class ContentService {
                 content.getId(),
                 contentTrans.getTitle(),
                 content.getType(),
-                content.getBroadcast(),
+                broadcast,
                 contentTrans.getDescription(),
                 imageUrl,
                 content.getCreatedAt(),
