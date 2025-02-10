@@ -1,6 +1,7 @@
 package com.king.backend.domain.curation.controller;
 
 import com.king.backend.domain.curation.dto.request.CurationListRequestDTO;
+import com.king.backend.domain.curation.dto.request.CurationPostRequestDTO;
 import com.king.backend.domain.curation.dto.response.CurationDetailResponseDTO;
 import com.king.backend.domain.curation.dto.response.CurationListResponseDTO;
 import com.king.backend.domain.curation.service.CurationService;
@@ -10,8 +11,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/curation")
@@ -32,5 +35,13 @@ public class CurationController {
     @GetMapping("")
     public ResponseEntity<ApiResponse<CurationListResponseDTO>> getCurations(@ModelAttribute CurationListRequestDTO requestDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(curationService.getCurations(requestDTO)));
+    }
+
+    @Operation(summary = "큐레이션 등록")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<CurationDetailResponseDTO>> postCurations(
+            @RequestPart(value = "curation") CurationPostRequestDTO requestDTO,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(curationService.postCuration(requestDTO, imageFile)));
     }
 }

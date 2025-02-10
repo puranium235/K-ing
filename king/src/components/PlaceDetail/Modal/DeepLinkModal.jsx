@@ -1,18 +1,44 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const ShareModal = ({ isModalVisible, onClick }) => {
+import GoogleIcon from '/src/assets/icons/google.png';
+import NaverIcon from '/src/assets/icons/naver.png';
+
+const DeepLinkModal = ({ dest, isModalVisible, onClick }) => {
+  const handleGoogleNavigation = () => {
+    //travelmode:driving,walking, 디폴트 사용자 관련성 높은 모드
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`);
+  };
+
+  const handleNaverNavigation = () => {
+    //slat,slng : 시작 위경도 (디폴트 현재위치)
+    //dlat,dlng: X -> dname: 도착지명 인코딩 문자열
+    window.open(
+      `nmap://route/public?dname=${encodeURIComponent(dest)}&appname=https://i12a507.p.ssafy.io`,
+    );
+  };
+
   return (
-    <>
+    <Container>
       <ModalBackground $isVisible={isModalVisible} onClick={onClick} />
 
       <ModalContainer $isVisible={isModalVisible}>
-        <OptionButton>링크 공유하기</OptionButton>
-        <OptionButton>앱 공유하기</OptionButton>
+        <OptionButton onClick={handleNaverNavigation}>
+          네이버 지도 <img src={NaverIcon} alt="Naver" />
+        </OptionButton>
+        <OptionButton onClick={handleGoogleNavigation}>
+          구글 지도 <img src={GoogleIcon} alt="Google" />
+        </OptionButton>
       </ModalContainer>
-    </>
+    </Container>
   );
 };
+
+export default DeepLinkModal;
+
+const Container = styled.div`
+  position: relative;
+`;
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -71,7 +97,7 @@ const OptionButton = styled.div`
   padding: 1.6rem;
   background-color: white;
   border-radius: 16px;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.8rem;
   cursor: pointer;
 
   &:hover {
@@ -83,5 +109,3 @@ const OptionButton = styled.div`
     height: 1.2rem;
   }
 `;
-
-export default ShareModal;

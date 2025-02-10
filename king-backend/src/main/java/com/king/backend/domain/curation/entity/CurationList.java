@@ -6,14 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "curation_list")
 @Getter
 @Setter
-@EntityListeners(CurationListListener.class)
+//@EntityListeners(CurationListListener.class)
 public class CurationList {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,6 +23,7 @@ public class CurationList {
     private boolean isPublic;
 
     @CreatedDate
+    @Column(nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

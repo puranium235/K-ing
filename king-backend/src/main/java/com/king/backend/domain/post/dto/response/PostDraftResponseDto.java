@@ -11,7 +11,7 @@ public class PostDraftResponseDto {
     private String content;
     private Place place;
     private byte[] imageData;
-    private Boolean isPublic;
+    private boolean isPublic;
 
     @Getter
     @Setter

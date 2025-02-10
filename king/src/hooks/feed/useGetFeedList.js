@@ -3,13 +3,13 @@ import useSWRInfinite from 'swr/infinite';
 
 import { mainGetFetcher } from '../../lib/axios';
 
-const useGetSearchResult = (query, category, sortOption) => {
+const useGetFeedList = () => {
   const getKey = (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.data.nextCursor) return null; // 마지막 페이지
 
     return pageIndex === 0
-      ? `/search/search?query=${encodeURIComponent(query)}&category=${category}&size=15&sortBy=${sortOption}&sortOrder=desc`
-      : `/search/search?query=${encodeURIComponent(query)}&category=${category}&size=15&cursor=${previousPageData.data.nextCursor}&sortBy=${sortOption}&sortOrder=desc`;
+      ? `/post/home?size=8`
+      : `/post/home?size=8&cursor=${previousPageData.data.nextCursor}`;
   };
 
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
@@ -20,15 +20,16 @@ const useGetSearchResult = (query, category, sortOption) => {
   useEffect(() => {
     mutate();
     setSize(1);
-  }, [query, category, mutate, setSize]);
+  }, [mutate, setSize]);
 
-  const results = data ? [].concat(...data.map((res) => res.data.results)) : [];
-  const isEmpty = data?.[0]?.data?.results.length === 0;
-  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data.results?.length < 15);
+  const posts = data ? [].concat(...data.map((res) => res.data.posts)) : [];
+
+  const isEmpty = data?.[0]?.data?.posts.length === 0;
+  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data.posts?.length < 8);
   const hasMore = !isEmpty && !isReachingEnd;
 
   return {
-    searchResultList: results,
+    feedList: posts,
     getNextData: () => {
       if (!isValidating) {
         setSize(size + 1);
@@ -40,4 +41,4 @@ const useGetSearchResult = (query, category, sortOption) => {
   };
 };
 
-export default useGetSearchResult;
+export default useGetFeedList;

@@ -1,12 +1,9 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import SearchItem from './SearchItem';
 
 const SearchList = ({ title, data, type }) => {
-  const navigate = useNavigate();
-
   const unit = title === '인물' ? '명' : '개';
 
   return (

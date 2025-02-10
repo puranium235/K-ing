@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLayoutEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import { ScrollPosition, SearchQueryState } from '../../recoil/atom';
+import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/button/BackButton';
+import GoUpButton from '../common/button/GoUpButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import Loading from '../Loading/Loading';
@@ -19,22 +20,21 @@ const Content = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [scrollPosition, setScrollPosition] = useRecoilState(ScrollPosition);
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
-  const [favorites, setFavorites] = useState({});
+  const [favorites, setFavorites] = useState(false);
 
   const navigate = useNavigate();
 
   //마지막 요소 감지
   const lastElementRef = useRef(null);
-  const containerRef = useRef(null);
 
-  const { searchResultList, getNextData, isLoading, isError } = useGetSearchResult(
+  const { searchResultList, getNextData, isLoading, hasMore } = useGetSearchResult(
     searchQuery,
     contentType.toUpperCase(),
     'createdAt',
   );
 
   const toggleFavorite = () => {
-    setIsFavorited(!isFavorited);
+    setFavorites(!favorites);
   };
 
   useEffect(() => {
@@ -43,67 +43,22 @@ const Content = () => {
 
   useEffect(() => {
     if (!isLoading && initialLoading) {
-      const container = containerRef.current;
-      if (container && scrollPosition) {
-        container.scrollTop = scrollPosition;
-        setInitialLoading(false);
-      }
+      document.querySelector('html').scrollTo({ top: scrollPosition, behavior: 'smooth' });
+      setInitialLoading(false);
     }
   }, [isLoading]);
 
   useEffect(() => {
-    // 스크롤 위치를 상태로 저장
-    const handleScroll = () => {
-      if (containerRef.current) {
-        setScrollPosition(containerRef.current.scrollTop);
-      }
-    };
-
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-    }
-
-    return () => {
-      if (container) {
-        container.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isLoading || !lastElementRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !isLoading) {
-          getNextData();
-        }
-      },
-      { threshold: 0.5 },
-    );
-
-    if (lastElementRef.current) {
-      observer.observe(lastElementRef.current);
-    }
-
-    return () => {
-      if (lastElementRef.current) {
-        observer.unobserve(lastElementRef.current);
-      }
-    };
+    catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
   }, [isLoading]);
 
   const handleSearch = (searchQuery) => {
     setSearchQuery(searchQuery);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelector('html').scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleItemClick = (id) => {
-    if (containerRef.current) {
-      // sessionStorage.setItem('scrollPosition', containerRef.current.scrollTop);
-      setScrollPosition(containerRef.current.scrollTop);
-    }
+    setScrollPosition(document.body.scrollTop || document.documentElement.scrollTop);
 
     if (contentType === 'cast') {
       navigate(`/content/cast/${id}`);
@@ -113,20 +68,24 @@ const Content = () => {
   };
 
   if (isLoading && searchResultList.length === 0) return <Loading />;
-  if (isError) return <div>Error loading data.</div>;
 
   return (
     <>
       <StHomeWrapper>
         <FixedContainer>
           <IconText>
-            <BackButton onBack={() => navigate(`/home`)} />
+            <BackButton
+              onBack={() => {
+                navigate(`/home`);
+                setScrollPosition(0);
+              }}
+            />
             <p>{getContentTypeKor(contentType)}</p>
           </IconText>
           <SearchBar type={contentType.toUpperCase()} query={searchQuery} onSearch={handleSearch} />
         </FixedContainer>
 
-        <GridContainer ref={containerRef}>
+        <GridContainer>
           {searchResultList.map((content, index) => (
             <Card
               key={index}
@@ -137,15 +96,16 @@ const Content = () => {
                 <CardImage src={content.imageUrl} alt={content.name} />
               </CardImageContainer>
               <CardTitle>{content.name}</CardTitle>
-              {favorites[content.id] ? (
-                <IcStar id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
+              {content.favorites ? (
+                <IcStar id="favor" onClick={toggleFavorite} />
               ) : (
-                <IcStarBlank id="favor" onClick={(e) => toggleFavorite(e, content.id)} />
+                <IcStarBlank id="favor" onClick={toggleFavorite} />
               )}
             </Card>
           ))}
         </GridContainer>
       </StHomeWrapper>
+      <GoUpButton />
 
       <Nav />
     </>
