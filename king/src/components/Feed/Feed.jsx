@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { PostsDummyData } from '../../assets/dummy/dummyDataPosts';
 import { IcOne, IcOneSelected, IcTwo, IcTwoSelected } from '../../assets/icons';
+import GoUpButton from '../common/button/GoUpButton';
 import Nav from '../common/Nav';
 import TopNav from '../common/TopNav';
 import FeedsList from './FeedsList';
 
 const Feed = () => {
   const [columns, setColumns] = useState(2);
-
-  const posts = PostsDummyData;
 
   return (
     <>
@@ -30,8 +28,9 @@ const Feed = () => {
             )}
           </FilterWrapper>
         </FixedContainer>
-        <FeedsList data={posts} columns={columns} />
+        <FeedsList columns={columns} />
       </StFeedWrapper>
+      <GoUpButton />
       <Nav />
     </>
   );
@@ -45,6 +44,7 @@ const StFeedWrapper = styled.div`
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  padding-top: 0;
   margin-bottom: 7rem;
 `;
 
@@ -52,7 +52,7 @@ const FixedContainer = styled.div`
   position: sticky;
   top: 0;
   z-index: 1000;
-  /* padding: 0 2rem; */
+  padding-top: 2rem;
   width: 100%;
   background-color: ${({ theme }) => theme.colors.White};
 `;
@@ -63,7 +63,6 @@ const FilterWrapper = styled.div`
   justify-content: end;
 
   box-sizing: border-box;
-  padding: 0 1rem;
   margin-bottom: 1rem;
   gap: 0.5rem;
 

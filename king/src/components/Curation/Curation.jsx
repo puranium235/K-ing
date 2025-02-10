@@ -1,30 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { getCurationList } from '../../lib/curation';
-import CurationsList from '../Archive/CurationsList';
+import GoUpButton from '../common/button/GoUpButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
+import CurationsList from './CurationsList';
 
 const Curation = () => {
-  const [curationList, setCurationList] = useState([]);
   const [query, setQuery] = useState('');
-  const [cursor, setCursor] = useState('');
-
-  const getResults = async (searchQuery) => {
-    const res = await getCurationList(searchQuery, cursor);
-    setCurationList(res.items);
-  };
-
-  useEffect(() => {
-    getResults(query);
-  }, [query]);
 
   const handleSearch = (searchQuery) => {
     setQuery(searchQuery);
-    setCurationList([]);
-    getResults(searchQuery ? searchQuery : '');
   };
 
   return (
@@ -35,9 +22,10 @@ const Curation = () => {
           <SearchBar query="" type="curation" onSearch={handleSearch} />
         </FixedContainer>
         <CurationWrapper>
-          <CurationsList data={curationList} />
+          <CurationsList query={query} />
         </CurationWrapper>
       </StCurationWrapper>
+      <GoUpButton />
       <Nav />
     </>
   );

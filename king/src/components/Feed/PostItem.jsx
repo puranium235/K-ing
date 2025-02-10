@@ -1,9 +1,11 @@
+import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcComments, IcLikes } from '../../assets/icons';
+import { formatDate } from '../../util/formatDate';
 
-const PostItem = ({ post }) => {
+const PostItem = forwardRef(({ post, column }, ref) => {
   const navigate = useNavigate();
 
   const handleFeedClick = (id) => {
@@ -11,26 +13,28 @@ const PostItem = ({ post }) => {
   };
 
   return (
-    <St.Item onClick={() => handleFeedClick(post.id)}>
-      <St.Image src={post.image} alt={post.title} />
+    <St.Item ref={ref} onClick={() => handleFeedClick(post.postId)}>
+      <ImageWrapper $column={column}>
+        <St.Image src={post.imageUrl} alt={post.writer.nickname} />
+      </ImageWrapper>
       <St.Info>
         <St.Action>
           <IconText>
             <IcLikes />
-            <p>{post.likes}</p>
+            <p>{post.likesCnt}</p>
           </IconText>
           <IconText>
             <IcComments />
-            <p>{post.comments}</p>
+            <p>{post.commentsCnt}</p>
           </IconText>
         </St.Action>
-        <St.Title>{post.title}</St.Title>
-        <St.Author>@{post.author}</St.Author>
-        <St.Date>{post.date}</St.Date>
+        <St.Title>{post.content}</St.Title>
+        <St.Author>@{post.writer.nickname}</St.Author>
+        <St.Date>{formatDate(post.createdAt)}</St.Date>
       </St.Info>
     </St.Item>
   );
-};
+});
 
 export default PostItem;
 
@@ -44,8 +48,8 @@ const St = {
   `,
   Image: styled.img`
     width: 100%;
-    min-height: 16rem;
-    border-radius: 10px;
+    height: 100%;
+    border-radius: 1rem;
     object-fit: cover;
   `,
   Info: styled.div`
@@ -78,6 +82,11 @@ const St = {
     color: #464656;
   `,
 };
+
+const ImageWrapper = styled.div`
+  width: 100%;
+  height: ${(props) => (props.$column === 1 ? '25rem' : '15rem')};
+`;
 
 const IconText = styled.div`
   display: flex;

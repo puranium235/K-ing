@@ -7,7 +7,7 @@ import GoodIcon from '../../assets/icons/good.png';
 import LocationIcon from '../../assets/icons/location.png';
 import PenIcon from '../../assets/icons/pen.png';
 import PhoneIcon from '../../assets/icons/phone.png';
-import { formatDate } from '../../util/dateFormat';
+import { formatDate } from '../../util/formatDate';
 
 const PlaceInfo = ({ placeData }) => {
   const { closedDay, address, openHour, phone, createdAt } = placeData;

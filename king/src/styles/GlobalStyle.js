@@ -148,7 +148,7 @@ ${reset}
     max-width: 39rem;
     height: 100%;
     margin: 0 auto;
-    overflow-y: auto;
+    /* overflow-y: auto; */
     -ms-overflow-style: none; /* 인터넷 익스플로러 */
     scrollbar-width: none; /* 파이어폭스 */
 }

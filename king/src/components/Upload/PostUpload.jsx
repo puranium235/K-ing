@@ -74,7 +74,7 @@ const PostUpload = ({ state }) => {
       setPlace(res.place.name);
     }
 
-    toggle.setToggle(res.isPublic);
+    toggle.setToggle(res.public);
 
     if (isDraft && useDraft) {
       await deletePostDraft();
