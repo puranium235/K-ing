@@ -71,12 +71,22 @@ const UseDraft = atom({
   default: false,
 });
 
+const ProfileState = atom({
+  key: 'profileState',
+  default: {
+    imageUrl: '',
+    nickname: '',
+    description: '',
+  },
+});
+
 export {
   ContentId,
   ContentType,
   CurationPlaceList,
   DraftExist,
   FilterOption,
+  ProfileState,
   ScrollPosition,
   SearchCategoryState,
   SearchPrevQuery,

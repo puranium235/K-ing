@@ -1,13 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
+import { updateNotificationSetting } from '../../lib/user';
+import { ProfileState } from '../../recoil/atom';
 import SettingHeader from './SettingHeader';
 
 const SettingNotification = () => {
-  const [isToggled, setIsToggled] = useState(false);
+  const [profile, setProfile] = useRecoilState(ProfileState);
+  const isToggled = profile.contentAlarmOn || false;
 
-  const handleToggle = () => {
-    setIsToggled((prev) => !prev);
+  const handleToggle = async () => {
+    const newToggleState = !isToggled;
+
+    try {
+      // 🔹 API 요청 (알람 설정 변경)
+      const response = await updateNotificationSetting(newToggleState);
+      console.log('✅ 알람 설정 변경 성공:', response);
+
+      // 🔹 Recoil 상태 업데이트
+      setProfile((prev) => ({
+        ...prev,
+        contentAlarmOn: response.data.contentAlarmOn,
+      }));
+    } catch (error) {
+      console.error('❌ 알람 설정 변경 실패:', error);
+      alert('알람 설정 변경 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -60,13 +79,13 @@ const St = {
     width: 4rem;
     height: 2rem;
     background-color: ${({ theme, $isToggled }) =>
-      $isToggled ? theme.colors.Gray1 : theme.colors.Gray3}; /* ✅ "on" 상태 컬러 변경 */
+      $isToggled ? theme.colors.Gray1 : theme.colors.Gray3};
     border-radius: 1.5rem;
     display: flex;
     align-items: center;
     padding: 0.2rem;
     cursor: pointer;
-    transition: background-color 0.3s ease-in-out; /* ✅ 부드러운 전환 효과 */
+    transition: background-color 0.3s ease-in-out;
   `,
   ToggleBall: styled.div`
     width: 1.6rem;
@@ -74,6 +93,6 @@ const St = {
     background-color: white;
     border-radius: 50%;
     transform: ${({ $isToggled }) => ($isToggled ? 'translateX(2rem)' : 'translateX(0)')};
-    transition: transform 0.3s ease-in-out; /* ✅ 토글 이동 애니메이션 */
+    transition: transform 0.3s ease-in-out;
   `,
 };
