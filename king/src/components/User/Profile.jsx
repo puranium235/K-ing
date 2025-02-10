@@ -6,7 +6,7 @@ import { getUserProfile } from '../../lib/user';
 import { ActiveUserTabState, ProfileState } from '../../recoil/atom';
 import Loading from '../Loading/Loading';
 import CurationsList from './CurationsList';
-import PostsGrid from './PostsGrid';
+import PostsList from './PostsList';
 import ProfileHeader from './ProfileHeader';
 import ProfileTabMenu from './ProfileTabMenu';
 import SettingsButton from './SettingsButton';
@@ -55,7 +55,7 @@ function Profile({ isMyPage, userId }) {
       {/* ✅ ProfileTabs 적용 */}
       <ProfileTabMenu activeTab={activeTab} onTabChange={setActiveTab} />
       {activeTab === 'posts' ? (
-        <PostsGrid posts={profileData.posts || []} isMyPage={isMyPage} />
+        <PostsList posts={profileData.posts || []} isMyPage={isMyPage} userId={userId} />
       ) : (
         <CurationsList
           curations={profileData.curations || []}
