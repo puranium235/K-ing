@@ -2,7 +2,10 @@ package com.king.backend.domain.cast.entity;
 
 import com.king.backend.domain.content.entity.ContentCast;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -45,4 +48,15 @@ public class Cast {
     @OneToOne(mappedBy = "cast", cascade = CascadeType.ALL, orphanRemoval = true)
     private CastZh translationZh;
 
+    public CastTranslation getTranslation(String language) {
+        if("ko".equalsIgnoreCase(language)) {
+            return translationKo;
+        } else if("en".equalsIgnoreCase(language)) {
+            return translationEn;
+        } else if ("zh".equalsIgnoreCase(language)) {
+            return translationZh;
+        } else {
+            return translationEn;
+        }
+    }
 }

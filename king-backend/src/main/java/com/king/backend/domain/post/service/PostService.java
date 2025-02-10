@@ -164,12 +164,19 @@ public class PostService {
             }
         } else if ("myPage".equals(reqDto.getFeedType())) {
             Long userId = reqDto.getUserId();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
+            Long authId = Long.parseLong(authUser.getName());
+
             if (userId == null) {
                 throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+            } else {
+                User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
+                        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+                posts = (userId.equals(authId))
+                        ? getMyPagePosts(user, sortValues, size)
+                        : getPublicMyPagePosts(user, sortValues, size);
             }
-            User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
-                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-            posts = getMyPagePosts(user, sortValues, size);
         } else {
             throw new IllegalArgumentException("Invalid feedType: " + reqDto.getFeedType());
         }
@@ -225,6 +232,15 @@ public class PostService {
         } else {
             Long id = Long.parseLong(sortValues.get(0).toString());
             return postRepository.findByWriterAndIdLessThanOrderByIdDesc(user, id, PageRequest.of(0, size));
+        }
+    }
+
+    public List<Post> getPublicMyPagePosts(User user, List<Object> sortValues, int size) {
+        if(sortValues == null) {
+            return postRepository.findAllByIsPublicAndWriterOrderByIdDesc(true, user, PageRequest.of(0, size));
+        } else {
+            Long id = Long.parseLong(sortValues.get(0).toString());
+            return postRepository.findByIsPublicAndWriterAndIdLessThanOrderByIdDesc(true, user, id, PageRequest.of(0, size));
         }
     }
 
