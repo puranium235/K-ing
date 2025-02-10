@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface CurationListItemRepository extends JpaRepository<CurationListItem, Long> {
     List<CurationListItem> findByCurationListId(Long curationListId);
     Optional<CurationListItem> findByCurationListAndPlace(CurationList curationList, Place place);
+    void deleteAllByCurationList(CurationList curationList);
 }
