@@ -152,6 +152,10 @@ const PostUpload = ({ state }) => {
   };
 
   const handleCaptionChange = (event) => {
+    if (event.target.value.length > 1000) {
+      alert('글자수는 최대 1000자까지 입력 가능합니다.');
+    }
+
     setCaption(event.target.value);
   };
 
