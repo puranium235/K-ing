@@ -161,16 +161,16 @@ const PostUpload = ({ state }) => {
 
     if (!file) return;
 
-    if (
-      !file.name.endsWith('.jpg') ||
-      !file.name.endsWith('.png') ||
-      !file.name.endsWith('.heic')
-    ) {
-      alert('지원하지 않는 이미지 형식입니다.');
-      event.target.type = '';
-      event.target.type = 'file';
-      return;
-    }
+    // if (
+    //   file.name.endsWith('.jpg') ||
+    //   file.name.endsWith('.png') ||
+    //   file.name.endsWith('.heic')
+    // ) {
+    //   alert('지원하지 않는 이미지 형식입니다.');
+    //   event.target.type = '';
+    //   event.target.type = 'file';
+    //   return;
+    // }
 
     if (file.size > 5 * 1024 * 1024) {
       //5MB
@@ -434,7 +434,6 @@ const TemporaryButton = styled.button`
   border: 1px solid ${({ theme }) => theme.colors.Gray1};
   border-radius: 1rem;
 
-  width: 100%;
   padding: 1rem 2rem;
 
   color: ${({ theme }) => theme.colors.Gray1};
@@ -442,18 +441,17 @@ const TemporaryButton = styled.button`
 `;
 
 const SaveButton = styled.button`
+  border-radius: 1rem;
+  padding: 1rem 2rem;
+
+  height: 100%;
+
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+
+  ${({ theme }) => theme.fonts.Body2};
   background-color: ${({ theme, disabled }) =>
     disabled ? theme.colors.Gray5 : theme.colors.MainBlue};
   color: ${({ theme, disabled }) => (disabled ? theme.colors.Gray2 : theme.colors.White)};
-  border-radius: 1rem;
-  padding: 1rem 2rem;
-  width: 100%;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-
-  &:hover {
-    background-color: ${({ theme, disabled }) =>
-      disabled ? theme.colors.Gray5 : theme.colors.LightBlue};
-  }
 `;
 
 const StUploadModalWrapper = styled.div`
