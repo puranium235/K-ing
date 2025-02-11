@@ -67,6 +67,11 @@ public class CurationDraftService {
         String imageKey = draftKey + ":image";
 
         CurationPostRequestDTO draft = redisUtil.getJsonValue(draftKey, CurationPostRequestDTO.class);
+        byte[] imageData = redisUtil.getBinaryValue(imageKey);
+
+        if (draft == null && imageData == null) {
+            return null;
+        }
 
         CurationDraftResponseDTO responseDTO = new CurationDraftResponseDTO();
 
@@ -86,7 +91,6 @@ public class CurationDraftService {
             }
         }
 
-        byte[] imageData = redisUtil.getBinaryValue(imageKey);
         responseDTO.setImageData(imageData);
 
         return responseDTO;
