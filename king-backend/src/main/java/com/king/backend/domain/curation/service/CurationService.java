@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -99,7 +100,8 @@ public class CurationService {
                 ? cursorUtil.encodeCursor(List.of(curations.get(curations.size() - 1).getId()))
                 : null;
 
-        return CurationListResponseDTO.fromEntity(curations, nextCursor);
+        Set<Long> bookmarkedCurationIds = curationListBookmarkRepository.findCurationListIdByUserId(authId);
+        return CurationListResponseDTO.fromEntity(curations, bookmarkedCurationIds, nextCursor);
     }
 
     private List<CurationList> getPublicCurationList(List<Object> sortValues, int size) {
