@@ -99,6 +99,7 @@ public class FavoriteService {
             FavoriteResponseDto.Favorite dto = FavoriteResponseDto.Favorite.builder().build();
             dto.setFavoriteId(fav.getId());
             dto.setType(fav.getType());
+            dto.setTargetId(fav.getTargetId());
 
             if ("cast".equalsIgnoreCase(type)) {
                 Cast cast = castRepository.findById(fav.getTargetId())
