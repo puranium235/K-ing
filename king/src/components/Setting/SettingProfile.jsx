@@ -33,31 +33,56 @@ const SettingProfile = () => {
   const [commonTranslations, setCommonTranslations] = useState(commonLocales[language]);
   const [profileTranslations, setProfileTranslations] = useState(profileLocales[language]);
 
-  // console.log('🟠 SettingProfile.jsx에서 Recoil profileImage:', imageUrl);
-
   // 프로필 이미지 클릭 시 파일 선택창 열기
   const handleImageClick = () => {
     fileInputRef.current.click();
   };
 
   // 선택한 이미지 미리보기 업데이트
-  const handleImageChange = (event) => {
+  const handleImageChange = async (event) => {
     const file = event.target.files[0];
 
-    if (file) {
-      // 🔹 파일 크기 체크 (5MB 초과 시 업로드 차단)
-      const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-      if (file.size > MAX_SIZE) {
-        alert('이미지 파일 크기가 5MB를 초과할 수 없습니다.');
-        setErrorMessage('이미지 파일 크기는 최대 5MB까지 업로드 가능합니다.');
-        return; // ✅ 5MB 초과 시 setSelectedImage, setImageFile 실행 안 함
-      }
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      //5MB
+      alert('업로드 가능한 최대 용량은 5MB입니다. ');
+      setErrorMessage('이미지 파일 크기는 최대 5MB까지 업로드 가능합니다.');
+      event.target.type = '';
+      event.target.type = 'file';
+      return;
+    }
 
-      // ✅ 정상적인 경우에만 이미지 설정
+    if (file.name.endsWith('.heic') || file.name.endsWith('.heif')) {
+      //heic 이미지 처리
+      try {
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+        });
+
+        console.log(convertedBlob);
+
+        const newFilename = file.name.replace(/\.(heic|heif)$/i, '.jpg'); // Regex to replace both .heic and .heif
+        const newFile = new File([convertedBlob], newFilename, {
+          type: 'image/jpeg',
+          lastModified: new Date().getTime(),
+        });
+
+        console.log(newFile);
+
+        setImageFile(newFile);
+        setImage(URL.createObjectURL(newFile));
+      } catch (error) {
+        console.error(error);
+        alert('HEIC 파일 변환에 실패했습니다.');
+      }
+    }
+    // 정상적인 경우에만 이미지 설정
+    else {
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
       setImageFile(file);
-      setErrorMessage(''); // 기존 에러 메시지 초기화
+      setImage(URL.createObjectURL(file));
     }
   };
 
@@ -98,7 +123,7 @@ const SettingProfile = () => {
     }
   }, [newNickname, translations]);
 
-  // ✅ 닉네임 중복 검사 (기존 닉네임이면 검사 생략)
+  // 닉네임 중복 검사 (기존 닉네임이면 검사 생략)
   useEffect(() => {
     if (!isValidName) return;
 
@@ -122,6 +147,14 @@ const SettingProfile = () => {
 
     return () => clearTimeout(timer);
   }, [newNickname, isValidName]);
+
+  // description 글자수 제한 (150자)
+  const handleDescriptionChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= 150) {
+      setNewDescription(value);
+    }
+  };
 
   // ✅ 토큰에서 언어 설정 가져오기
   useEffect(() => {
@@ -192,7 +225,7 @@ const SettingProfile = () => {
           <St.ProfileImage src={selectedImage} alt="프로필 이미지" />
           <input
             type="file"
-            accept="image/*"
+            accept="image/png, image/jpeg, image/heic"
             ref={fileInputRef}
             onChange={handleImageChange}
             style={{ display: 'none' }}
@@ -218,7 +251,8 @@ const SettingProfile = () => {
         {/* 소개 수정 */}
         <St.Section>
           <St.Label>{profileTranslations.description}</St.Label>
-          <St.TextArea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+          <St.TextArea value={newDescription} onChange={handleDescriptionChange} maxLength={150} />
+          <St.Counter>{newDescription.length} / 150</St.Counter>
         </St.Section>
       </St.ContentWrapper>
 
@@ -270,6 +304,7 @@ const St = {
     font-weight: bold;
     display: block;
     margin-bottom: 0.5rem;
+    padding: 0.5rem;
   `,
   Input: styled.input`
     width: 100%;
@@ -277,15 +312,23 @@ const St = {
     border: 1px solid ${({ theme }) => theme.colors.Gray2};
     border-radius: 5px;
     box-sizing: border-box;
+    ${({ theme }) => theme.fonts.Body3};
   `,
   TextArea: styled.textarea`
     width: 100%;
-    height: 80px;
+    height: 13rem;
     padding: 1rem;
     border: 1px solid ${({ theme }) => theme.colors.Gray2};
     border-radius: 5px;
     resize: none;
     box-sizing: border-box;
+    ${({ theme }) => theme.fonts.Body3};
+  `,
+  Counter: styled.div`
+    text-align: right;
+    font-size: 0.875rem;
+    color: ${({ theme }) => theme.colors.Gray2};
+    margin-top: 0.5rem;
   `,
   StatusMessageWrapper: styled.div`
     height: 1.6rem;
@@ -321,18 +364,12 @@ const St = {
 
 const ErrorMessage = styled.p`
   color: red;
-  font-size: 1.2rem;
   margin-top: 0.5rem;
-`;
-
-const InfoMessage = styled.p`
-  color: ${({ theme }) => theme.colors.Gray1};
-  font-size: 1.2rem;
-  margin-top: 0.5rem;
+  ${({ theme }) => theme.fonts.Body4};
 `;
 
 const SuccessMessage = styled.p`
   color: green;
-  font-size: 1.2rem;
+  ${({ theme }) => theme.fonts.Body4};
   margin-top: 0.5rem;
 `;

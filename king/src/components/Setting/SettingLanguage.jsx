@@ -22,34 +22,23 @@ const SettingLanguage = () => {
   const handleLanguageChange = async (languageCode) => {
     setSelectedLanguage(languageCode);
 
-    try {
-      // 🔹 API 요청 (서버에 언어 변경)
-      const updatedProfile = await updateUserProfile({ language: languageCode });
+    // 언어 변경
+    const updatedProfile = await updateUserProfile({ language: languageCode });
 
-      // 🔹 Recoil 상태 업데이트
-      setProfile((prev) => ({
-        ...prev,
-        language: updatedProfile.data.language,
-      }));
-
-      // console.log(`🌍 언어 변경 성공: ${updatedProfile.data.language}`);
-    } catch (error) {
-      // console.error('❌ 언어 변경 실패:', error);
-      alert('언어 변경 중 오류가 발생했습니다.');
-    }
+    // Recoil 상태 업데이트
+    setProfile((prev) => ({
+      ...prev,
+      language: updatedProfile.data.language,
+    }));
   };
 
   useEffect(() => {
     const fetchProfile = async () => {
-      try {
-        const accessToken = localStorage.getItem('accessToken');
-        if (!profile || !profile.nickname) {
-          // ✅ Recoil 상태가 비어 있을 때만 요청
-          const data = await getUserProfile(jwtDecode(accessToken).userId);
-          setProfile(data.data); // ✅ Recoil 상태 업데이트
-        }
-      } catch (error) {
-        console.error('❌ 프로필 데이터를 불러오는 중 오류 발생:', error);
+      const accessToken = localStorage.getItem('accessToken');
+      if (!profile || !profile.nickname) {
+        // Recoil 상태가 비어 있을 때만 요청
+        const data = await getUserProfile(jwtDecode(accessToken).userId);
+        setProfile(data.data); // Recoil 상태 업데이트
       }
     };
 
