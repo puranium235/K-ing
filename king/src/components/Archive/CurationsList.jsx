@@ -54,4 +54,12 @@ const StCurationList = styled.div`
   gap: 0.1rem;
   width: 100%;
   overflow-y: auto;
+
+  /* 스크롤바를 보이지 않게 설정 */
+  &::-webkit-scrollbar {
+    display: none; /* 크롬, 사파리 등 Webkit 기반 브라우저 */
+  }
+
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE, Edge */
 `;
