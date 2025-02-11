@@ -221,6 +221,7 @@ const PostUpload = ({ state }) => {
         </IconText>
 
         <ImageUploadWrapper
+          onClick={triggerFileInput}
           $isImage={image ? true : false}
           style={{ backgroundImage: `url(${image})` }}
         >
@@ -231,11 +232,7 @@ const PostUpload = ({ state }) => {
             style={{ display: 'none' }}
             ref={fileInputRef}
           />
-          {image ? (
-            <IcImageUploadTrue onClick={triggerFileInput} />
-          ) : (
-            <IcImageUpload onClick={triggerFileInput} />
-          )}
+          {image ? <IcImageUploadTrue /> : <IcImageUpload />}
           {image ? <h3>사진 재업로드하기</h3> : <h3>사진 업로드하기</h3>}
           <p>PNG, JPG 형식만 지원됩니다.</p>
         </ImageUploadWrapper>
@@ -332,14 +329,15 @@ const ImageUploadWrapper = styled.div`
   position: relative;
 
   background-color: ${({ theme }) => theme.colors.Gray5};
+  background-image: ${({ $imageUrl }) => ($imageUrl ? `url(${$imageUrl})` : 'none')};
   background-size: cover;
   background-position: center;
   border-radius: 1rem;
 
   cursor: pointer;
 
-  ${({ isImage }) =>
-    isImage &&
+  ${({ $isImage }) =>
+    $isImage &&
     `
     &:after {
       content: "";
@@ -348,22 +346,29 @@ const ImageUploadWrapper = styled.div`
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.4);
       border-radius: 1rem;
-      z-index:1000;
+      z-index: 2;
     }
   `}
+
+  svg {
+    z-index: 3;
+  }
+
   h3 {
     z-index: 1;
 
     color: ${({ theme, $isImage }) => ($isImage ? theme.colors.White : theme.colors.Gray0)};
     ${({ theme }) => theme.fonts.Title4};
+    z-index: 3;
   }
 
   p {
     z-index: 1;
     color: ${({ theme, $isImage }) => ($isImage ? theme.colors.White : '#464656')};
     ${({ theme }) => theme.fonts.Body4};
+    z-index: 3;
   }
 `;
 
