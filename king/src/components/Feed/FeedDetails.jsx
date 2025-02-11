@@ -175,7 +175,7 @@ const FeedDetails = () => {
         )}
       </Header>
       <UserInfo>
-        <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="default" />
+        <Profile style={{ backgroundImage: `url(${userInfo.imageUrl})` }} alt="default" />
         <UserName>{writer.nickname}</UserName>
       </UserInfo>
 
@@ -369,6 +369,10 @@ const LikeCount = styled.div`
 
   ${({ theme }) => theme.fonts.Title5};
   color: ${({ theme }) => theme.colors.Gray1};
+
+  svg {
+    cursor: pointer;
+  }
 `;
 const CommentCount = styled.div`
   display: flex;
