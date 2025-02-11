@@ -53,7 +53,9 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
 
   const handleSubmit = () => {
     setAutoCompleteOptions([]);
-    onSearch(keyword, category);
+    if (onSearch) {
+      onSearch(keyword, category);
+    }
   };
 
   const handleKeyEnter = (e) => {
