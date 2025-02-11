@@ -53,4 +53,25 @@ public class BookmarkService {
 
         curationListBookmarkRepository.save(curationListBookmark);
     }
+
+    @Transactional
+    public void deleteBookmark(BookmarkRequestDTO requestDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
+        Long userId = Long.parseLong(authUser.getName());
+        User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        CurationList curationList = curationListRepository.findById(requestDTO.getCurationId())
+                .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
+
+        if (!curationList.isPublic() && !curationList.getWriter().equals(user)) {
+            throw new CustomException(CurationErrorCode.CURATION_NOT_FOUND);
+        }
+
+        CurationListBookmark bookmark = curationListBookmarkRepository.findByCurationListAndUser(curationList, user)
+                .orElseThrow(() -> new CustomException(CurationErrorCode.NOT_BOOKMARKED));
+
+        curationListBookmarkRepository.delete(bookmark);
+    }
 }

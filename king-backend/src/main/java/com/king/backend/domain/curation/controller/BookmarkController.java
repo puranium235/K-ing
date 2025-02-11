@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/bookmark")
@@ -27,6 +24,13 @@ public class BookmarkController {
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> postBookmark(@RequestBody BookmarkRequestDTO requestDTO) {
         bookmarkService.postBookmark(requestDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(null));
+    }
+
+    @Operation(summary = "북마크 해제")
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteBookmark(@RequestBody BookmarkRequestDTO requestDTO) {
+        bookmarkService.deleteBookmark(requestDTO);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
     }
 }
