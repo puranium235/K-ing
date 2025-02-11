@@ -340,16 +340,16 @@ const Location = styled.span`
 
 const PostImageWrapper = styled.div`
   width: 100%;
-  height: 30rem;
+  /* height: 30rem;
 
   display: flex;
 
-  border: 1px solid ${({ theme }) => theme.colors.Gray2};
+  border: 1px solid ${({ theme }) => theme.colors.Gray2}; */
 `;
 
 const PostImage = styled.img`
   width: 100%;
-  max-height: 30rem;
+  /* max-height: 30rem; */
 
   object-fit: contain;
 `;
@@ -461,6 +461,7 @@ const FooterWrapper = styled.div`
   justify-content: center;
 
   gap: 0.5rem;
+  margin-bottom: 1rem;
 
   ${({ theme }) => theme.fonts.Body4};
   color: ${({ theme }) => theme.colors.Gray1};
