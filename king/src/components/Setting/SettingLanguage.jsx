@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { updateUserProfile } from '../../lib/user';
 import { getUserProfile } from '../../lib/user';
 import { ProfileState } from '../../recoil/atom';
+import { setLanguage } from '../../util/languageUtils';
 import SettingHeader from './SettingHeader';
 
 const languages = [
@@ -21,6 +22,8 @@ const SettingLanguage = () => {
 
   const handleLanguageChange = async (languageCode) => {
     setSelectedLanguage(languageCode);
+
+    setLanguage(languageCode);
 
     // API 요청 (언어 변경)
     const updatedProfile = await updateUserProfile({ language: languageCode });
@@ -47,7 +50,7 @@ const SettingLanguage = () => {
 
   return (
     <StSettingLanguageWrapper>
-      <SettingHeader title="언어" />
+      <SettingHeader />
       <St.LanguageList>
         {languages.map((lang) => (
           <St.LanguageItem key={lang.code} onClick={() => handleLanguageChange(lang.code)}>

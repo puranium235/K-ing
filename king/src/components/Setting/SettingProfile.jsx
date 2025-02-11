@@ -6,10 +6,8 @@ import styled from 'styled-components';
 import KingLogo from '../../assets/icons/king_logo.png';
 import { checkNickname } from '../../lib/auth';
 import { getUserProfile, updateUserProfile } from '../../lib/user';
-import commonLocales from '../../locales/common.json';
-import profileLocales from '../../locales/profile.json';
-import signupLocales from '../../locales/signup.json';
 import { ProfileState } from '../../recoil/atom';
+import { getLanguage, getTranslations, setLanguage } from '../../util/languageUtils';
 import SettingHeader from './SettingHeader';
 
 const SettingProfile = () => {
@@ -28,10 +26,8 @@ const SettingProfile = () => {
   const [checkingName, setCheckingName] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [language, setLanguage] = useState('ko'); // 기본 언어 설정
-  const [translations, setTranslations] = useState(signupLocales[language]);
-  const [commonTranslations, setCommonTranslations] = useState(commonLocales[language]);
-  const [profileTranslations, setProfileTranslations] = useState(profileLocales[language]);
+  const [language, setLangState] = useState(getLanguage());
+  const { common, profile: profileTranslations, signup: translations } = getTranslations(language);
 
   // 프로필 이미지 클릭 시 파일 선택창 열기
   const handleImageClick = () => {
@@ -158,20 +154,21 @@ const SettingProfile = () => {
 
   // 토큰에서 언어 설정 가져오기
   useEffect(() => {
-    try {
-      const accessToken = localStorage.getItem('accessToken');
-      if (accessToken) {
-        const decoded = jwtDecode(accessToken);
-        if (decoded.language) {
-          setLanguage(decoded.language);
-          setTranslations(signupLocales[decoded.language]);
-          setCommonTranslations(commonLocales[decoded.language]);
-          setProfileTranslations(profileLocales[decoded.language]);
-        }
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      const decoded = jwtDecode(accessToken);
+      if (decoded.language && decoded.language !== language) {
+        setLanguage(decoded.language);
+        setLangState(decoded.language);
       }
-    } catch (error) {
-      console.error('토큰 디코딩 실패:', error);
     }
+  }, []);
+
+  // 전역 언어 변경 감지하여 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLangState(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
   }, []);
 
   // 변경 사항 저장
@@ -205,7 +202,7 @@ const SettingProfile = () => {
 
   return (
     <StSettingProfileWrapper>
-      <SettingHeader title={profileTranslations.editProfile} />
+      <SettingHeader />
 
       <St.ContentWrapper>
         {/* 프로필 사진 */}
@@ -247,7 +244,7 @@ const SettingProfile = () => {
       {/* 저장 버튼 */}
       <St.ButtonWrapper>
         <St.SaveButton disabled={!isValidName || !isNameAvailable} onClick={handleSave}>
-          {commonTranslations.save}
+          {common.save}
         </St.SaveButton>
       </St.ButtonWrapper>
     </StSettingProfileWrapper>

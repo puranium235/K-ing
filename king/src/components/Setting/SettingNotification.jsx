@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { updateNotificationSetting } from '../../lib/user';
 import { ProfileState } from '../../recoil/atom';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import SettingHeader from './SettingHeader';
 
 const SettingNotification = () => {
   const [profile, setProfile] = useRecoilState(ProfileState);
+  const [language, setLanguage] = useState(getLanguage());
+  const { notification: notificationTranslations = {} } = getTranslations(language);
+
+  // 언어 변경 감지하여 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
+  // 번역 데이터 적용
+  const title = notificationTranslations.pushNotification;
+  const description = notificationTranslations.pushNotificationDescription;
+
   const isToggled = profile.contentAlarmOn || false;
 
   const handleToggle = async () => {
@@ -25,11 +40,11 @@ const SettingNotification = () => {
 
   return (
     <StSettingNotificationWrapper>
-      <SettingHeader title="알림" />
+      <SettingHeader />
       <St.NotificationWrapper>
         <St.TextWrapper>
-          <St.Title>서비스 앱 푸시 알림</St.Title>
-          <St.Description>관심있는 촬영지 정보를 빠르게 알려드릴게요.</St.Description>
+          <St.Title>{title}</St.Title>
+          <St.Description>{description}</St.Description>
         </St.TextWrapper>
 
         <St.ToggleWrapper onClick={handleToggle} $isToggled={isToggled}>
