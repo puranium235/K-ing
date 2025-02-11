@@ -2,6 +2,7 @@ package com.king.backend.domain.curation.service;
 
 import com.king.backend.domain.curation.dto.request.CurationPostRequestDTO;
 import com.king.backend.domain.curation.dto.response.CurationDraftResponseDTO;
+import com.king.backend.domain.curation.errorcode.CurationErrorCode;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.post.errorcode.PostErrorCode;
@@ -26,6 +27,22 @@ public class CurationDraftService {
     private final PlaceRepository placeRepository;
 
     public void saveDraft(CurationPostRequestDTO reqDto, MultipartFile imageFile) {
+        if (reqDto.getTitle() != null && reqDto.getTitle().length() > 50) {
+            throw new CustomException(CurationErrorCode.INVALID_VALUE);
+        }
+
+        if (reqDto.getDescription() != null && reqDto.getDescription().length() > 1000) {
+            throw new CustomException(CurationErrorCode.INVALID_VALUE);
+        }
+
+        if (reqDto.getPlaceIds() != null && !reqDto.getPlaceIds().isEmpty()) {
+            reqDto.getPlaceIds()
+                    .forEach((placeId) -> {
+                        placeRepository.findById(placeId)
+                                .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
+                    });
+        }
+
         String draftKey = getDraftKey();
         String imageKey = draftKey + ":image";
 
