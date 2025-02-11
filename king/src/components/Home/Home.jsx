@@ -28,7 +28,7 @@ const Home = () => {
     { icon: IcDrama, label: '드라마', contentType: 'drama' },
     { icon: IcMovie, label: '영화', contentType: 'movie' },
     { icon: IcShow, label: '예능', contentType: 'show' },
-    { icon: IcCeleb, label: '연예인', contentType: 'cast' },
+    { icon: IcCeleb, label: '인물', contentType: 'cast' },
   ];
 
   useEffect(() => {
@@ -116,7 +116,7 @@ const StHomeWrapper = styled.div`
   align-items: flex-start;
   text-align: center;
   padding: 2rem;
-  margin-bottom: 7rem;
+  margin-bottom: 10rem;
 `;
 
 const GenreWrapper = styled.div`
