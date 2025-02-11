@@ -61,6 +61,8 @@ public class CurationDraftService {
             } catch (IOException e) {
                 throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
             }
+        } else {
+            redisUtil.deleteBinaryValue(imageKey);
         }
     }
 
