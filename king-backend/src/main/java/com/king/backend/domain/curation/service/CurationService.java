@@ -230,6 +230,7 @@ public class CurationService {
             throw new CustomException(CurationErrorCode.FORBIDDEN_CURATION);
         }
 
+        curationListBookmarkRepository.deleteAllByCurationList(curation);
         curationListItemRepository.deleteAllByCurationList(curation);
         curationListRepository.delete(curation);
     }

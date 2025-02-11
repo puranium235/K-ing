@@ -17,4 +17,6 @@ public interface CurationListBookmarkRepository extends JpaRepository<CurationLi
 
     @Query("SELECT b.curationList.id FROM CurationListBookmark b WHERE b.user.id = :userId")
     Set<Long> findCurationListIdByUserId(Long userId);
+
+    void deleteAllByCurationList(CurationList curationList);
 }
