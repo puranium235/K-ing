@@ -1,7 +1,7 @@
 package com.king.backend.domain.curation.service;
 
-import com.king.backend.domain.curation.dto.request.CurationListRequestDTO;
-import com.king.backend.domain.curation.dto.request.CurationPostRequestDTO;
+import com.king.backend.domain.curation.dto.request.CurationQueryRequestDTO;
+import com.king.backend.domain.curation.dto.request.CurationRequestDTO;
 import com.king.backend.domain.curation.dto.response.CurationDetailResponseDTO;
 import com.king.backend.domain.curation.dto.response.CurationListResponseDTO;
 import com.king.backend.domain.curation.entity.CurationList;
@@ -71,7 +71,7 @@ public class CurationService {
     }
 
     @Transactional
-    public CurationListResponseDTO getCurations(CurationListRequestDTO requestDTO) {
+    public CurationListResponseDTO getCurations(CurationQueryRequestDTO requestDTO) {
         Long userId = requestDTO.getUserId();
         String cursor = requestDTO.getCursor();
         int size = Optional.ofNullable(requestDTO.getSize()).orElse(10);
@@ -130,7 +130,7 @@ public class CurationService {
     }
 
     @Transactional
-    public CurationDetailResponseDTO postCuration(CurationPostRequestDTO requestDTO, MultipartFile imageFile) {
+    public CurationDetailResponseDTO postCuration(CurationRequestDTO requestDTO, MultipartFile imageFile) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(authUser.getName());
@@ -186,7 +186,7 @@ public class CurationService {
     }
 
     @Transactional
-    public CurationDetailResponseDTO putCuration(Long curationId, CurationPostRequestDTO requestDTO, MultipartFile imageFile) {
+    public CurationDetailResponseDTO putCuration(Long curationId, CurationRequestDTO requestDTO, MultipartFile imageFile) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(authUser.getName());
