@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -113,8 +114,17 @@ public class RagSearchService {
                 }
                 result.setRelatedName(relatedName);
                 result.setDescription(relatedDescription);
-                return result;
-            }).collect(Collectors.toList());
+
+                if (!relatedName.isEmpty() || !relatedDescription.isEmpty()) {
+                    result.setRelatedName(relatedName);
+                    result.setDescription(relatedDescription);
+                    return result;
+                }
+
+                return null;
+            })
+                    .filter((Objects::nonNull))
+            .collect(Collectors.toList());
 
             return new PlaceSearchResponseDto(results);
         } catch (IOException e) {
