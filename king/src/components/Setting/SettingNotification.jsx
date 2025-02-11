@@ -13,20 +13,14 @@ const SettingNotification = () => {
   const handleToggle = async () => {
     const newToggleState = !isToggled;
 
-    try {
-      // 🔹 API 요청 (알람 설정 변경)
-      const response = await updateNotificationSetting(newToggleState);
-      // console.log('✅ 알람 설정 변경 성공:', response);
+    // API 요청 (알람 설정 변경)
+    const response = await updateNotificationSetting(newToggleState);
 
-      // 🔹 Recoil 상태 업데이트
-      setProfile((prev) => ({
-        ...prev,
-        contentAlarmOn: response.data.contentAlarmOn,
-      }));
-    } catch (error) {
-      // console.error('❌ 알람 설정 변경 실패:', error);
-      alert('알람 설정 변경 중 오류가 발생했습니다.');
-    }
+    // Recoil 상태 업데이트
+    setProfile((prev) => ({
+      ...prev,
+      contentAlarmOn: response.data.contentAlarmOn,
+    }));
   };
 
   return (
@@ -38,7 +32,6 @@ const SettingNotification = () => {
           <St.Description>관심있는 촬영지 정보를 빠르게 알려드릴게요.</St.Description>
         </St.TextWrapper>
 
-        {/* ✅ 토글 버튼 (배경 고정 & 부드러운 애니메이션 적용) */}
         <St.ToggleWrapper onClick={handleToggle} $isToggled={isToggled}>
           <St.ToggleBall $isToggled={isToggled} />
         </St.ToggleWrapper>

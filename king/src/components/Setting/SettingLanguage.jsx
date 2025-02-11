@@ -22,7 +22,7 @@ const SettingLanguage = () => {
   const handleLanguageChange = async (languageCode) => {
     setSelectedLanguage(languageCode);
 
-    // 언어 변경
+    // API 요청 (언어 변경)
     const updatedProfile = await updateUserProfile({ language: languageCode });
 
     // Recoil 상태 업데이트

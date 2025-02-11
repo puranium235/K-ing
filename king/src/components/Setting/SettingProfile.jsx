@@ -92,9 +92,9 @@ const SettingProfile = () => {
       try {
         const accessToken = localStorage.getItem('accessToken');
         if (!profile || !profile.nickname) {
-          // ✅ Recoil 상태가 비어있을 때만 요청
+          // Recoil 상태가 비어있을 때만 요청
           const data = await getUserProfile(jwtDecode(accessToken).userId);
-          setProfile(data.data); // ✅ Recoil 상태 업데이트
+          setProfile(data.data); // Recoil 상태 업데이트
         }
       } catch (error) {
         console.error('❌ 프로필 데이터를 불러오는 중 오류 발생:', error);
@@ -156,7 +156,7 @@ const SettingProfile = () => {
     }
   };
 
-  // ✅ 토큰에서 언어 설정 가져오기
+  // 토큰에서 언어 설정 가져오기
   useEffect(() => {
     try {
       const accessToken = localStorage.getItem('accessToken');
@@ -180,39 +180,27 @@ const SettingProfile = () => {
       alert(translations.nicknameErrorDuplicate);
       return;
     }
+    const updatedProfile = {};
 
-    try {
-      const updatedProfile = {};
+    // 변경된 값만 저장
+    if (newNickname !== nickname) updatedProfile.nickname = newNickname;
+    if (newDescription !== description) updatedProfile.description = newDescription;
 
-      // ✅ 변경된 값만 저장
-      if (newNickname !== nickname) updatedProfile.nickname = newNickname;
-      if (newDescription !== description) updatedProfile.description = newDescription;
-
-      if (Object.keys(updatedProfile).length === 0 && !imageFile) {
-        alert('변경된 사항이 없습니다.');
-        return;
-      }
-
-      console.log('📤 업데이트 요청 데이터:', updatedProfile);
-
-      // ✅ API 호출
-      const response = await updateUserProfile(updatedProfile, imageFile);
-
-      console.log('✅ 업데이트 성공:', response);
-
-      // ✅ Recoil 상태 업데이트
-      setProfile((prev) => ({
-        ...prev,
-        ...updatedProfile, // 변경된 값만 반영
-        imageUrl: response.data.imageUrl || prev.imageUrl, // 이미지가 변경되지 않았다면 기존 이미지 유지
-      }));
-
-      alert('프로필이 저장되었습니다!');
-    } catch (error) {
-      console.error('❌ 프로필 저장 실패:', error);
-      alert('프로필 저장 중 오류가 발생했습니다.');
-      console.log(imageFile.size);
+    if (Object.keys(updatedProfile).length === 0 && !imageFile) {
+      return;
     }
+
+    // API 호출
+    const response = await updateUserProfile(updatedProfile, imageFile);
+
+    // Recoil 상태 업데이트
+    setProfile((prev) => ({
+      ...prev,
+      ...updatedProfile, // 변경된 값만 반영
+      imageUrl: response.data.imageUrl || prev.imageUrl, // 이미지가 변경되지 않았다면 기존 이미지 유지
+    }));
+
+    alert('프로필이 저장되었습니다!');
   };
 
   return (
