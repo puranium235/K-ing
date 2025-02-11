@@ -21,7 +21,6 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
     debounce(async (searchText) => {
       const res = await getAutoKeyword(searchText, type);
       setAutoCompleteOptions(res.results);
-      // console.log(res.results);
     }, 300),
     [type],
   );
@@ -37,8 +36,8 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
     setContentType('autocom');
 
     if (onSet) {
-      onSet(option);
       setAutoCompleteOptions([]);
+      onSet(option);
       return;
     }
 
@@ -75,12 +74,12 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
         onFocus={onFocus}
         onBlur={onBlur}
       />
-      <IcSearch onClick={handleSubmit} />
+      <IcSearch onClick={(event) => handleSubmit(event)} />
       {autoCompleteOptions.length > 0 && (
         <AutoSearchContainer>
           <AutoSearchWrap>
             {autoCompleteOptions.map((option, index) => (
-              <AutoSearchData key={index} onClick={() => handleOptionClick(option)}>
+              <AutoSearchData key={index} onClick={(event) => handleOptionClick(option, event)}>
                 {option.name} <a>{getContentTypeKor(option.category.toLowerCase())}</a>
               </AutoSearchData>
             ))}
