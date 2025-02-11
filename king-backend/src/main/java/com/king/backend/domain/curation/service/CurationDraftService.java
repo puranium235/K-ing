@@ -1,6 +1,9 @@
 package com.king.backend.domain.curation.service;
 
 import com.king.backend.domain.curation.dto.request.CurationPostRequestDTO;
+import com.king.backend.domain.curation.dto.response.CurationDraftResponseDTO;
+import com.king.backend.domain.place.errorcode.PlaceErrorCode;
+import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.post.errorcode.PostErrorCode;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.global.errorcode.RedisErrorCode;
@@ -13,12 +16,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class CurationDraftService {
 
     private final RedisUtil redisUtil;
+    private final PlaceRepository placeRepository;
 
     public void saveDraft(CurationPostRequestDTO reqDto, MultipartFile imageFile) {
         String draftKey = getDraftKey();
@@ -38,6 +43,36 @@ public class CurationDraftService {
                 throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
             }
         }
+    }
+
+    public CurationDraftResponseDTO getDraft() {
+        String draftKey = getDraftKey();
+        String imageKey = draftKey + ":image";
+
+        CurationPostRequestDTO draft = redisUtil.getJsonValue(draftKey, CurationPostRequestDTO.class);
+
+        CurationDraftResponseDTO responseDTO = new CurationDraftResponseDTO();
+
+        if (draft != null) {
+            responseDTO.setTitle(draft.getTitle());
+            responseDTO.setDescription(draft.getDescription());
+            responseDTO.setIsPublic(draft.getIsPublic());
+
+            if (draft.getPlaceIds() != null) {
+                List<CurationDraftResponseDTO.PlaceDTO> places = draft.getPlaceIds().stream()
+                        .map(placeId -> placeRepository.findById(placeId)
+                                .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND)))
+                        .map(CurationDraftResponseDTO.PlaceDTO::fromEntity)
+                        .toList();
+
+                responseDTO.setPlaces(places);
+            }
+        }
+
+        byte[] imageData = redisUtil.getBinaryValue(imageKey);
+        responseDTO.setImageData(imageData);
+
+        return responseDTO;
     }
 
     private String getDraftKey() {
