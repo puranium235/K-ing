@@ -38,9 +38,8 @@ const StActionsWrapper = styled.div`
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  padding: 2.5rem;
+  padding: 3.5rem;
   margin-top: auto; /* ✅ 하단에 고정 */
-  color: ${({ theme }) => theme.colors.Gray3};
 `;
 
 const StLogoutButton = styled.button`
