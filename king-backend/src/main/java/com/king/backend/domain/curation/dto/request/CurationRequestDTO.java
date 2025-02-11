@@ -15,6 +15,6 @@ public class CurationRequestDTO {
     @Schema(description = "큐레이션 설명", example = "이 큐레이션은 유명한 영화 촬영지를 소개합니다.", maxLength = 1000)
     String description;
 
-    Boolean isPublic;
+    boolean isPublic = true;
     List<Long> placeIds;
 }

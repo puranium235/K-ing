@@ -82,7 +82,7 @@ public class CurationDraftService {
         if (draft != null) {
             responseDTO.setTitle(draft.getTitle());
             responseDTO.setDescription(draft.getDescription());
-            responseDTO.setIsPublic(draft.getIsPublic());
+            responseDTO.setIsPublic(draft.isPublic());
 
             List<CurationDraftResponseDTO.PlaceDTO> places = new ArrayList<>();
             if (draft.getPlaceIds() != null) {

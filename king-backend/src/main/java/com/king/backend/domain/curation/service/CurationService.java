@@ -139,7 +139,6 @@ public class CurationService {
 
         if (!ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getTitle(), 50)
                 || requestDTO.getDescription().length() > 1000
-                || requestDTO.getIsPublic() == null
                 || requestDTO.getPlaceIds().isEmpty()) {
             throw new CustomException(CurationErrorCode.INVALID_VALUE);
         }
@@ -152,7 +151,7 @@ public class CurationService {
         String imageUrl = s3Service.uploadFile(curation, imageFile);
         curation.setTitle(requestDTO.getTitle());
         curation.setDescription(requestDTO.getDescription());
-        curation.setPublic(requestDTO.getIsPublic());
+        curation.setPublic(requestDTO.isPublic());
         curation.setImageUrl(imageUrl);
         curation.setWriter(user);
         curation.setCreatedAt(OffsetDateTime.now());
@@ -202,7 +201,6 @@ public class CurationService {
 
         if (!ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getTitle(), 50)
                 || requestDTO.getDescription().length() > 1000
-                || requestDTO.getIsPublic() == null
                 || requestDTO.getPlaceIds().isEmpty()) {
             throw new CustomException(CurationErrorCode.INVALID_VALUE);
         }
@@ -213,7 +211,7 @@ public class CurationService {
         }
         curation.setTitle(requestDTO.getTitle());
         curation.setDescription(requestDTO.getDescription());
-        curation.setPublic(requestDTO.getIsPublic());
+        curation.setPublic(requestDTO.isPublic());
 
         curationListRepository.save(curation);
 

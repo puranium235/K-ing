@@ -37,7 +37,7 @@ public class CurationController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(curationService.getCurations(requestDTO)));
     }
 
-    @Operation(summary = "큐레이션 등록")
+    @Operation(summary = "큐레이션 생성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<CurationDetailResponseDTO>> postCurations(
             @RequestPart(value = "curation") CurationRequestDTO requestDTO,
