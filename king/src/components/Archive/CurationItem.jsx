@@ -16,7 +16,7 @@ const CurationItem = ({ item }) => {
   };
 
   const handleCurationClick = () => {
-    navigate(`/curation/${id}`);
+    // navigate(`/curation/${id}`);
   };
 
   // BE 연결 후 테스트 필요
