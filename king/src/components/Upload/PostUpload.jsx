@@ -160,6 +160,18 @@ const PostUpload = ({ state }) => {
     const file = event.target.files[0];
 
     if (!file) return;
+
+    if (
+      !file.name.endsWith('.jpg') ||
+      !file.name.endsWith('.png') ||
+      !file.name.endsWith('.heic')
+    ) {
+      alert('지원하지 않는 이미지 형식입니다.');
+      event.target.type = '';
+      event.target.type = 'file';
+      return;
+    }
+
     if (file.size > 5 * 1024 * 1024) {
       //5MB
       alert('업로드 가능한 최대 용량은 5MB입니다. ');
