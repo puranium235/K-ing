@@ -66,6 +66,9 @@ const MapSearchPlaces = () => {
     if (Object.values(filterOption.categories).every((value) => !value)) return true;
     return filterOption.categories[place.type];
   });
+  // console.log('마커 개수:', places.length);
+  // const filteredPlaces = places.slice(0, 6000); // limit
+  // console.log('필터 마커커 개수:', filteredPlaces.length);
 
   if (loading) return <Loading />;
 
