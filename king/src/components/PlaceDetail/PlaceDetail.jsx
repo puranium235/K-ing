@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import Nav from '/src/components/common/Nav';
 
+import { IcPencil } from '../../assets/icons';
 import { getPlaceDetail } from '../../lib/place';
 import Bottom from '../common/Bottom';
 import DetailHeader from '../common/DetailHeader';
@@ -57,8 +58,16 @@ const PlaceDetail = () => {
       />
 
       <Content>
+        {/* 길찾기, 공유 버튼 */}
+        <FunctionButton dest={placeData.name} />
+        {/* 장소 상세 정보 */}
+        <PlaceInfo placeData={placeData} />
+
         {/* 장소 관련 작품 정보 */}
-        관련 작품
+        <IconText>
+          <IcPencil />
+          <p>관련 작품</p>
+        </IconText>
         {displayRelatedContents.map((info) => (
           <ContentsInfo key={info.contentId} info={info} />
         ))}
@@ -69,10 +78,7 @@ const PlaceDetail = () => {
             </ShowMoreButton>
           )}
         </ContentButtonWrapper>
-        {/* 길찾기, 공유 버튼 */}
-        <FunctionButton dest={placeData.name} />
-        {/* 장소 상세 정보 */}
-        <PlaceInfo placeData={placeData} />
+
         <BottomContainer>
           <ActionButton onClick={handleRoute}>다른 팬의 인증샷이 궁금하다면?</ActionButton>
         </BottomContainer>
@@ -107,6 +113,27 @@ const ShowMoreButton = styled.button`
 
   ${({ theme }) => theme.fonts.Body4};
   color: ${({ theme }) => theme.colors.Gray0};
+`;
+
+const IconText = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 1rem 0;
+
+  svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  p {
+    width: 100%;
+    padding: 0.5rem 0;
+    text-align: left;
+    ${({ theme }) => theme.fonts.Title4};
+  }
 `;
 
 const BottomContainer = styled.div`
