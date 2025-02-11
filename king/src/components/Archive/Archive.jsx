@@ -45,7 +45,7 @@ const St = {
     top: 0;
     background-color: ${({ theme }) => theme.colors.White};
     z-index: 10;
-    padding: 3rem 3rem 0rem 3rem;
+    padding: 3rem 3rem 1rem 3rem;
     color: ${({ theme }) => theme.colors.Gray0};
     ${({ theme }) => theme.fonts.Title4};
   `,
