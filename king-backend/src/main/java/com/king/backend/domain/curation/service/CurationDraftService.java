@@ -3,6 +3,7 @@ package com.king.backend.domain.curation.service;
 import com.king.backend.domain.curation.dto.request.CurationPostRequestDTO;
 import com.king.backend.domain.curation.dto.response.CurationDraftResponseDTO;
 import com.king.backend.domain.curation.errorcode.CurationErrorCode;
+import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.post.errorcode.PostErrorCode;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -80,15 +82,15 @@ public class CurationDraftService {
             responseDTO.setDescription(draft.getDescription());
             responseDTO.setIsPublic(draft.getIsPublic());
 
+            List<CurationDraftResponseDTO.PlaceDTO> places = new ArrayList<>();
             if (draft.getPlaceIds() != null) {
-                List<CurationDraftResponseDTO.PlaceDTO> places = draft.getPlaceIds().stream()
-                        .map(placeId -> placeRepository.findById(placeId)
-                                .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND)))
-                        .map(CurationDraftResponseDTO.PlaceDTO::fromEntity)
-                        .toList();
-
-                responseDTO.setPlaces(places);
+                for (Long placeId : draft.getPlaceIds()) {
+                    Place place = placeRepository.findById(placeId)
+                            .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
+                    places.add(CurationDraftResponseDTO.PlaceDTO.fromEntity(place));
+                }
             }
+            responseDTO.setPlaces(places);
         }
 
         responseDTO.setImageData(imageData);
