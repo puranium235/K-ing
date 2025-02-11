@@ -75,6 +75,14 @@ public class CurationDraftService {
         return responseDTO;
     }
 
+    public void deleteDraft() {
+        String draftKey = getDraftKey();
+        String imageKey = draftKey + ":image";
+
+        redisUtil.deleteValue(draftKey);
+        redisUtil.deleteBinaryValue(imageKey);
+    }
+
     private String getDraftKey() {
         Long userId = getCurrentUserId();
         return "curation:draft:user" + userId;

@@ -39,4 +39,11 @@ public class CurationDraftController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(draft));
     }
+
+    @Operation(summary = "임시 저장된 큐레이션 삭제")
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteDraft() {
+        curationDraftService.deleteDraft();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
+    }
 }
