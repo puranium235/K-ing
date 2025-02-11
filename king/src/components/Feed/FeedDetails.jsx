@@ -34,7 +34,6 @@ const FeedDetails = () => {
   const [postInfo, setPostInfo] = useState(null);
   const [writer, setWriter] = useState(null);
   const [isOriginLan, setIsOriginLan] = useState(true);
-  // const [commentList, setCommentList] = useState(null);
   const [newComment, setNewComment] = useState('');
 
   const { reactionList, commentList, getNextData, isLoading, hasMore, mutate } =
@@ -52,7 +51,6 @@ const FeedDetails = () => {
 
   useEffect(() => {
     if (reactionList && reactionList.comments) {
-      // setCommentList(reactionList.comments);
       toggle.setToggle(reactionList.liked);
     }
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
@@ -128,7 +126,6 @@ const FeedDetails = () => {
     const res = await createComment(postId, newComment);
     setNewComment('');
     if (res.success) {
-      alert('댓글이 등록되었습니다.');
       mutate();
     }
   };
