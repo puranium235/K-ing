@@ -31,15 +31,15 @@ const Landing = () => {
       </St.ContentWrapper>
 
       <St.ButtonWrapper>
-        <St.SocialButton onClick={handleMasterToken}>master login</St.SocialButton>
+        <St.SocialButton onClick={handleMasterToken}>Master login</St.SocialButton>
         <St.SocialButton $google onClick={googleLogin}>
           <img src={GoogleIcon} alt="구글 아이콘" />
           Continue with Google
         </St.SocialButton>
-        <St.SocialButton $line>
+        {/* <St.SocialButton $line>
           <img src={LineIcon} alt="라인 아이콘" />
           Continue with LINE
-        </St.SocialButton>
+        </St.SocialButton> */}
       </St.ButtonWrapper>
     </StLandingWrapper>
   );
@@ -102,7 +102,7 @@ const St = {
   SocialButton: styled.button`
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* 왼쪽 정렬 */
+    justify-content: center;
     gap: 10px;
     padding: 15px 20px; /* 왼쪽 여백 추가 */
     width: 100%;
