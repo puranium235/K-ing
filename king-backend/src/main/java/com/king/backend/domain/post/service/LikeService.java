@@ -32,6 +32,11 @@ public class LikeService {
     private final PostRepository postRepository;
     private final RedisTemplate<String, String> redisStringTemplate;
     private static final String POST_LIKES_KEY = "post:likes";
+    private static final long MULTIPLIER = 1_000_000_000L;
+
+    private double computeCompositeScore(long likeCount, long postId) {
+        return likeCount * MULTIPLIER + postId;
+    }
 
     @Transactional
     public void likePost(Long postId) {
@@ -49,7 +54,13 @@ public class LikeService {
         }
 
         redisStringTemplate.opsForSet().add(redisSetKey, userId.toString());
-        redisStringTemplate.opsForZSet().incrementScore(POST_LIKES_KEY, postId.toString(), 1);
+        String member = postId.toString();
+        Double currentCompositeScore = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, member);
+        long currentLikeCount = (currentCompositeScore == null) ? 0 : (long)(currentCompositeScore / MULTIPLIER);
+        long newLikeCount = currentLikeCount + 1;
+        double newCompositeScore = computeCompositeScore(newLikeCount, postId);
+//        redisStringTemplate.opsForZSet().incrementScore(POST_LIKES_KEY, postId.toString(), 1);
+        redisStringTemplate.opsForZSet().add(POST_LIKES_KEY, member, newCompositeScore);
     }
 
     @Transactional
@@ -68,7 +79,13 @@ public class LikeService {
         }
 
         redisStringTemplate.opsForSet().remove(redisSetKey, userId.toString());
-        redisStringTemplate.opsForZSet().incrementScore(POST_LIKES_KEY, postId.toString(), -1);
+        String member = postId.toString();
+        Double currentCompositeScore = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, member);
+        long currentLikeCount = (currentCompositeScore == null) ? 0 : (long)(currentCompositeScore / MULTIPLIER);
+        long newLikeCount = currentLikeCount - 1;
+        double newCompositeScore = computeCompositeScore(newLikeCount, postId);
+//        redisStringTemplate.opsForZSet().incrementScore(POST_LIKES_KEY, postId.toString(), -1);
+        redisStringTemplate.opsForZSet().add(POST_LIKES_KEY, member, newCompositeScore);
     }
 
     // 1시간마다 Redis 데이터를 DB로 저장
@@ -76,12 +93,16 @@ public class LikeService {
     @Transactional
     public void syncLikesToDB() {
         // Redis Sorted Set에서 모든 게시글 ID 조회
-        Set<String> postIds = redisStringTemplate.opsForZSet().range(POST_LIKES_KEY, 0, -1);
-        if (postIds == null || postIds.isEmpty()) {
+//        Set<String> postIds = redisStringTemplate.opsForZSet().range(POST_LIKES_KEY, 0, -1);
+//        if (postIds == null || postIds.isEmpty()) {
+//            return;
+//        }
+
+        Set<String> paddedPostIds = redisStringTemplate.opsForZSet().range(POST_LIKES_KEY, 0, -1);
+        if (paddedPostIds == null || paddedPostIds.isEmpty()) {
             return;
         }
-
-        for (String postIdStr : postIds) {
+        for (String postIdStr : paddedPostIds) {
             Long postId = Long.parseLong(postIdStr);
             Set<String> redisUserIds = redisStringTemplate.opsForSet().members("post:likes:" + postId);
             if (redisUserIds == null) {
@@ -115,5 +136,11 @@ public class LikeService {
                 }
             }
         }
+    }
+
+    public Long getLikeCount(Long postId) {
+        String member = postId.toString();
+        Double compositeScore = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, member);
+        return (compositeScore != null) ? (long)(compositeScore / MULTIPLIER) : 0L;
     }
 }
