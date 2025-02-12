@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { IcStar } from '../../assets/icons';
 import { IcStarBlank } from '../../assets/icons';
 
-const FavoritesItem = ({ item, type }) => {
+const FavoriteItem = ({ item, type }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -15,7 +15,8 @@ const FavoritesItem = ({ item, type }) => {
   };
   const handleClick = () => {
     const routeType = type === 'works' ? 'detail' : 'cast'; // '작품' -> detail, '인물' -> drama
-    navigate(`/content/${routeType}/${item.id}`, {
+
+    navigate(`/content/${routeType}/${item.targetId}`, {
       state: { from: { pathname: location.pathname } },
     });
   };
@@ -23,10 +24,10 @@ const FavoritesItem = ({ item, type }) => {
   return (
     <StFavoriteItemWrapper onClick={handleClick}>
       <St.ImageWrapper>
-        <St.Image src={item.image} alt={type === 'works' ? item.title : item.name} />
+        <St.Image src={item.imageUrl} alt={type === 'works' ? item.title : item.title} />
       </St.ImageWrapper>
       <St.Info>
-        <St.Text>{type === 'works' ? item.title : item.name}</St.Text>
+        <St.Text>{type === 'works' ? item.title : item.title}</St.Text>
       </St.Info>
       <St.BookmarkButton onClick={handleBookmarkClick}>
         {item.bookmarked ? (
@@ -43,7 +44,7 @@ const FavoritesItem = ({ item, type }) => {
   );
 };
 
-export default FavoritesItem;
+export default FavoriteItem;
 
 const StFavoriteItemWrapper = styled.div`
   position: relative;
