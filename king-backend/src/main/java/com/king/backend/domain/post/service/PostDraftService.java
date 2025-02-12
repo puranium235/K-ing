@@ -7,6 +7,7 @@ import com.king.backend.domain.post.dto.request.PostDraftRequestDto;
 import com.king.backend.domain.post.dto.response.PostDraftResponseDto;
 import com.king.backend.domain.post.errorcode.PostErrorCode;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
+import com.king.backend.global.errorcode.ImageErrorCode;
 import com.king.backend.global.errorcode.RedisErrorCode;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.util.RedisUtil;
@@ -35,7 +36,7 @@ public class PostDraftService {
         if(imageFile != null && !imageFile.isEmpty()) {
             long maxFileSize = 5 * 1024 * 1024;
             if(imageFile.getSize() > maxFileSize) {
-                throw new CustomException(PostErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
+                throw new CustomException(ImageErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
             }
             try {
                 byte[] imageBytes = imageFile.getBytes();
