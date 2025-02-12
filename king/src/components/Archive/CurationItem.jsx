@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcBookmarkBlank } from '../../assets/icons';
 import { IcBookmarkFill } from '../../assets/icons';
 
-const CurationItem = ({ item }) => {
+const CurationItem = forwardRef(({ item }, ref) => {
   const { curationId, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item; // 초기 bookmarked 값 가져오기
   const [bookmarked, setBookmarked] = useState(initialBookmarked); // 초기 상태를 item.bookmarked로 설정
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const CurationItem = ({ item }) => {
   };
 
   return (
-    <StCurationItemWrapper onClick={handleCurationClick}>
+    <StCurationItemWrapper ref={ref} onClick={handleCurationClick}>
       <St.Image src={imageUrl} alt={title} />
       <St.Info>
         <St.Author>@{truncateText(writerNickname, 15)}</St.Author>
@@ -35,7 +36,7 @@ const CurationItem = ({ item }) => {
       </St.BookmarkButton>
     </StCurationItemWrapper>
   );
-};
+});
 
 export default CurationItem;
 

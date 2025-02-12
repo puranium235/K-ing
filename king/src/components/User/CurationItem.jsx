@@ -3,27 +3,11 @@ import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcBookmarkBlank } from '../../assets/icons';
-import { IcBookmarkFill } from '../../assets/icons';
 import { IcLock } from '../../assets/icons';
 
-// comment : 아카이브 큐레이션에서 코드를 재활용하고 난 뒤에 북마크 관련된 불필요한 내용 삭제 예정입니다
 const CurationItem = forwardRef(({ item }, ref) => {
-  const {
-    curationId,
-    title,
-    imageUrl,
-    writerNickname,
-    public: isPublic,
-    bookmarked: initialBookmarked,
-  } = item; // 초기 bookmarked 값 가져오기
-  const [bookmarked, setBookmarked] = useState(initialBookmarked); // 초기 상태를 item.bookmarked로 설정
+  const { curationId, title, imageUrl, public: isPublic } = item;
   const navigate = useNavigate();
-
-  const handleBookmarkClick = (event) => {
-    event.stopPropagation(); // 이벤트 버블링 방지
-    setBookmarked((prev) => !prev); // 북마크 상태 변경 (true <-> false)
-  };
 
   const handleCurationClick = () => {
     navigate(`/curation/${curationId}`);
@@ -44,9 +28,6 @@ const CurationItem = forwardRef(({ item }, ref) => {
           <IcLock />
         </St.LockIcon>
       )}
-      {/* <St.BookmarkButton onClick={handleBookmarkClick}>
-        {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />}
-      </St.BookmarkButton> */}
     </StCurationItemWrapper>
   );
 });
@@ -100,20 +81,7 @@ const St = {
     text-overflow: ellipsis;
     max-width: 100%;
   `,
-  BookmarkButton: styled.button`
-    position: absolute;
-    top: 0.8rem;
-    right: 0.8rem;
-    background: none;
-    border: none;
-    color: ${({ theme }) => theme.colors.White};
-    text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
-    cursor: pointer;
 
-    &:hover {
-      color: ${({ theme }) => theme.colors.Gray1};
-    }
-  `,
   LockIcon: styled.div`
     position: absolute;
     top: 0.8rem;
