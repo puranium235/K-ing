@@ -2,7 +2,7 @@ package com.king.backend.domain.user.util;
 
 public class UserUtil {
     public static boolean isValidNickname(String nickname) {
-        return nickname != null && !nickname.trim().isEmpty() && nickname.length() < 50;
+        return nickname != null && !nickname.trim().isEmpty() && nickname.length() <= 50;
     }
 
     public static boolean isValidLanguage(String language) {
@@ -10,6 +10,6 @@ public class UserUtil {
     }
 
     public static boolean isValidDescription(String description) {
-        return description.length() < 150;
+        return description.length() <= 150;
     }
 }
