@@ -46,9 +46,10 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 18rem;
   overflow: hidden;
   border-radius: 2rem;
+
+  height: 18rem;
 `;
 
 const StyledSlider = styled(Slider)`
@@ -75,16 +76,13 @@ const StyledSlider = styled(Slider)`
 
 const CarouselItem = styled.div`
   position: relative;
-  width: 300px;
-  min-width: 300px;
-  height: 200px;
-  flex-shrink: 0;
+  width: 100%;
 
   cursor: pointer;
 
   img {
     width: 100%;
-    height: 100%;
+    min-height: 18rem;
     object-fit: cover;
     object-position: center;
   }
@@ -115,11 +113,11 @@ const CarouselItem = styled.div`
     text-overflow: ellipsis;
   }
 
-  @media (min-width: 375px) {
+  /* @media (min-width: 375px) {
     min-width: 330px;
   }
 
   @media (max-width: 360px) {
     min-width: 285px;
-  }
+  } */
 `;
