@@ -39,6 +39,7 @@ const useGetCurationList = () => {
     isLoading: isValidating,
     isError: error,
     hasMore,
+    mutate, // 리스트 갱신하는 mutate
   };
 };
 

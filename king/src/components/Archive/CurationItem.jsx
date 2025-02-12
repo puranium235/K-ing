@@ -3,17 +3,34 @@ import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcBookmarkBlank } from '../../assets/icons';
-import { IcBookmarkFill } from '../../assets/icons';
+import { IcBookmarkBlank, IcBookmarkFill } from '../../assets/icons';
+import { removeBookmark } from '../../lib/bookmark';
 
-const CurationItem = forwardRef(({ item }, ref) => {
+const CurationItem = forwardRef(({ item, onRemove }, ref) => {
   const { curationId, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item; // 초기 bookmarked 값 가져오기
   const [bookmarked, setBookmarked] = useState(initialBookmarked); // 초기 상태를 item.bookmarked로 설정
   const navigate = useNavigate();
 
-  const handleBookmarkClick = (event) => {
+  const handleBookmarkClick = async (event) => {
     event.stopPropagation(); // 이벤트 버블링 방지
-    setBookmarked((prev) => !prev); // 북마크 상태 변경 (true <-> false)
+
+    const success = await removeBookmark(curationId);
+    if (success) {
+      onRemove(curationId);
+      mutate((prevData) => {
+        if (!prevData) return [];
+
+        return prevData.map((page) => ({
+          ...page,
+          data: {
+            ...page.data,
+            curations: page.data.curations.filter((curation) => curation.curationId !== curationId),
+          },
+        }));
+      }, false);
+    } else {
+      setBookmarked(true); // 실패 시 다시 북마크 상태 복구
+    }
   };
 
   const handleCurationClick = () => {
@@ -31,7 +48,7 @@ const CurationItem = forwardRef(({ item }, ref) => {
         <St.Author>@{truncateText(writerNickname, 15)}</St.Author>
         <St.Title>{truncateText(title, 20)}</St.Title>
       </St.Info>
-      <St.BookmarkButton onClick={handleBookmarkClick}>
+      <St.BookmarkButton className="drop-shadow" onClick={handleBookmarkClick}>
         {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />} {/* 상태에 따라 아이콘 변경 */}
       </St.BookmarkButton>
     </StCurationItemWrapper>
@@ -49,6 +66,13 @@ const StCurationItemWrapper = styled.div`
   background-color: ${({ theme }) => theme.colors.White};
 
   cursor: pointer;
+
+  transition:
+    opacity 0.3s ease-out,
+    transform 0.3s ease-out;
+  &:hover {
+    opacity: 0.9;
+  }
 `;
 
 const St = {
@@ -95,12 +119,9 @@ const St = {
     right: 0.8rem;
     background: none;
     border: none;
-    color: ${({ theme }) => theme.colors.White};
-    text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
+
     cursor: pointer;
 
-    &:hover {
-      color: ${({ theme }) => theme.colors.Gray1};
-    }
+    filter: ${({ theme }) => `drop-shadow(2px 2px 4px ${theme.colors.MainBlue}80)`};
   `,
 };

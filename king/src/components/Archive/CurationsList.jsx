@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-// import { getBookmarkStatus, removeBookmark } from '../../lib/bookmark';
 import useGetCurationList from '../../hooks/archive/useGetCurationList';
-import { getCurations } from '../../lib/bookmark';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import Loading from '../Loading/Loading';
 import CurationItem from './CurationItem';
@@ -11,7 +9,7 @@ import CurationItem from './CurationItem';
 const CurationsList = () => {
   const lastElementRef = useRef(null);
 
-  const { curationList, getNextData, isLoading, hasMore } = useGetCurationList();
+  const { curationList, getNextData, isLoading, hasMore, mutate } = useGetCurationList();
 
   useEffect(() => {
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
@@ -23,20 +21,6 @@ const CurationsList = () => {
     return <StNoDataMessage>등록된 큐레이션이 없습니다.</StNoDataMessage>;
   }
 
-  // const [curations, setCurations] = useState([]);
-  // const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const fetchCurations = async () => {
-  //     setLoading(true);
-  //     const curationsData = await getCurations(); // ✅ bookmark.js에서 불러옴
-  //     setCurations(curationsData);
-  //     setLoading(false);
-  //   };
-
-  //   fetchCurations();
-  // }, []);
-
   return (
     <StCurationList>
       {curationList.map((curation, index) => (
@@ -44,6 +28,7 @@ const CurationsList = () => {
           key={index}
           item={curation}
           ref={index === curationList.length - 1 ? lastElementRef : null}
+          onRemove={() => mutate()} // 북마크 해제 후 mutate() 실행 → 리스트 자동 갱신
         />
       ))}
     </StCurationList>
