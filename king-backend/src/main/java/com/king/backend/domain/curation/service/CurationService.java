@@ -115,8 +115,10 @@ public class CurationService {
             throw new CustomException(CurationErrorCode.INVALID_VALUE);
         }
 
-        if (imageFile == null || imageFile.isEmpty()) {
-            throw new CustomException(CurationErrorCode.INVALID_IMAGEFILE);
+        if (!ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getDescription(), 1000)
+                || requestDTO.getDescription().length() > 1000
+                || requestDTO.getPlaceIds().isEmpty()) {
+            throw new CustomException(CurationErrorCode.INVALID_VALUE);
         }
 
         CurationList curation = new CurationList();
