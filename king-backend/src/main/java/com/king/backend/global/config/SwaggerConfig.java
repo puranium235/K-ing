@@ -5,7 +5,6 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,7 +18,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info().title("K-ing REST API") // 제목
                         .version("v0.0.1")
-                        .license(new License().name("K-ing").url("https://i12a507.p.ssafy.io/"))) // 라이센스 위치
+                        .license(new License().name("K-ing 서비스 링크").url("https://i12a507.p.ssafy.io/"))) // 라이센스 위치
                 .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes(SECURITY_SCHEME_NAME,
@@ -28,7 +27,6 @@ public class SwaggerConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT") // JWT 토큰 형식 지정
-                        ))
-                .addServersItem(new Server().url("https://i12a507.p.ssafy.io/").description("배포 서버"));
+                        ));
     }
 }
