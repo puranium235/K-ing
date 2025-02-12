@@ -17,6 +17,7 @@ import com.king.backend.domain.user.util.UserUtil;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -30,6 +31,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@Tag(name = "유저", description = "유저 가입, 로그인, 토큰 관리, 유저 정보 조회 및 수정")
 public class UserController {
 
     private final UserRepository userRepository;

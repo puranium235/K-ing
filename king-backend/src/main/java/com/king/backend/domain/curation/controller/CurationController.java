@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/curation")
 @RequiredArgsConstructor
-@Tag(name = "큐레이션 컨트롤러", description = "큐레이션 관련 CRUD")
+@Tag(name = "큐레이션", description = "큐레이션 관련 CRUD")
 @SecurityRequirement(name = "BearerAuth")
 public class CurationController {
     private final CurationService curationService;

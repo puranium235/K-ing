@@ -3,24 +3,20 @@ package com.king.backend.ai.controller;
 import com.king.backend.ai.dto.ChatHistory;
 import com.king.backend.ai.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "AI 컨트롤러", description = "chatGPT 챗봇 API")
+@Tag(name = "AI", description = "chatGPT 챗봇 API")
 @RequestMapping("/chatbot")
 public class AIController {
     private final ChatService chatService;
@@ -31,17 +27,20 @@ public class AIController {
         return "Server: " + message;
     }
 
+    @Operation(summary = "챗봇 대화 기록 조회")
     @GetMapping("/")
     public ResponseEntity<List<ChatHistory>> getChatHistory() {
         return ResponseEntity.ok(chatService.getChatHistory());
     }
 
+    @Operation(summary = "챗봇 대화 기록 삭제")
     @DeleteMapping("/")
     public ResponseEntity<String> deleteChatHistory() {
         chatService.deleteChatHistory();
         return ResponseEntity.ok("대화 기록이 삭제되었습니다.");
     }
 
+    @Operation(summary = "챗봇 대화 내용 저장")
     @PostMapping("/save")
     public ResponseEntity<String> saveChatHistory(@RequestBody ChatHistory chatHistory) {
         chatService.saveChatHistory(chatHistory);
