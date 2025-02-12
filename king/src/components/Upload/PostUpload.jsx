@@ -60,12 +60,14 @@ const PostUpload = ({ state }) => {
     if (postId) {
       //업데이트
       res = await getPostDetail(postId);
-      setImage(res.imageUrl);
+      setImage(res);
     } else if (isDraft && useDraft) {
       //초기 업로드
       res = await getPostDraft();
       if (res.imageData) {
         setImage(`data:image/jpeg;base64,${res.imageData}`);
+        const blob = convertToBlob(res.imageData);
+        setImageFile(blob);
       }
     } else {
       return;
@@ -82,6 +84,26 @@ const PostUpload = ({ state }) => {
     if (isDraft && useDraft) {
       await deletePostDraft();
     }
+  };
+
+  //base64 > blob
+  const convertToBlob = (baseImage) => {
+    const byteCharacters = atob(baseImage);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    // Blob 객체 생성
+    const blob = new Blob(byteArrays, { type: 'image/jpeg' });
+    return blob;
   };
 
   const saveDraft = async () => {
@@ -224,7 +246,7 @@ const PostUpload = ({ state }) => {
       <StUploadWrapper>
         <IconText>
           <BackButton />
-          <p>새 인증샷</p>
+          <p>큐레이션 생성</p>
         </IconText>
 
         <ImageUploadWrapper
