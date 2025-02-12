@@ -37,6 +37,7 @@ public class CommentService {
     private final RedisTemplate<String, String> redisStringTemplate;
     private static final String POST_LIKES_KEY = "post:likes";
     private final CursorUtil cursorUtil;
+    private static final long MULTIPLIER = 1_000_000_000L;
 
     @Transactional
     public void uploadComment(Long postId, CommentUploadRequestDto reqDto) {
@@ -84,7 +85,7 @@ public class CommentService {
         List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
 
         Double score = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, postId.toString());
-        Long likesCount = (score != null ? score.longValue() : 0L);
+        Long likesCount = (score != null) ? (long) (score / MULTIPLIER) : 0L;
 
         Boolean isLiked = false;
         if (userId != null) {
