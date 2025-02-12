@@ -75,9 +75,9 @@ const StyledSlider = styled(Slider)`
 
 const CarouselItem = styled.div`
   position: relative;
-  width: 100%;
-  min-width: 29.5rem;
-  height: 18rem;
+  width: 300px;
+  min-width: 300px;
+  height: 200px;
   flex-shrink: 0;
 
   cursor: pointer;
@@ -116,10 +116,10 @@ const CarouselItem = styled.div`
   }
 
   @media (min-width: 375px) {
-    min-width: 393px;
+    min-width: 330px;
   }
 
-  @media (max-width: 400px) {
-    min-width: 330px;
+  @media (max-width: 360px) {
+    min-width: 285px;
   }
 `;
