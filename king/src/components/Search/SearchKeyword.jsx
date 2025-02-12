@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
@@ -22,6 +22,7 @@ import PlaceCard from '../Home/PlaceCard';
 
 const SearchKeyword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [filter, setFilter] = useRecoilState(FilterOption);
   const [sortBy, setSortBy] = useState('createdAt');
@@ -110,11 +111,15 @@ const SearchKeyword = () => {
   };
 
   const handleGoBack = () => {
-    setSearchQuery('');
+    const from = location.state?.from?.pathname;
 
-    if (relatedType === 'cast') {
+    if (from && from.includes('/result')) {
+      navigate('/search/result');
+    } else if (relatedType === 'cast') {
+      setSearchQuery('');
       navigate(`/content/cast/${contentId}`);
     } else {
+      setSearchQuery('');
       navigate(`/content/detail/${contentId}`);
     }
   };
