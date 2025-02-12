@@ -1,5 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
@@ -7,6 +8,7 @@ import KingLogo from '../../assets/icons/king_logo.png';
 import { checkNickname } from '../../lib/auth';
 import { getUserProfile, updateUserProfile } from '../../lib/user';
 import { ProfileState } from '../../recoil/atom';
+import { getUserIdFromToken } from '../../util/getUserIdFromToken';
 import { getLanguage, getTranslations, setLanguage } from '../../util/languageUtils';
 import SettingHeader from './SettingHeader';
 
@@ -28,6 +30,8 @@ const SettingProfile = () => {
 
   const [language, setLangState] = useState(getLanguage());
   const { common, profile: profileTranslations, signup: translations } = getTranslations(language);
+
+  const navigate = useNavigate();
 
   // 프로필 이미지 클릭 시 파일 선택창 열기
   const handleImageClick = () => {
@@ -198,6 +202,14 @@ const SettingProfile = () => {
     }));
 
     alert('프로필이 저장되었습니다!');
+
+    // 마이페이지로 이동
+    const userId = getUserIdFromToken();
+    if (userId) {
+      navigate(`/user/${userId}`);
+    } else {
+      console.error('유저 ID를 찾을 수 없습니다.');
+    }
   };
 
   return (

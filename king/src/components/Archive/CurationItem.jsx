@@ -27,7 +27,7 @@ const CurationItem = ({ item }) => {
     <StCurationItemWrapper onClick={handleCurationClick}>
       <St.Image src={imageUrl} alt={title} />
       <St.Info>
-        <St.Author>@{truncateText(writerNickname, 20)}</St.Author>
+        <St.Author>@{truncateText(writerNickname, 15)}</St.Author>
         <St.Title>{truncateText(title, 20)}</St.Title>
       </St.Info>
       <St.BookmarkButton onClick={handleBookmarkClick}>
@@ -76,6 +76,8 @@ const St = {
   Author: styled.p`
     ${({ theme }) => theme.fonts.Body6};
     margin: 0;
+    text-overflow: ellipsis;
+    max-width: 100%;
   `,
   Title: styled.h3`
     margin: 0.4rem 0 0;
@@ -84,6 +86,7 @@ const St = {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
   `,
   BookmarkButton: styled.button`
     position: absolute;

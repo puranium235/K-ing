@@ -24,7 +24,7 @@ const StProfileHeader = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 1rem 0rem;
+  padding: 1rem 0rem 0;
   width: 100%;
   box-sizing: border-box;
   position: relative;
@@ -42,7 +42,9 @@ const St = {
     height: 6rem;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
+    border: 0.1rem solid;
+    border-color: ${({ theme }) => theme.colors.Gray3};
   `,
 
   ProfileInfo: styled.div`
