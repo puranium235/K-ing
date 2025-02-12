@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import SendIcon from '/src/assets/icons/chat-send.png';
 import OptionIcon from '/src/assets/icons/option.png';
 
-import { IcComments, IcHeartTrue, IcLikes } from '../../assets/icons';
+import { IcComments, IcHeartTrue, IcLikes, IcMarker, IcMarker2 } from '../../assets/icons';
 import useModal from '../../hooks/common/useModal';
 import useToggle from '../../hooks/common/useToggle';
 import useGetComments from '../../hooks/post/useGetComments';
@@ -179,7 +179,14 @@ const FeedDetails = () => {
         <UserName>{writer.nickname}</UserName>
       </UserInfo>
 
-      <Location>{postInfo.place.name}</Location>
+      <Location
+        onClick={() => {
+          navigate(`/place/${postInfo.place.placeId}`);
+        }}
+      >
+        <IcMarker2 />
+        {postInfo.place.name}
+      </Location>
       <PostImageWrapper>
         <PostImage src={postInfo.imageUrl} alt="postImage" />
       </PostImageWrapper>
@@ -331,10 +338,19 @@ const UserName = styled.span`
 `;
 
 const Location = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
   margin-left: 4rem;
 
   ${({ theme }) => theme.fonts.Body3};
   color: ${({ theme }) => theme.colors.Gray0};
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+  }
 `;
 
 const PostImageWrapper = styled.div`
