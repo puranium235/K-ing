@@ -109,6 +109,7 @@ const CarouselItem = styled.div`
     ${({ theme }) => theme.fonts.Title6};
     z-index: 2;
 
+    max-width: 28rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

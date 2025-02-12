@@ -71,6 +71,7 @@ const St = {
     text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
   `,
   Author: styled.p`
+    max-width: 20rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
