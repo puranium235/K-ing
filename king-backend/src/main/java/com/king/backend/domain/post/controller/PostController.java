@@ -31,7 +31,7 @@ public class PostController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<Long>> uploadPost(
             @RequestPart("post") PostUploadRequestDto reqDto,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+            @RequestPart(value = "imageFile", required = true) MultipartFile imageFile) {
         Long postId = postService.uploadPost(reqDto, imageFile);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postId));
     }

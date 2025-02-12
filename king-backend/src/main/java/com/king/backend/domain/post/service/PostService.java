@@ -20,6 +20,7 @@ import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
+import com.king.backend.global.errorcode.ImageErrorCode;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
@@ -85,7 +86,7 @@ public class PostService {
         if (imageFile != null && !imageFile.isEmpty()) {
             long maxFileSize = 5 * 1024 * 1024;
             if(imageFile.getSize() > maxFileSize) {
-                throw new CustomException(PostErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
+                throw new CustomException(ImageErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
             }
             String s3Url = s3Service.uploadFile(post, imageFile);
             PostImage postImage = PostImage.builder()
@@ -333,7 +334,7 @@ public class PostService {
         if (imageFile != null && !imageFile.isEmpty()) {
             long maxFileSize = 5 * 1024 * 1024;
             if (imageFile.getSize() > maxFileSize) {
-                throw new CustomException(PostErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
+                throw new CustomException(ImageErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
             }
             // 기존 이미지 삭제
             PostImage postImage = postImageRepository.findByPostId(postId)
