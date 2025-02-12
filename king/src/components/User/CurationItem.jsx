@@ -37,7 +37,6 @@ const CurationItem = forwardRef(({ item }, ref) => {
     <StCurationItemWrapper ref={ref} onClick={handleCurationClick}>
       <St.Image src={imageUrl} alt={title} />
       <St.Info>
-        {/* <St.Author>@{truncateText(writerNickname, 20)}</St.Author> */}
         <St.Title>{truncateText(title, 20)}</St.Title>
       </St.Info>
       {!isPublic && (

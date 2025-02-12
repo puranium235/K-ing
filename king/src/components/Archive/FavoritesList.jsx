@@ -6,7 +6,7 @@ import { IcNavigateNext } from '../../assets/icons';
 import { getFavorites } from '../../lib/favorites';
 import FavoriteItem from './FavoriteItem';
 
-const FavoritesList = ({ title, data, onTabChange }) => {
+const FavoritesList = ({ title, onTabChange }) => {
   const navigate = useNavigate();
   const [favoritesData, setFavoritesData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,29 +14,27 @@ const FavoritesList = ({ title, data, onTabChange }) => {
     const fetchFavorites = async () => {
       setLoading(true);
       const type = title === '작품' ? 'content' : 'cast'; // 백엔드 API에 맞게 변환
-      // 에러 체크용 try catch
-      try {
-        const data = await getFavorites(type);
-        setFavoritesData(data || []);
-      } catch (error) {
-        console.error('즐겨찾기 데이터를 불러오는 중 오류 발생:', error);
-      }
-      // const data = await getFavorites(type);
-      // setFavoritesData(data || []);
+      const data = await getFavorites(type);
+      setFavoritesData(data || []);
+
       setLoading(false);
     };
     fetchFavorites();
   }, [title]); // title이 변경될 때마다 API 호출
+
   // 최대 5개까지만 렌더링
   const previewData = (favoritesData || []).slice(0, 5);
+
   // 단위 계산 ('개' 또는 '명')
   const unit = title === '작품' ? '개' : '명';
+
   // 전체보기 클릭 시 이동 처리
   const handleFavoriteClick = () => {
     const type = title === '작품' ? 'works' : 'people'; // title에 따라 type 설정
     onTabChange('Favorites'); // activeTab을 Favorites로 설정
     navigate(`/favorites/${type}`, { state: { type } });
   };
+
   return (
     <StFavoritesListWrapper>
       <St.Header>
@@ -70,7 +68,7 @@ const FavoritesList = ({ title, data, onTabChange }) => {
           ) : (
             <St.NoDataMessage>아직 즐겨찾기한 {title}이 없어요.</St.NoDataMessage>
           )}
-          {favoritesData.length > 0 && (
+          {favoritesData.length > 3 && (
             <St.ShowAllButton2 onClick={handleFavoriteClick}>
               <IcNavigateNext />
               <br />
@@ -164,9 +162,5 @@ const St = {
     text-align: center; /* 텍스트 가운데 정렬 */
     text-decoration: none;
     gap: 4px; /* 텍스트와 아이콘 간 간격 */
-
-    /* &:hover {
-      color: ${({ theme }) => theme.colors.MainBlue};
-    } */
   `,
 };
