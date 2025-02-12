@@ -108,6 +108,10 @@ const CarouselItem = styled.div`
     padding: 0.5rem 1rem;
     ${({ theme }) => theme.fonts.Title6};
     z-index: 2;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   @media (min-width: 375px) {

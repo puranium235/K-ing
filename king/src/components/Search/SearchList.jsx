@@ -1,12 +1,23 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import SearchItem from './SearchItem';
 
 const SearchList = ({ title, data, type }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const unit = title === '인물' ? '명' : '개';
+
+  const handleSearchDetail = () => {
+    if (type === 'PLACE') {
+      navigate(`/search/keyword`, { state: { from: { pathname: location.pathname } } });
+    } else {
+      navigate(`/search/detail/${type.toLowerCase()}`);
+    }
+  };
 
   return (
     <St.Section>
@@ -19,10 +30,7 @@ const SearchList = ({ title, data, type }) => {
             {unit}의 {title}
           </St.Count>
         </St.Left>
-        <span onClick={() => navigate(`/search/detail/${type.toLowerCase()}`)}>
-          {' '}
-          전체보기 {'>'}{' '}
-        </span>
+        <span onClick={handleSearchDetail}> 전체보기 {'>'} </span>
       </St.Header>
       <St.List>
         {data.length > 0 ? (

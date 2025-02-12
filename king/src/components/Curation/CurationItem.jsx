@@ -71,6 +71,10 @@ const St = {
     text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
   `,
   Author: styled.p`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
     ${({ theme }) => theme.fonts.Body6};
     margin: 0;
   `,
