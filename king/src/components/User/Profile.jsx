@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
+import { IcRefresh } from '../../assets/icons';
 import { getUserProfile } from '../../lib/user';
 import { ActiveUserTabState, ProfileState } from '../../recoil/atom';
 import Loading from '../Loading/Loading';
@@ -41,7 +42,9 @@ function Profile({ isMyPage, userId }) {
   if (!profileData) {
     return (
       <ErrorContainer>
-        <RefreshButton onClick={() => window.location.reload()}>🔄</RefreshButton>
+        <RefreshButton onClick={() => window.location.reload()}>
+          <IcRefresh />
+        </RefreshButton>
       </ErrorContainer>
     );
   }
