@@ -16,6 +16,7 @@ export const getCurationList = async (query, cursor) => {
     const { data } = await client.get(
       `/curation-lists/search?query=${query || ''}&cursor=${cursor || ''}`,
     );
+    // const { data } = await client.get(`/curation?size=10`);
     return data.data;
   } catch (err) {
     console.error(err);
