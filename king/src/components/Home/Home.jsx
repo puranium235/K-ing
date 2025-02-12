@@ -116,7 +116,7 @@ const StHomeWrapper = styled.div`
   align-items: flex-start;
   text-align: center;
   padding: 2rem;
-  margin-bottom: 10rem;
+  padding-bottom: 8rem;
 `;
 
 const GenreWrapper = styled.div`
