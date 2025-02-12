@@ -9,6 +9,7 @@ import com.king.backend.domain.post.dto.response.PostHomeResponseDto;
 import com.king.backend.domain.post.service.PostService;
 import com.king.backend.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,11 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/post")
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "게시글", description = "게시글 관련 CRUD")
 public class PostController {
 
     private final PostService postService;
 
-    @Operation(summary = "게시글 업로드 API")
+    @Operation(summary = "게시글 업로드")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<Long>> uploadPost(
             @RequestPart("post") PostUploadRequestDto reqDto,
@@ -34,7 +36,8 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postId));
     }
 
-    @Operation(summary = "게시글 전체 목록(홈피드) 조회 API (커서 기반 페이징 지원)")
+
+    @Operation(summary = "게시글 전체 목록(홈피드) 조회")
     @GetMapping("/home")
     public ResponseEntity<ApiResponse<PostHomeResponseDto>> getHomePosts(
             @ModelAttribute PostHomeRequestDto reqDto
@@ -42,7 +45,9 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postService.getHomePostsWithCursor(reqDto)));
     }
 
-    @Operation(summary = "장소 리뷰, 마이페이지 피드 조회 API (커서 기반 페이징 지원)")
+    @Operation(summary = "장소 리뷰, 마이페이지 피드 조회",
+    description = "1. 장소 리뷰 피드 조회 - 인기순, 최신순 정렬 기능\n" +
+            "2. 마이페이지 - 로그인 사용자 페이지, 타사용자 페이지 피드 조회")
     @GetMapping("/feed")
     public ResponseEntity<ApiResponse<PostFeedResponseDto>> getFeedPosts(
             @ModelAttribute PostFeedRequestDto reqDto
@@ -50,14 +55,14 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postService.getFeedPostsWithCursor(reqDto)));
     }
 
-    @Operation(summary = "게시글 상세 조회 API")
+    @Operation(summary = "게시글 상세 조회")
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostDetailResponseDto>> getPostDetail(@PathVariable Long postId){
         PostDetailResponseDto post = postService.getPostDetail(postId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(post));
     }
 
-    @Operation(summary = "게시글 수정 API")
+    @Operation(summary = "게시글 수정")
     @PostMapping(value="/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<Long>> updatePost(
             @PathVariable Long postId,
@@ -67,7 +72,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(updatedPostId));
     }
 
-    @Operation(summary = "게시글 삭제 API")
+    @Operation(summary = "게시글 삭제")
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);

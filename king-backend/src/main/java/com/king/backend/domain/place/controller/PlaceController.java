@@ -9,6 +9,7 @@ import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
 import com.king.backend.search.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,33 +20,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/place")
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "장소", description = "장소 상세 페이지 조회")
 public class PlaceController {
 
     private final PlaceService placeService;
     private final RedisUtil redisUtil;
     private final SearchService searchService;
 
-    // 공통 응답 모듈 테스트
-    @Operation(summary = "성공 응답 확인용 API")
-    @GetMapping("/success")
-    public ResponseEntity<ApiResponse<String>> getSuccessResponse() {
-        log.info("GET /api/place/success 요청 처리 시작");
-        ResponseEntity<ApiResponse<String>> response = ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success("장소 조회 성공 반환 data"));
-        log.info("GET /api/place/success 요청 처리 완료: {}", response.getBody());
-        return response;
-    }
-
-    @Operation(summary = "에러 응답 확인용 API")
-    @GetMapping("/error")
-    public ResponseEntity<ApiResponse<String>> getErrorResponse() {
-        // 예외 처리 로그 필요 X (GlobalExceptionHandler에서 에러코드, 메세지 로그 출력됨)
-        throw new CustomException(PlaceErrorCode.PLACE_NOT_FOUND);
-    }
-
     // 장소 상세 정보 조회
-    @Operation(summary = "장소 상세 조회 API")
+    @Operation(summary = "장소 상세 조회")
     @GetMapping("/{placeId}")
     public ResponseEntity<ApiResponse<PlaceDetailResponseDto>> getPlaceDetail(@PathVariable Long placeId){
         log.info("GET /api/place/{} 요청 처리 시작", placeId);
@@ -72,7 +55,7 @@ public class PlaceController {
         }
     }
 
-    @Operation(summary = "장소 이름으로 placeId 조회 API")
+    @Operation(summary = "장소명으로 placeId 조회")
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<PlaceIdResponseDto>> getPlaceIdByName(@RequestParam String name) {
         log.info("GET /api/place/search 요청 처리 시작 - 장소명: {}", name);
