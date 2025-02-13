@@ -20,7 +20,7 @@ const useGetCurationList = (query) => {
   useEffect(() => {
     mutate();
     setSize(1);
-  }, [query, mutate, setSize]);
+  }, [query]);
 
   const results = data ? [].concat(...data.map((res) => res.data.items)) : [];
   const isEmpty = data?.[0]?.data?.items?.length === 0;

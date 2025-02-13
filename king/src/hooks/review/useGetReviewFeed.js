@@ -20,7 +20,7 @@ const useGetReviewFeed = (placeId, sortedBy = 'popular') => {
   useEffect(() => {
     mutate();
     setSize(1);
-  }, [mutate, setSize]);
+  }, []);
 
   const images = data
     ? data.flatMap((res) =>

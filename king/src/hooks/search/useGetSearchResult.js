@@ -20,7 +20,7 @@ const useGetSearchResult = (query, category, sortOption) => {
   useEffect(() => {
     mutate();
     setSize(1);
-  }, [query, category, mutate, setSize]);
+  }, [query, category]);
 
   const results = data ? [].concat(...data.map((res) => res.data.results)) : [];
   const isEmpty = data?.[0]?.data?.results.length === 0;

@@ -22,7 +22,7 @@ const useGetPostList = (userId) => {
   useEffect(() => {
     mutate();
     setSize(1);
-  }, [mutate, setSize]);
+  }, [userId]);
 
   const posts = data ? [].concat(...data.map((res) => res.data.posts)) : [];
   const isEmpty = data?.[0]?.data?.posts?.length === 0;

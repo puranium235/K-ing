@@ -20,7 +20,7 @@ const useGetFeedList = () => {
   useEffect(() => {
     mutate();
     setSize(1);
-  }, [mutate, setSize]);
+  }, []);
 
   const posts = data ? [].concat(...data.map((res) => res.data.posts)) : [];
 

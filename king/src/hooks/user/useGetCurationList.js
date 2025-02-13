@@ -22,7 +22,7 @@ const useGetCurationList = (userId) => {
   useEffect(() => {
     mutate();
     setSize(1);
-  }, [mutate, setSize]);
+  }, []);
 
   const curations = data ? [].concat(...data.map((res) => res.data.curations)) : [];
   const isEmpty = data?.[0]?.data?.curations?.length === 0;
