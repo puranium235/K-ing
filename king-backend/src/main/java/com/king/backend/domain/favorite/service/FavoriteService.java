@@ -8,6 +8,7 @@ import com.king.backend.domain.content.entity.Content;
 import com.king.backend.domain.content.entity.ContentTranslation;
 import com.king.backend.domain.content.errorcode.ContentErrorCode;
 import com.king.backend.domain.content.repository.ContentRepository;
+import com.king.backend.domain.favorite.dto.request.FavoriteRequestDto;
 import com.king.backend.domain.favorite.dto.response.FavoriteResponseDto;
 import com.king.backend.domain.favorite.entity.Favorite;
 import com.king.backend.domain.favorite.errorcode.FavoriteErrorCode;
@@ -17,7 +18,9 @@ import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,7 @@ public class FavoriteService {
     private final UserRepository userRepository;
     private final CastRepository castRepository;
     private final ContentRepository contentRepository;
+    private final CursorUtil cursorUtil;
 
     public void addFavorite(String type, Long targetId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -84,7 +89,12 @@ public class FavoriteService {
         favoriteRepository.delete(favorite);
     }
 
-    public FavoriteResponseDto getFavorites(String type) {
+    public FavoriteResponseDto getFavorites(FavoriteRequestDto reqDto) {
+        String cursor = reqDto.getCursor();
+        int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
+        List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
+        String type = reqDto.getType();
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(oauthUser.getName());
@@ -92,7 +102,17 @@ public class FavoriteService {
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
         String language = user.getLanguage();
 
-        List<Favorite> favorites = favoriteRepository.findByUserAndTypeOrderByCreatedAtDesc(user, type);
+        List<Favorite> favorites;
+        if(sortValues == null || sortValues.isEmpty()) {
+            favorites = favoriteRepository.findByUserAndTypeOrderByCreatedAtDesc(user, type, PageRequest.of(0, size));
+        } else {
+            Long id = Long.parseLong(sortValues.get(0).toString());
+            favorites = favoriteRepository.findByUserAndTypeAndIdLessThanOrderByCreatedAtDesc(user, type, id, PageRequest.of(0, size));
+        }
+
+        String nextCursor = (favorites.size() == size)
+                ? cursorUtil.encodeCursor(List.of(favorites.get(favorites.size() - 1).getId()))
+                : null;
 
         List<FavoriteResponseDto.Favorite> favoriteDtos = new ArrayList<>();
         for (Favorite fav : favorites) {
@@ -124,6 +144,7 @@ public class FavoriteService {
         return FavoriteResponseDto.builder()
                 .favorites(favoriteDtos)
                 .favoriteCount((long) favoriteDtos.size())
+                .nextCursor(nextCursor)
                 .build();
     }
 }
