@@ -116,6 +116,7 @@ const CurationUpload = ({ state }) => {
       upload.setShowing(false);
 
       if (res.data) {
+        setPlaceList([]);
         navigate(`/curation/${res.data.curationListId}`, {
           state: { from: { pathname: location.pathname } },
         });
@@ -153,12 +154,7 @@ const CurationUpload = ({ state }) => {
   const handleTitleChange = (event) => {
     const inputValue = event.target.value;
 
-    if (inputValue.length > 150) {
-      alert('제목은 최대 150자까지 입력 가능합니다.');
-      inputValue = inputValue.slice(0, 150);
-      event.target.value = inputValue;
-      setTitle(inputValue);
-    } else {
+    if (inputValue.length <= 50) {
       setTitle(inputValue);
     }
   };
@@ -166,10 +162,7 @@ const CurationUpload = ({ state }) => {
   const handleDescChange = (event) => {
     const inputValue = event.target.value;
 
-    if (inputValue.length > 1000) {
-      alert('설명은 최대 1000자까지 입력 가능합니다.');
-      setDescription(inputValue.slice(0, 1000));
-    } else {
+    if (inputValue.length <= 1000) {
       setDescription(inputValue);
     }
   };
@@ -248,7 +241,6 @@ const CurationUpload = ({ state }) => {
             </ButtonWrapper>
           )}
         </IconText>
-
         <ImageUploadWrapper
           onClick={triggerFileInput}
           $isImage={image ? true : false}
@@ -265,19 +257,20 @@ const CurationUpload = ({ state }) => {
           {image ? <h3>사진 재업로드하기</h3> : <h3>사진 업로드하기</h3>}
           <p>PNG, JPG 형식만 지원됩니다.</p>
         </ImageUploadWrapper>
-
         <TitleInput
           placeholder="제목을 입력하세요."
           value={title}
           onChange={handleTitleChange}
+          maxLength={150}
         ></TitleInput>
-
+        {title.length} / 50
         <DescInput
           placeholder="큐레이션을 간단하게 설명해주세요.(1000자 이내)"
           value={description}
           onChange={handleDescChange}
+          maxLength={1000}
         ></DescInput>
-
+        {description.length} / 1000
         <PublicToggleWrapper>
           <h3>공개</h3>
           {toggle.toggle ? (
