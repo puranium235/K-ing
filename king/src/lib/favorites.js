@@ -1,23 +1,28 @@
+import { convertType } from '../util/convertType';
 import { client } from './axios';
 
-// ✅ 즐겨찾기 목록 조회 (GET)
+// 즐겨찾기 목록 조회
 export const getFavorites = async (type) => {
   try {
     const response = await client.get(`/favorite?type=${type}`);
     return response.data.data.favorites || [];
   } catch (error) {
-    console.error('❌ 즐겨찾기 목록 조회 실패:', error);
+    console.error('즐겨찾기 목록 조회 실패:', error);
     return [];
   }
 };
 
-// ✅ 즐겨찾기 제거 (DELETE)
-export const removeFavorite = async (favoriteId) => {
+// 즐겨찾기 해제
+export const removeFavorite = async (frontendType, targetId) => {
+  const type = convertType(frontendType);
   try {
-    await client.delete(`/favorite/${favoriteId}`);
-    return true; // 성공 시 true 반환
+    const response = await client.delete(`/favorite`, {
+      params: { type, targetId },
+    });
+
+    return response.data.success;
   } catch (error) {
-    console.error(`❌ 즐겨찾기 삭제 실패: ${favoriteId}`, error);
+    console.error('즐겨찾기 해제 실패:', error.response?.data || error.message);
     return false;
   }
 };

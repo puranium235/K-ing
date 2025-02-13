@@ -1,18 +1,23 @@
-import React from 'react';
+import React, { forwardRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcStar } from '../../assets/icons';
-import { IcStarBlank } from '../../assets/icons';
+import { IcStar, IcStarBlank } from '../../assets/icons';
+import { truncateText } from '../../util/truncateText';
 
-const FavoriteItem = ({ item, type }) => {
+const FavoriteItem = forwardRef(({ item, type, onRemove }, ref) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [favorited, setFavorited] = useState(true);
 
-  const handleBookmarkClick = (event) => {
+  const handleBookmarkClick = async (event) => {
     event.stopPropagation(); // 부모 클릭 이벤트 방지
-    console.log(`${type === 'works' ? item.title : item.name} 북마크 상태 변경`);
+
+    if (onRemove) {
+      await onRemove(item.targetId); // 부모 컴포넌트에서 받은 삭제 함수 실행
+    }
   };
+
   const handleClick = () => {
     const routeType = type === 'works' ? 'detail' : 'cast'; // '작품' -> detail, '인물' -> drama
 
@@ -22,15 +27,16 @@ const FavoriteItem = ({ item, type }) => {
   };
 
   return (
-    <StFavoriteItemWrapper onClick={handleClick}>
+    <StFavoriteItemWrapper onClick={handleClick} ref={ref}>
       <St.ImageWrapper>
         <St.Image src={item.imageUrl} alt={type === 'works' ? item.title : item.title} />
+        <St.GradientOverlay />
       </St.ImageWrapper>
       <St.Info>
-        <St.Text>{type === 'works' ? item.title : item.title}</St.Text>
+        <St.Text>{truncateText(item.title, 20)}</St.Text>
       </St.Info>
       <St.BookmarkButton onClick={handleBookmarkClick}>
-        {item.bookmarked ? (
+        {favorited ? (
           <St.Icon>
             <IcStar />
           </St.Icon>
@@ -42,16 +48,20 @@ const FavoriteItem = ({ item, type }) => {
       </St.BookmarkButton>
     </StFavoriteItemWrapper>
   );
-};
+});
 
 export default FavoriteItem;
 
 const StFavoriteItemWrapper = styled.div`
   position: relative;
+  width: 11rem;
   height: 16rem;
+  /* width: auto; */
+  /* flex: 0 0 36%; */
   flex-shrink: 0;
   background-color: ${({ theme }) => theme.colors.White};
   cursor: pointer;
+  min-width: 0; /* Safari에서 너무 커지는 문제 방지 */
 `;
 
 const St = {
@@ -59,6 +69,7 @@ const St = {
     position: relative;
     flex-shrink: 0;
     background-color: ${({ theme }) => theme.colors.White};
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
     cursor: pointer;
   `,
   ImageWrapper: styled.div`
@@ -70,6 +81,14 @@ const St = {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  `,
+  GradientOverlay: styled.div`
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40%; /* 그라데이션 적용 범위 조절 */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
   `,
   Info: styled.div`
     position: absolute;

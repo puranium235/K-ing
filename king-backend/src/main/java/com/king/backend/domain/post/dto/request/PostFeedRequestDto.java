@@ -13,5 +13,5 @@ public class PostFeedRequestDto {
     private Long placeId;
     private Integer size;
     private String cursor;
-    private String sortedBy = "popular";
+    private String sortedBy;
 }
