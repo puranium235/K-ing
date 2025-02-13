@@ -13,7 +13,6 @@ const CurationPlaceSearch = () => {
   const lastElementRef = useRef(null);
 
   const [selectedPlaces, setSelectedPlaces] = useState([]);
-  const [place, setPlace] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   const { placeList, getNextData, isLoading, hasMore } = useGetPlaceSearchResult({
@@ -25,20 +24,32 @@ const CurationPlaceSearch = () => {
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
   }, [isLoading]);
 
+  const handleOptionClick = (option) => {
+    setSearchQuery(option.name);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
   const handlePlaceChange = (item) => {
-    if (!selectedPlaces.find((place) => place.originalId === item.originalId)) {
-      setSelectedPlaces([...selectedPlaces, item]);
-    }
-    setPlace(item.name);
+    setSelectedPlaces((prevPlaces) => {
+      const index = prevPlaces.findIndex((place) => place.id === item.id);
+      if (index < 0) {
+        return [...prevPlaces, item];
+      }
+
+      prevPlaces;
+    });
   };
 
   const handleRemovePlace = (id) => {
-    setSelectedPlaces(selectedPlaces.filter((place) => place.originalId !== id));
+    setSelectedPlaces(selectedPlaces.filter((place) => place.id !== id));
   };
 
   const handleComplete = () => {
-    const selectedIds = selectedPlaces.map((place) => place.originalId);
-    console.log(selectedIds); // ID 배열 저장하는 로직을 이곳에 구현
+    const selectedIds = selectedPlaces.map((place) => place.id);
+    console.log(selectedIds);
     navigate(-1);
   };
 
@@ -51,23 +62,32 @@ const CurationPlaceSearch = () => {
         <h3>선택한 장소</h3>
         <SelectedPlaces>
           {selectedPlaces.map((place) => (
-            <PlaceItem key={place.originalId}>
+            <PlaceItem key={place.id}>
               <img src={place.imageUrl} alt="선택한 장소" />
               <p>{place.name}</p>
-              <button onClick={() => handleRemovePlace(place.originalId)}>X</button>
+              <button onClick={() => handleRemovePlace(place.id)}>X</button>
             </PlaceItem>
           ))}
         </SelectedPlaces>
         <SearchPlaceWrapper>
-          <SearchBar type={'PLACE'} query={place} onSet={handlePlaceChange} />
+          <SearchBar
+            type={'PLACE'}
+            query={searchQuery}
+            onSet={handleOptionClick}
+            onSearch={handleSearch}
+          />
           {placeList.map((place, index) => (
             <ShowItem
               key={place.placeId}
               ref={index === placeList.length - 1 ? lastElementRef : null}
             >
-              <img src={place.imageUrl} alt="선택한 장소" />
+              <img src={place.imageUrl} alt="장소" />
               <p>{place.name}</p>
-              <input onClick={handlePlaceChange} type="radio"></input>
+              <input
+                type="checkbox"
+                checked={selectedPlaces.some((p) => p.id === place.id)}
+                onChange={(event) => handlePlaceChange(place, event)}
+              />
             </ShowItem>
           ))}
         </SearchPlaceWrapper>
@@ -175,8 +195,8 @@ const ShowItem = styled.div`
   }
 
   button {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3rem;
+    height: 3rem;
     border: none;
     cursor: pointer;
 

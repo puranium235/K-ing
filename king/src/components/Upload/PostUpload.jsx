@@ -1,4 +1,3 @@
-import heic2any from 'heic2any';
 import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -23,6 +22,8 @@ import {
   updatePost,
 } from '../../lib/post';
 import { DraftExist, UseDraft } from '../../recoil/atom';
+import { convertHeicToJpeg } from '../../util/convertHeicToJpeg';
+import { convertToBlob } from '../../util/convertToBlob';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
@@ -62,7 +63,7 @@ const PostUpload = ({ state }) => {
       res = await getPostDetail(postId);
       setImage(res);
     } else if (isDraft && useDraft) {
-      //초기 업로드
+      //임시저장 불러오기
       res = await getPostDraft();
       if (res.imageData) {
         setImage(`data:image/jpeg;base64,${res.imageData}`);
@@ -84,26 +85,6 @@ const PostUpload = ({ state }) => {
     if (isDraft && useDraft) {
       await deletePostDraft();
     }
-  };
-
-  //base64 > blob
-  const convertToBlob = (baseImage) => {
-    const byteCharacters = atob(baseImage);
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512);
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-
-    // Blob 객체 생성
-    const blob = new Blob(byteArrays, { type: 'image/jpeg' });
-    return blob;
   };
 
   const saveDraft = async () => {
@@ -190,16 +171,17 @@ const PostUpload = ({ state }) => {
 
     if (!file) return;
 
-    // if (
-    //   file.name.endsWith('.jpg') ||
-    //   file.name.endsWith('.png') ||
-    //   file.name.endsWith('.heic')
-    // ) {
-    //   alert('지원하지 않는 이미지 형식입니다.');
-    //   event.target.type = '';
-    //   event.target.type = 'file';
-    //   return;
-    // }
+    if (
+      !file.name.endsWith('.jpg') &&
+      !file.name.endsWith('.png') &&
+      !file.name.endsWith('.heic') &&
+      !file.name.endsWith('.gif')
+    ) {
+      alert('지원하지 않는 이미지 형식입니다.');
+      event.target.type = '';
+      event.target.type = 'file';
+      return;
+    }
 
     if (file.size > 5 * 1024 * 1024) {
       //5MB
@@ -211,23 +193,10 @@ const PostUpload = ({ state }) => {
 
     if (file.name.endsWith('.heic') || file.name.endsWith('.heif')) {
       //heic 이미지 처리
-      try {
-        const convertedBlob = await heic2any({
-          blob: file,
-          toType: 'image/jpeg',
-        });
-
-        const newFilename = file.name.replace(/\.(heic|heif)$/i, '.jpg'); // Regex to replace both .heic and .heif
-        const newFile = new File([convertedBlob], newFilename, {
-          type: 'image/jpeg',
-          lastModified: new Date().getTime(),
-        });
-
+      const newFile = await convertHeicToJpeg(file);
+      if (newFile) {
         setImageFile(newFile);
         setImage(URL.createObjectURL(newFile));
-      } catch (error) {
-        console.error(error);
-        alert('HEIC 파일 변환에 실패했습니다.');
       }
     } else {
       setImageFile(file);
@@ -256,7 +225,7 @@ const PostUpload = ({ state }) => {
         >
           <input
             type="file"
-            accept="image/png, image/jpeg, image/heic"
+            accept="image/png, image/jpeg, image/heic, image/gif"
             onChange={handleImageChange}
             style={{ display: 'none' }}
             ref={fileInputRef}

@@ -1,17 +1,10 @@
-import heic2any from 'heic2any';
 import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import {
-  IcImageUpload,
-  IcImageUploadTrue,
-  IcMarker2,
-  IcToggleFalse,
-  IcToggleTrue,
-} from '../../assets/icons';
+import { IcImageUpload, IcImageUploadTrue, IcToggleFalse, IcToggleTrue } from '../../assets/icons';
 import useModal from '../../hooks/common/useModal';
 import useToggle from '../../hooks/common/useToggle';
 import {
@@ -23,9 +16,10 @@ import {
   updatePost,
 } from '../../lib/post';
 import { DraftExist, UseDraft } from '../../recoil/atom';
+import { convertHeicToJpeg } from '../../util/convertHeicToJpeg';
+import { convertToBlob } from '../../util/convertToBlob';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
-import SearchBar from '../common/SearchBar';
 import DraftModal from './Modal/DraftModal';
 import UploadingModal from './Modal/UploadingModal';
 
@@ -66,7 +60,7 @@ const CurationUpload = ({ state }) => {
       res = await getPostDraft();
       if (res.imageData) {
         setImage(`data:image/jpeg;base64,${res.imageData}`);
-        setImageFile(base64ToBlob(base64Image, 'image/jpeg'));
+        setImageFile(convertToBlob(base64Image, 'image/jpeg'));
       }
     } else {
       return;
@@ -84,23 +78,6 @@ const CurationUpload = ({ state }) => {
       await deletePostDraft();
     }
   };
-
-  function base64ToBlob(base64, mimeType) {
-    // Base64 데이터에서 실제 데이터 부분만 분리
-    const byteString = atob(base64.split(',')[1]);
-    // 문자열을 처리하기 위한 배열 버퍼
-    const arrayBuffer = new ArrayBuffer(byteString.length);
-    // 배열 버퍼를 8비트 unsigned integer 배열로 변환
-    const intArray = new Uint8Array(arrayBuffer);
-
-    for (let i = 0; i < byteString.length; i++) {
-      intArray[i] = byteString.charCodeAt(i);
-    }
-
-    // Blob 객체 생성
-    const blob = new Blob([intArray], { type: mimeType });
-    return blob;
-  }
 
   const saveDraft = async () => {
     if (imageFile || placeId || caption) {
@@ -193,16 +170,17 @@ const CurationUpload = ({ state }) => {
 
     if (!file) return;
 
-    // if (
-    //   file.name.endsWith('.jpg') ||
-    //   file.name.endsWith('.png') ||
-    //   file.name.endsWith('.heic')
-    // ) {
-    //   alert('지원하지 않는 이미지 형식입니다.');
-    //   event.target.type = '';
-    //   event.target.type = 'file';
-    //   return;
-    // }
+    if (
+      !file.name.endsWith('.jpg') &&
+      !file.name.endsWith('.png') &&
+      !file.name.endsWith('.heic') &&
+      !file.name.endsWith('.gif')
+    ) {
+      alert('지원하지 않는 이미지 형식입니다.');
+      event.target.type = '';
+      event.target.type = 'file';
+      return;
+    }
 
     if (file.size > 5 * 1024 * 1024) {
       //5MB
@@ -214,23 +192,10 @@ const CurationUpload = ({ state }) => {
 
     if (file.name.endsWith('.heic') || file.name.endsWith('.heif')) {
       //heic 이미지 처리
-      try {
-        const convertedBlob = await heic2any({
-          blob: file,
-          toType: 'image/jpeg',
-        });
-
-        const newFilename = file.name.replace(/\.(heic|heif)$/i, '.jpg'); // Regex to replace both .heic and .heif
-        const newFile = new File([convertedBlob], newFilename, {
-          type: 'image/jpeg',
-          lastModified: new Date().getTime(),
-        });
-
+      const newFile = convertHeicToJpeg(file);
+      if (newFile) {
         setImageFile(newFile);
         setImage(URL.createObjectURL(newFile));
-      } catch (error) {
-        console.error(error);
-        alert('HEIC 파일 변환에 실패했습니다.');
       }
     } else {
       setImageFile(file);
@@ -305,6 +270,7 @@ const CurationUpload = ({ state }) => {
           )}
         </PublicToggleWrapper>
       </StUploadWrapper>
+
       <PlaceWrapper>
         <AddButton
           onClick={() => {
