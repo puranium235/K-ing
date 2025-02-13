@@ -68,7 +68,8 @@ const FavoritesDetail = () => {
           </St.NoDataMessage>
         )}
       </St.List>
-      <GoUpButton />
+      <CustomGoUpButton />
+      {/* <GoUpButton /> */}
     </StFavoritesDetailWrapper>
   );
 };
@@ -137,3 +138,7 @@ const St = {
     ${({ theme }) => theme.fonts.Body5};
   `,
 };
+
+const CustomGoUpButton = styled(GoUpButton)`
+  bottom: 2rem;
+`;
