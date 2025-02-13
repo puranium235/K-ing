@@ -134,7 +134,8 @@ const UpButton = styled.button`
 const ContentSection = styled.div`
   background-color: #ffffff;
   position: absolute;
-  ${(props) => (props.$isExpanded ? 'top: 8rem;' : 'top: calc(100vh - 18rem);')}
+  bottom: -5rem;
+  height: ${(props) => (props.$isExpanded ? '50rem' : '25rem')};
   left: 0;
   right: 0;
   transition: bottom 0.3s ease;

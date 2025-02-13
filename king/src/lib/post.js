@@ -76,7 +76,6 @@ export const getPostDetail = async (postId) => {
 export const deletePost = async (postId) => {
   try {
     const { data } = await client.delete(`/post/${postId}`);
-    console.log(data);
     return data;
   } catch (err) {
     console.error(err);

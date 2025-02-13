@@ -13,6 +13,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
   const [keyword, setKeyword] = useState(query);
   const [category, setCategory] = useState('');
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
+  const [isDropDown, setIsDropDown] = useState(true);
   const setContentType = useSetRecoilState(ContentType);
 
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
   );
 
   const onChangeData = (e) => {
+    setIsDropDown(true);
     setKeyword(e.currentTarget.value);
     if (type !== 'curation') {
       handleSearchChange(e.currentTarget.value);
@@ -34,9 +36,11 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
 
   const handleOptionClick = (option) => {
     setContentType('autocom');
+    setIsDropDown(false);
 
     if (onSet) {
       setAutoCompleteOptions([]);
+      setKeyword(option.name);
       onSet(option);
       return;
     }
@@ -76,7 +80,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
       />
       <IcSearch onClick={(event) => handleSubmit(event)} />
       {autoCompleteOptions.length > 0 && (
-        <AutoSearchContainer>
+        <AutoSearchContainer $isDropDown={isDropDown}>
           <AutoSearchWrap>
             {autoCompleteOptions.map((option, index) => (
               <AutoSearchData key={index} onClick={(event) => handleOptionClick(option, event)}>
@@ -137,6 +141,8 @@ const AutoSearchContainer = styled.div`
   border: 1px solid #ddd;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
+
+  display: ${({ $isDropDown }) => ($isDropDown ? 'block' : 'none')};
 `;
 
 const AutoSearchWrap = styled.ul``;
