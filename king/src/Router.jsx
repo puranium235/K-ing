@@ -13,6 +13,7 @@ import CurationDetailPage from './pages/CurationDetailPage';
 import CurationEditPage from './pages/CurationEditPage';
 import CurationMapPage from './pages/CurationMapPage';
 import CurationPage from './pages/CurationPage';
+import CurationPlaceSearchPage from './pages/CurationPlaceSearchPage';
 import CurationUploadPage from './pages/CurationUploadPage';
 import ErrorPage from './pages/ErrorPage';
 import FavoritesDetailPage from './pages/FavoritesDetailPage';
@@ -55,6 +56,7 @@ const Router = () => {
               <Route path="/upload/post" element={<PostUploadPage />} />
               <Route path="/update/post/:postId" element={<PostUpdatePage />} />
               <Route path="/upload/curation" element={<CurationUploadPage />} />
+              <Route path="/upload/curation/place" element={<CurationPlaceSearchPage />} />
               <Route path="/archive" element={<ArchivePage />} />
               <Route path="/favorites/:type" element={<FavoritesDetailPage />} />
               <Route path="/mypage" element={<MyPage />} />
