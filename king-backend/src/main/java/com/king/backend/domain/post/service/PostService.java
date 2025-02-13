@@ -158,11 +158,8 @@ public class PostService {
         int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
         List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
 
-        log.info("feed cursor method 시작");
-
         List<Post> posts;
         if ("review".equals(reqDto.getFeedType())) {
-            log.info("review start");
             Long placeId = reqDto.getPlaceId();
             if (placeId == null) {
                 throw new CustomException(PlaceErrorCode.PLACE_NOT_FOUND);
@@ -170,14 +167,11 @@ public class PostService {
             Place place = placeRepository.findById(placeId)
                     .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
             if("popular".equals(reqDto.getSortedBy())) {
-                log.info("popular start");
                 posts = getPopularReviewPosts(place, sortValues, size);
             } else {
-                log.info("latest start");
                 posts = getLatestReviewPosts(place, sortValues, size);
             }
         } else if ("myPage".equals(reqDto.getFeedType())) {
-            log.info("myPage start");
             Long userId = reqDto.getUserId();
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
@@ -186,7 +180,6 @@ public class PostService {
             if (userId == null) {
                 throw new CustomException(UserErrorCode.USER_NOT_FOUND);
             } else {
-                log.info("myPage else start");
                 User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                         .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
                 posts = (userId.equals(authId))
