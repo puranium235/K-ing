@@ -10,7 +10,6 @@ import ChatbotPage from './pages/ChatbotPage';
 import ContentDetailPage from './pages/ContentDetailPage';
 import ContentPage from './pages/ContentPage';
 import CurationDetailPage from './pages/CurationDetailPage';
-import CurationEditPage from './pages/CurationEditPage';
 import CurationMapPage from './pages/CurationMapPage';
 import CurationPage from './pages/CurationPage';
 import CurationPlaceSearchPage from './pages/CurationPlaceSearchPage';
@@ -65,7 +64,7 @@ const Router = () => {
               <Route path="/setting/:settingType" element={<SettingDetailPage />} />
               <Route path="/curation" element={<CurationPage />} />
               <Route path="/curation/:curationId" element={<CurationDetailPage />} />
-              <Route path="/curation/edit/:curationId" element={<CurationEditPage />} />
+              <Route path="/upload/curation/:curationId" element={<CurationUploadPage />} />
               <Route path="/curation/map" element={<CurationMapPage />} />
               <Route path="/feed" element={<FeedPage />} />
               <Route path="/feed/:postId" element={<FeedDetailPage />} />

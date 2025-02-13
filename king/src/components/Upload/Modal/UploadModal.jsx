@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
+import { getCurationDraft } from '../../../lib/curation';
 import { getPostDraft } from '../../../lib/post';
-import { DraftExist } from '../../../recoil/atom';
+import { CurationDraftExist, DraftExist } from '../../../recoil/atom';
 
 const UploadModal = ({ isShowing }) => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const UploadModal = ({ isShowing }) => {
 
   // 게시글 임시저장
   const setDraftExist = useSetRecoilState(DraftExist);
+  const setCurationDraftExist = useSetRecoilState(CurationDraftExist);
 
   const checkDraft = async () => {
     const res = await getPostDraft();
@@ -22,11 +24,21 @@ const UploadModal = ({ isShowing }) => {
     }
   };
 
+  const checkCurationDraft = async () => {
+    const res = await getCurationDraft();
+    if (res) {
+      setCurationDraftExist(true);
+    } else {
+      setCurationDraftExist(false);
+    }
+  };
+
   const onOptionClick = (option) => {
     if (option === '인증샷 업로드') {
       checkDraft();
       navigate(`/upload/post`);
     } else {
+      checkCurationDraft();
       navigate(`/upload/curation`);
     }
   };

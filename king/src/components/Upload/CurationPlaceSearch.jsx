@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useRef } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
+import { CurationPlaceUploadList } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import SearchBar from '../common/SearchBar';
 
@@ -14,6 +16,7 @@ const CurationPlaceSearch = () => {
 
   const [selectedPlaces, setSelectedPlaces] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const setCurationPlaceUploadList = useSetRecoilState(CurationPlaceUploadList);
 
   const { placeList, getNextData, isLoading, hasMore } = useGetPlaceSearchResult({
     query: searchQuery,
@@ -48,8 +51,7 @@ const CurationPlaceSearch = () => {
   };
 
   const handleComplete = () => {
-    const selectedIds = selectedPlaces.map((place) => place.id);
-    console.log(selectedIds);
+    setCurationPlaceUploadList(selectedPlaces);
     navigate(-1);
   };
 

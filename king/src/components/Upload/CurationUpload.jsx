@@ -1,21 +1,21 @@
 import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import { IcImageUpload, IcImageUploadTrue, IcToggleFalse, IcToggleTrue } from '../../assets/icons';
 import useModal from '../../hooks/common/useModal';
 import useToggle from '../../hooks/common/useToggle';
 import {
-  createPost,
-  deletePostDraft,
-  getPostDetail,
-  getPostDraft,
-  postDraft,
-  updatePost,
-} from '../../lib/post';
-import { DraftExist, UseDraft } from '../../recoil/atom';
+  createCuration,
+  deleteCurationDraft,
+  getCurationDetail,
+  getCurationDraft,
+  postCurationDraft,
+  updateCuration,
+} from '../../lib/curation';
+import { CurationDraftExist, CurationPlaceUploadList, UseDraft } from '../../recoil/atom';
 import { convertHeicToJpeg } from '../../util/convertHeicToJpeg';
 import { convertToBlob } from '../../util/convertToBlob';
 import BackButton from '../common/button/BackButton';
@@ -24,7 +24,7 @@ import DraftModal from './Modal/DraftModal';
 import UploadingModal from './Modal/UploadingModal';
 
 const CurationUpload = ({ state }) => {
-  const { postId } = useParams();
+  const { curationId } = useParams();
   const create = useModal();
   const upload = useModal();
   const toggle = useToggle(true);
@@ -32,15 +32,19 @@ const CurationUpload = ({ state }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [place, setPlace] = useState('');
-  const [placeId, setPlaceId] = useState(0);
+  const [placeIds, setPlaceIds] = useState([]);
   const [image, setImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-  const [caption, setCaption] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [isShareEnabled, setIsShareEnabled] = useState(false);
+  const [placeList, setPlaceList] = useRecoilState(CurationPlaceUploadList);
+  const [isDraft, setIsDraft] = useRecoilState(CurationDraftExist);
+  const [useDraft, setUseDraft] = useRecoilState(UseDraft);
 
-  const isDraft = useRecoilValue(DraftExist);
-  const useDraft = useRecoilValue(UseDraft);
+  useEffect(() => {
+    setPlaceIds(placeList.map((place) => place.id));
+  }, [placeList]);
 
   useEffect(() => {
     if (isDraft) {
@@ -51,45 +55,46 @@ const CurationUpload = ({ state }) => {
   const initData = async () => {
     let res;
 
-    if (postId) {
-      //업데이트
-      res = await getPostDetail(postId);
+    if (curationId) {
+      res = await getCurationDetail(curationId);
       setImage(res.imageUrl);
     } else if (isDraft && useDraft) {
-      //초기 업로드
-      res = await getPostDraft();
+      res = await getCurationDraft();
       if (res.imageData) {
         setImage(`data:image/jpeg;base64,${res.imageData}`);
-        setImageFile(convertToBlob(base64Image, 'image/jpeg'));
+        setImageFile(convertToBlob(res.imageData, 'image/jpeg'));
       }
     } else {
       return;
     }
 
-    setCaption(res.content ? res.content : '');
-    if (res.place) {
-      setPlaceId(res.place.placeId);
-      setPlace(res.place.name);
+    setTitle(res.title ? res.title : '');
+    setDescription(res.description ? res.description : '');
+    if (res.places) {
+      setPlaceList(res.places);
     }
 
     toggle.setToggle(res.public);
 
     if (isDraft && useDraft) {
-      await deletePostDraft();
+      await deleteCurationDraft();
     }
   };
 
   const saveDraft = async () => {
-    if (imageFile || placeId || caption) {
+    if (imageFile || placeIds.length > 0 || title || description) {
       const draftInfo = { public: toggle.toggle };
-      if (caption) {
-        draftInfo.content = caption;
+      if (title) {
+        draftInfo.title = title;
       }
-      if (placeId !== 0) {
-        draftInfo.placeId = placeId;
+      if (description) {
+        draftInfo.description = description;
+      }
+      if (placeIds.length > 0) {
+        draftInfo.placeIds = placeIds;
       }
       console.log(imageFile);
-      const res = await postDraft(draftInfo, imageFile);
+      const res = await postCurationDraft(draftInfo, imageFile);
       if (res.success) {
         alert('임시저장이 완료되었습니다.');
         navigate(`/home`);
@@ -97,68 +102,76 @@ const CurationUpload = ({ state }) => {
     }
   };
 
-  const sharePost = async () => {
+  const shareCuration = async () => {
     if (isShareEnabled) {
-      const postInfo = {
-        content: caption,
-        placeId,
+      const curationInfo = {
+        title,
+        description,
+        placeIds,
         public: toggle.toggle,
       };
 
       upload.setShowing(true);
-      const res = await createPost(postInfo, imageFile);
+      const res = await createCuration(curationInfo, imageFile);
       upload.setShowing(false);
 
       if (res.data) {
-        navigate(`/feed/${res.data}`, { state: { from: { pathname: location.pathname } } });
+        navigate(`/curation/${res.data.curationListId}`, {
+          state: { from: { pathname: location.pathname } },
+        });
       }
     }
   };
 
-  const handleUpdatePost = async () => {
+  const handleUpdateCuration = async () => {
     if (isShareEnabled) {
-      const postInfo = {
-        content: caption,
-        placeId,
+      const curationInfo = {
+        title,
+        description,
+        placeIds,
         public: toggle.toggle,
       };
 
       upload.setShowing(true);
-      const res = await updatePost(postId, postInfo, imageFile);
+      const res = await updateCuration(curationId, curationInfo, imageFile);
       upload.setShowing(false);
 
       if (res.success) {
-        navigate(`/feed/${postId}`, { state: { from: { pathname: location.pathname } } });
+        navigate(`/curation/${curationId}`, { state: { from: { pathname: location.pathname } } });
       }
     }
   };
 
   useEffect(() => {
     initData();
-  }, [useDraft, postId]);
+  }, [useDraft, curationId]);
 
   useEffect(() => {
-    setIsShareEnabled(!!image && !!placeId && !!caption);
-  }, [image, placeId, caption]);
-
-  const handlePlaceChange = (item) => {
-    setPlaceId(item.originalId);
-    setPlace(item.name);
-  };
+    setIsShareEnabled(!!image && placeIds.length > 0 && !!title && !!description);
+  }, [image, placeIds, title, description]);
 
   const handleTitleChange = (event) => {
-    if (event.target.value.length > 150) {
+    const inputValue = event.target.value;
+
+    if (inputValue.length > 150) {
       alert('제목은 최대 150자까지 입력 가능합니다.');
+      inputValue = inputValue.slice(0, 150);
+      event.target.value = inputValue;
+      setTitle(inputValue);
+    } else {
+      setTitle(inputValue);
     }
-
-    setCaption(event.target.value);
   };
-  const handleDescChange = (event) => {
-    if (event.target.value.length > 1000) {
-      alert('설명은 최대 1000자까지 입력 가능합니다.');
-    }
 
-    setCaption(event.target.value);
+  const handleDescChange = (event) => {
+    const inputValue = event.target.value;
+
+    if (inputValue.length > 1000) {
+      alert('설명은 최대 1000자까지 입력 가능합니다.');
+      setDescription(inputValue.slice(0, 1000));
+    } else {
+      setDescription(inputValue);
+    }
   };
 
   const handleToggle = () => {
@@ -209,6 +222,10 @@ const CurationUpload = ({ state }) => {
     }
   };
 
+  const handleCurationClick = (id) => {
+    navigate(`/place/${id}`);
+  };
+
   return (
     <>
       <StUploadWrapper>
@@ -218,14 +235,14 @@ const CurationUpload = ({ state }) => {
           {state === 'upload' ? (
             <ButtonWrapper>
               <TemporaryButton onClick={saveDraft}>임시 저장</TemporaryButton>
-              <SaveButton disabled={!isShareEnabled} onClick={sharePost}>
-                공유
+              <SaveButton disabled={!isShareEnabled} onClick={shareCuration}>
+                발헹
               </SaveButton>
             </ButtonWrapper>
           ) : (
             <ButtonWrapper>
               <TemporaryButton onClick={() => navigate(-1)}>취소</TemporaryButton>
-              <SaveButton disabled={!isShareEnabled} onClick={handleUpdatePost}>
+              <SaveButton disabled={!isShareEnabled} onClick={handleUpdateCuration}>
                 저장
               </SaveButton>
             </ButtonWrapper>
@@ -251,13 +268,13 @@ const CurationUpload = ({ state }) => {
 
         <TitleInput
           placeholder="제목을 입력하세요."
-          value={caption}
+          value={title}
           onChange={handleTitleChange}
         ></TitleInput>
 
         <DescInput
           placeholder="큐레이션을 간단하게 설명해주세요.(1000자 이내)"
-          value={caption}
+          value={description}
           onChange={handleDescChange}
         ></DescInput>
 
@@ -279,6 +296,17 @@ const CurationUpload = ({ state }) => {
         >
           + 장소 추가하기
         </AddButton>
+        <PlaceList>
+          {placeList.map((place) => (
+            <CardContainer key={place.id} onClick={() => handleCurationClick(place.id)}>
+              <ImageContainer>
+                {place.imageUrl && <Image src={place.imageUrl} alt={place.name} />}
+              </ImageContainer>
+
+              <TextContainer>{place.name && <Title>{place.name}</Title>}</TextContainer>
+            </CardContainer>
+          ))}
+        </PlaceList>
       </PlaceWrapper>
 
       <Nav />
@@ -294,6 +322,13 @@ const CurationUpload = ({ state }) => {
 };
 
 export default CurationUpload;
+
+const PlaceList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.2rem;
+  padding: 0 0.5rem;
+`;
 
 const StUploadWrapper = styled.div`
   display: flex;
@@ -493,4 +528,51 @@ const AddButton = styled.button`
   background-color: ${({ theme }) => theme.colors.Gray0};
   color: ${({ theme }) => theme.colors.White};
   ${({ theme }) => theme.fonts.Body4};
+`;
+
+const CardContainer = styled.div`
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  overflow: hidden;
+
+  cursor: pointer;
+`;
+
+const ImageContainer = styled.div`
+  width: 100%;
+  height: 22rem;
+  overflow: hidden;
+  border-radius: 10px;
+`;
+
+const Image = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const TextContainer = styled.div`
+  box-sizing: border-box;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  text-align: left;
+
+  width: 100%;
+`;
+
+const Title = styled.h3`
+  width: 100%;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  ${({ theme }) => theme.fonts.Title6};
+  color: ${({ theme }) => theme.colors.Gray0};
 `;

@@ -61,6 +61,11 @@ const CurationPlaceList = atom({
   default: [],
 });
 
+const CurationPlaceUploadList = atom({
+  key: 'placeListUploadState',
+  default: [],
+});
+
 const DraftExist = atom({
   key: 'draftExist',
   default: false,
@@ -68,6 +73,11 @@ const DraftExist = atom({
 
 const UseDraft = atom({
   key: 'useDraft',
+  default: false,
+});
+
+const CurationDraftExist = atom({
+  key: 'CurationDraftExist',
   default: false,
 });
 
@@ -95,7 +105,9 @@ export {
   ActiveUserTabState,
   ContentId,
   ContentType,
+  CurationDraftExist,
   CurationPlaceList,
+  CurationPlaceUploadList,
   DraftExist,
   FilterOption,
   ProfileState,
