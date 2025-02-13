@@ -55,6 +55,7 @@ const FavoritesList = ({ title, onTabChange }) => {
           <St.Title>{title}</St.Title>
           <St.Count>
             {favoritesData?.length || 0}
+            {favoritesData?.length == 10 && '+'}
             {unit}의 {title}
           </St.Count>
         </St.Left>
