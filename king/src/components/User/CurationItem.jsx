@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcLock } from '../../assets/icons';
+import { truncateText } from '../../util/truncateText';
 
 const CurationItem = forwardRef(({ item }, ref) => {
   const { curationId, title, imageUrl, public: isPublic } = item;
@@ -13,13 +13,12 @@ const CurationItem = forwardRef(({ item }, ref) => {
     navigate(`/curation/${curationId}`);
   };
 
-  const truncateText = (text, maxLength) => {
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
-  };
-
   return (
     <StCurationItemWrapper ref={ref} onClick={handleCurationClick}>
-      <St.Image src={imageUrl} alt={title} />
+      <St.ImageWrapper>
+        <St.Image src={imageUrl} alt={title} />
+        <St.GradientOverlay />
+      </St.ImageWrapper>
       <St.Info>
         <St.Title>{truncateText(title, 20)}</St.Title>
       </St.Info>
@@ -54,11 +53,24 @@ const St = {
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
     background-color: ${({ theme }) => theme.colors.White};
   `,
+  ImageWrapper: styled.div`
+    position: relative;
+    width: 100%;
+    height: 100%;
+  `,
   Image: styled.img`
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+  `,
+  GradientOverlay: styled.div`
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30%; /* 그라데이션 적용 범위 조절 */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
   `,
   Info: styled.div`
     text-align: left;

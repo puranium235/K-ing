@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import { IcBookmarkBlank, IcBookmarkFill } from '../../assets/icons';
 import { removeBookmark } from '../../lib/bookmark';
+import { truncateText } from '../../util/truncateText';
 
 const CurationItem = forwardRef(({ item, onRemove }, ref) => {
   const { curationId, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item; // 초기 bookmarked 값 가져오기
@@ -37,13 +38,12 @@ const CurationItem = forwardRef(({ item, onRemove }, ref) => {
     navigate(`/curation/${curationId}`);
   };
 
-  const truncateText = (text, maxLength) => {
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
-  };
-
   return (
     <StCurationItemWrapper ref={ref} onClick={handleCurationClick}>
-      <St.Image src={imageUrl} alt={title} />
+      <St.ImageWrapper>
+        <St.Image src={imageUrl} alt={title} />
+        <St.GradientOverlay />
+      </St.ImageWrapper>
       <St.Info>
         <St.Author>@{truncateText(writerNickname, 15)}</St.Author>
         <St.Title>{truncateText(title, 20)}</St.Title>
@@ -67,12 +67,12 @@ const StCurationItemWrapper = styled.div`
 
   cursor: pointer;
 
-  transition:
+  /* transition:
     opacity 0.3s ease-out,
     transform 0.3s ease-out;
   &:hover {
     opacity: 0.9;
-  }
+  } */
 `;
 
 const St = {
@@ -84,11 +84,24 @@ const St = {
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
     background-color: ${({ theme }) => theme.colors.White};
   `,
+  ImageWrapper: styled.div`
+    position: relative;
+    width: 100%;
+    height: 100%;
+  `,
   Image: styled.img`
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+  `,
+  GradientOverlay: styled.div`
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30%; /* 그라데이션 적용 범위 조절 */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
   `,
   Info: styled.div`
     text-align: left;
@@ -122,6 +135,7 @@ const St = {
 
     cursor: pointer;
 
+    // 북마크 뒤에 그림자
     filter: ${({ theme }) => `drop-shadow(2px 2px 4px ${theme.colors.MainBlue}80)`};
   `,
 };
