@@ -22,3 +22,13 @@ export const getCurationList = async (query, cursor) => {
     console.error(err);
   }
 };
+
+export const deleteCuration = async (curationId) => {
+  try {
+    const { data } = await client.delete(`/curation/${curationId}`);
+    return data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};

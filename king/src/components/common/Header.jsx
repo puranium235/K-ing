@@ -1,13 +1,9 @@
 import React, { useRef, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 
-import OptionIcon from '/src/assets/icons/option.png';
-import OptionModal from '/src/components/common/OptionModal';
-
 import BackButton from './button/BackButton';
 
-const Header = ({ title, isOption }) => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+const Header = ({ title }) => {
   const [hasAnimated, setHasAnimated] = useState(false); // 애니메이션 종료 여부
   const [offsetX, setOffsetX] = useState(0); // 현재 드래그 위치
   const [isDragging, setIsDragging] = useState(false); // 드래그 여부
@@ -16,14 +12,6 @@ const Header = ({ title, isOption }) => {
 
   const containerRef = useRef(null); // TitleContainer 참조
   const titleRef = useRef(null); // SlidingTitle 참조
-
-  const openModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setIsModalVisible(false);
-  };
 
   // 애니메이션 종료 시 처리
   const handleAnimationEnd = () => {
@@ -81,15 +69,7 @@ const Header = ({ title, isOption }) => {
             <span>{title}</span>
           </SlidingTitle>
         </TitleContainer>
-        {isOption && (
-          <OptionButton onClick={openModal}>
-            <img src={OptionIcon} alt="Option" />
-          </OptionButton>
-        )}
       </StHeader>
-
-      {/* 옵션 모달 */}
-      <OptionModal isModalVisible={isModalVisible} onClick={closeModal} />
     </Container>
   );
 };
@@ -103,20 +83,6 @@ const StHeader = styled.div`
   align-items: center;
   padding: 1rem;
   gap: 1rem;
-`;
-
-const OptionButton = styled.button`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  right: 1.2rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  img {
-    height: 1.8rem;
-  }
 `;
 
 const TitleContainer = styled.div`

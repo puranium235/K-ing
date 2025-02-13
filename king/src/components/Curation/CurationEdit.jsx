@@ -3,19 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import LockIcon from '/src/assets/icons/lock.png';
 import MapIcon from '/src/assets/icons/map.png';
-import OptionIcon from '/src/assets/icons/option.png';
-import OptionModal from '/src/components/common/OptionModal';
 
-import { deleteCuration, getCurationDetail } from '../../lib/curation';
+import { getCurationDetail } from '../../lib/curation';
 import { CurationPlaceList } from '../../recoil/atom';
 import { formatDate } from '../../util/formatDate';
-import { getUserIdFromToken } from '../../util/getUserIdFromToken';
 import Bottom from '../common/Bottom';
-import Header from '../common/Header';
-import ImageHeader from '../common/ImageHeader';
-import DeleteModal from '../common/modal/DeleteModal';
+import DetailHeader from '../common/DetailHeader';
 import Loading from '../Loading/Loading';
 import CardListItem from './CardListItem';
 import FunctionButton from './FunctionButton';
@@ -27,18 +21,6 @@ const CurationDetail = () => {
   const setPlaceList = useSetRecoilState(CurationPlaceList);
   const [curationData, setCurationData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isOptionVisible, setIsOptionVisible] = useState(true);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  // 옵션 버튼
-  const openModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setIsModalVisible(false);
-  };
 
   useEffect(() => {
     const fetchCurationData = async () => {
@@ -54,37 +36,11 @@ const CurationDetail = () => {
     fetchCurationData();
   }, [curationId, setPlaceList]);
 
-  // 작성자가 아니면 헤더에 옵션 버튼이 보이지 않음
-  useEffect(() => {
-    if (curationData) {
-      const currentUserId = Number(getUserIdFromToken());
-      setIsOptionVisible(currentUserId !== null && curationData.writer.userId === currentUserId);
-    }
-  }, [curationData]);
-
   if (loading) return <Loading />;
 
   const handleRoute = () => {
     navigate(`/curation/map`);
   };
-
-  const handleDeleteClick = () => {
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    try {
-      await deleteCuration(curationId); // DELETE API 호출
-      alert('삭제가 완료되었습니다.');
-      navigate('/curation'); // 삭제 후 목록 페이지로 이동
-    } catch (error) {
-      alert('삭제에 실패했습니다.');
-    } finally {
-      setIsDeleteModalOpen(false);
-    }
-  };
-
-  const handleEdit = () => {};
 
   const handleBookmarkClick = () => {
     setCurationData((prevData) => ({
@@ -96,35 +52,11 @@ const CurationDetail = () => {
 
   return (
     <Container>
-      <HeaderContainer>
-        <Header title={curationData.title} />
-        {isOptionVisible && (
-          <OptionButton onClick={openModal}>
-            <img src={OptionIcon} alt="Option" />
-          </OptionButton>
-        )}
-
-        {/* 옵션 모달 */}
-        <OptionModal
-          isModalVisible={isModalVisible}
-          onClick={closeModal}
-          onDelete={handleDeleteClick}
-          onUpdate={handleEdit}
-        />
-      </HeaderContainer>
-      <ImageContainer>
-        <ImageHeader src={curationData.imageUrl} alt={'CurationImage'} />
-        {!curationData.public && (
-          <LockButton>
-            <img src={LockIcon} alt="isPublic" />
-          </LockButton>
-        )}
-      </ImageContainer>
-
-      <DeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleConfirmDelete}
+      <DetailHeader
+        title={curationData.title}
+        isOption={true}
+        imageSrc={curationData.imageUrl}
+        imageAltText={'CurationImage'}
       />
 
       {/* 큐레이션 설명 */}
@@ -162,47 +94,6 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
-`;
-
-const HeaderContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-
-const OptionButton = styled.button`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  right: 1.2rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  img {
-    height: 1.8rem;
-  }
-`;
-
-const ImageContainer = styled.div`
-  position: relative;
-`;
-
-const LockButton = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 5px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  img {
-    height: 1.8rem;
-    width: 1.8rem;
-  }
 `;
 
 const Content = styled.div`
