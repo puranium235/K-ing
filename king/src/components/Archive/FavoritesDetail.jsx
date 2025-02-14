@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import useGetFavoriteList from '../../hooks/archive/useGetFavoriteList';
+import { removeFavorite } from '../../lib/favorites';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import BackButton from '../common/button/BackButton';
 import GoUpButton from '../common/button/GoUpButton';
@@ -26,18 +27,12 @@ const FavoritesDetail = () => {
   };
 
   // 즐겨찾기 삭제 후 mutate 호출 - 목록 갱신
-  const handleRemoveFavorite = (targetId) => {
-    mutate((prevData) => {
-      if (!prevData) return [];
+  const handleRemoveFavorite = async (targetId) => {
+    const success = await removeFavorite(type, targetId);
 
-      return prevData.map((page) => ({
-        ...page,
-        data: {
-          ...page.data,
-          favorites: page.data.favorites.filter((favorite) => favorite.targetId !== targetId),
-        },
-      }));
-    }, false);
+    if (success) {
+      await mutate(); // API를 다시 호출해서 실제 서버 데이터를 반영
+    }
   };
 
   if (isLoading && favoritesList.length === 0) return <Loading />;
@@ -119,7 +114,7 @@ const St = {
     align-items: center;
     gap: 0;
 
-    padding: 2rem;
+    padding: 0rem 2rem 6rem 2rem;
 
     &::-webkit-scrollbar {
       display: none;
@@ -140,5 +135,5 @@ const St = {
 };
 
 const CustomGoUpButton = styled(GoUpButton)`
-  bottom: 2rem;
+  bottom: 1rem;
 `;
