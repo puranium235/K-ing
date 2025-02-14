@@ -1,26 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { IcKing } from '../assets/icons';
 import KingLogo from '../assets/icons/king_logo.png';
-import KingLogoImsi from '../assets/icons/king_logo_imsi.png';
+import { handleAllowNotification } from '../service/notificationPermission';
 
 const SignupCompletePage = () => {
   const handleLogin = () => {
     alert(
       '다음의 실행 환경을 권장합니다.\n권장 테스트 환경 : PWA\n아이폰 : 공유 - 홈 화면에 추가\n안드로이드 : 우상단 메뉴 - 홈 화면에 추가',
     );
+    handleAllowNotification();
     window.location.href = '/home';
   };
 
   return (
     <StSignupCompletePageWrapper>
-      {/* <St.IconWrapper>
-        <IcKing />
-      </St.IconWrapper> */}
       <LogoImage src={KingLogo} alt="King Logo" />
       <St.ContentWrapper>
-        {/* <Title>K-ing</Title> */}
         <Message>회원가입이 완료되었습니다.</Message>
       </St.ContentWrapper>
       <St.ButtonWrapper>
@@ -68,12 +64,6 @@ const St = {
     ${({ theme }) => theme.fonts.Title2}
   `,
 };
-
-const Title = styled.h1`
-  ${({ theme }) => theme.fonts.Title1}
-  font-weight: bold;
-  margin-bottom: 1rem;
-`;
 
 const Message = styled.p`
   ${({ theme }) => theme.fonts.Title3}

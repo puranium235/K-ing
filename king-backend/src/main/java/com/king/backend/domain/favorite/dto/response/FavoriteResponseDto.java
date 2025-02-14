@@ -15,6 +15,7 @@ import java.util.List;
 public class FavoriteResponseDto {
     List<Favorite> favorites;
     Long favoriteCount;
+    private String nextCursor;
 
     @NoArgsConstructor
     @AllArgsConstructor

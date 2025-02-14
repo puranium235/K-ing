@@ -4,13 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import {
-  IcImageUpload,
-  IcImageUploadTrue,
-  IcMarker2,
-  IcToggleFalse,
-  IcToggleTrue,
-} from '../../assets/icons';
+import { IcImageUpload, IcImageUploadTrue, IcToggleFalse, IcToggleTrue } from '../../assets/icons';
 import useModal from '../../hooks/common/useModal';
 import useToggle from '../../hooks/common/useToggle';
 import {
@@ -26,11 +20,10 @@ import { convertHeicToJpeg } from '../../util/convertHeicToJpeg';
 import { convertToBlob } from '../../util/convertToBlob';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
-import SearchBar from '../common/SearchBar';
 import DraftModal from './Modal/DraftModal';
 import UploadingModal from './Modal/UploadingModal';
 
-const PostUpload = ({ state }) => {
+const CurationUpload = ({ state }) => {
   const { postId } = useParams();
   const create = useModal();
   const upload = useModal();
@@ -61,14 +54,13 @@ const PostUpload = ({ state }) => {
     if (postId) {
       //업데이트
       res = await getPostDetail(postId);
-      setImage(res);
+      setImage(res.imageUrl);
     } else if (isDraft && useDraft) {
-      //임시저장 불러오기
+      //초기 업로드
       res = await getPostDraft();
       if (res.imageData) {
         setImage(`data:image/jpeg;base64,${res.imageData}`);
-        const blob = convertToBlob(res.imageData);
-        setImageFile(blob);
+        setImageFile(convertToBlob(base64Image, 'image/jpeg'));
       }
     } else {
       return;
@@ -96,7 +88,7 @@ const PostUpload = ({ state }) => {
       if (placeId !== 0) {
         draftInfo.placeId = placeId;
       }
-
+      console.log(imageFile);
       const res = await postDraft(draftInfo, imageFile);
       if (res.success) {
         alert('임시저장이 완료되었습니다.');
@@ -154,12 +146,19 @@ const PostUpload = ({ state }) => {
     setPlace(item.name);
   };
 
-  const handleCaptionChange = (event) => {
-    if (event.target.value.length <= 1000) {
-      setCaption(event.target.value);
-    } else {
-      alert('글자수는 최대 1000자까지 입력 가능합니다.');
+  const handleTitleChange = (event) => {
+    if (event.target.value.length > 150) {
+      alert('제목은 최대 150자까지 입력 가능합니다.');
     }
+
+    setCaption(event.target.value);
+  };
+  const handleDescChange = (event) => {
+    if (event.target.value.length > 1000) {
+      alert('설명은 최대 1000자까지 입력 가능합니다.');
+    }
+
+    setCaption(event.target.value);
   };
 
   const handleToggle = () => {
@@ -193,7 +192,7 @@ const PostUpload = ({ state }) => {
 
     if (file.name.endsWith('.heic') || file.name.endsWith('.heif')) {
       //heic 이미지 처리
-      const newFile = await convertHeicToJpeg(file);
+      const newFile = convertHeicToJpeg(file);
       if (newFile) {
         setImageFile(newFile);
         setImage(URL.createObjectURL(newFile));
@@ -216,6 +215,21 @@ const PostUpload = ({ state }) => {
         <IconText>
           <BackButton />
           <p>큐레이션 생성</p>
+          {state === 'upload' ? (
+            <ButtonWrapper>
+              <TemporaryButton onClick={saveDraft}>임시 저장</TemporaryButton>
+              <SaveButton disabled={!isShareEnabled} onClick={sharePost}>
+                공유
+              </SaveButton>
+            </ButtonWrapper>
+          ) : (
+            <ButtonWrapper>
+              <TemporaryButton onClick={() => navigate(-1)}>취소</TemporaryButton>
+              <SaveButton disabled={!isShareEnabled} onClick={handleUpdatePost}>
+                저장
+              </SaveButton>
+            </ButtonWrapper>
+          )}
         </IconText>
 
         <ImageUploadWrapper
@@ -225,7 +239,7 @@ const PostUpload = ({ state }) => {
         >
           <input
             type="file"
-            accept="image/png, image/jpeg, image/heic, image/gif"
+            accept="image/png, image/jpeg, image/heic"
             onChange={handleImageChange}
             style={{ display: 'none' }}
             ref={fileInputRef}
@@ -235,19 +249,17 @@ const PostUpload = ({ state }) => {
           <p>PNG, JPG 형식만 지원됩니다.</p>
         </ImageUploadWrapper>
 
-        <SearchPlaceWrapper>
-          <SearchBar type={'PLACE'} query={place} onSet={handlePlaceChange} />
-          <div id="place">
-            {place && <IcMarker2 />}
-            <p>{place}</p>
-          </div>
-        </SearchPlaceWrapper>
-
-        <CaptionInput
-          placeholder="문구 추가.."
+        <TitleInput
+          placeholder="제목을 입력하세요."
           value={caption}
-          onChange={handleCaptionChange}
-        ></CaptionInput>
+          onChange={handleTitleChange}
+        ></TitleInput>
+
+        <DescInput
+          placeholder="큐레이션을 간단하게 설명해주세요.(1000자 이내)"
+          value={caption}
+          onChange={handleDescChange}
+        ></DescInput>
 
         <PublicToggleWrapper>
           <h3>공개</h3>
@@ -257,22 +269,17 @@ const PostUpload = ({ state }) => {
             <IcToggleFalse onClick={handleToggle} />
           )}
         </PublicToggleWrapper>
-        {state === 'upload' ? (
-          <ButtonWrapper>
-            <TemporaryButton onClick={saveDraft}>임시 저장</TemporaryButton>
-            <SaveButton disabled={!isShareEnabled} onClick={sharePost}>
-              공유
-            </SaveButton>
-          </ButtonWrapper>
-        ) : (
-          <ButtonWrapper>
-            <TemporaryButton onClick={() => navigate(-1)}>취소</TemporaryButton>
-            <SaveButton disabled={!isShareEnabled} onClick={handleUpdatePost}>
-              저장
-            </SaveButton>
-          </ButtonWrapper>
-        )}
       </StUploadWrapper>
+
+      <PlaceWrapper>
+        <AddButton
+          onClick={() => {
+            navigate(`/upload/curation/place`);
+          }}
+        >
+          + 장소 추가하기
+        </AddButton>
+      </PlaceWrapper>
 
       <Nav />
 
@@ -286,17 +293,16 @@ const PostUpload = ({ state }) => {
   );
 };
 
-export default PostUpload;
+export default CurationUpload;
 
 const StUploadWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: start;
+  align-items: center;
   text-align: center;
 
-  padding: 2rem;
-  padding-bottom: 7rem;
+  padding-top: 2rem;
 
   gap: 1rem;
 `;
@@ -304,9 +310,13 @@ const StUploadWrapper = styled.div`
 const IconText = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 0.7rem;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 1rem;
 
   p {
     width: 100%;
@@ -323,7 +333,6 @@ const ImageUploadWrapper = styled.div`
   align-items: center;
 
   gap: 1rem;
-  margin-top: 1rem;
 
   width: 100%;
   height: 20rem;
@@ -333,7 +342,7 @@ const ImageUploadWrapper = styled.div`
   background-image: ${({ $imageUrl }) => ($imageUrl ? `url(${$imageUrl})` : 'none')};
   background-size: cover;
   background-position: center;
-  border-radius: 1rem;
+  border-radius: 0 0 1rem 1rem;
 
   cursor: pointer;
 
@@ -348,7 +357,7 @@ const ImageUploadWrapper = styled.div`
       right: 0;
       bottom: 0;
       background-color: rgba(0, 0, 0, 0.4);
-      border-radius: 1rem;
+      border-radius: 0 0 1rem 1rem;
       z-index: 2;
     }
   `}
@@ -373,40 +382,32 @@ const ImageUploadWrapper = styled.div`
   }
 `;
 
-const CaptionInput = styled.textarea`
-  width: 98%;
-  height: 10rem;
-  padding: 1rem;
+const TitleInput = styled.textarea`
+  width: 95%;
+  height: 5rem;
 
   box-sizing: border-box;
+  padding: 1.5rem;
 
   color: #626273;
   ${({ theme }) => theme.fonts.Body3};
 
   border: 1px solid ${({ theme }) => theme.colors.Gray2};
-  border-radius: 1rem;
+  border-radius: 1.5rem;
 `;
 
-const SearchPlaceWrapper = styled.div`
-  width: 100%;
+const DescInput = styled.textarea`
+  width: 95%;
+  height: 15rem;
 
-  #place {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
+  box-sizing: border-box;
+  padding: 1.5rem;
 
-    svg {
-      width: 2rem;
-      height: 2rem;
+  color: #626273;
+  ${({ theme }) => theme.fonts.Body3};
 
-      margin-left: 1rem;
-    }
-
-    p {
-      ${({ theme }) => theme.fonts.Body3};
-      color: ${({ theme }) => theme.colors.Gray1};
-    }
-  }
+  border: 1px solid ${({ theme }) => theme.colors.Gray2};
+  border-radius: 2rem;
 `;
 
 const PublicToggleWrapper = styled.div`
@@ -417,7 +418,8 @@ const PublicToggleWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
 
-  margin-top: 1rem;
+  padding: 0 2rem;
+  box-sizing: border-box;
 
   h3 {
     color: ${({ theme }) => theme.colors.Gray0};
@@ -430,31 +432,32 @@ const ButtonWrapper = styled.div`
   grid-template-columns: repeat(2, 1fr);
   justify-content: center;
   align-items: center;
-  margin-top: 2rem;
 
-  gap: 2rem;
+  gap: 1rem;
   width: 100%;
 `;
 
 const TemporaryButton = styled.button`
+  width: 100%;
   border: 1px solid ${({ theme }) => theme.colors.Gray1};
   border-radius: 1rem;
 
-  padding: 1rem 2rem;
+  padding: 0.5rem;
 
   color: ${({ theme }) => theme.colors.Gray1};
-  ${({ theme }) => theme.fonts.Body2};
+  ${({ theme }) => theme.fonts.Body4};
 `;
 
 const SaveButton = styled.button`
   border-radius: 1rem;
-  padding: 1rem 2rem;
+  padding: 0.5rem;
 
   height: 100%;
+  width: 100%;
 
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
 
-  ${({ theme }) => theme.fonts.Body2};
+  ${({ theme }) => theme.fonts.Body4};
   background-color: ${({ theme, disabled }) =>
     disabled ? theme.colors.Gray5 : theme.colors.MainBlue};
   color: ${({ theme, disabled }) => (disabled ? theme.colors.Gray2 : theme.colors.White)};
@@ -474,4 +477,20 @@ const StUploadModalWrapper = styled.div`
   height: 100vh;
 
   background-color: rgba(0, 0, 0, 0.5);
+`;
+
+const PlaceWrapper = styled.div`
+  margin: 1rem;
+  padding: 1rem;
+`;
+
+const AddButton = styled.button`
+  width: 40%;
+  border-radius: 3rem;
+
+  padding: 0.5rem 2rem;
+
+  background-color: ${({ theme }) => theme.colors.Gray0};
+  color: ${({ theme }) => theme.colors.White};
+  ${({ theme }) => theme.fonts.Body4};
 `;

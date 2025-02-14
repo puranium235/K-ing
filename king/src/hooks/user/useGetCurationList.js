@@ -9,6 +9,8 @@ const useGetCurationList = (userId) => {
       return null; // 마지막 페이지
     }
 
+    console.log('previousPageData: ', previousPageData);
+
     return pageIndex === 0
       ? `/curation?userId=${userId}&size=8`
       : `/curation?userId=${userId}&size=8&cursor=${previousPageData.data.nextCursor}`;

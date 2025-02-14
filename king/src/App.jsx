@@ -1,8 +1,10 @@
-import { ThemeProvider } from "styled-components";
+import './firebase-messaging-sw.js';
 
-import Router from "./Router";
-import GlobalStyle from "./styles/GlobalStyle";
-import theme from "./styles/theme";
+import { ThemeProvider } from 'styled-components';
+
+import Router from './Router';
+import GlobalStyle from './styles/GlobalStyle';
+import theme from './styles/theme';
 
 const App = () => {
   return (

@@ -1,5 +1,6 @@
 package com.king.backend.domain.favorite.controller;
 
+import com.king.backend.domain.favorite.dto.request.FavoriteRequestDto;
 import com.king.backend.domain.favorite.dto.response.FavoriteResponseDto;
 import com.king.backend.domain.favorite.service.FavoriteService;
 import com.king.backend.global.response.ApiResponse;
@@ -42,9 +43,9 @@ public class FavoriteController {
     @Operation(summary = "즐겨찾기 목록 조회")
     @GetMapping
     public ResponseEntity<ApiResponse<FavoriteResponseDto>> getFavorites(
-            @RequestParam("type") String type
+            @ModelAttribute FavoriteRequestDto reqDto
     ) {
-        FavoriteResponseDto resDto = favoriteService.getFavorites(type);
+        FavoriteResponseDto resDto = favoriteService.getFavorites(reqDto);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(resDto));
     }
 }

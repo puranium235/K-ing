@@ -1,34 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-// import { getBookmarkStatus, removeBookmark } from '../../lib/bookmark';
-import { getCurations } from '../../lib/bookmark';
+import useGetCurationList from '../../hooks/archive/useGetCurationList';
+import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import Loading from '../Loading/Loading';
 import CurationItem from './CurationItem';
 
-const CurationsList = ({ data }) => {
-  const [curations, setCurations] = useState([]);
-  const [loading, setLoading] = useState(true);
+const CurationsList = () => {
+  const lastElementRef = useRef(null);
+
+  const { curationList, getNextData, isLoading, hasMore, mutate } = useGetCurationList();
 
   useEffect(() => {
-    const fetchCurations = async () => {
-      setLoading(true);
-      const curationsData = await getCurations(); // ✅ bookmark.js에서 불러옴
-      setCurations(curationsData);
-      setLoading(false);
-    };
+    catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
+  }, [isLoading, hasMore, lastElementRef]);
 
-    fetchCurations();
-  }, []);
+  if (isLoading && curationList === 0) return <Loading />;
+
+  if (!curationList || curationList.length === 0) {
+    return <StNoDataMessage>등록된 큐레이션이 없습니다.</StNoDataMessage>;
+  }
 
   return (
     <StCurationList>
-      {loading ? (
-        <StLoadingMessage>큐레이션 데이터를 불러오는 중...</StLoadingMessage>
-      ) : curations.length > 0 ? (
-        curations.map((item) => <CurationItem key={item.curationId} item={item} />)
-      ) : (
-        <StNoDataMessage>등록된 큐레이션이 없습니다.</StNoDataMessage>
-      )}
+      {curationList.map((curation, index) => (
+        <CurationItem
+          key={index}
+          item={curation}
+          ref={index === curationList.length - 1 ? lastElementRef : null}
+          onRemove={() => mutate()} // 북마크 해제 후 mutate() 실행 → 리스트 자동 갱신
+        />
+      ))}
     </StCurationList>
   );
 };
@@ -40,6 +42,7 @@ const StCurationList = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 0.1rem;
   width: 100%;
+  margin-bottom: 8rem;
   overflow-y: auto;
 
   /* 스크롤바를 보이지 않게 설정 */
@@ -49,11 +52,6 @@ const StCurationList = styled.div`
 
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE, Edge */
-`;
-const StLoadingMessage = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: ${({ theme }) => theme.colors.Gray2};
 `;
 
 const StNoDataMessage = styled.div`

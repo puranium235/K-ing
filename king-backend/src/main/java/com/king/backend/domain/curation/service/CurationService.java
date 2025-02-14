@@ -134,13 +134,9 @@ public class CurationService {
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         if (!ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getTitle(), 50)
-                || requestDTO.getDescription().length() > 1000
+                || !ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getDescription(), 1000)
                 || requestDTO.getPlaceIds().isEmpty()) {
             throw new CustomException(CurationErrorCode.INVALID_VALUE);
-        }
-
-        if (imageFile == null || imageFile.isEmpty()) {
-            throw new CustomException(CurationErrorCode.INVALID_IMAGEFILE);
         }
 
         CurationList curation = new CurationList();

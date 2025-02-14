@@ -41,7 +41,7 @@ public class CurationController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<CurationDetailResponseDTO>> postCurations(
             @RequestPart(value = "curation") CurationRequestDTO requestDTO,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+            @RequestPart(value = "imageFile", required = true) MultipartFile imageFile) {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(curationService.postCuration(requestDTO, imageFile)));
     }
 
