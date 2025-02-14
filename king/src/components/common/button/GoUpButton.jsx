@@ -3,14 +3,14 @@ import styled from 'styled-components';
 
 import UpButton from '/src/assets/icons/ic_up.png';
 
-const GoUpButton = () => {
+const GoUpButton = ({ className }) => {
   const handleScrollUp = () => {
     document.querySelector('html').scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <>
-      <ButtonWrapper onClick={handleScrollUp}>
+      <ButtonWrapper onClick={handleScrollUp} className={className}>
         <img src={UpButton} alt="up" />
       </ButtonWrapper>
     </>
@@ -19,7 +19,7 @@ const GoUpButton = () => {
 
 export default GoUpButton;
 
-const ButtonWrapper = styled.button`
+const ButtonWrapper = styled.button.attrs((props) => ({ className: props.className }))`
   display: flex;
   align-items: center;
   justify-content: center;

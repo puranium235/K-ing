@@ -1,7 +1,11 @@
-// FE : works, people / BE : content, cast 매칭 시키는 함수
+// FE - BE 타입 매칭 시키는 함수
 
 export const convertType = (frontendType) => {
   const typeMap = {
+    drama: 'content',
+    movie: 'content',
+    show: 'content',
+    cast: 'cast',
     works: 'content',
     people: 'cast',
   };

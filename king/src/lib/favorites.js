@@ -26,3 +26,18 @@ export const removeFavorite = async (frontendType, targetId) => {
     return false;
   }
 };
+
+// 즐겨찾기 등록
+export const addFavorite = async (frontendType, targetId) => {
+  const type = convertType(frontendType);
+  try {
+    const response = await client.post(`/favorite`, null, {
+      params: { type, targetId },
+    });
+
+    return response.data.success;
+  } catch (error) {
+    console.error('즐겨찾기 추가 실패:', error.response?.data || error.message);
+    return false;
+  }
+};
