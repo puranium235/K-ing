@@ -39,6 +39,7 @@ function Profile({ isMyPage, userId }) {
   }, [userId]);
 
   if (loading) return <Loading />;
+
   if (!profileData) {
     return (
       <ErrorContainer>
