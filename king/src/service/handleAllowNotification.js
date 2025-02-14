@@ -27,6 +27,7 @@ export const handleAllowNotification = async () => {
 
       if (token) {
         console.log('token: ', token);
+        localStorage.setItem('fcmToken', token);
         //서버로 토큰을 전송하는 로직
         postFcmToken(token);
       } else {
