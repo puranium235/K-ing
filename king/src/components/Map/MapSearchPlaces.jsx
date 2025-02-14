@@ -3,6 +3,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import UpIcon from '../../assets/icons/up.png';
+import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
 import { searchMapView } from '../../lib/map';
 import { getPlaceDetail } from '../../lib/place';
 import { FilterOption, SearchQueryState, SearchRegionState } from '../../recoil/atom';
@@ -41,6 +42,22 @@ const MapSearchPlaces = () => {
 
     fetchPlaces();
   }, [query, region]);
+
+  // const { placeList, getNextData, isLoading, hasMore } = useGetPlaceSearchResult({
+  //   query,
+  //   category: 'PLACE',
+  //   region: [region.province, region.district].filter(Boolean).join(' '),
+  //   placeTypeList: Object.keys(filterOption.categories).filter(
+  //     (key) => filterOption.categories[key],
+  //   ),
+  //   relatedType,
+  // });
+
+  // const lastElementRef = useRef(null);
+
+  // useEffect(() => {
+  //   catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
+  // }, [isLoading]);
 
   useEffect(() => {
     if (placeId == 0) {
