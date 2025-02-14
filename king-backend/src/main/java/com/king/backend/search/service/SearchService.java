@@ -9,8 +9,6 @@ import co.elastic.clients.elasticsearch._types.query_dsl.MatchPhrasePrefixQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.*;
-import co.elastic.clients.elasticsearch.core.msearch.MultiSearchResponseItem;
-import co.elastic.clients.elasticsearch.core.msearch.RequestItem;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.search.config.ElasticsearchConstants;
@@ -22,7 +20,6 @@ import com.king.backend.search.dto.response.MapViewResponseDto;
 import com.king.backend.search.dto.response.SearchResponseDto;
 import com.king.backend.search.entity.SearchDocument;
 import com.king.backend.search.errorcode.SearchErrorCode;
-import com.king.backend.search.repository.SearchRepository;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -150,13 +147,13 @@ public class SearchService {
                 // 상위 레벨 hit는 필요 없으므로 size는 0으로 설정하고,
                 // "by_category" terms aggregation과 그 하위에 "top_hits" 서브 애그리게이션을 사용합니다.
                 SearchRequest searchRequest = SearchRequest.of(s -> s
-                        .index(ElasticsearchConstants.SEARCH_INDEX)
-                        .query(q -> q.bool(boolQueryBuilder.build()))
-                        .size(0)
-                        .aggregations("by_category", a -> a
+                                .index(ElasticsearchConstants.SEARCH_INDEX)
+                                .query(q -> q.bool(boolQueryBuilder.build()))
+                                .size(0)
+                                .aggregations("by_category", a -> a
 //                                .terms(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY))
-                                        .filters(f -> f.filters(
-                                                bq -> bq.keyed(Map.of(
+                                                .filters(f -> f.filters(
+                                                        bq -> bq.keyed(Map.of(
                                                                 "grouped", Query.of(q -> q.bool(b -> b
                                                                         .should(k -> k.term(t -> t
                                                                                 .field(ElasticsearchConstants.FIELD_CATEGORY)
@@ -177,12 +174,12 @@ public class SearchService {
                                                                         .field(ElasticsearchConstants.FIELD_CATEGORY)
                                                                         .value("PLACE")
                                                                 ))
-                                        ))))
-                                .aggregations("top_hits", a2 -> a2.topHits(th -> th
-                                        .size(10)
-                                        .sort(sortOptions)
-                                ))
-                        )
+                                                        ))))
+                                                .aggregations("top_hits", a2 -> a2.topHits(th -> th
+                                                        .size(10)
+                                                        .sort(sortOptions)
+                                                ))
+                                )
                 );
 
                 SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
@@ -221,7 +218,6 @@ public class SearchService {
                     }
                 }
 
-                // aggregation 방식에서는 커서 기반 페이지네이션을 지원하지 않으므로 nextCursor는 null
                 return new SearchResponseDto(combinedResults, total, null);
             }else {
                 BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);
@@ -399,11 +395,45 @@ public class SearchService {
             if (requestDto.getRegion() != null && !requestDto.getRegion().isEmpty()) {
                 boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(requestDto.getRegion())));
             }
+
+            if (requestDto.getBoundingBox() != null) {
+                MapViewRequestDto.BoundingBox bb = requestDto.getBoundingBox();
+                // Elasticsearch에서는 geoBoundingBox 쿼리로 영역 필터링 가능
+                boolQueryBuilder.filter(q -> q.geoBoundingBox(g -> g
+                        .field("location") // SearchDocument의 위치 필드 (예: GeoPoint 타입)
+                        .boundingBox(b -> b.trbl(builder ->
+                                        builder.topRight(builder1 ->
+                                                        builder1.latlon(builder2 ->
+                                                                builder2.lon(bb.getNeLng()).lat(bb.getNeLat())))
+                                                .bottomLeft(builder1 ->
+                                                        builder1.latlon(builder2 -> builder2.lat(bb.getSwLat()).lon(bb.getSwLng())))
+                                )
+                        )
+                ));
+            }
         }
         return boolQueryBuilder;
     }
 
     private List<SortOptions> buildSortOptions(SearchRequestDto requestDto) {
+        List<SortOptions> sortOptions = new ArrayList<>();
+        String sortByInput = requestDto.getSortBy();
+        String sortBy = (sortByInput != null && sortByInput.equalsIgnoreCase("name"))
+                ? "name.keyword" : sortByInput;
+        String sortOrder = requestDto.getSortOrder();
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+            SortOrder order = ("desc".equalsIgnoreCase(sortOrder)) ? SortOrder.Desc : SortOrder.Asc;
+            sortOptions.add(SortOptions.of(s -> s.field(f -> f.field(sortBy).order(order))));
+            sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("id").order(SortOrder.Asc))));
+        } else {
+            sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("_score").order(SortOrder.Desc))));
+            sortOptions.add(SortOptions.of(s -> s.field(f -> f.field("id").order(SortOrder.Asc))));
+        }
+        return sortOptions;
+    }
+
+    private List<SortOptions> buildSortOptions(MapViewRequestDto requestDto) {
         List<SortOptions> sortOptions = new ArrayList<>();
         String sortByInput = requestDto.getSortBy();
         String sortBy = (sortByInput != null && sortByInput.equalsIgnoreCase("name"))
@@ -481,45 +511,24 @@ public class SearchService {
      */
     public MapViewResponseDto getMapViewPlaces(MapViewRequestDto requestDto) {
         try {
-            String query = requestDto.getQuery();
-            String region = requestDto.getRegion();
+            BoolQuery.Builder boolQueryBuilder = buildMapViewBoolQuery(requestDto);
+            List<SortOptions> sortOptions = buildSortOptions(requestDto);
 
-            BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
-
-            boolQueryBuilder.filter(q -> q.term(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY).value("place".toUpperCase())));
-
-            if (query != null && !query.isEmpty()) {
-                boolQueryBuilder.must(q -> q.match(m -> m
-                        .query(query)
-                        .field(ElasticsearchConstants.FIELD_NAME)
-                ));
-            }
-
-            if (region != null && !region.isEmpty()) {
-                boolQueryBuilder.filter(q -> q.match(m -> m
-                        .field("address")
-                        .query(region)
-                ));
-            }
-
-            SearchRequest searchRequest = SearchRequest.of(request -> request
+            SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
                     .index(ElasticsearchConstants.SEARCH_INDEX)
                     .query(q -> q.bool(boolQueryBuilder.build()))
                     .size(10000)
-                    .sort(List.of(
-                            SortOptions.of(s -> s
-                                    .field(f -> f
-                                            .field(ElasticsearchConstants.FIELD_ID)
-                                            .order(SortOrder.Desc)
-                                    )
-                            )
-                    ))
-            );
+                    .source(s -> s.filter(f -> f.excludes("_class")))
+                    .sort(sortOptions);
+
+
+            SearchRequest searchRequest = searchRequestBuilder.build();
 
             SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
 
+
             List<Hit<SearchDocument>> hits = searchResponse.hits().hits();
-            List<MapViewResponseDto.PlaceDto> places = hits.stream()
+            List<MapViewResponseDto.PlaceDto> results = hits.stream()
                     .map(Hit::source)
                     .map(doc -> new MapViewResponseDto.PlaceDto(
                             doc.getOriginalId(),
@@ -528,16 +537,100 @@ public class SearchService {
                             doc.getOpenHour(),
                             doc.getBreakTime(),
                             doc.getClosedDay(),
-                            doc.getAddress(), // Assuming 'details' contains 'address'
-                            doc.getLat(), // Ensure 'lat' is included
-                            doc.getLng(), // Ensure 'lng' is included
-                            doc.getImageUrl()
+                            doc.getAddress(),
+                            doc.getLocation() != null ? doc.getLocation().getLat() : 0,
+                            doc.getLocation() != null ? doc.getLocation().getLon() : 0,
+                            Objects.requireNonNullElse(doc.getImageUrl(),
+                                    String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
                     ))
                     .collect(Collectors.toList());
 
-            return new MapViewResponseDto(places);
+            long total = (searchResponse.hits().total() != null) ? searchResponse.hits().total().value() : 0;
+
+            return new MapViewResponseDto(results, total);
         } catch (IOException e) {
             throw new CustomException(SearchErrorCode.SEARCH_FAILED);
         }
+    }
+
+    private BoolQuery.Builder buildMapViewBoolQuery(MapViewRequestDto requestDto) {
+        BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+        String query = requestDto.getQuery();
+        String relatedType = requestDto.getRelatedType();
+
+        if (query != null && !query.isEmpty()) {
+            if ("place".equalsIgnoreCase(relatedType)) {
+                boolQueryBuilder.must(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
+                        .query(query)
+                        .fuzziness("AUTO")
+                        .boost(2.0f)));
+            } else if ("cast".equalsIgnoreCase(relatedType)) {
+                boolQueryBuilder.must(q -> q.nested(n -> n
+                        .path("associatedCasts")
+                        .query(nq -> nq.match(m -> m.field("associatedCasts.castName")
+                                .query(query)
+                                .fuzziness("AUTO")
+                                .boost(2.0f)))));
+            } else if ("content".equalsIgnoreCase(relatedType)) {
+                boolQueryBuilder.must(q -> q.nested(n -> n
+                        .path("associatedContents")
+                        .query(nq -> nq.match(m -> m.field("associatedContents.contentTitle")
+                                .query(query)
+                                .fuzziness("AUTO")
+                                .boost(2.0f)))));
+            } else {
+                boolQueryBuilder.should(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
+                        .query(query)
+                        .fuzziness("AUTO")
+                        .boost(2.0f)));
+                boolQueryBuilder.should(q -> q.nested(n -> n
+                        .path("associatedCasts")
+                        .query(nq -> nq.match(m -> m.field("associatedCasts.castName")
+                                .query(query)
+                                .fuzziness("AUTO")
+                                .boost(1.0f)))));
+                boolQueryBuilder.should(q -> q.nested(n -> n
+                        .path("associatedContents")
+                        .query(nq -> nq.match(m -> m.field("associatedContents.contentTitle")
+                                .query(query)
+                                .fuzziness("AUTO")
+                                .boost(1.0f)))));
+                boolQueryBuilder.minimumShouldMatch("1");
+            }
+        } else {
+            boolQueryBuilder.must(q -> q.matchAll(m -> m));
+        }
+
+        boolQueryBuilder.filter(q -> q.term(t -> t.field(ElasticsearchConstants.FIELD_CATEGORY).value("PLACE")));
+
+        if (requestDto.getPlaceTypeList() != null && !requestDto.getPlaceTypeList().isEmpty()) {
+            List<FieldValue> upperCaseList = requestDto.getPlaceTypeList().stream()
+                    .map(String::toUpperCase)
+                    .map(val -> FieldValue.of(f -> f.stringValue(val)))
+                    .collect(Collectors.toList());
+            boolQueryBuilder.filter(q -> q.terms(t -> t.field(ElasticsearchConstants.FIELD_TYPE)
+                    .terms(terms -> terms.value(upperCaseList))));
+        }
+        if (requestDto.getRegion() != null && !requestDto.getRegion().isEmpty()) {
+            boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(requestDto.getRegion())));
+        }
+
+        if (requestDto.getBoundingBox() != null) {
+            MapViewRequestDto.BoundingBox bb = requestDto.getBoundingBox();
+            // Elasticsearch에서는 geoBoundingBox 쿼리로 영역 필터링 가능
+            boolQueryBuilder.filter(q -> q.geoBoundingBox(g -> g
+                    .field("location") // SearchDocument의 위치 필드 (예: GeoPoint 타입)
+                    .boundingBox(b -> b.trbl(builder ->
+                                    builder.topRight(builder1 ->
+                                            builder1.latlon(builder2 ->
+                                                    builder2.lon(bb.getNeLng()).lat(bb.getNeLat())))
+                                            .bottomLeft(builder1 ->
+                                                    builder1.latlon(builder2 -> builder2.lat(bb.getSwLat()).lon(bb.getSwLng())))
+                                    )
+                    )
+            ));
+        }
+
+        return boolQueryBuilder;
     }
 }

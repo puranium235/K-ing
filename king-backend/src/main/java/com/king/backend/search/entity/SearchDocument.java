@@ -2,14 +2,13 @@ package com.king.backend.search.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.elasticsearch.annotations.DateFormat;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -45,8 +44,10 @@ public class SearchDocument {
     private String breakTime;
     private String closedDay;
     private String address;
-    private double lat;
-    private double lng;
+
+    @JsonSerialize(using = GeoPointJsonSerializer.class)
+    @GeoPointField
+    private GeoPoint location;
 
     @Field(type = FieldType.Nested)
     private List<AssociatedCast> associatedCasts;

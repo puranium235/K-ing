@@ -3,6 +3,9 @@ package com.king.backend.search.service;
 import co.elastic.clients.elasticsearch._types.analysis.*;
 import co.elastic.clients.elasticsearch._types.mapping.*;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.king.backend.domain.place.entity.PlaceCast;
 import com.king.backend.domain.place.entity.PlaceContent;
 import com.king.backend.global.util.RedisUtil;
@@ -88,9 +91,9 @@ public class SyncService implements CommandLineRunner {
         properties.put("breakTime", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("closedDay", new Property.Builder().keyword(new KeywordProperty.Builder().build()).build());
         properties.put("address", new Property.Builder().text(new TextProperty.Builder().analyzer("standard").build()).build());
-        properties.put("lat", new Property.Builder().double_(new DoubleNumberProperty.Builder().build()).build());
-        properties.put("lng", new Property.Builder().double_(new DoubleNumberProperty.Builder().build()).build());
-        // 기존의 연결 테이블 관련 필드는 삭제하고 nested 객체로 매핑
+        properties.put("location", new Property.Builder()
+                .geoPoint(new GeoPointProperty.Builder().build())
+                .build());
         properties.put("associatedCasts", new Property.Builder()
                 .nested(nested -> nested
                         .properties(Map.of(
@@ -280,6 +283,8 @@ public class SyncService implements CommandLineRunner {
 
         }
 
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
         List<SearchDocument> documents = places.stream()
                 .map(place -> {
                     String key = "place:view:" + place.getId();
