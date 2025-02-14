@@ -16,17 +16,17 @@ const CardListItem = ({ place }) => {
   return (
     <CardContainer onClick={() => handleCurationClick(placeId)}>
       {/* 이미지 컨테이너 */}
-      <ImageContainer>
-        <Image src={imageUrl} alt={name} />
-      </ImageContainer>
+      <ImageContainer>{imageUrl && <Image src={imageUrl} alt={name} />}</ImageContainer>
 
       {/* 텍스트 컨테이너 */}
       <TextContainer>
-        <Title>{name}</Title>
-        <Address>
-          <img src={LocationIcon} alt="location" />
-          {getShortAddress(address)}
-        </Address>
+        {name && <Title>{name}</Title>}
+        {address && (
+          <Address>
+            <img src={LocationIcon} alt="location" />
+            {getShortAddress(address)}
+          </Address>
+        )}
       </TextContainer>
     </CardContainer>
   );

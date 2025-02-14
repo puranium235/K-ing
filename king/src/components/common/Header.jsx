@@ -1,13 +1,12 @@
 import React, { useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled, { css, keyframes } from 'styled-components';
-
-import OptionIcon from '/src/assets/icons/option.png';
-import OptionModal from '/src/components/common/OptionModal';
 
 import BackButton from './button/BackButton';
 
-const Header = ({ title, isOption }) => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+const Header = ({ title }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [hasAnimated, setHasAnimated] = useState(false); // 애니메이션 종료 여부
   const [offsetX, setOffsetX] = useState(0); // 현재 드래그 위치
   const [isDragging, setIsDragging] = useState(false); // 드래그 여부
@@ -16,14 +15,6 @@ const Header = ({ title, isOption }) => {
 
   const containerRef = useRef(null); // TitleContainer 참조
   const titleRef = useRef(null); // SlidingTitle 참조
-
-  const openModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setIsModalVisible(false);
-  };
 
   // 애니메이션 종료 시 처리
   const handleAnimationEnd = () => {
@@ -59,10 +50,21 @@ const Header = ({ title, isOption }) => {
     prevOffsetX.current = offsetX; // 드래그 종료 시 위치 저장
   };
 
+  const handleGoBack = () => {
+    //이전 경로 구하기
+    const from = location.state?.from?.pathname || '';
+
+    if ((from && from.includes('upload')) || from.includes('update')) {
+      navigate('/home');
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
     <Container>
       <StHeader>
-        <BackButton />
+        <BackButton onBack={handleGoBack} />
         <TitleContainer
           ref={containerRef}
           onTouchStart={hasAnimated ? handleTouchStart : null}
@@ -81,42 +83,21 @@ const Header = ({ title, isOption }) => {
             <span>{title}</span>
           </SlidingTitle>
         </TitleContainer>
-        {isOption && (
-          <OptionButton onClick={openModal}>
-            <img src={OptionIcon} alt="Option" />
-          </OptionButton>
-        )}
       </StHeader>
-
-      {/* 옵션 모달 */}
-      <OptionModal isModalVisible={isModalVisible} onClick={closeModal} />
     </Container>
   );
 };
 
 const Container = styled.div`
   position: relative;
+  width: 100%;
 `;
 
 const StHeader = styled.div`
   display: flex;
   align-items: center;
-  padding: 1rem;
+  padding: 1rem 0.7rem;
   gap: 1rem;
-`;
-
-const OptionButton = styled.button`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  right: 1.2rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  img {
-    height: 1.8rem;
-  }
 `;
 
 const TitleContainer = styled.div`
