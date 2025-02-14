@@ -243,42 +243,6 @@ const SettingProfile = () => {
     } finally {
       setIsUploading(false); // ✅ 업로드 완료 후 모달 닫기
     }
-
-    // 원래 코드
-    // if (!isValidName || !isNameAvailable) {
-    //   alert(translations.nicknameErrorDuplicate);
-    //   return;
-    // }
-
-    // const updatedProfile = {};
-
-    // // 변경된 값만 저장
-    // if (newNickname !== nickname) updatedProfile.nickname = newNickname;
-    // if (newDescription !== description) updatedProfile.description = newDescription;
-
-    // if (Object.keys(updatedProfile).length === 0 && !imageFile) {
-    //   return;
-    // }
-
-    // // API 호출
-    // const response = await updateUserProfile(updatedProfile, imageFile);
-
-    // // Recoil 상태 업데이트
-    // setProfile((prev) => ({
-    //   ...prev,
-    //   ...updatedProfile, // 변경된 값만 반영
-    //   imageUrl: response.data.imageUrl || prev.imageUrl, // 이미지가 변경되지 않았다면 기존 이미지 유지
-    // }));
-
-    // alert('프로필이 저장되었습니다!');
-
-    // // 마이페이지로 이동
-    // const userId = getUserIdFromToken();
-    // if (userId) {
-    //   navigate(`/user/${userId}`);
-    // } else {
-    //   console.error('유저 ID를 찾을 수 없습니다.');
-    // }
   };
 
   return (
