@@ -22,6 +22,7 @@ const SettingProfile = () => {
 
   const [newNickname, setNewNickname] = useState(nickname || '');
   const [newDescription, setNewDescription] = useState(description || '');
+  const [isDirty, setIsDirty] = useState(false);
 
   const [isValidName, setIsValidName] = useState(false);
   const [isNameAvailable, setIsNameAvailable] = useState(false);
@@ -32,6 +33,41 @@ const SettingProfile = () => {
   const { common, profile: profileTranslations, signup: translations } = getTranslations(language);
 
   const navigate = useNavigate();
+
+  // 변경 사항 감지
+  useEffect(() => {
+    if (newNickname !== nickname || newDescription !== description || imageFile) {
+      setIsDirty(true);
+    } else {
+      setIsDirty(false);
+    }
+  }, [newNickname, newDescription, imageFile, nickname, description]);
+
+  // 브라우저 뒤로가기 감지
+  useEffect(() => {
+    const handleBackButton = (event) => {
+      if (!isDirty) {
+        return;
+      }
+      const confirmLeave = window.confirm('저장하지 않고 나가시겠습니까?');
+      if (!confirmLeave) {
+        event.preventDefault();
+        return;
+      }
+    };
+
+    window.addEventListener('popstate', handleBackButton);
+    return () => window.removeEventListener('popstate', handleBackButton);
+  }, [isDirty]);
+
+  // `BackButton` 클릭 시 confirm 창 띄우기
+  const handleBackClick = () => {
+    if (isDirty) {
+      const confirmLeave = window.confirm('저장하지 않고 나가시겠습니까?');
+      if (!confirmLeave) return;
+    }
+    navigate(-1);
+  };
 
   // 프로필 이미지 클릭 시 파일 선택창 열기
   const handleImageClick = () => {
@@ -214,7 +250,7 @@ const SettingProfile = () => {
 
   return (
     <StSettingProfileWrapper>
-      <SettingHeader />
+      <SettingHeader onBack={handleBackClick} />
 
       <St.ContentWrapper>
         {/* 프로필 사진 */}
