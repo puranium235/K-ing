@@ -8,6 +8,8 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
+import com.king.backend.global.util.TranslateUtil;
 import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.dto.request.CurationListSearchRequestDto;
 import com.king.backend.search.dto.response.CurationListSearchResponseDto;
@@ -15,6 +17,8 @@ import com.king.backend.search.entity.CurationDocument;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -30,6 +34,7 @@ public class CurationSearchService {
     private final CursorUtil cursorUtil;
     private static final String INDEX_NAME = ElasticsearchConstants.CURATION_INDEX;
     private final ElasticsearchClient elasticsearchClient;
+    private final TranslateUtil translateUtil;
 
     /**
      * 큐레이션 리스트 제목 검색 및 전체 조회 (커서 기반 페이지네이션)
@@ -105,7 +110,25 @@ public class CurationSearchService {
                 nextCursor = cursorUtil.encodeCursor(lastSortValues);
             }
 
-            return new CurationListSearchResponseDto(items, nextCursor);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
+
+            String language = authUser.getLanguage();
+
+            CurationListSearchResponseDto response = new CurationListSearchResponseDto(items, nextCursor);
+            List<CurationListSearchResponseDto.CurationListItemDto> curationDTOs = response.getItems();
+
+            List<String> originalText = curationDTOs.stream()
+                    .map(CurationListSearchResponseDto.CurationListItemDto::getTitle)
+                    .toList();
+
+            List<String> translatedText = translateUtil.translateText(originalText, language);
+
+            for (int i = 0; i < curationDTOs.size(); i++) {
+                curationDTOs.get(i).setTitle(translatedText.get(i));
+            }
+
+            return response;
 
         } catch (IOException e) {
             return new CurationListSearchResponseDto(new ArrayList<>(), null);
