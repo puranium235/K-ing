@@ -52,7 +52,6 @@ const PlaceDetail = () => {
     <Container>
       <DetailHeader
         title={placeData.name}
-        isOption={false}
         imageSrc={placeData.imageUrl}
         imageAltText={placeData.name}
       />
