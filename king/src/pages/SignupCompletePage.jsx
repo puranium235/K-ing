@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import KingLogo from '../assets/icons/king_logo.png';
-import { handleAllowNotification } from '../service/notificationPermission';
+import { handleAllowNotification } from '../service/handleAllowNotification';
 
 const SignupCompletePage = () => {
   const handleLogin = () => {

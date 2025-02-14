@@ -1,6 +1,6 @@
 import { getMessaging, onMessage } from 'firebase/messaging';
 
-import { app } from './initFirebase';
+import { app } from './useFirebaseInit';
 
 const messaging = getMessaging(app);
 
