@@ -5,6 +5,7 @@ import com.king.backend.domain.curation.dto.request.CurationRequestDTO;
 import com.king.backend.domain.curation.dto.response.CurationDetailResponseDTO;
 import com.king.backend.domain.curation.dto.response.CurationListResponseDTO;
 import com.king.backend.domain.curation.entity.CurationList;
+import com.king.backend.domain.curation.entity.CurationListBookmark;
 import com.king.backend.domain.curation.entity.CurationListItem;
 import com.king.backend.domain.curation.errorcode.CurationErrorCode;
 import com.king.backend.domain.curation.repository.CurationListBookmarkRepository;
@@ -31,9 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -93,36 +94,67 @@ public class CurationService {
         Long authId = Long.parseLong(authUser.getName());
         String language = authUser.getLanguage();
 
-        Boolean isPublic = authId.equals(requestDTO.getUserId()) ? null : true;
-        List<CurationList> curations = curationListRepository.searchCurations(
-                userId,
-                isPublic,
-                cursorId,
-                size,
-                requestDTO.getBookmarked(),
-                authId
-        );
+        boolean bookmarked = Optional.ofNullable(requestDTO.getBookmarked()).orElse(false);
 
-        String nextCursor = (curations.size() == size)
-                ? cursorUtil.encodeCursor(List.of(curations.get(curations.size() - 1).getId()))
-                : null;
+        String nextCursor;
+        List<String> originalText;
+        List<CurationListResponseDTO.CurationDTO.CurationDTOBuilder> builders;
 
-        Set<Long> bookmarkedCurationIds = curationListBookmarkRepository.findCurationListIdByUserId(authId);
+        if (bookmarked) {
+            List<CurationListBookmark> bookmarks = curationListBookmarkRepository.findByUserId(authId, cursorId, size);
 
-        CurationListResponseDTO response = CurationListResponseDTO.fromEntity(curations, bookmarkedCurationIds, nextCursor);
-        List<CurationListResponseDTO.CurationDTO> curationDTOs = response.getCurations();
+            originalText = new ArrayList<>();
+            builders =
+                    bookmarks.stream()
+                            .map((bookmark) -> {
+                                CurationList curationList = bookmark.getCurationList();
+                                originalText.add(curationList.getTitle());
+                                return CurationListResponseDTO.CurationDTO.builder()
+                                        .curationId(curationList.getId())
+                                        .imageUrl(curationList.getImageUrl())
+                                        .writerNickname(curationList.getWriter().getNickname())
+                                        .isPublic(curationList.isPublic())
+                                        .bookmarked(true);
+                            }).toList();
 
-        List<String> originalText = curationDTOs.stream()
-                        .map(CurationListResponseDTO.CurationDTO::getTitle)
-                        .toList();
+            nextCursor = (builders.size() == size)
+                    ? cursorUtil.encodeCursor(List.of(bookmarks.get(bookmarks.size() - 1).getId()))
+                    : null;
+        } else {
+            List<Object[]> results = curationListRepository.findCurationList(authId, userId, cursorId, size);
+
+            originalText = new ArrayList<>();
+            builders = results.stream()
+                    .map((result) -> {
+                        CurationList curationList = (CurationList) result[0];
+                        boolean userBookmark = (boolean) result[1];
+                        log.info("{}, {}", curationList, userBookmark);
+                        originalText.add(curationList.getTitle());
+
+                        return CurationListResponseDTO.CurationDTO.builder()
+                                .curationId(curationList.getId())
+                                .imageUrl(curationList.getImageUrl())
+                                .writerNickname(curationList.getWriter().getNickname())
+                                .isPublic(curationList.isPublic())
+                                .bookmarked(userBookmark);
+                    }).toList();
+
+            nextCursor = (builders.size() == size)
+                    ? cursorUtil.encodeCursor(List.of(((CurationList) results.get(results.size() - 1)[0]).getId()))
+                    : null;
+        }
 
         List<String> translatedText = translateUtil.translateText(originalText, language);
 
-        for (int i = 0; i < curationDTOs.size(); i++) {
-            curationDTOs.get(i).setTitle(translatedText.get(i));
+        List<CurationListResponseDTO.CurationDTO> curations = new ArrayList<>();
+        for (int i = 0; i < builders.size(); i++) {
+            curations.add(builders.get(i).title(translatedText.get(i)).build());
         }
 
-        return response;
+        return CurationListResponseDTO.builder()
+                .curations(curations)
+                .nextCursor(nextCursor)
+                .build();
     }
 
     @Transactional
@@ -192,7 +224,7 @@ public class CurationService {
         }
 
         if (!ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getTitle(), 50)
-                || requestDTO.getDescription().length() > 1000
+                || !ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getDescription(), 1000)
                 || requestDTO.getPlaceIds().isEmpty()) {
             throw new CustomException(CurationErrorCode.INVALID_VALUE);
         }

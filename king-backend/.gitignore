@@ -5,7 +5,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 **/.env
-**/k-ing-448601-233f5fd0a452.json
+**/k-ing-448601-58f4fc4c4f5a.json
+
 
 ### STS ###
 .apt_generated

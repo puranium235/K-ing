@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,10 +32,16 @@ public class TranslateUtil {
     }
 
     public String translateText(String text, String targetLanguage) {
+        if (text.isEmpty()) {
+            return "";
+        }
         return translate.translate(text, Translate.TranslateOption.targetLanguage(targetLanguage)).getTranslatedText();
     }
 
     public List<String> translateText(List<String> texts, String targetLanguage) {
+        if (texts.isEmpty()) {
+            return new ArrayList<>();
+        }
         return translate.translate(texts, Translate.TranslateOption.targetLanguage(targetLanguage))
                 .stream()
                 .map(Translation::getTranslatedText)
