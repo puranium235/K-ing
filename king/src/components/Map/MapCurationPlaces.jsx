@@ -63,7 +63,7 @@ const MapCurationPlaces = () => {
       </MapSection>
 
       {/* Content Section */}
-      <ContentSection $isExpanded={isExpanded}>
+      <ContentSection $isExpanded={isExpanded} $isPlaceInfo={placeId !== 0}>
         <UpButton onClick={toggleBox} $isExpanded={isExpanded}>
           <img src={UpIcon} />
         </UpButton>
@@ -135,7 +135,14 @@ const ContentSection = styled.div`
   background-color: #ffffff;
   position: absolute;
   bottom: -5rem;
-  height: ${(props) => (props.$isExpanded ? '50rem' : '25rem')};
+  height: ${(props) =>
+    props.$isExpanded
+      ? props.$isPlaceInfo
+        ? 'fit-content'
+        : '60rem'
+      : props.$isPlaceInfo
+        ? '35rem'
+        : '23rem'};
   left: 0;
   right: 0;
   transition: bottom 0.3s ease;
