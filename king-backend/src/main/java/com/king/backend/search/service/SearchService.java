@@ -332,10 +332,16 @@ public class SearchService {
         if (query != null && !query.isEmpty()) {
             if ("place".equalsIgnoreCase(category)) {
                 if ("place".equalsIgnoreCase(relatedType)) {
-                    boolQueryBuilder.must(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
+                    boolQueryBuilder.should(s -> s.matchPhrase(mp -> mp
+                            .field(ElasticsearchConstants.FIELD_NAME)
+                            .query(query)
+                            .boost(10.0f)  // 정확 문구 매칭 boost
+                    ));
+                    boolQueryBuilder.should(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
                             .query(query)
                             .fuzziness("AUTO")
-                            .boost(2.0f)));
+                            .boost(1.0f)));
+                    boolQueryBuilder.minimumShouldMatch("1");
                 } else if ("cast".equalsIgnoreCase(relatedType)) {
                     boolQueryBuilder.must(q -> q.nested(n -> n
                             .path("associatedCasts")
@@ -354,7 +360,7 @@ public class SearchService {
                     boolQueryBuilder.should(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
                             .query(query)
                             .fuzziness("AUTO")
-                            .boost(2.0f)));
+                            .boost(5.0f)));
                     boolQueryBuilder.should(q -> q.nested(n -> n
                             .path("associatedCasts")
                             .query(nq -> nq.match(m -> m.field("associatedCasts.castName")
@@ -370,10 +376,25 @@ public class SearchService {
                     boolQueryBuilder.minimumShouldMatch("1");
                 }
             } else {
-                boolQueryBuilder.must(q -> q.match(m -> m.field(ElasticsearchConstants.FIELD_NAME)
+                // [중요] matchPhrase + match(유사)
+                boolQueryBuilder.should(s -> s.term(t -> t
+                        .field(ElasticsearchConstants.FIELD_NAME)
+                        .value(query)
+                        .boost(10.0f) // 높은 부스트
+                ));
+
+                boolQueryBuilder.should(s -> s.matchPhrase(mp -> mp
+                        .field(ElasticsearchConstants.FIELD_NAME)
+                        .query(query)
+                        .boost(5.0f)  // 정확 문구 매칭 boost 높게
+                ));
+                boolQueryBuilder.should(s -> s.match(m -> m
+                        .field(ElasticsearchConstants.FIELD_NAME)
                         .query(query)
                         .fuzziness("AUTO")
-                        .boost(2.0f)));
+                        .boost(1.5f) // 가중치 조금 낮게
+                ));
+                boolQueryBuilder.minimumShouldMatch("1");
             }
         } else {
             boolQueryBuilder.must(q -> q.matchAll(m -> m));
