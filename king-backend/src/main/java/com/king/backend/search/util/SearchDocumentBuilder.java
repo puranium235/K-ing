@@ -4,6 +4,7 @@ import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.content.entity.Content;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.search.entity.SearchDocument;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class SearchDocumentBuilder {
                 0,
                 cast.getCreatedAt(),
                 "N/A", "N/A", "N/A", "N/A",
-                0, 0,
+                null,
                 null, null
         );
     }
@@ -51,7 +52,7 @@ public class SearchDocumentBuilder {
                 0,
                 content.getCreatedAt(),
                 "N/A", "N/A", "N/A", "N/A",
-                0, 0,
+                null,
                 null, null
         );
     }
@@ -93,8 +94,7 @@ public class SearchDocumentBuilder {
                 place.getBreakTime(),
                 place.getClosedDay(),
                 place.getAddress(),
-                place.getLat(),
-                place.getLng(),
+                new GeoPoint(place.getLat(), place.getLng()),
                 associatedCasts,
                 associatedContents
         );

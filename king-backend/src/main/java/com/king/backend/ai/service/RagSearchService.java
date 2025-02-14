@@ -82,8 +82,8 @@ public class RagSearchService {
                 result.setName(doc.getName());
                 result.setType(doc.getType());
                 result.setAddress(doc.getAddress());
-                result.setLat(doc.getLat());
-                result.setLng(doc.getLng());
+                result.setLat(doc.getLocation().getLat());
+                result.setLng(doc.getLocation().getLon());
                 result.setImageUrl(doc.getImageUrl());
 
                 // 연결된 Cast 또는 Content 중 키워드가 포함된 항목에서 값을 추출

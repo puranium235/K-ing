@@ -27,4 +27,19 @@ public class SearchRequestDto {
     private String region;
 
     private String cursor;
+
+    private MapViewRequestDto.BoundingBox boundingBox;
+
+    /**
+     * 지도 영역의 Bounding Box를 나타내는 내부 클래스
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BoundingBox {
+        private double swLat; // 남서쪽 위도
+        private double swLng; // 남서쪽 경도
+        private double neLat; // 북동쪽 위도
+        private double neLng; // 북동쪽 경도
+    }
 }
