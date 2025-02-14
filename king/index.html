@@ -47,6 +47,15 @@
           .catch((err) => {
             console.log('Service worker registration failed:', err);
           });
+
+        navigator.serviceWorker
+          .register('/firebase-messaging-sw.js')
+          .then((registration) => {
+            console.log('FCM registered', registration);
+          })
+          .catch((err) => {
+            console.error('FCM registration failed: ', err);
+          });
       } else {
         console.log('Service workers are not supported.');
       }

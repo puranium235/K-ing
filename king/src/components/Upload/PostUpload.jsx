@@ -172,10 +172,10 @@ const PostUpload = ({ state }) => {
     if (!file) return;
 
     if (
-      !file.name.endsWith('.jpg') &&
-      !file.name.endsWith('.png') &&
-      !file.name.endsWith('.heic') &&
-      !file.name.endsWith('.gif')
+      !file.name.toLowerCase().endsWith('.jpg') &&
+      !file.name.toLowerCase().endsWith('.png') &&
+      !file.name.toLowerCase().endsWith('.heic') &&
+      !file.name.toLowerCase().endsWith('.gif')
     ) {
       alert('지원하지 않는 이미지 형식입니다.');
       event.target.type = '';
