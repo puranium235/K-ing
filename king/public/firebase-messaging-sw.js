@@ -11,13 +11,13 @@ self.addEventListener('activate', function (e) {
 });
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDcX1ZgeyUE8bnf1gQl6f9FFZCdbvRSX5o',
-  authDomain: 'k-ing-bd98c.firebaseapp.com',
-  projectId: 'k-ing-bd98c',
-  storageBucket: 'k-ing-bd98c.firebasestorage.app',
-  messagingSenderId: '773303654760',
-  appId: '1:773303654760:web:7ebf6653f9292cda8e9edd',
-  measurementId: 'G-B76WWE0B36',
+  apiKey: 'AIzaSyB8p08G09nNNBhhkfMSq7N13w2_m-DDqs4',
+  authDomain: 'k-ing-963ce.firebaseapp.com',
+  projectId: 'k-ing-963ce',
+  storageBucket: 'k-ing-963ce.firebasestorage.app',
+  messagingSenderId: '15736758900',
+  appId: '1:15736758900:web:3de7509a7a6343c81de721',
+  measurementId: 'G-8R193WXWGM',
 };
 
 const app = firebase.initializeApp(firebaseConfig);

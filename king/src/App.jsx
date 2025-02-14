@@ -1,5 +1,3 @@
-import './firebase-messaging-sw.js';
-
 import { ThemeProvider } from 'styled-components';
 
 import Router from './Router';
