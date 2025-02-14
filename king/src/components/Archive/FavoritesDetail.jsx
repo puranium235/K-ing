@@ -8,6 +8,7 @@ import { removeFavorite } from '../../lib/favorites';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import BackButton from '../common/button/BackButton';
 import GoUpButton from '../common/button/GoUpButton';
+import Nav from '../common/Nav';
 import Loading from '../Loading/Loading';
 import FavoriteItem from './FavoriteItem';
 
@@ -63,8 +64,9 @@ const FavoritesDetail = () => {
           </St.NoDataMessage>
         )}
       </St.List>
-      <CustomGoUpButton />
-      {/* <GoUpButton /> */}
+      {/* <CustomGoUpButton /> */}
+      <GoUpButton />
+      <Nav />
     </StFavoritesDetailWrapper>
   );
 };
