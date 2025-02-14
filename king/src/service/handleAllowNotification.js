@@ -1,6 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
+import { postFcmToken } from '../lib/fcm';
+
 export const handleAllowNotification = async () => {
   const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -26,7 +28,7 @@ export const handleAllowNotification = async () => {
       if (token) {
         console.log('token: ', token);
         //서버로 토큰을 전송하는 로직
-        // sendTokenToServer(token);
+        postFcmToken(token);
       } else {
         alert('토큰 등록 싪패');
       }
@@ -42,7 +44,6 @@ export const handleAllowNotification = async () => {
     const notificationOptions = {
       body: payload.notification.body,
     };
-    console.log(notificationTitle);
     if (Notification.permission === 'granted') {
       new Notification(notificationTitle, notificationOptions);
     }

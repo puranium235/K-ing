@@ -24,13 +24,13 @@ const app = firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging(app);
 
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  console.log('[firebase-messaging-sw.js] Received background message ', payload.notification);
 
   // Customize notification here
-  const notificationTitle = payload.title;
+  const notificationTitle = payload.notification.title;
   const notificationOptions = {
-    body: payload.body,
-    icon: '/public/logo.png',
+    body: payload.notification.body,
+    // icon: '/logo.png',
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -44,47 +44,56 @@ self.addEventListener('push', function (e) {
   const notificationTitle = resultData.title;
   const notificationOptions = {
     body: resultData.body,
-    icon: './logo.png',
-    data: {
-      click_action: resultData.click_action,
-    },
+    // icon: '/logo.png',
+    // data: {
+    //   click_action: resultData.click_action,
+    // },
   };
 
-  e.waitUntil(self.registration.showNotification(notificationTitle, notificationOptions));
+  e.waitUntil(
+    self.registration
+      .showNotification(notificationTitle, notificationOptions)
+      .then(() => {
+        console.log('알림 성공');
+      })
+      .catch((error) => {
+        console.error('알림 실패:', error);
+      }),
+  );
 });
 
-self.addEventListener('notificationclick', function (event) {
-  event.preventDefault();
+// self.addEventListener('notificationclick', function (event) {
+//   event.preventDefault();
 
-  event.notification.close();
+//   event.notification.close();
 
-  // 이동할 url
-  // 아래의 event.notification.data는 위의 푸시 이벤트를 한 번 거쳐서 전달 받은 options.data에 해당한다.
-  const urlToOpen = event.notification.data.click_action;
+//   // 이동할 url
+//   // 아래의 event.notification.data는 위의 푸시 이벤트를 한 번 거쳐서 전달 받은 options.data에 해당한다.
+//   const urlToOpen = event.notification.data.click_action;
 
-  // 클라이언트에 해당 사이트가 열려있는지 체크
-  const promiseChain = clients
-    .matchAll({
-      type: 'window',
-      includeUncontrolled: true,
-    })
-    .then(function (windowClients) {
-      let matchingClient = null;
+//   // 클라이언트에 해당 사이트가 열려있는지 체크
+//   const promiseChain = clients
+//     .matchAll({
+//       type: 'window',
+//       includeUncontrolled: true,
+//     })
+//     .then(function (windowClients) {
+//       let matchingClient = null;
 
-      for (let i = 0; i < windowClients.length; i++) {
-        const windowClient = windowClients[i];
-        if (windowClient.url.includes(urlToOpen)) {
-          matchingClient = windowClient;
-          break;
-        }
-      }
+//       for (let i = 0; i < windowClients.length; i++) {
+//         const windowClient = windowClients[i];
+//         if (windowClient.url.includes(urlToOpen)) {
+//           matchingClient = windowClient;
+//           break;
+//         }
+//       }
 
-      // 열려있다면 focus, 아니면 새로 open
-      if (matchingClient) {
-        return matchingClient.focus();
-      }
-      return clients.openWindow(urlToOpen);
-    });
+//       // 열려있다면 focus, 아니면 새로 open
+//       if (matchingClient) {
+//         return matchingClient.focus();
+//       }
+//       return clients.openWindow(urlToOpen);
+//     });
 
-  event.waitUntil(promiseChain);
-});
+//   event.waitUntil(promiseChain);
+// });
