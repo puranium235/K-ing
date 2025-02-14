@@ -13,6 +13,26 @@ public interface CurationListRepository extends JpaRepository<CurationList, Long
     @Query("SELECT c FROM CurationList c JOIN FETCH c.writer")
     List<CurationList> findAllWithWriter();
 
+    @Query("SELECT c, " +
+            "(CASE " +
+            "    WHEN b.id IS NOT NULL THEN true " +
+            "    ELSE false " +
+            " END) AS bookmarked " +
+            "FROM CurationList c " +
+            "LEFT JOIN CurationListBookmark b " +
+            "    ON c.id = b.curationList.id " +
+            "    AND b.user.id = :userId " +
+            "WHERE (:writerId IS NULL OR c.writer.id = :writerId) " +
+            "AND (c.writer.id = :userId OR c.isPublic) " +
+            "AND (:id IS NULL OR c.id < :id) "+
+            "ORDER BY c.id DESC " +
+            "LIMIT :size")
+    List<Object[]> findCurationList(@Param("userId") Long userId,
+                                    @Param("writerId") Long writerId,
+                                    @Param("id") Long id,
+                                    @Param("size") int size);
+
+
     @Query("SELECT c FROM CurationList c " +
             "LEFT JOIN CurationListBookmark b ON c.id = b.curationList.id " +
             "WHERE (:writerId IS NULL OR c.writer.id = :writerId) " +
