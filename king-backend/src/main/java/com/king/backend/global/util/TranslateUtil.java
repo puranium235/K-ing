@@ -16,16 +16,12 @@ import java.util.List;
 
 @Service
 public class TranslateUtil {
-    private static final Translate translate;
+    private final Translate translate;
 
-    @Value("${spring.translate.google-translate-key}")
-    private String GOOGLE_TRANSLATE_KEY;
-
-    static {
+    public TranslateUtil(@Value("${spring.translate.google-translate-key}") String googleTranslateKey) {
         try {
-            InputStream serviceAccountStream = new ClassPathResource("k-ing-448601-233f5fd0a452.json").getInputStream();
-
-            translate = TranslateOptions.newBuilder()
+            InputStream serviceAccountStream = new ClassPathResource(googleTranslateKey).getInputStream();
+            this.translate = TranslateOptions.newBuilder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccountStream))
                     .build()
                     .getService();
