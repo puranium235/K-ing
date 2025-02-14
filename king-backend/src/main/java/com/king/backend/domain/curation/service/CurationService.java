@@ -17,6 +17,7 @@ import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
+import com.king.backend.global.util.TranslateUtil;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.util.ValidationUtil;
 import com.king.backend.s3.service.S3Service;
@@ -45,6 +46,7 @@ public class CurationService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
     private final PlaceRepository placeRepository;
+    private final TranslateUtil translateUtil;
 
     @Transactional
     public CurationDetailResponseDTO getCurationDetail(Long curationListId) {
@@ -52,6 +54,7 @@ public class CurationService {
         OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
 
         Long userId = Long.parseLong(user.getName());
+        String language = user.getLanguage();
 
         CurationList curationList = curationListRepository.findById(curationListId)
                 .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
@@ -67,7 +70,13 @@ public class CurationService {
                 .map(CurationListItem::getPlace)
                 .toList();
 
-        return CurationDetailResponseDTO.fromEntity(curationList, bookmarked, places);
+        CurationDetailResponseDTO response = CurationDetailResponseDTO.fromEntity(curationList, bookmarked, places);
+
+        List<String> translation = translateUtil.translateText(List.of(new String[]{ response.getTitle(), response.getDescription()}), language);
+        response.setTitle(translation.get(0));
+        response.setDescription(translation.get(1));
+
+        return response;
     }
 
     @Transactional

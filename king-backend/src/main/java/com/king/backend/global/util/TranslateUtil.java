@@ -1,4 +1,4 @@
-package com.king.backend.global;
+package com.king.backend.global.util;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.translate.Translate;
@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.List;
 
 @Service
-public class GoogleTranslateService {
+public class TranslateUtil {
     private static final Translate translate;
 
     static {
