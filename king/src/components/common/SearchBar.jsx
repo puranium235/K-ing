@@ -55,6 +55,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
   };
 
   const handleSubmit = () => {
+    setIsDropDown(false);
     setAutoCompleteOptions([]);
     if (onSearch) {
       onSearch(keyword, category);
