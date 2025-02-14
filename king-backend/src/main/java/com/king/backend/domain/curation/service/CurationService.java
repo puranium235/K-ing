@@ -18,6 +18,7 @@ import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.TranslateUtil;
 import com.king.backend.global.util.ValidationUtil;
 import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
@@ -45,6 +46,7 @@ public class CurationService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
     private final PlaceRepository placeRepository;
+    private final TranslateUtil translateUtil;
 
     @Transactional
     public CurationDetailResponseDTO getCurationDetail(Long curationListId) {
@@ -52,6 +54,7 @@ public class CurationService {
         OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
 
         Long userId = Long.parseLong(user.getName());
+        String language = user.getLanguage();
 
         CurationList curationList = curationListRepository.findById(curationListId)
                 .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
@@ -67,7 +70,13 @@ public class CurationService {
                 .map(CurationListItem::getPlace)
                 .toList();
 
-        return CurationDetailResponseDTO.fromEntity(curationList, bookmarked, places);
+        CurationDetailResponseDTO response = CurationDetailResponseDTO.fromEntity(curationList, bookmarked, places);
+
+        List<String> translation = translateUtil.translateText(List.of(new String[]{ response.getTitle(), response.getDescription()}), language);
+        response.setTitle(translation.get(0));
+        response.setDescription(translation.get(1));
+
+        return response;
     }
 
     @Transactional
@@ -82,6 +91,7 @@ public class CurationService {
         OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
 
         Long authId = Long.parseLong(authUser.getName());
+        String language = authUser.getLanguage();
 
         Boolean isPublic = authId.equals(requestDTO.getUserId()) ? null : true;
         List<CurationList> curations = curationListRepository.searchCurations(
@@ -98,7 +108,21 @@ public class CurationService {
                 : null;
 
         Set<Long> bookmarkedCurationIds = curationListBookmarkRepository.findCurationListIdByUserId(authId);
-        return CurationListResponseDTO.fromEntity(curations, bookmarkedCurationIds, nextCursor);
+
+        CurationListResponseDTO response = CurationListResponseDTO.fromEntity(curations, bookmarkedCurationIds, nextCursor);
+        List<CurationListResponseDTO.CurationDTO> curationDTOs = response.getCurations();
+
+        List<String> originalText = curationDTOs.stream()
+                        .map(CurationListResponseDTO.CurationDTO::getTitle)
+                        .toList();
+
+        List<String> translatedText = translateUtil.translateText(originalText, language);
+
+        for (int i = 0; i < curationDTOs.size(); i++) {
+            curationDTOs.get(i).setTitle(translatedText.get(i));
+        }
+
+        return response;
     }
 
     @Transactional

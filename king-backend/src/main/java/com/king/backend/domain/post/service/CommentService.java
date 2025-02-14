@@ -14,6 +14,7 @@ import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.TranslateUtil;
 import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +39,7 @@ public class CommentService {
     private final RedisTemplate<String, String> redisStringTemplate;
     private static final String POST_LIKES_KEY = "post:likes";
     private final CursorUtil cursorUtil;
+    private final TranslateUtil translateUtil;
     private static final long MULTIPLIER = 1_000_000_000L;
 
     @Transactional
@@ -77,6 +80,7 @@ public class CommentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(oauthUser.getName());
+        String language = oauthUser.getLanguage();
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 
@@ -105,18 +109,28 @@ public class CommentService {
                 ? cursorUtil.encodeCursor(List.of(comments.get(comments.size() - 1).getId()))
                 : null;
 
-        List<CommentAllResponseDto.Comment> commentsDto = comments.stream()
-                .map(comment -> CommentAllResponseDto.Comment.builder()
-                        .commentId(comment.getId())
-                        .content(comment.getContent())
-                        .createdAt(comment.getCreatedAt())
-                        .writer(CommentAllResponseDto.Writer.builder()
-                                .userId(comment.getWriter().getId())
-                                .nickname(comment.getWriter().getNickname())
-                                .imageUrl(comment.getWriter().getImageUrl())
-                                .build())
-                        .build())
+        List<String> originalTexts = new ArrayList<>();
+        List<CommentAllResponseDto.Comment.CommentBuilder> commentsBuilders = comments.stream()
+                .map(comment -> {
+                    originalTexts.add(comment.getContent());
+                    return CommentAllResponseDto.Comment.builder()
+                            .commentId(comment.getId())
+                            .createdAt(comment.getCreatedAt())
+                            .writer(CommentAllResponseDto.Writer.builder()
+                                    .userId(comment.getWriter().getId())
+                                    .nickname(comment.getWriter().getNickname())
+                                    .imageUrl(comment.getWriter().getImageUrl())
+                                    .build());
+                })
                 .toList();
+
+        List<String> translatedTexts = translateUtil.translateText(originalTexts, language);
+        List<CommentAllResponseDto.Comment> commentsDto = new ArrayList<>();
+        for (int i = 0; i < commentsBuilders.size(); i++) {
+            commentsDto.add(commentsBuilders.get(i)
+                    .content(translatedTexts.get(i))
+                    .build());
+        }
 
         return CommentAllResponseDto.builder()
                 .isLiked(isLiked)
