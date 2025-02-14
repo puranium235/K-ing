@@ -3,15 +3,15 @@ import useSWRInfinite from 'swr/infinite';
 
 import { mainGetFetcher } from '../../lib/axios';
 
-const useGetPostList = (userId) => {
+const useGetCurationList = () => {
   const getKey = (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.data.nextCursor) {
-      return null;
+      return null; // 마지막 페이지
     }
 
     return pageIndex === 0
-      ? `/post/feed?feedType=myPage&userId=${userId}&size=15`
-      : `/post/feed?feedType=myPage&userId=${userId}&size=15&cursor=${previousPageData?.data?.nextCursor}`;
+      ? `/curation?bookmarked=true&size=6`
+      : `/curation?bookmarked=true&size=6&cursor=${previousPageData.data.nextCursor}`;
   };
 
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
@@ -22,15 +22,15 @@ const useGetPostList = (userId) => {
   useEffect(() => {
     mutate();
     setSize(1);
-  }, [userId]);
+  }, []);
 
-  const posts = data ? [].concat(...data.map((res) => res.data.posts)) : [];
-  const isEmpty = data?.[0]?.data?.posts?.length === 0;
-  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data?.posts?.length < 15);
+  const curations = data ? [].concat(...data.map((res) => res.data.curations)) : [];
+  const isEmpty = data?.[0]?.data?.curations?.length === 0;
+  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data?.curations?.length < 6);
   const hasMore = !isEmpty && !isReachingEnd;
 
   return {
-    postList: posts || [],
+    curationList: curations || [],
     getNextData: () => {
       if (!isValidating) {
         setSize(size + 1);
@@ -39,7 +39,8 @@ const useGetPostList = (userId) => {
     isLoading: isValidating,
     isError: error,
     hasMore,
+    mutate, // 리스트 갱신하는 mutate
   };
 };
 
-export default useGetPostList;
+export default useGetCurationList;

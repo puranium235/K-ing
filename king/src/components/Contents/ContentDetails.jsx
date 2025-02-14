@@ -13,6 +13,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getContentDetails } from '../../lib/content';
+import { addFavorite, removeFavorite } from '../../lib/favorites';
 import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
@@ -37,8 +38,14 @@ const ContentDetails = () => {
     navigate(`/content/cast/${celebId}`);
   };
 
-  const toggleFavorite = () => {
-    setIsFavorited(!isFavorited);
+  const toggleFavorite = async () => {
+    const success = isFavorited
+      ? await removeFavorite('works', contentId)
+      : await addFavorite('works', contentId);
+
+    if (success) {
+      setIsFavorited(!isFavorited);
+    }
   };
 
   const getDetails = async () => {
@@ -70,6 +77,22 @@ const ContentDetails = () => {
     setContentId(contentId);
 
     navigate(`/search/keyword`);
+  };
+
+  const toggleCastFavorite = async (event, castId, currentFavorite) => {
+    event.stopPropagation(); // 부모 클릭 이벤트 방지
+    const success = currentFavorite
+      ? await removeFavorite('people', castId)
+      : await addFavorite('people', castId);
+
+    if (success) {
+      setContentInfo((prev) => ({
+        ...prev,
+        relatedCasts: prev.relatedCasts.map((cast) =>
+          cast.castId === castId ? { ...cast, favorite: !currentFavorite } : cast,
+        ),
+      }));
+    }
   };
 
   useEffect(() => {
@@ -144,9 +167,15 @@ const ContentDetails = () => {
               <img src={cast.imageUrl} alt="Cast" />
               <p>{cast.name}</p>
               {cast.favorite ? (
-                <IcStar id="favor" onClick={toggleFavorite} />
+                <IcStar
+                  id="favor"
+                  onClick={(event) => toggleCastFavorite(event, cast.castId, cast.favorite)}
+                />
               ) : (
-                <IcStarBlank id="favor" onClick={toggleFavorite} />
+                <IcStarBlank
+                  id="favor"
+                  onClick={(event) => toggleCastFavorite(event, cast.castId, cast.favorite)}
+                />
               )}
             </CastMember>
           ))}

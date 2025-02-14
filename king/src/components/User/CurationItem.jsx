@@ -1,41 +1,24 @@
-import { useState } from 'react';
 import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcBookmarkBlank } from '../../assets/icons';
-import { IcBookmarkFill } from '../../assets/icons';
 import { IcLock } from '../../assets/icons';
+import { truncateText } from '../../util/truncateText';
 
-// comment : 아카이브 큐레이션에서 코드를 재활용하고 난 뒤에 북마크 관련된 불필요한 내용 삭제 예정입니다
 const CurationItem = forwardRef(({ item }, ref) => {
-  const {
-    curationId,
-    title,
-    imageUrl,
-    writerNickname,
-    public: isPublic,
-    bookmarked: initialBookmarked,
-  } = item; // 초기 bookmarked 값 가져오기
-  const [bookmarked, setBookmarked] = useState(initialBookmarked); // 초기 상태를 item.bookmarked로 설정
+  const { curationId, title, imageUrl, public: isPublic } = item;
   const navigate = useNavigate();
-
-  const handleBookmarkClick = (event) => {
-    event.stopPropagation(); // 이벤트 버블링 방지
-    setBookmarked((prev) => !prev); // 북마크 상태 변경 (true <-> false)
-  };
 
   const handleCurationClick = () => {
     navigate(`/curation/${curationId}`);
   };
 
-  const truncateText = (text, maxLength) => {
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
-  };
-
   return (
     <StCurationItemWrapper ref={ref} onClick={handleCurationClick}>
-      <St.Image src={imageUrl} alt={title} />
+      <St.ImageWrapper>
+        <St.Image src={imageUrl} alt={title} />
+        <St.GradientOverlay />
+      </St.ImageWrapper>
       <St.Info>
         <St.Title>{truncateText(title, 20)}</St.Title>
       </St.Info>
@@ -44,9 +27,6 @@ const CurationItem = forwardRef(({ item }, ref) => {
           <IcLock />
         </St.LockIcon>
       )}
-      {/* <St.BookmarkButton onClick={handleBookmarkClick}>
-        {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />}
-      </St.BookmarkButton> */}
     </StCurationItemWrapper>
   );
 });
@@ -73,11 +53,24 @@ const St = {
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
     background-color: ${({ theme }) => theme.colors.White};
   `,
+  ImageWrapper: styled.div`
+    position: relative;
+    width: 100%;
+    height: 100%;
+  `,
   Image: styled.img`
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+  `,
+  GradientOverlay: styled.div`
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30%; /* 그라데이션 적용 범위 조절 */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
   `,
   Info: styled.div`
     text-align: left;
@@ -100,20 +93,7 @@ const St = {
     text-overflow: ellipsis;
     max-width: 100%;
   `,
-  BookmarkButton: styled.button`
-    position: absolute;
-    top: 0.8rem;
-    right: 0.8rem;
-    background: none;
-    border: none;
-    color: ${({ theme }) => theme.colors.White};
-    text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
-    cursor: pointer;
 
-    &:hover {
-      color: ${({ theme }) => theme.colors.Gray1};
-    }
-  `,
   LockIcon: styled.div`
     position: absolute;
     top: 0.8rem;

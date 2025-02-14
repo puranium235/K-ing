@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcNavigateNext } from '../../assets/icons';
-import { getFavorites } from '../../lib/favorites';
+import { getFavorites, removeFavorite } from '../../lib/favorites';
+import { convertType } from '../../util/convertType';
+import Loading from '../Loading/Loading';
 import FavoriteItem from './FavoriteItem';
 
 const FavoritesList = ({ title, onTabChange }) => {
@@ -13,7 +15,7 @@ const FavoritesList = ({ title, onTabChange }) => {
   useEffect(() => {
     const fetchFavorites = async () => {
       setLoading(true);
-      const type = title === '작품' ? 'content' : 'cast'; // 백엔드 API에 맞게 변환
+      const type = convertType(title === '작품' ? 'works' : 'people');
       const data = await getFavorites(type);
       setFavoritesData(data || []);
 
@@ -21,6 +23,17 @@ const FavoritesList = ({ title, onTabChange }) => {
     };
     fetchFavorites();
   }, [title]); // title이 변경될 때마다 API 호출
+
+  // 북마크 삭제 함수
+  const handleRemoveFavorite = async (targetId) => {
+    const type = convertType(title === '작품' ? 'works' : 'people');
+    const success = await removeFavorite(type, targetId);
+
+    if (success) {
+      // 삭제 후 리스트에서 해당 아이템 제거
+      setFavoritesData((prev) => prev.filter((item) => item.targetId !== targetId));
+    }
+  };
 
   // 최대 5개까지만 렌더링
   const previewData = (favoritesData || []).slice(0, 5);
@@ -42,6 +55,7 @@ const FavoritesList = ({ title, onTabChange }) => {
           <St.Title>{title}</St.Title>
           <St.Count>
             {favoritesData?.length || 0}
+            {favoritesData?.length == 10 && '+'}
             {unit}의 {title}
           </St.Count>
         </St.Left>
@@ -52,7 +66,7 @@ const FavoritesList = ({ title, onTabChange }) => {
         )}
       </St.Header>
       {loading ? (
-        <St.LoadingMessage>데이터를 불러오는 중...</St.LoadingMessage>
+        <Loading />
       ) : (
         <St.List>
           {favoritesData.length > 0 ? (
@@ -62,6 +76,7 @@ const FavoritesList = ({ title, onTabChange }) => {
                   key={item.favoriteId}
                   item={item}
                   type={title === '작품' ? 'works' : 'people'}
+                  onRemove={handleRemoveFavorite} // ✅ prop으로 전달
                 />
               ))}
             </>
@@ -125,9 +140,10 @@ const St = {
   `,
   List: styled.div`
     display: flex;
+    flex-wrap: nowrap;
     overflow-x: auto;
     gap: 8px;
-
+    min-width: 0;
     width: 100%;
 
     &::-webkit-scrollbar {
