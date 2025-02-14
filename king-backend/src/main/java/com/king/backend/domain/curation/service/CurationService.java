@@ -121,9 +121,7 @@ public class CurationService {
                     ? cursorUtil.encodeCursor(List.of(bookmarks.get(bookmarks.size() - 1).getId()))
                     : null;
         } else {
-            log.info("else문에 들어왔다");
             List<Object[]> results = curationListRepository.findCurationList(authId, userId, cursorId, size);
-            log.info("result: {}", results);
 
             originalText = new ArrayList<>();
             builders = results.stream()
@@ -146,7 +144,6 @@ public class CurationService {
                     : null;
         }
 
-        log.info("{} 를 번역해줘!", originalText);
         List<String> translatedText = translateUtil.translateText(originalText, language);
 
         List<CurationListResponseDTO.CurationDTO> curations = new ArrayList<>();
