@@ -6,6 +6,7 @@ import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
 import com.king.backend.global.errorcode.TranslateErrorCode;
 import com.king.backend.global.exception.CustomException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,9 @@ import java.util.List;
 @Service
 public class TranslateUtil {
     private static final Translate translate;
+
+    @Value("${spring.translate.google-translate-key}")
+    private String GOOGLE_TRANSLATE_KEY;
 
     static {
         try {
