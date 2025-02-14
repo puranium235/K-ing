@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { CurationsDummyData } from '../../assets/dummy/dummyDataArchive';
 import { ActiveArchiveTabState } from '../../recoil/atom';
 import Nav from '../common/Nav';
 import ArchiveTabMenu from './ArchiveTabMenu';
@@ -13,13 +11,11 @@ import FavoritesList from './FavoritesList';
 const Archive = () => {
   const [activeTab, setActiveTab] = useRecoilState(ActiveArchiveTabState);
 
-  const [curationsData] = useState(CurationsDummyData);
-
   return (
     <StArchiveWrapper>
       <St.Header>Archive</St.Header>
       <ArchiveTabMenu activeTab={activeTab} onTabChange={setActiveTab} />
-      {activeTab === 'Curations' && <CurationsList data={curationsData} />}
+      {activeTab === 'Curations' && <CurationsList />}
       {activeTab === 'Favorites' && (
         <>
           <FavoritesList title="작품" onTabChange={setActiveTab} />

@@ -37,6 +37,7 @@ const useGetSearchResult = (query, category, sortOption) => {
     isLoading: isValidating,
     isError: error,
     hasMore,
+    mutate,
   };
 };
 

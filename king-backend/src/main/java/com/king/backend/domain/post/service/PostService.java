@@ -20,6 +20,7 @@ import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
+import com.king.backend.global.errorcode.ImageErrorCode;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.util.TranslateUtil;
 import com.king.backend.s3.service.S3Service;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -51,11 +53,17 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
     private final LikeRepository likeRepository;
+    private final LikeService likeService;
     private final CommentRepository commentRepository;
     private final CursorUtil cursorUtil;
     private final TranslateUtil translateUtil;
     private final RedisTemplate<String, String> redisStringTemplate;
     private static final String POST_LIKES_KEY = "post:likes";
+    private static final long MULTIPLIER = 1_000_000_000L;
+
+    private double computeCompositeScore(long likeCount, long postId) {
+        return likeCount * MULTIPLIER + postId;
+    }
 
     @Transactional
     public Long uploadPost(PostUploadRequestDto reqDto, MultipartFile imageFile) {
@@ -75,12 +83,16 @@ public class PostService {
                 .build();
         postRepository.save(post);
 
-        redisStringTemplate.opsForZSet().add(POST_LIKES_KEY, post.getId().toString(), 0);
+        redisStringTemplate.opsForZSet().add(
+                POST_LIKES_KEY,
+                post.getId().toString(),
+                computeCompositeScore(0, post.getId())
+        );
 
         if (imageFile != null && !imageFile.isEmpty()) {
             long maxFileSize = 5 * 1024 * 1024;
             if(imageFile.getSize() > maxFileSize) {
-                throw new CustomException(PostErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
+                throw new CustomException(ImageErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
             }
             String s3Url = s3Service.uploadFile(post, imageFile);
             PostImage postImage = PostImage.builder()
@@ -114,8 +126,8 @@ public class PostService {
                     .map(PostImage::getImageUrl)
                     .orElse(null);
 
-            Double score = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, post.getId().toString());
-            Long likesCount = (score != null ? score.longValue() : 0L);
+            Double compositeScore = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, post.getId().toString());
+            Long likesCount = (compositeScore != null) ? (long)(compositeScore / MULTIPLIER) : 0L;
 
             Boolean isLiked = false;
             if (userId != null) {
@@ -193,9 +205,17 @@ public class PostService {
             throw new IllegalArgumentException("Invalid feedType: " + reqDto.getFeedType());
         }
 
-        String nextCursor = (posts.size() == size)
-                ? cursorUtil.encodeCursor(List.of(posts.get(posts.size() - 1).getId()))
-                : null;
+        String nextCursor = null;
+        if(posts.size() == size) {
+            if ("popular".equals(reqDto.getSortedBy())) {
+                Post lastPost = posts.get(posts.size() - 1);
+                Double lastCompositeScore = redisStringTemplate.opsForZSet().score(POST_LIKES_KEY, lastPost.getId().toString());
+                log.info("lastPost: {}, lastCompositeScore: {}", lastPost.getId(), lastCompositeScore);
+                nextCursor = cursorUtil.encodeCursor(List.of(lastCompositeScore));
+            } else {
+                nextCursor = cursorUtil.encodeCursor(List.of(posts.get(posts.size() - 1).getId()));
+            }
+        }
 
         List<PostFeedResponseDto.Post> postDtos = posts.stream().map(post -> {
                     String imageUrl = postImageRepository.findByPostId(post.getId())
@@ -214,23 +234,38 @@ public class PostService {
     }
 
     public List<Post> getPopularReviewPosts(Place place, List<Object> sortValues, int size) {
-        Set<String> popularPostIds = redisStringTemplate.opsForZSet().reverseRange(POST_LIKES_KEY, 0, size - 1);
-        if (popularPostIds == null || popularPostIds.isEmpty()) {
+        double upperBound;
+        if (sortValues == null || sortValues.isEmpty()) {
+            upperBound = Double.POSITIVE_INFINITY;
+        } else {
+            double lastCompositeScore = Double.parseDouble(sortValues.get(0).toString());
+            upperBound = lastCompositeScore - 1;
+        }
+
+        Set<String> candidateSet = redisStringTemplate.opsForZSet()
+                .rangeByScore(POST_LIKES_KEY, 0, upperBound);
+
+        if (candidateSet == null || candidateSet.isEmpty()) {
             return postRepository.findByIsPublicAndPlaceOrderByIdDesc(true, place, PageRequest.of(0, size));
         }
 
-        List<Long> idList = popularPostIds.stream().map(Long::valueOf).collect(Collectors.toList());
-        List<Post> posts = postRepository.findAllById(idList);
-        posts = posts.stream()
+        List<Long> sortedIdList = new ArrayList<>(candidateSet.stream()
+                .map(Long::valueOf)
+                .toList());
+        Collections.reverse(sortedIdList);
+
+        List<Post> posts = postRepository.findAllById(sortedIdList)
+                .stream()
                 .filter(p -> p.getPlace().getId().equals(place.getId()) && p.isPublic())
                 .collect(Collectors.toList());
 
-        posts.sort((p1, p2) -> {
-            int index1 = idList.indexOf(p1.getId());
-            int index2 = idList.indexOf(p2.getId());
-            return Integer.compare(index1, index2);
-        });
+        // Redis에서 정렬된 순서 유지
+        posts.sort(Comparator.comparingInt(p -> sortedIdList.indexOf(p.getId())));
+        System.out.println("posts: " + posts);
 
+        if (posts.size() > size) {
+            posts = posts.subList(0, size);
+        }
         return posts;
     }
 
@@ -313,7 +348,7 @@ public class PostService {
         if (imageFile != null && !imageFile.isEmpty()) {
             long maxFileSize = 5 * 1024 * 1024;
             if (imageFile.getSize() > maxFileSize) {
-                throw new CustomException(PostErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
+                throw new CustomException(ImageErrorCode.MAX_UPLOAD_SIZE_EXCEEDED);
             }
             // 기존 이미지 삭제
             PostImage postImage = postImageRepository.findByPostId(postId)

@@ -5,8 +5,10 @@ import styled from 'styled-components';
 
 import { IcStar, IcStarBlank } from '../../assets/icons';
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
+import { addFavorite, removeFavorite } from '../../lib/favorites';
 import { ScrollPosition, SearchQueryState } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { convertType } from '../../util/convertType';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/button/BackButton';
 import GoUpButton from '../common/button/GoUpButton';
@@ -20,21 +22,45 @@ const Content = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [scrollPosition, setScrollPosition] = useRecoilState(ScrollPosition);
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
-  const [favorites, setFavorites] = useState(false);
+  // const [favorites, setFavorites] = useState(false);
 
   const navigate = useNavigate();
 
   //마지막 요소 감지
   const lastElementRef = useRef(null);
 
-  const { searchResultList, getNextData, isLoading, hasMore } = useGetSearchResult(
+  const { searchResultList, getNextData, isLoading, hasMore, mutate } = useGetSearchResult(
     searchQuery,
     contentType.toUpperCase(),
     'createdAt',
   );
 
-  const toggleFavorite = () => {
-    setFavorites(!favorites);
+  const toggleFavorite = async (contentId, isFavorited) => {
+    const backendType = convertType(contentType);
+
+    const success = isFavorited
+      ? await removeFavorite(backendType, contentId)
+      : await addFavorite(backendType, contentId);
+
+    if (success) {
+      // mutate를 활용하여 UI 즉시 업데이트
+      mutate(
+        (prevData) => {
+          if (!prevData) return prevData;
+
+          return prevData.map((page) => ({
+            ...page,
+            data: {
+              ...page.data,
+              results: page.data.results.map((content) =>
+                content.id === contentId ? { ...content, favorite: !isFavorited } : content,
+              ),
+            },
+          }));
+        },
+        { revalidate: false },
+      );
+    }
   };
 
   useEffect(() => {
@@ -66,6 +92,7 @@ const Content = () => {
       navigate(`/content/detail/${id}`);
     }
   };
+  // console.log(searchResultList);
 
   if (isLoading && searchResultList.length === 0) return <Loading />;
 
@@ -96,10 +123,22 @@ const Content = () => {
                 <CardImage src={content.imageUrl} alt={content.name} />
               </CardImageContainer>
               <CardTitle>{content.name}</CardTitle>
-              {content.favorites ? (
-                <IcStar id="favor" onClick={toggleFavorite} />
+              {content.favorite ? (
+                <IcStar
+                  id="favor"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleFavorite(content.id, content.favorite);
+                  }}
+                />
               ) : (
-                <IcStarBlank id="favor" onClick={toggleFavorite} />
+                <IcStarBlank
+                  id="favor"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleFavorite(content.id, content.favorite);
+                  }}
+                />
               )}
             </Card>
           ))}

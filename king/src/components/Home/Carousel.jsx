@@ -45,10 +45,12 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  max-width: 30rem;
   width: 100%;
-  height: 18rem;
   overflow: hidden;
   border-radius: 2rem;
+
+  height: 18rem;
 `;
 
 const StyledSlider = styled(Slider)`
@@ -75,16 +77,16 @@ const StyledSlider = styled(Slider)`
 
 const CarouselItem = styled.div`
   position: relative;
-  width: 300px;
-  min-width: 300px;
-  height: 200px;
-  flex-shrink: 0;
+  width: 100%;
 
   cursor: pointer;
 
   img {
     width: 100%;
-    height: 100%;
+    min-width: 30rem;
+    max-width: 30rem;
+    min-height: 18rem;
+    max-height: 18rem;
     object-fit: cover;
     object-position: center;
   }
@@ -109,17 +111,9 @@ const CarouselItem = styled.div`
     ${({ theme }) => theme.fonts.Title6};
     z-index: 2;
 
-    max-width: 28rem;
+    max-width: 90%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  @media (min-width: 375px) {
-    min-width: 330px;
-  }
-
-  @media (max-width: 360px) {
-    min-width: 285px;
   }
 `;

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { tokenRefresh } from '../../lib/auth';
+import { handleAllowNotification } from '../../service/notificationPermission';
 
 const Token = () => {
   const [token, setToken] = useState('');

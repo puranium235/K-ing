@@ -15,6 +15,7 @@ import {
   IcTv,
 } from '../../assets/icons';
 import { getCelebDetails } from '../../lib/content';
+import { addFavorite, removeFavorite } from '../../lib/favorites';
 import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/button/BackButton';
 import Loading from '../Loading/Loading';
@@ -35,12 +36,19 @@ const CelebDetails = () => {
 
   const getDetails = async () => {
     const res = await getCelebDetails(celebId);
+    console.log('api 응답 데이터', res);
     setCelebInfo(res);
     setIsFavorited(res.favorite);
   };
 
-  const toggleFavorite = () => {
-    setIsFavorited(!isFavorited);
+  const toggleFavorite = async () => {
+    const success = isFavorited
+      ? await removeFavorite('people', celebId)
+      : await addFavorite('people', celebId);
+
+    if (success) {
+      setIsFavorited(!isFavorited);
+    }
   };
 
   const handleClickPlaceInfo = () => {
@@ -49,6 +57,22 @@ const CelebDetails = () => {
     setContentId(celebId);
 
     navigate(`/search/keyword`);
+  };
+
+  const toggleWorkFavorite = async (event, contentId, currentFavorite) => {
+    event.stopPropagation(); // 부모 클릭 이벤트 방지
+    const success = currentFavorite
+      ? await removeFavorite('content', contentId)
+      : await addFavorite('content', contentId);
+
+    if (success) {
+      setCelebInfo((prev) => ({
+        ...prev,
+        relatedContents: prev.relatedContents.map((work) =>
+          work.contentId === contentId ? { ...work, favorite: !currentFavorite } : work,
+        ),
+      }));
+    }
   };
 
   const handleClickContent = (contentId) => {
@@ -136,17 +160,25 @@ const CelebDetails = () => {
             <p>대표 작품</p>
           </IconText>
           <WorkGrid>
-            {celebInfo.relatedContents.map((work) => (
-              <Work
-                key={work.contentId}
-                onClick={() => {
-                  handleClickContent(work.contentId);
-                }}
-              >
-                <img src={work.imageUrl} alt="work Poster" />
-                <p>{work.title}</p>
-              </Work>
-            ))}
+            {[...celebInfo.relatedContents]
+              .sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0)) // ✅ 즐겨찾기 우선 정렬
+              .map((work) => (
+                <Work key={work.contentId} onClick={() => handleClickContent(work.contentId)}>
+                  <img src={work.imageUrl} alt="work Poster" />
+                  <p>{work.title}</p>
+                  {work.favorite ? (
+                    <IcStar
+                      id="favor"
+                      onClick={(event) => toggleWorkFavorite(event, work.contentId, work.favorite)}
+                    />
+                  ) : (
+                    <IcStarBlank
+                      id="favor"
+                      onClick={(event) => toggleWorkFavorite(event, work.contentId, work.favorite)}
+                    />
+                  )}
+                </Work>
+              ))}
           </WorkGrid>
         </Synopsis>
 
@@ -300,10 +332,12 @@ const Work = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  text-align: center;
 
-  flex: 0 0 9.5rem;
+  position: relative;
+
+  flex: 0 0 104px;
   width: 10rem;
+  height: auto;
 
   cursor: pointer;
 
@@ -314,14 +348,24 @@ const Work = styled.div`
   }
 
   p {
-    margin-top: 5px;
-    ${({ theme }) => theme.fonts.Body2};
-
     width: 100%;
+    text-align: center;
 
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    margin-top: 0.5rem;
+    ${({ theme }) => theme.fonts.Body2};
+  }
+
+  #favor {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+
+    width: 2rem;
+    height: 2rem;
   }
 `;
 
