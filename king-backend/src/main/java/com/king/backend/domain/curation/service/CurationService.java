@@ -118,7 +118,7 @@ public class CurationService {
 
         List<String> translatedText = translateUtil.translateText(originalText, language);
 
-        for (int i = 0; i < response.getCurations().size(); i++) {
+        for (int i = 0; i < curationDTOs.size(); i++) {
             curationDTOs.get(i).setTitle(translatedText.get(i));
         }
 
