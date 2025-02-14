@@ -26,7 +26,7 @@ public class CurationListResponseDTO {
     @Getter
     @Setter
     @AllArgsConstructor
-    private static class CurationDTO {
+    public static class CurationDTO {
         private Long curationId;
         private String title;
         private String imageUrl;
