@@ -267,9 +267,15 @@ public class PostService {
         User writer = post.getWriter();
         String imageUrl = postImageRepository.findByPostId(postId).map(PostImage::getImageUrl).orElse(null);
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
+        String language = authUser.getLanguage();
+
+        String translatedContent = translateUtil.translateText(post.getContent(), language);
+
         return PostDetailResponseDto.builder()
                 .postId(post.getId())
-                .content(post.getContent())
+                .content(translatedContent)
                 .createdAt(post.getCreatedAt())
                 .imageUrl(imageUrl)
                 .isPublic(post.isPublic())
