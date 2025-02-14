@@ -62,8 +62,13 @@ const CurationPlaceList = atom({
 });
 
 const CurationPlaceUploadList = atom({
-  key: 'placeListUploadState',
+  key: 'CurationPlaceUploadList',
   default: [],
+});
+
+export const isReturningFromPlaceUpload = atom({
+  key: 'isReturningFromPlaceUpload',
+  default: false,
 });
 
 const DraftExist = atom({

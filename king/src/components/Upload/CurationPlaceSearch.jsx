@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRef } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
@@ -16,12 +16,24 @@ const CurationPlaceSearch = () => {
 
   const [selectedPlaces, setSelectedPlaces] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const setCurationPlaceUploadList = useSetRecoilState(CurationPlaceUploadList);
+  const [CurationPlaceList, setCurationPlaceList] = useRecoilState(CurationPlaceUploadList);
 
   const { placeList, getNextData, isLoading, hasMore } = useGetPlaceSearchResult({
     query: searchQuery,
     category: 'PLACE',
   });
+
+  useEffect(() => {
+    if (CurationPlaceList.length > 0) {
+      setSelectedPlaces(
+        CurationPlaceList.map((place) => ({
+          id: place.placeId,
+          name: place.name,
+          imageUrl: place.imageUrl,
+        })),
+      );
+    }
+  }, [CurationPlaceList]);
 
   useEffect(() => {
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
@@ -51,7 +63,13 @@ const CurationPlaceSearch = () => {
   };
 
   const handleComplete = () => {
-    setCurationPlaceUploadList(selectedPlaces);
+    setCurationPlaceList(
+      selectedPlaces.map((place) => ({
+        placeId: place.id,
+        name: place.name,
+        imageUrl: place.imageUrl,
+      })),
+    );
     navigate(-1);
   };
 

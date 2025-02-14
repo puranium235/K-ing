@@ -196,7 +196,7 @@ const LockButton = styled.div`
   top: 1rem;
   right: 1rem;
   background-color: rgba(0, 0, 0, 0.5);
-  padding: 5px;
+  padding: 0.5rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
