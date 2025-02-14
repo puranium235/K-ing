@@ -21,6 +21,7 @@ import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.TranslateUtil;
 import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
@@ -33,6 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -51,6 +53,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final CursorUtil cursorUtil;
+    private final TranslateUtil translateUtil;
     private final RedisTemplate<String, String> redisStringTemplate;
     private static final String POST_LIKES_KEY = "post:likes";
 
@@ -93,6 +96,7 @@ public class PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(user.getName());
+        String language = user.getLanguage();
 
         String cursor = reqDto.getCursor();
         int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
@@ -104,7 +108,8 @@ public class PostService {
                 ? cursorUtil.encodeCursor(List.of(posts.get(posts.size() - 1).getId()))
                 : null;
 
-        List<PostHomeResponseDto.Post> postDtos = posts.stream().map(post -> {
+        List<String> originalText = new ArrayList<>();
+        List<PostHomeResponseDto.Post.PostBuilder> postBuilders = posts.stream().map(post -> {
             String imageUrl = postImageRepository.findByPostId(post.getId())
                     .map(PostImage::getImageUrl)
                     .orElse(null);
@@ -118,6 +123,7 @@ public class PostService {
             }
 
             Long commentsCount = commentRepository.countByPostId(post.getId());
+            originalText.add(post.getContent());
 
             return PostHomeResponseDto.Post.builder()
                     .postId(post.getId())
@@ -126,12 +132,18 @@ public class PostService {
                     .isLiked(isLiked)
                     .commentsCnt(commentsCount)
                     .writer(new PostHomeResponseDto.Writer(post.getWriter().getId(), post.getWriter().getNickname()))
-                    .content(post.getContent())
                     .createdAt(post.getCreatedAt())
-                    .updatedAt(post.getUpdatedAt())
-                    .build();
+                    .updatedAt(post.getUpdatedAt());
         }).toList();
 
+        List<String> translatedText = translateUtil.translateText(originalText, language);
+
+        List<PostHomeResponseDto.Post> postDtos = new ArrayList<>();
+        for (int i = 0; i < postBuilders.size(); i++) {
+            postDtos.add(postBuilders.get(i)
+                    .content(translatedText.get(i))
+                    .build());
+        }
         return new PostHomeResponseDto(postDtos, nextCursor);
     }
 
