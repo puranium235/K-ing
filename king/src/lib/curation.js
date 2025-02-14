@@ -107,7 +107,7 @@ export const updateCuration = async (curationId, curationInfo, image) => {
   }
 
   try {
-    const { data } = await client.post(`/curation/${curationId}`, requestBody, {
+    const { data } = await client.put(`/curation/${curationId}`, requestBody, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return data;

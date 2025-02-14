@@ -1,9 +1,12 @@
 import React, { useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled, { css, keyframes } from 'styled-components';
 
 import BackButton from './button/BackButton';
 
 const Header = ({ title }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [hasAnimated, setHasAnimated] = useState(false); // 애니메이션 종료 여부
   const [offsetX, setOffsetX] = useState(0); // 현재 드래그 위치
   const [isDragging, setIsDragging] = useState(false); // 드래그 여부
@@ -47,10 +50,21 @@ const Header = ({ title }) => {
     prevOffsetX.current = offsetX; // 드래그 종료 시 위치 저장
   };
 
+  const handleGoBack = () => {
+    //이전 경로 구하기
+    const from = location.state?.from?.pathname || '';
+
+    if ((from && from.includes('upload')) || from.includes('update')) {
+      navigate('/home');
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
     <Container>
       <StHeader>
-        <BackButton />
+        <BackButton onBack={handleGoBack} />
         <TitleContainer
           ref={containerRef}
           onTouchStart={hasAnimated ? handleTouchStart : null}
@@ -76,12 +90,13 @@ const Header = ({ title }) => {
 
 const Container = styled.div`
   position: relative;
+  width: 100%;
 `;
 
 const StHeader = styled.div`
   display: flex;
   align-items: center;
-  padding: 1rem;
+  padding: 1rem 0.7rem;
   gap: 1rem;
 `;
 

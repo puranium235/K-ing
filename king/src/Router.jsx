@@ -13,6 +13,7 @@ import CurationDetailPage from './pages/CurationDetailPage';
 import CurationMapPage from './pages/CurationMapPage';
 import CurationPage from './pages/CurationPage';
 import CurationPlaceSearchPage from './pages/CurationPlaceSearchPage';
+import CurationUpdatePage from './pages/CurationUpdatePage';
 import CurationUploadPage from './pages/CurationUploadPage';
 import ErrorPage from './pages/ErrorPage';
 import FavoritesDetailPage from './pages/FavoritesDetailPage';
@@ -56,6 +57,7 @@ const Router = () => {
               <Route path="/update/post/:postId" element={<PostUpdatePage />} />
               <Route path="/upload/curation" element={<CurationUploadPage />} />
               <Route path="/upload/curation/place" element={<CurationPlaceSearchPage />} />
+              <Route path="/update/curation/:curationId" element={<CurationUpdatePage />} />
               <Route path="/archive" element={<ArchivePage />} />
               <Route path="/favorites/:type" element={<FavoritesDetailPage />} />
               <Route path="/mypage" element={<MyPage />} />
@@ -64,7 +66,6 @@ const Router = () => {
               <Route path="/setting/:settingType" element={<SettingDetailPage />} />
               <Route path="/curation" element={<CurationPage />} />
               <Route path="/curation/:curationId" element={<CurationDetailPage />} />
-              <Route path="/upload/curation/:curationId" element={<CurationUploadPage />} />
               <Route path="/curation/map" element={<CurationMapPage />} />
               <Route path="/feed" element={<FeedPage />} />
               <Route path="/feed/:postId" element={<FeedDetailPage />} />

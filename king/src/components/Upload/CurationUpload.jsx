@@ -39,11 +39,17 @@ const CurationUpload = ({ state }) => {
   const [description, setDescription] = useState('');
   const [isShareEnabled, setIsShareEnabled] = useState(false);
   const [placeList, setPlaceList] = useRecoilState(CurationPlaceUploadList);
-  const [isDraft, setIsDraft] = useRecoilState(CurationDraftExist);
-  const [useDraft, setUseDraft] = useRecoilState(UseDraft);
+  const isDraft = useRecoilValue(CurationDraftExist);
+  const useDraft = useRecoilValue(UseDraft);
 
   useEffect(() => {
-    setPlaceIds(placeList.map((place) => place.id));
+    console.log(placeList);
+
+    if (state == 'upload') {
+      setPlaceIds(placeList.map((place) => place.id));
+    } else if (state == 'update') {
+      setPlaceIds(placeList.map((place) => place.placeId));
+    }
   }, [placeList]);
 
   useEffect(() => {
@@ -118,7 +124,7 @@ const CurationUpload = ({ state }) => {
       if (res.data) {
         setPlaceList([]);
         navigate(`/curation/${res.data.curationListId}`, {
-          state: { from: { pathname: location.pathname } },
+          state: { from: { pathname: 'upload' } },
         });
       }
     }
@@ -126,6 +132,7 @@ const CurationUpload = ({ state }) => {
 
   const handleUpdateCuration = async () => {
     if (isShareEnabled) {
+      console.log(placeIds);
       const curationInfo = {
         title,
         description,
@@ -138,7 +145,7 @@ const CurationUpload = ({ state }) => {
       upload.setShowing(false);
 
       if (res.success) {
-        navigate(`/curation/${curationId}`, { state: { from: { pathname: location.pathname } } });
+        navigate(`/curation/${curationId}`, { state: { from: { pathname: 'update' } } });
       }
     }
   };
@@ -177,10 +184,10 @@ const CurationUpload = ({ state }) => {
     if (!file) return;
 
     if (
-      !file.name.endsWith('.jpg') &&
-      !file.name.endsWith('.png') &&
-      !file.name.endsWith('.heic') &&
-      !file.name.endsWith('.gif')
+      !file.name.toLowerCase().endsWith('.jpg') &&
+      !file.name.toLowerCase().endsWith('.png') &&
+      !file.name.toLowerCase().endsWith('.heic') &&
+      !file.name.toLowerCase().endsWith('.gif')
     ) {
       alert('지원하지 않는 이미지 형식입니다.');
       event.target.type = '';
@@ -321,6 +328,7 @@ const PlaceList = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 0.2rem;
   padding: 0 0.5rem;
+  margin-bottom: 10rem;
 `;
 
 const StUploadWrapper = styled.div`

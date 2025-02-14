@@ -84,7 +84,9 @@ const CurationDetail = () => {
     }
   };
 
-  const handleEdit = () => {};
+  const handleEdit = () => {
+    navigate(`/update/curation/${curationId}`);
+  };
 
   const handleBookmarkClick = () => {
     setCurationData((prevData) => ({
@@ -165,9 +167,10 @@ const Container = styled.div`
 `;
 
 const HeaderContainer = styled.div`
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between; /* 좌우 정렬 */
 `;
 
 const OptionButton = styled.button`
