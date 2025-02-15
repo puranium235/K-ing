@@ -3,12 +3,19 @@ import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcBookmarkBlank, IcBookmarkFill } from '../../assets/icons';
+import { IcBookmarkBlank, IcBookmarkFill, IcLock } from '../../assets/icons';
 import { removeBookmark } from '../../lib/bookmark';
 import { truncateText } from '../../util/truncateText';
 
 const CurationItem = forwardRef(({ item, onRemove }, ref) => {
-  const { curationId, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item; // 초기 bookmarked 값 가져오기
+  const {
+    curationId,
+    title,
+    imageUrl,
+    writerNickname,
+    bookmarked: initialBookmarked,
+    public: isPublic,
+  } = item;
   const [bookmarked, setBookmarked] = useState(initialBookmarked); // 초기 상태를 item.bookmarked로 설정
   const navigate = useNavigate();
 
@@ -48,6 +55,11 @@ const CurationItem = forwardRef(({ item, onRemove }, ref) => {
         <St.Author>@{truncateText(writerNickname, 15)}</St.Author>
         <St.Title>{truncateText(title, 20)}</St.Title>
       </St.Info>
+      {!isPublic && (
+        <St.LockIcon>
+          <IcLock />
+        </St.LockIcon>
+      )}
       <St.BookmarkButton className="drop-shadow" onClick={handleBookmarkClick}>
         {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />} {/* 상태에 따라 아이콘 변경 */}
       </St.BookmarkButton>
@@ -137,5 +149,13 @@ const St = {
 
     // 북마크 뒤에 그림자
     filter: ${({ theme }) => `drop-shadow(2px 2px 4px ${theme.colors.Yellow}80)`};
+  `,
+  LockIcon: styled.div`
+    position: absolute;
+    top: 0.8rem;
+    right: 3rem;
+    /* background-color: rgba(0, 0, 0, 0.5); */
+    padding: 5px;
+    border-radius: 50%;
   `,
 };
