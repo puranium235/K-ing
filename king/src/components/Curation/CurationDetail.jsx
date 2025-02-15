@@ -8,6 +8,7 @@ import MapIcon from '/src/assets/icons/map.png';
 import OptionIcon from '/src/assets/icons/option.png';
 import OptionModal from '/src/components/common/OptionModal';
 
+import { addBookmark, removeBookmark } from '../../lib/bookmark';
 import { deleteCuration, getCurationDetail } from '../../lib/curation';
 import { CurationPlaceList } from '../../recoil/atom';
 import { formatDate } from '../../util/formatDate';
@@ -88,12 +89,30 @@ const CurationDetail = () => {
     navigate(`/update/curation/${curationId}`);
   };
 
-  const handleBookmarkClick = () => {
-    setCurationData((prevData) => ({
-      ...prevData,
-      bookmarked: !prevData.bookmarked,
+  const handleBookmarkClick = async () => {
+    if (!curationData) return;
+
+    // ✅ Optimistic UI 적용: 먼저 UI 업데이트
+    const prevBookmarked = curationData.bookmarked;
+    setCurationData((prev) => ({
+      ...prev,
+      bookmarked: !prev.bookmarked,
     }));
-    console.log(`북마크 상태 변경: ${!curationData.bookmarked}`);
+
+    try {
+      if (prevBookmarked) {
+        await removeBookmark(curationId);
+      } else {
+        await addBookmark(curationId);
+      }
+    } catch (error) {
+      console.error('북마크 변경 실패:', error);
+      // ❌ 실패하면 원래 상태로 복구
+      setCurationData((prev) => ({
+        ...prev,
+        bookmarked: prevBookmarked,
+      }));
+    }
   };
 
   return (

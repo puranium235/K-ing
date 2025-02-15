@@ -28,7 +28,7 @@ const FunctionButton = ({ bookmarked, onBookmarkClick }) => {
       <ShareModal isModalVisible={isModalVisible} onClick={closeModal} />
 
       <BookmarkButton onClick={onBookmarkClick}>
-        {bookmarked ? <IcBookmark /> : <IcBookmarkFillBlack />}
+        {bookmarked ? <IcBookmarkFillBlack /> : <IcBookmark />}
       </BookmarkButton>
     </ButtonContainer>
   );

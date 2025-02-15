@@ -10,6 +10,7 @@ import { getUserProfile, updateUserProfile } from '../../lib/user';
 import { ProfileState } from '../../recoil/atom';
 import { getUserIdFromToken } from '../../util/getUserIdFromToken';
 import { getLanguage, getTranslations, setLanguage } from '../../util/languageUtils';
+import UploadingModal from './Modal/UploadingModal';
 import SettingHeader from './SettingHeader';
 
 const SettingProfile = () => {
@@ -22,6 +23,8 @@ const SettingProfile = () => {
 
   const [newNickname, setNewNickname] = useState(nickname || '');
   const [newDescription, setNewDescription] = useState(description || '');
+  const [isDirty, setIsDirty] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [isValidName, setIsValidName] = useState(false);
   const [isNameAvailable, setIsNameAvailable] = useState(false);
@@ -32,6 +35,41 @@ const SettingProfile = () => {
   const { common, profile: profileTranslations, signup: translations } = getTranslations(language);
 
   const navigate = useNavigate();
+
+  // 변경 사항 감지
+  useEffect(() => {
+    if (newNickname !== nickname || newDescription !== description || imageFile) {
+      setIsDirty(true);
+    } else {
+      setIsDirty(false);
+    }
+  }, [newNickname, newDescription, imageFile, nickname, description]);
+
+  // 브라우저 뒤로가기 감지
+  useEffect(() => {
+    const handleBackButton = (event) => {
+      if (!isDirty) {
+        return;
+      }
+      const confirmLeave = window.confirm('저장하지 않고 나가시겠습니까?');
+      if (!confirmLeave) {
+        event.preventDefault();
+        return;
+      }
+    };
+
+    window.addEventListener('popstate', handleBackButton);
+    return () => window.removeEventListener('popstate', handleBackButton);
+  }, [isDirty]);
+
+  // `BackButton` 클릭 시 confirm 창 띄우기
+  const handleBackClick = () => {
+    if (isDirty) {
+      const confirmLeave = window.confirm('저장하지 않고 나가시겠습니까?');
+      if (!confirmLeave) return;
+    }
+    navigate(-1);
+  };
 
   // 프로필 이미지 클릭 시 파일 선택창 열기
   const handleImageClick = () => {
@@ -91,10 +129,13 @@ const SettingProfile = () => {
     const fetchProfile = async () => {
       try {
         const accessToken = localStorage.getItem('accessToken');
-        if (!profile || !profile.nickname) {
+        if (!profile || !profile.nickname || Object.keys(profile).length === 0) {
           // Recoil 상태가 비어있을 때만 요청
           const data = await getUserProfile(jwtDecode(accessToken).userId);
           setProfile(data.data); // Recoil 상태 업데이트
+          setSelectedImage(data.data.imageUrl);
+          setNewNickname(data.data.nickname);
+          setNewDescription(data.data.description);
         }
       } catch (error) {
         console.error('❌ 프로필 데이터를 불러오는 중 오류 발생:', error);
@@ -177,44 +218,36 @@ const SettingProfile = () => {
 
   // 변경 사항 저장
   const handleSave = async () => {
-    if (!isValidName || !isNameAvailable) {
-      alert(translations.nicknameErrorDuplicate);
-      return;
-    }
-    const updatedProfile = {};
+    if (!isDirty) return;
 
-    // 변경된 값만 저장
-    if (newNickname !== nickname) updatedProfile.nickname = newNickname;
-    if (newDescription !== description) updatedProfile.description = newDescription;
+    setIsUploading(true); // ✅ 업로드 중 상태 활성화
 
-    if (Object.keys(updatedProfile).length === 0 && !imageFile) {
-      return;
-    }
+    try {
+      const updatedProfile = {};
+      if (newNickname !== profile?.nickname) updatedProfile.nickname = newNickname;
+      if (newDescription !== profile?.description) updatedProfile.description = newDescription;
 
-    // API 호출
-    const response = await updateUserProfile(updatedProfile, imageFile);
+      const response = await updateUserProfile(updatedProfile, imageFile);
 
-    // Recoil 상태 업데이트
-    setProfile((prev) => ({
-      ...prev,
-      ...updatedProfile, // 변경된 값만 반영
-      imageUrl: response.data.imageUrl || prev.imageUrl, // 이미지가 변경되지 않았다면 기존 이미지 유지
-    }));
+      setProfile((prev) => ({
+        ...prev,
+        ...updatedProfile,
+        imageUrl: response.data.imageUrl || prev.imageUrl,
+      }));
 
-    alert('프로필이 저장되었습니다!');
-
-    // 마이페이지로 이동
-    const userId = getUserIdFromToken();
-    if (userId) {
-      navigate(`/user/${userId}`);
-    } else {
-      console.error('유저 ID를 찾을 수 없습니다.');
+      // alert('프로필이 저장되었습니다!');
+      navigate(`/user/${getUserIdFromToken()}`);
+    } catch (error) {
+      console.error('❌ 프로필 업데이트 실패:', error);
+      alert('프로필 업데이트에 실패했습니다.');
+    } finally {
+      setIsUploading(false); // ✅ 업로드 완료 후 모달 닫기
     }
   };
 
   return (
     <StSettingProfileWrapper>
-      <SettingHeader />
+      <SettingHeader onBack={handleBackClick} />
 
       <St.ContentWrapper>
         {/* 프로필 사진 */}
@@ -273,6 +306,7 @@ const SettingProfile = () => {
           {common.save}
         </St.SaveButton>
       </St.ButtonWrapper>
+      {isUploading && <UploadingModal isShowing={isUploading} />}
     </StSettingProfileWrapper>
   );
 };
