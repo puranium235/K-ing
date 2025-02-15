@@ -1,5 +1,9 @@
 package com.king.backend.domain.post.service;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.king.backend.domain.fcm.entity.FcmToken;
+import com.king.backend.domain.fcm.repository.FcmTokenRepository;
+import com.king.backend.domain.fcm.service.FcmTokenService;
 import com.king.backend.domain.post.dto.request.CommentRequestDto;
 import com.king.backend.domain.post.dto.request.CommentUploadRequestDto;
 import com.king.backend.domain.post.dto.response.CommentAllResponseDto;
@@ -41,6 +45,8 @@ public class CommentService {
     private final CursorUtil cursorUtil;
     private final TranslateUtil translateUtil;
     private static final long MULTIPLIER = 1_000_000_000L;
+    private final FcmTokenRepository fcmTokenRepository;
+    private final FcmTokenService fcmTokenService;
 
     @Transactional
     public void uploadComment(Long postId, CommentUploadRequestDto reqDto) {
@@ -57,7 +63,24 @@ public class CommentService {
                 .writer(writer)
                 .build();
 
-        commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
+
+        User postOwner = post.getWriter();
+        User commentWriter = savedComment.getWriter();
+        // 게시글 작성자와 댓글 작성자가 다를 경우에만 알림 전송
+        if (!postOwner.getId().equals(commentWriter.getId())) {
+            List<FcmToken> tokens = fcmTokenRepository.findByUser(postOwner);
+            String title = "댓글 알림";
+            String body = "당신의 게시글에 새 댓글이 달렸습니다.";
+
+            for (FcmToken tokenEntity : tokens) {
+                try {
+                    fcmTokenService.sendMessageByToken(tokenEntity.getToken(), title, body);
+                } catch (FirebaseMessagingException e) {
+                    log.error("푸시 알림 전송 실패 (토큰: {}): {}", tokenEntity.getToken(), e.getMessage());
+                }
+            }
+        }
     }
 
     @Transactional

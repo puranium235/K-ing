@@ -55,6 +55,8 @@ public class Cast {
             return translationEn;
         } else if ("zh".equalsIgnoreCase(language)) {
             return translationZh;
+        } else if ("ja".equalsIgnoreCase(language)) {
+            return translationJa;
         } else {
             return translationEn;
         }
