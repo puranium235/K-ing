@@ -5,6 +5,12 @@ import SendIcon from '../../assets/icons/chat-send.png';
 import KingIcon from '../../assets/icons/king_character.png';
 import RefreshIcon from '../../assets/icons/refresh.png';
 import { deleteChatHistory, getChatHistory, saveChatHistory } from '../../lib/chatbot';
+import {
+  closeWebSocket,
+  connectWebSocket,
+  isWebSocketConnected,
+  sendMessageViaWebSocket,
+} from '../../lib/websocket';
 import { splitIntoSentences } from '../../util/chatbot';
 import BackButton from '../common/button/BackButton';
 import ButtonMessageBubbleComponent from './ButtonMessageBubbleComponent';
@@ -22,6 +28,7 @@ const AIChatView = () => {
   const socketRef = useRef(null);
 
   const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
+
   const chatT = '데이터 기반 장소 검색 T봇';
   const chatF = '맞춤 큐레이션 추천 F봇';
 
@@ -46,67 +53,35 @@ const AIChatView = () => {
     await saveInitialMessage();
   };
 
-  // 🔹 WebSocket
+  // ✅ WebSocket 연결
   useEffect(() => {
-    if (!isBotSelected) return;
+    if (!isBotSelected || !currentApi) return;
 
-    if (socketRef.current) {
-      console.log('🚀 기존 WebSocket 연결 존재 -> 새로운 연결 생성 방지');
-      return;
-    }
-
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      console.error('❌ WebSocket 연결 실패: 토큰 없음');
-      return;
-    }
-
-    const ws = new WebSocket(`${currentApi}?token=${token}`);
-
-    ws.onopen = () => {
-      console.log('✅ WebSocket 연결됨');
-      socketRef.current = ws; // onopen 이후에만 socketRef에 저장
-    };
-
-    ws.onmessage = (event) => {
-      //console.log('📩 메시지 수신:', event.data);
-      updateMessages(event.data);
-    };
-
-    ws.onclose = () => {
-      console.log('❌ WebSocket 연결 종료됨');
-      socketRef.current = null;
-    };
-
-    ws.onerror = (error) => {
-      console.error('⚠️ WebSocket 오류 발생:', error);
-    };
+    console.log('🔹 WebSocket 연결 시도:', currentApi);
+    connectWebSocket(currentApi, updateMessages);
 
     return () => {
-      if (socketRef.current === ws) {
-        //console.log('🔌 WebSocket 연결 해제 중...');
-        socketRef.current?.close();
-        socketRef.current = null;
-      }
+      closeWebSocket(); // ✅ 컴포넌트 언마운트 시 WebSocket 닫기
     };
-  }, [isBotSelected]);
+  }, [isBotSelected, currentApi, updateMessages]);
 
   const sendMessage = async () => {
-    if (
-      newMessage.trim() === '' ||
-      !socketRef.current ||
-      socketRef.current.readyState !== WebSocket.OPEN
-    ) {
-      console.error('⚠️ WebSocket이 닫혀 있음 또는 메시지가 비어 있음.');
+    if (newMessage.trim() === '') {
+      console.error('⚠️ 메시지가 비어 있음.');
+      return;
+    }
+
+    if (!isWebSocketConnected()) {
+      console.error('⚠️ WebSocket이 닫혀 있음.');
       return;
     }
 
     const userMessage = { text: newMessage, sender: 'user', type: 'message' };
     setMessages((prev) => [...prev, userMessage]);
     setNewMessage('');
-    setIsTyping(true); // ✅ 유저 메시지 전송 시 타이핑 표시
+    setIsTyping(true);
 
-    socketRef.current.send(newMessage);
+    sendMessageViaWebSocket(newMessage);
   };
 
   useEffect(() => {
@@ -167,6 +142,7 @@ const AIChatView = () => {
     setIsBotSelected(true);
 
     updateMessages(aiMessage);
+    updateMessages('[END]');
     await saveChatHistory('assistant', aiMessage, 'message');
   };
 
@@ -399,6 +375,9 @@ const InputContainer = styled.div`
   background-color: #ffffff;
   border-top: 1px solid #ddd;
   padding-bottom: 2rem;
+
+  /* position: fixed;
+  bottom: 0; */
 `;
 
 const Input = styled.input`
