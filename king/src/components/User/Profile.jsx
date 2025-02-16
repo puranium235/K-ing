@@ -96,9 +96,9 @@ function Profile({ isMyPage, userId }) {
 
       const scrollTop = window.scrollY;
       const tabTop = tabMenuRef.current.getBoundingClientRect().top;
-      console.log(
-        `스크롤 위치: ${scrollTop}, 탭 초기 위치: ${originalOffsetTop}, 헤더 높이: ${headerHeight}`,
-      );
+      // console.log(
+      //   `스크롤 위치: ${scrollTop}, 탭 초기 위치: ${originalOffsetTop}, 헤더 높이: ${headerHeight}`,
+      // );
 
       // 상단에 닿으면 `fixed` 적용
       if (scrollTop >= originalOffsetTop) {
