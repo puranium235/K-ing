@@ -49,6 +49,14 @@ public class CurationService {
     private final PlaceRepository placeRepository;
     private final TranslateUtil translateUtil;
 
+    @Transactional(readOnly = true)
+    public Long getCurationIdByTitle(String title) {
+        CurationList curationList = curationListRepository.findByTitle(title)
+                .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
+
+        return curationList.getId();
+    }
+
     @Transactional
     public CurationDetailResponseDTO getCurationDetail(Long curationListId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
