@@ -2,15 +2,16 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import styled from 'styled-components';
 
 const Carousel = ({ carouselList }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleClickCuration = (curationId) => {
-    navigate(`/curation/${curationId}`);
+    navigate(`/curation/${curationId}`, { state: { from: location } });
   };
 
   const settings = {

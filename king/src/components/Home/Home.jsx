@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
@@ -15,6 +15,8 @@ import GenreButton from './GenreButton';
 import Rank from './Rank';
 
 const Home = () => {
+  const location = useLocation();
+
   const [carouselList, setCarouselList] = useState([]);
   const [topCurations, setTopCurations] = useState([]);
   const [placeList, setPlaceList] = useState([]);
@@ -87,7 +89,11 @@ const Home = () => {
             <>
               <CurationHeader>
                 <h3>{topCurations[0].title}</h3>
-                <span onClick={() => navigate(`/curation/${topCurations[0].id}`)}>
+                <span
+                  onClick={() =>
+                    navigate(`/curation/${topCurations[0].id}`, { state: { from: location } })
+                  }
+                >
                   {' '}
                   전체보기 {'>'}{' '}
                 </span>
