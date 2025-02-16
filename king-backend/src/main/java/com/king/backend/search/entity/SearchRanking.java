@@ -29,6 +29,8 @@ public class SearchRanking {
     @Column(name = "search_count", nullable = false)
     private int searchCount;
 
+    private double score;
+
     @Column
     private LocalDateTime date;
 

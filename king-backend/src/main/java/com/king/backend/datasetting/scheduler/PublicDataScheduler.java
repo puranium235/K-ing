@@ -24,7 +24,7 @@ public class PublicDataScheduler {
 //        processData();
     }
 
-    @Scheduled(fixedDelayString = "${app.scheduler.public-data-interval}")
+//    @Scheduled(fixedDelayString = "${app.scheduler.public-data-interval}")
     public void processData(){
 //        System.out.println("===== TMDB 영화 데이터 업데이트 시작 =====");
 //        tmdbService.fetchAndSavePopularMovies();
