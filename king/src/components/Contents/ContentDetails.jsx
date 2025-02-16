@@ -18,6 +18,7 @@ import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../
 import { convertLowerCase } from '../../util/changeStrFormat';
 import { getContentTypeKor } from '../../util/getContentType';
 import BackButton from '../common/button/BackButton';
+import Nav from '../common/Nav';
 import Loading from '../Loading/Loading';
 
 const ContentDetails = () => {
@@ -180,11 +181,13 @@ const ContentDetails = () => {
             </CastMember>
           ))}
         </CastGrid>
+        <ActionButton onClick={handleClickPlaceInfo}>
+          <IcMarker />
+          <p>촬영지 알아보기</p>
+        </ActionButton>
       </DramaPageContainer>
-      <ActionButton onClick={handleClickPlaceInfo}>
-        <IcMarker />
-        <p>촬영지 알아보기</p>
-      </ActionButton>
+
+      <Nav />
     </>
   );
 };
@@ -205,6 +208,7 @@ const DramaPageContainer = styled.div`
   justify-content: flex-start;
 
   padding: 2rem;
+  padding-bottom: 8rem;
   background-color: #fff;
 
   min-height: 80%;
@@ -348,9 +352,10 @@ const ActionButton = styled.button`
   align-items: center;
 
   margin: auto;
+  margin-top: 1rem;
   margin-bottom: 2rem;
 
-  border-radius: 20px;
+  border-radius: 2rem;
   padding: 0.8rem 2rem;
 
   text-align: center;

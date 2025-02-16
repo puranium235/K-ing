@@ -1,4 +1,3 @@
-import { constant } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -18,6 +17,7 @@ import { getCelebDetails } from '../../lib/content';
 import { addFavorite, removeFavorite } from '../../lib/favorites';
 import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import BackButton from '../common/button/BackButton';
+import Nav from '../common/Nav';
 import Loading from '../Loading/Loading';
 
 const CelebDetails = () => {
@@ -210,6 +210,7 @@ const CelebDetails = () => {
           </PlaceText>
         </ActionButton>
       </CelebPageContainer>
+      <Nav />
     </>
   );
 };
@@ -232,6 +233,8 @@ const CelebPageContainer = styled.div`
   min-height: 80%;
 
   padding: 2rem;
+  padding-bottom: 8rem;
+
   background-color: #fff;
 `;
 
@@ -444,7 +447,7 @@ const ActionButton = styled.button`
   margin-top: 2rem;
   margin-bottom: 2rem;
 
-  border-radius: 2rem;
+  border-radius: 1.5rem;
   padding: 0.8rem 2rem;
 
   text-align: center;
