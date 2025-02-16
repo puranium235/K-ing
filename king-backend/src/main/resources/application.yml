@@ -1,6 +1,8 @@
 client:
   url: ${CLIENT_BASE_URL}
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: king-backend
   ai:
@@ -37,7 +39,6 @@ spring:
         provider:
           line:
             issuer-uri: https://access.line.me
-
   datasource:
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?serverTimezone=UTC
     username: ${MYSQL_USER}
