@@ -37,6 +37,7 @@ const useGetCurationList = (query) => {
     isLoading: isValidating,
     isError: error,
     hasMore,
+    mutate,
   };
 };
 

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { getUserIdFromToken } from '../../util/getUserIdFromToken';
 import Nav from '../common/Nav';
+import Loading from '../Loading/Loading';
 import Profile from './Profile';
 
 const User = () => {
@@ -10,6 +11,8 @@ const User = () => {
   const myId = getUserIdFromToken(); // 공통 함수 사용
 
   const isMyPage = String(myId) === String(userId); // 내 페이지 여부 체크
+
+  if (!userId) return <Loading />;
 
   return (
     <St.Container>

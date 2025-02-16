@@ -3,17 +3,36 @@ import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { IcBookmarkBlank } from '../../assets/icons';
-import { IcBookmarkFill } from '../../assets/icons';
+import { IcBookmarkBlank, IcBookmarkFill } from '../../assets/icons';
+import { addBookmark, removeBookmark } from '../../lib/bookmark';
+import { truncateText } from '../../util/truncateText';
 
-const CurationItem = forwardRef(({ item }, ref) => {
+const CurationItem = forwardRef(({ item, onBookmarkChange }, ref) => {
   const { id: curationId, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item;
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const navigate = useNavigate();
 
-  const handleBookmarkClick = (event) => {
+  const handleBookmarkClick = async (event) => {
     event.stopPropagation();
+
+    // UI 업데이트
     setBookmarked((prev) => !prev);
+
+    let success;
+
+    if (bookmarked) {
+      success = await removeBookmark(curationId);
+    } else {
+      success = await addBookmark(curationId);
+    }
+
+    if (!success) {
+      // 실패한 경우 상태를 원래대로 복구
+      setBookmarked((prev) => !prev);
+    } else if (onBookmarkChange) {
+      // 성공하면 SWR 캐시 갱신
+      onBookmarkChange();
+    }
   };
 
   const handleCurationClick = () => {
@@ -22,12 +41,15 @@ const CurationItem = forwardRef(({ item }, ref) => {
 
   return (
     <StCurationItemWrapper ref={ref} onClick={handleCurationClick}>
-      <St.Image src={imageUrl} alt={title} />
+      <St.ImageWrapper>
+        <St.Image src={imageUrl} alt={title} />
+        <St.GradientOverlay />
+      </St.ImageWrapper>
       <St.Info>
-        <St.Author>@{writerNickname}</St.Author>
-        <St.Title>{title}</St.Title>
+        <St.Author>@{truncateText(writerNickname, 15)}</St.Author>
+        <St.Title>{truncateText(title, 20)}</St.Title>
       </St.Info>
-      <St.BookmarkButton onClick={handleBookmarkClick}>
+      <St.BookmarkButton className="drop-shadow" onClick={handleBookmarkClick}>
         {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />}
       </St.BookmarkButton>
     </StCurationItemWrapper>
@@ -56,11 +78,24 @@ const St = {
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
     background-color: ${({ theme }) => theme.colors.White};
   `,
+  ImageWrapper: styled.div`
+    position: relative;
+    width: 100%;
+    height: 100%;
+  `,
   Image: styled.img`
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+  `,
+  GradientOverlay: styled.div`
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30%; /* 그라데이션 적용 범위 조절 */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
   `,
   Info: styled.div`
     text-align: left;
@@ -97,8 +132,6 @@ const St = {
     text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
     cursor: pointer;
 
-    &:hover {
-      color: ${({ theme }) => theme.colors.Gray1};
-    }
+    filter: ${({ theme }) => `drop-shadow(2px 2px 4px ${theme.colors.Yellow}80)`};
   `,
 };

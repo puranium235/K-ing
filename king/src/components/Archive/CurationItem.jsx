@@ -136,6 +136,6 @@ const St = {
     cursor: pointer;
 
     // 북마크 뒤에 그림자
-    filter: ${({ theme }) => `drop-shadow(2px 2px 4px ${theme.colors.MainBlue}80)`};
+    filter: ${({ theme }) => `drop-shadow(2px 2px 4px ${theme.colors.Yellow}80)`};
   `,
 };

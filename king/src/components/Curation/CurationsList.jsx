@@ -6,7 +6,7 @@ import useGetCurationList from '../../hooks/search/useGetCurationList';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import CurationItem from './CurationItem';
 const CurationsList = ({ query }) => {
-  const { curationList, getNextData, isLoading, hasMore } = useGetCurationList(query);
+  const { curationList, getNextData, isLoading, hasMore, mutate } = useGetCurationList(query);
 
   const lastElementRef = useRef(null);
 
@@ -22,6 +22,7 @@ const CurationsList = ({ query }) => {
             key={item.id}
             item={item}
             ref={index === curationList?.length - 1 ? lastElementRef : null}
+            onBookmarkChange={() => mutate()}
           />
         ))}
     </StCurationList>
