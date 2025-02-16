@@ -1,8 +1,6 @@
 client:
   url: ${CLIENT_BASE_URL}
 spring:
-  config:
-    import: optional:file:.env[.properties]
   application:
     name: king-backend
   ai:
