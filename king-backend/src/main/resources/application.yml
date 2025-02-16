@@ -24,9 +24,19 @@ spring:
             client-name: google
             client-id: ${OAUTH2_GOOGLE_CLIENT_ID}
             client-secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
-            redirect-uri: ${SERVER_BASE_URL}${OAUTH2_GOOGLE_API_ENDPOINT}
+            redirect-uri: ${SERVER_BASE_URL}/login/oauth2/code/google
             authorization-grant-type: authorization_code
             scope: email, profile
+          line:
+            client-name: line
+            client-id: ${OAUTH2_LINE_CLIENT_ID}
+            client-secret: ${OAUTH2_LINE_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: ${SERVER_BASE_URL}/login/oauth2/code/line
+            scope: openid, email, profile
+        provider:
+          line:
+            issuer-uri: https://access.line.me
   datasource:
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?serverTimezone=UTC
     username: ${MYSQL_USER}
@@ -60,6 +70,8 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
+fcm:
+  service-account-file: ${FIREBASE_SERVICE_ACCOUNT_FILE}
 server:
   port: 8080
   forward-headers-strategy: framework
