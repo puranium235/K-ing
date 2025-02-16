@@ -16,12 +16,12 @@ public class FcmTokenController {
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> registerToken(@RequestBody String token) {
         fcmService.registerToken(token);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
     }
 
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deleteToken(@RequestBody String token){
         fcmService.deleteToken(token);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
     }
 }

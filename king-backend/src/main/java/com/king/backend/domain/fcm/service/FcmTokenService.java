@@ -37,9 +37,10 @@ public class FcmTokenService {
                 .ifPresentOrElse(existing -> {
                     // 존재하면 업데이트 시각만 변경
                 }, () -> {
-                    FcmToken newToken = new FcmToken();
-                    newToken.setUser(user);
-                    newToken.setToken(token);
+                    FcmToken newToken = FcmToken.builder()
+                            .user(user)
+                            .token(token)
+                            .build();
                     fcmTokenRepository.save(newToken);
                 });
     }

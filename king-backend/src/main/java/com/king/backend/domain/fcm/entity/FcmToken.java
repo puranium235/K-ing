@@ -9,8 +9,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Getter
-@Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class FcmToken {
