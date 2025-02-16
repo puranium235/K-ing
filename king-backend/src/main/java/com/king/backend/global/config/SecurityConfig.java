@@ -22,6 +22,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -40,10 +41,10 @@ import java.util.List;
 public class SecurityConfig {
 
     private final OAuth2UserService oAuth2UserService;
+    private final OidcUserService oidcUserService;
     private final CustomSuccessHandler customSuccessHandler;
     private final CustomOAuthFailureHandler customOAuthFailureHandler;
     private final JWTUtil jwtUtil;
-    private final TokenRepository tokenRepository;
 
     @Value("${client.url}")
     private String CLIENT_URL;
@@ -91,7 +92,8 @@ public class SecurityConfig {
 
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                                .userService(oAuth2UserService))
+                                .userService(oAuth2UserService)
+                                .oidcUserService(oidcUserService))
                         .successHandler(customSuccessHandler)
                         .failureHandler(customOAuthFailureHandler))
 

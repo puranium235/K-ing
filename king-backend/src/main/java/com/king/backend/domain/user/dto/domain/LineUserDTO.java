@@ -15,9 +15,11 @@ public class LineUserDTO {
 
     public static LineUserDTO from(OAuth2User oAuth2User) {
         Map<String, Object> attribute = oAuth2User.getAttributes();
+        System.out.println("line attribute: " + attribute);
 
         LineUserDTO lineUserDTO = new LineUserDTO();
-        lineUserDTO.setLineId(attribute.get("userId").toString());
+        lineUserDTO.setLineId(attribute.get("sub").toString());
+        lineUserDTO.setEmail(attribute.get("email").toString());
 
         return lineUserDTO;
     }
