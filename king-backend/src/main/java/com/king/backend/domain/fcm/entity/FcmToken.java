@@ -9,9 +9,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FcmToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +23,10 @@ public class FcmToken {
 
     @UpdateTimestamp
     private OffsetDateTime lastUpdateTime;
+
+    @Builder
+    public FcmToken(String token, User user) {
+        this.token = token;
+        this.user = user;
+    }
 }
