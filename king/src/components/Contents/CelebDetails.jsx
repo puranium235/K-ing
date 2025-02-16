@@ -36,7 +36,7 @@ const CelebDetails = () => {
 
   const getDetails = async () => {
     const res = await getCelebDetails(celebId);
-    console.log('api 응답 데이터', res);
+    // console.log('api 응답 데이터', res);
     setCelebInfo(res);
     setIsFavorited(res.favorite);
   };
@@ -91,7 +91,7 @@ const CelebDetails = () => {
     } else if (contentType === 'autocom') {
       navigate(`/home`);
     } else {
-      navigate(`/content/${contentType}`);
+      navigate(-1);
     }
   };
 

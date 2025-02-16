@@ -67,7 +67,7 @@ const ContentDetails = () => {
     } else if (contentType === 'autocom') {
       navigate(`/home`);
     } else {
-      navigate(`/content/${contentType}`);
+      navigate(-1);
     }
   };
 
