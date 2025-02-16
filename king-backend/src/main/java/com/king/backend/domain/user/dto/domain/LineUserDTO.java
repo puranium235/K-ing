@@ -25,6 +25,7 @@ public class LineUserDTO {
         } else {
             lineUserDTO.setImageUrl("https://king-s3-bucket.s3.us-east-1.amazonaws.com/uploads/default.jpg");
         }
+
         return lineUserDTO;
     }
 }
