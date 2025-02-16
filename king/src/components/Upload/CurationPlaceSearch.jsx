@@ -52,11 +52,13 @@ const CurationPlaceSearch = () => {
   const handlePlaceChange = (item) => {
     setSelectedPlaces((prevPlaces) => {
       const index = prevPlaces.findIndex((place) => place.id === item.id);
+
       if (index < 0) {
+        // 장소가 없으면 추가
         return [...prevPlaces, item];
       }
-
-      prevPlaces;
+      // 이미 선택된 경우, 해제 (즉, 제거)
+      return prevPlaces.filter((place) => place.id !== item.id);
     });
   };
 
@@ -81,26 +83,30 @@ const CurationPlaceSearch = () => {
   return (
     <>
       <StWrapper>
-        <IconText>
-          <p onClick={handleComplete}>완료</p>
-        </IconText>
-        <h3>선택한 장소</h3>
-        <SelectedPlaces>
-          {selectedPlaces.map((place) => (
-            <PlaceItem key={place.id}>
-              <img src={place.imageUrl} alt="선택한 장소" />
-              <p>{place.name}</p>
-              <button onClick={() => handleRemovePlace(place.id)}>X</button>
-            </PlaceItem>
-          ))}
-        </SelectedPlaces>
-        <SearchPlaceWrapper>
+        <TopContainer>
+          <IconText>
+            <p onClick={handleComplete}>완료</p>
+          </IconText>
+          <h3>선택한 장소</h3>
+          <SelectedPlaces>
+            {selectedPlaces.map((place) => (
+              <PlaceItem key={place.id}>
+                <img src={place.imageUrl} alt={place.name} />
+                <p>{place.name}</p>
+                <button onClick={() => handleRemovePlace(place.id)}>X</button>
+              </PlaceItem>
+            ))}
+          </SelectedPlaces>
+
           <SearchBar
             type={'PLACE'}
             query={searchQuery}
             onSet={handleOptionClick}
             onSearch={handleSearch}
           />
+        </TopContainer>
+
+        <SearchPlaceWrapper>
           {placeList.map((place, index) => (
             <ShowItem key={place.id} ref={index === placeList.length - 1 ? lastElementRef : null}>
               <img src={place.imageUrl} alt="장소" />
@@ -122,9 +128,11 @@ export default CurationPlaceSearch;
 
 const StWrapper = styled.div`
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   h3 {
-    margin-top: 3rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     ${({ theme }) => theme.fonts.Title5};
     color: ${({ theme }) => theme.colors.Gray1};
   }
@@ -149,17 +157,30 @@ const IconText = styled.div`
   }
 `;
 
+const TopContainer = styled.div``;
+
 const SelectedPlaces = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1rem;
 
   min-height: 5rem;
+  overflow-x: auto; /* 가로 스크롤 가능 */
+  white-space: nowrap; /* 아이템 줄바꿈 방지 */
+  padding-bottom: 5px; /* 스크롤 숨김 효과를 위해 약간의 패딩 추가 */
+
+  /* 스크롤 바 숨기기 */
+  &::-webkit-scrollbar {
+    display: none; /* 크롬, 사파리 */
+  }
+  -ms-overflow-style: none; /* IE, Edge */
+  scrollbar-width: none; /* Firefox */
 `;
 
 const PlaceItem = styled.div`
   display: flex;
   align-items: center;
+  flex-direction: column;
   justify-content: space-between;
   gap: 0.5rem;
   margin: 0.5rem 0;
@@ -177,12 +198,17 @@ const PlaceItem = styled.div`
   p {
     ${({ theme }) => theme.fonts.Body3};
     color: ${({ theme }) => theme.colors.Gray1};
+    /* 글자 제한 스타일 */
+    white-space: nowrap; /* 줄바꿈 방지 */
+    overflow: hidden; /* 넘치는 글자 숨김 */
+    text-overflow: ellipsis; /* 말줄임(...) 표시 */
+    max-width: 5rem; /* 5글자 정도까지만 보이도록 설정 */
   }
 
   button {
     position: absolute;
-    right: 0;
-    top: 0;
+    right: -5px;
+    top: -5px;
 
     width: 1.5rem;
     height: 1.5rem;
@@ -191,9 +217,10 @@ const PlaceItem = styled.div`
     text-align: center;
     cursor: pointer;
 
-    background-color: black;
-    border-radius: 10rem;
+    background-color: ${({ theme }) => theme.colors.Gray0};
+    border-radius: 50%;
     color: ${({ theme }) => theme.colors.White};
+    ${({ theme }) => theme.fonts.Body6};
   }
 `;
 const ShowItem = styled.div`
@@ -229,5 +256,7 @@ const ShowItem = styled.div`
 `;
 
 const SearchPlaceWrapper = styled.div`
-  width: 100%;
+  overflow-y: auto;
+  padding: 0rem 2rem;
+  box-sizing: border-box;
 `;
