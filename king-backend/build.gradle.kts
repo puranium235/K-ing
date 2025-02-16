@@ -53,8 +53,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("io.projectreactor:reactor-core")
-
-
+    implementation("com.google.firebase:firebase-admin:9.2.0")
 }
 
 tasks.withType<Test> {
