@@ -27,5 +27,6 @@ public class SearchResponseDto {
         private String name;
         private String details;
         private String imageUrl;
+        private boolean isFavorite;
     }
 }

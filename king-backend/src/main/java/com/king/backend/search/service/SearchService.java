@@ -10,6 +10,15 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.king.backend.domain.cast.entity.Cast;
+import com.king.backend.domain.cast.entity.CastTranslation;
+import com.king.backend.domain.cast.repository.CastRepository;
+import com.king.backend.domain.content.entity.Content;
+import com.king.backend.domain.content.entity.ContentTranslation;
+import com.king.backend.domain.content.repository.ContentRepository;
+import com.king.backend.domain.favorite.entity.Favorite;
+import com.king.backend.domain.favorite.repository.FavoriteRepository;
+import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.dto.request.AutocompleteRequestDto;
@@ -24,6 +33,8 @@ import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -38,6 +49,9 @@ public class SearchService {
     private final ElasticsearchClient elasticsearchClient;
     private final CursorUtil cursorUtil;
     private final RankingService rankingService;
+    private final FavoriteRepository favoriteRepository;
+    private final CastRepository castRepository;
+    private final ContentRepository contentRepository;
 
     @Value("${spring.aws.s3-bucket}")
     private String awsBucketName;
@@ -139,6 +153,10 @@ public class SearchService {
      * 검색 기능 구현
      */
     public SearchResponseDto search(SearchRequestDto requestDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
+        Long userId = Long.parseLong(user.getName());
+        String language = user.getLanguage();
         try{
             if(requestDto.getCategory()==null||requestDto.getCategory().trim().isEmpty()){
                 BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);
@@ -203,14 +221,34 @@ public class SearchService {
                                         topHitsAgg.hits().hits() != null) {
                                     for (var hit : topHitsAgg.hits().hits()) {
                                         SearchDocument doc = hit.source().to(SearchDocument.class);
-                                        combinedResults.add(new SearchResponseDto.SearchResult(
+                                        SearchResponseDto.SearchResult result = new SearchResponseDto.SearchResult(
                                                 doc.getCategory(),
                                                 doc.getOriginalId(),
-                                                doc.getName(),
-                                                doc.getDetails(),
+                                                doc.getName(),      // 기본값; 아래에서 재설정함
+                                                doc.getDetails(),   // 기본값; 아래에서 재설정함
                                                 Objects.requireNonNullElse(doc.getImageUrl(),
-                                                        String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
-                                        ));
+                                                        String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion)),
+                                                false
+                                        );
+                                        // ===== 엔티티 번역 처리 (CONTENT, CAST) =====
+                                        if ("MOVIE".equalsIgnoreCase(result.getCategory())||"SHOW".equalsIgnoreCase(result.getCategory())||"DRAMA".equalsIgnoreCase(result.getCategory())) {
+                                            Optional<Content> contentOpt = contentRepository.findById(result.getId());
+                                            if (contentOpt.isPresent()) {
+                                                Content content = contentOpt.get();
+                                                ContentTranslation trans = content.getTranslation(language);
+                                                result.setName(trans.getTitle());
+                                                result.setDetails(trans.getDescription());
+                                            }
+                                        } else if ("CAST".equalsIgnoreCase(result.getCategory())) {
+                                            Optional<Cast> castOpt = castRepository.findById(result.getId());
+                                            if (castOpt.isPresent()) {
+                                                Cast cast = castOpt.get();
+                                                CastTranslation trans = cast.getTranslation(language);
+                                                result.setName(trans.getName());
+                                            }
+                                        }
+                                        // ===== end =====
+                                        combinedResults.add(result);
                                     }
                                 }
                             }
@@ -245,16 +283,58 @@ public class SearchService {
 
 
                 List<Hit<SearchDocument>> hits = searchResponse.hits().hits();
+
+                Set<String> targetKeys = hits.stream()
+                        .filter(hit -> {
+                            String category = hit.source().getCategory();
+                            return "CAST".equalsIgnoreCase(category) || "MOVIE".equalsIgnoreCase(category)||"SHOW".equalsIgnoreCase(category)||"DRAMA".equalsIgnoreCase(category);
+                        })
+                        .map(hit -> hit.source().getCategory().toUpperCase() + "_" + hit.source().getOriginalId())
+                        .collect(Collectors.toSet());
+
+                List<Favorite> favorites = favoriteRepository.findByUserIdAndTargetKeyIn(userId, targetKeys);
+                Set<String> favoriteKeySet = favorites.stream()
+                        .map(fav -> fav.getType().toUpperCase() + "_" + fav.getTargetId())
+                        .collect(Collectors.toSet());
+
                 List<SearchResponseDto.SearchResult> results = hits.stream()
-                        .map(Hit::source)
-                        .map(doc -> new SearchResponseDto.SearchResult(
-                                doc.getCategory(),
-                                doc.getOriginalId(),
-                                doc.getName(),
-                                doc.getDetails(),
-                                Objects.requireNonNullElse(doc.getImageUrl(),
-                                        String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
-                        ))
+                        .map(hit -> {
+                            SearchDocument doc = hit.source();
+                            boolean isFavorite = false;
+                            String category = doc.getCategory();
+                            if ("CAST".equalsIgnoreCase(category) || "MOVIE".equalsIgnoreCase(category)||"SHOW".equalsIgnoreCase(category)||"DRAMA".equalsIgnoreCase(category)) {
+                                String key = category.toUpperCase() + "_" + doc.getOriginalId();
+                                isFavorite = favoriteKeySet.contains(key);
+                            }
+                            SearchResponseDto.SearchResult result = new SearchResponseDto.SearchResult(
+                                    doc.getCategory(),
+                                    doc.getOriginalId(),
+                                    doc.getName(),      // 기본값; 아래에서 재설정
+                                    doc.getDetails(),   // 기본값; 아래에서 재설정
+                                    Objects.requireNonNullElse(doc.getImageUrl(),
+                                            String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion)),
+                                    isFavorite
+                            );
+                            // ===== 엔티티 번역 처리 (CONTENT, CAST) =====
+                            if ("MOVIE".equalsIgnoreCase(result.getCategory())||"SHOW".equalsIgnoreCase(result.getCategory())||"DRAMA".equalsIgnoreCase(result.getCategory())) {
+                                Optional<Content> contentOpt = contentRepository.findById(result.getId());
+                                if (contentOpt.isPresent()) {
+                                    Content content = contentOpt.get();
+                                    ContentTranslation trans = content.getTranslation(language);
+                                    result.setName(trans.getTitle());
+                                    result.setDetails(trans.getDescription());
+                                }
+                            } else if ("CAST".equalsIgnoreCase(result.getCategory())) {
+                                Optional<Cast> castOpt = castRepository.findById(result.getId());
+                                if (castOpt.isPresent()) {
+                                    Cast cast = castOpt.get();
+                                    CastTranslation trans = cast.getTranslation(language);
+                                    result.setName(trans.getName());
+                                }
+                            }
+                            // ===== end =====
+                            return result;
+                        })
                         .collect(Collectors.toList());
 
                 long total = (searchResponse.hits().total() != null) ? searchResponse.hits().total().value() : 0;
@@ -307,7 +387,7 @@ public class SearchService {
                         .terms(terms -> terms.value(upperCaseList))));
             }
             if (requestDto.getRegion() != null && !requestDto.getRegion().isEmpty()) {
-                boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(requestDto.getRegion())));
+                boolQueryBuilder.filter(q -> q.matchPhrase(m -> m.field("address").query(requestDto.getRegion())));
             }
         }
 
@@ -414,11 +494,11 @@ public class SearchService {
                         .terms(terms -> terms.value(upperCaseList))));
             }
             if (requestDto.getRegion() != null && !requestDto.getRegion().isEmpty()) {
-                boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(requestDto.getRegion())));
+                boolQueryBuilder.filter(q -> q.matchPhrase(m -> m.field("address").query(requestDto.getRegion())));
             }
 
             if (requestDto.getBoundingBox() != null) {
-                MapViewRequestDto.BoundingBox bb = requestDto.getBoundingBox();
+                var bb = requestDto.getBoundingBox();
                 // Elasticsearch에서는 geoBoundingBox 쿼리로 영역 필터링 가능
                 boolQueryBuilder.filter(q -> q.geoBoundingBox(g -> g
                         .field("location") // SearchDocument의 위치 필드 (예: GeoPoint 타입)
@@ -633,11 +713,11 @@ public class SearchService {
                     .terms(terms -> terms.value(upperCaseList))));
         }
         if (requestDto.getRegion() != null && !requestDto.getRegion().isEmpty()) {
-            boolQueryBuilder.filter(q -> q.match(m -> m.field("address").query(requestDto.getRegion())));
+            boolQueryBuilder.filter(q -> q.matchPhrase(m -> m.field("address").query(requestDto.getRegion())));
         }
 
         if (requestDto.getBoundingBox() != null) {
-            MapViewRequestDto.BoundingBox bb = requestDto.getBoundingBox();
+            var bb = requestDto.getBoundingBox();
             // Elasticsearch에서는 geoBoundingBox 쿼리로 영역 필터링 가능
             boolQueryBuilder.filter(q -> q.geoBoundingBox(g -> g
                     .field("location") // SearchDocument의 위치 필드 (예: GeoPoint 타입)
