@@ -37,7 +37,7 @@ public class CustomOidcUserService extends OidcUserService {
                 userEntity.setLineId(lineUserDTO.getLineId());
                 userEntity.setStatus("ROLE_PENDING");
                 userEntity.setEmail(lineUserDTO.getEmail());
-                userEntity.setImageUrl("");
+                userEntity.setImageUrl(lineUserDTO.getImageUrl());
 
                 userRepository.save(userEntity);
             }
