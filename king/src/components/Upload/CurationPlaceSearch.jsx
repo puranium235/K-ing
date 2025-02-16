@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useRef } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
-import { CurationPlaceUploadList } from '../../recoil/atom';
+import { CurationDraftExist, CurationPlaceUploadList, UseDraft } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import SearchBar from '../common/SearchBar';
 
@@ -22,6 +22,8 @@ const CurationPlaceSearch = () => {
     query: searchQuery,
     category: 'PLACE',
   });
+  const setCurationDraftExist = useSetRecoilState(CurationDraftExist);
+  const setUseDraft = useSetRecoilState(UseDraft);
 
   useEffect(() => {
     if (CurationPlaceList.length > 0) {
@@ -70,6 +72,9 @@ const CurationPlaceSearch = () => {
         imageUrl: place.imageUrl,
       })),
     );
+    setCurationDraftExist(false);
+    setUseDraft(true);
+
     navigate(-1);
   };
 
@@ -97,10 +102,7 @@ const CurationPlaceSearch = () => {
             onSearch={handleSearch}
           />
           {placeList.map((place, index) => (
-            <ShowItem
-              key={place.placeId}
-              ref={index === placeList.length - 1 ? lastElementRef : null}
-            >
+            <ShowItem key={place.id} ref={index === placeList.length - 1 ? lastElementRef : null}>
               <img src={place.imageUrl} alt="장소" />
               <p>{place.name}</p>
               <input
