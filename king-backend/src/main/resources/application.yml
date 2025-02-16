@@ -36,10 +36,7 @@ spring:
             scope: openid, email, profile
         provider:
           line:
-            authorization-uri: https://access.line.me/oauth2/v2.1/authorize
-            token-uri: https://api.line.me/oauth2/v2.1/token
-            user-info-uri: https://api.line.me/oauth2/v2.1/userinfo
-            jwk-set-uri: https://api.line.me/oauth2/v2.1/certs
+            issuer-uri: https://access.line.me
 
   datasource:
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?serverTimezone=UTC
