@@ -157,28 +157,30 @@ const ContentDetails = () => {
           <p>등장인물</p>
         </IconText>
         <CastGrid>
-          {contentInfo.relatedCasts.map((cast) => (
-            <CastMember
-              key={cast.castId}
-              onClick={() => {
-                handleClickCast(cast.castId);
-              }}
-            >
-              <img src={cast.imageUrl} alt="Cast" />
-              <p>{cast.name}</p>
-              {cast.favorite ? (
-                <IcStar
-                  id="favor"
-                  onClick={(event) => toggleCastFavorite(event, cast.castId, cast.favorite)}
-                />
-              ) : (
-                <IcStarBlank
-                  id="favor"
-                  onClick={(event) => toggleCastFavorite(event, cast.castId, cast.favorite)}
-                />
-              )}
-            </CastMember>
-          ))}
+          {[...contentInfo.relatedCasts]
+            .sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0)) // ✅ 즐겨찾기 우선 정렬
+            .map((cast) => (
+              <CastMember
+                key={cast.castId}
+                onClick={() => {
+                  handleClickCast(cast.castId);
+                }}
+              >
+                <img src={cast.imageUrl} alt="Cast" />
+                <p>{cast.name}</p>
+                {cast.favorite ? (
+                  <IcStar
+                    id="favor"
+                    onClick={(event) => toggleCastFavorite(event, cast.castId, cast.favorite)}
+                  />
+                ) : (
+                  <IcStarBlank
+                    id="favor"
+                    onClick={(event) => toggleCastFavorite(event, cast.castId, cast.favorite)}
+                  />
+                )}
+              </CastMember>
+            ))}
         </CastGrid>
       </DramaPageContainer>
       <ActionButton onClick={handleClickPlaceInfo}>
