@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface CurationListRepository extends JpaRepository<CurationList, Long> {
@@ -51,6 +50,4 @@ public interface CurationListRepository extends JpaRepository<CurationList, Long
             @Param("size") int size,
             @Param("bookmarked") Boolean bookmarked,
             @Param("userId") Long userId);
-
-    Optional<CurationList> findTopByIsPublicTrueOrderByCreatedAtDesc();
 }
