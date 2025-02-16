@@ -69,8 +69,6 @@ const MapSearchPlaces = () => {
     boundingBox,
   });
 
-  console.log(placeList);
-
   const lastElementRef = useRef(null);
 
   useEffect(() => {
