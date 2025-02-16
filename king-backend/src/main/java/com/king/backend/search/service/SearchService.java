@@ -153,6 +153,13 @@ public class SearchService {
      * 검색 기능 구현
      */
     public SearchResponseDto search(SearchRequestDto requestDto) {
+
+        String query = requestDto.getQuery();
+
+        if (query != null && !query.trim().isEmpty()) {
+            rankingService.incrementKeywordCount(query.trim());
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(user.getName());
