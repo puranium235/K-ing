@@ -1,9 +1,12 @@
 package com.king.backend.domain.user;
 
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
+import com.king.backend.domain.user.dto.domain.OidcUserDTO;
 import com.king.backend.domain.user.entity.TokenEntity;
+import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.jwt.JWTUtil;
 import com.king.backend.domain.user.repository.TokenRepository;
+import com.king.backend.global.exception.CustomException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,11 +37,25 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        String userId = null;
+        String language = null;
+        Object principal = authentication.getPrincipal();
 
-        OAuth2UserDTO oAuth2UserDTO = (OAuth2UserDTO) authentication.getPrincipal();
+        if (principal instanceof OAuth2UserDTO) {
+            OAuth2UserDTO oAuth2UserDTO = (OAuth2UserDTO) authentication.getPrincipal();
 
-        String userId = oAuth2UserDTO.getName();
-        String language = oAuth2UserDTO.getLanguage();
+            userId = oAuth2UserDTO.getName();
+            language = oAuth2UserDTO.getLanguage();
+        } else if (principal instanceof OidcUserDTO) {
+            OidcUserDTO oidcUserDTO= (OidcUserDTO) authentication.getPrincipal();
+
+            userId = oidcUserDTO.getName();
+            language = oidcUserDTO.getLanguage();
+        }
+
+        if (userId == null) {
+            throw new CustomException(UserErrorCode.OAUTH2_LOGIN_FAILED);
+        }
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();

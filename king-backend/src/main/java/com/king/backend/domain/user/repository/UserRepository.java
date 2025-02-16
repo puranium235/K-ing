@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByGoogleIdAndStatusIn(String googleId, List<String> statuses);
+    User findByLineIdAndStatusIn(String lineId, List<String> statuses);
     Optional<User> findByNickname(String nickname);
     Optional<User> findByIdAndStatus(Long id, String status);
 }
