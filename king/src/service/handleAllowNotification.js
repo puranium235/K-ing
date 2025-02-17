@@ -4,7 +4,6 @@ import { postFcmToken } from '../lib/fcm';
 import { initFirebase } from './initFirebase';
 
 export const handleAllowNotification = async () => {
-  console.log(handleAllowNotification);
   const messaging = initFirebase();
 
   try {
@@ -36,7 +35,7 @@ export const handleAllowNotification = async () => {
 
   onMessage(messaging, (payload) => {
     console.log('Message received:', payload);
-    const notificationTitle = payload.body.title;
+    const notificationTitle = payload.data.title;
     const notificationOptions = {
       body: payload.data.body,
     };
