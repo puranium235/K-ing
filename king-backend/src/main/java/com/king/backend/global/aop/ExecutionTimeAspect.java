@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExecutionTimeAspect {
 
-
     @Around("@annotation(LogExecutionTime)")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         long start = System.nanoTime();
