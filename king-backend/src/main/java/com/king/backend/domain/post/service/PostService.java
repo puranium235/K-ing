@@ -22,7 +22,8 @@ import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.errorcode.ImageErrorCode;
 import com.king.backend.global.exception.CustomException;
-import com.king.backend.global.util.TranslateUtil;
+import com.king.backend.global.translate.TranslateService;
+import com.king.backend.global.util.RedisUtil;
 import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
@@ -35,10 +36,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,8 +53,9 @@ public class PostService {
     private final LikeService likeService;
     private final CommentRepository commentRepository;
     private final CursorUtil cursorUtil;
-    private final TranslateUtil translateUtil;
+    private final TranslateService translateService;
     private final RedisTemplate<String, String> redisStringTemplate;
+    private final RedisUtil redisUtil;
     private static final String POST_LIKES_KEY = "post:likes";
     private static final long MULTIPLIER = 1_000_000_000L;
 
@@ -120,7 +118,9 @@ public class PostService {
                 ? cursorUtil.encodeCursor(List.of(posts.get(posts.size() - 1).getId()))
                 : null;
 
-        List<String> originalText = new ArrayList<>();
+        Map<String, String> originalText = new HashMap<>();
+        List<String> keys = new ArrayList<>();
+
         List<PostHomeResponseDto.Post.PostBuilder> postBuilders = posts.stream().map(post -> {
             String imageUrl = postImageRepository.findByPostId(post.getId())
                     .map(PostImage::getImageUrl)
@@ -135,7 +135,10 @@ public class PostService {
             }
 
             Long commentsCount = commentRepository.countByPostId(post.getId());
-            originalText.add(post.getContent());
+
+            String key = "post:" + post.getId() + ":" + language;
+            originalText.put(key, post.getContent());
+            keys.add(key);
 
             return PostHomeResponseDto.Post.builder()
                     .postId(post.getId())
@@ -148,12 +151,12 @@ public class PostService {
                     .updatedAt(post.getUpdatedAt());
         }).toList();
 
-        List<String> translatedText = translateUtil.translateText(originalText, language);
+        Map<String, String> translatedText = translateService.getTranslatedText(originalText, language);
 
         List<PostHomeResponseDto.Post> postDtos = new ArrayList<>();
         for (int i = 0; i < postBuilders.size(); i++) {
             postDtos.add(postBuilders.get(i)
-                    .content(translatedText.get(i))
+                    .content(translatedText.get(keys.get(i)))
                     .build());
         }
         return new PostHomeResponseDto(postDtos, nextCursor);
@@ -327,10 +330,13 @@ public class PostService {
         OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
         String language = authUser.getLanguage();
 
-        String translatedContent = translateUtil.translateText(post.getContent(), language);
+        String key = "post:" + post.getId() + ":" + language;
+        Map<String, String> originalText = new HashMap<>();
+        originalText.put(key, post.getContent());
+        Map<String, String> translatedText = translateService.getTranslatedText(originalText, language);
 
         return builder
-                .content(translatedContent)
+                .content(translatedText.get(key))
                 .build();
     }
 
@@ -339,6 +345,7 @@ public class PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(user.getName());
+        String language = user.getLanguage();
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
@@ -377,6 +384,9 @@ public class PostService {
                     .build();
             postImageRepository.save(newPostImage);
         }
+
+        String key = "post:" + post.getId() + ":" + language;
+        redisUtil.deleteValue(key);
 
         return post.getId();
     }
