@@ -68,7 +68,7 @@ self.addEventListener('notificationclick', function (event) {
   event.notification.close();
 
   // 아래의 event.notification.data는 위의 푸시 이벤트를 한 번 거쳐서 전달 받은 options.data에 해당한다.
-  const urlToOpen = event.notification.data.click_action;
+  const urlToOpen = 'https://i12a507.p.ssafy.io/';
 
   // 클라이언트에 해당 사이트가 열려있는지 체크
   const promiseChain = clients
