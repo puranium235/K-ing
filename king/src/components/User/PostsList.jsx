@@ -4,11 +4,15 @@ import styled from 'styled-components';
 
 import useGetPostList from '../../hooks/user/useGetPostList';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Loading from '../Loading/Loading';
 import PostItem from './PostItem';
 import SkeletonPost from './SkeletonPost';
 
 const PostsList = ({ userId }) => {
+  const language = getLanguage();
+  const { user: translations } = getTranslations(language);
+
   const lastElementRef = useRef(null);
 
   const { postList, getNextData, isLoading, hasMore } = useGetPostList(userId);
@@ -20,7 +24,7 @@ const PostsList = ({ userId }) => {
   if (isLoading && postList === 0) return <Loading />;
 
   if (!postList || postList.length === 0) {
-    return <EmptyMessage>등록된 포스트가 없습니다.</EmptyMessage>;
+    return <EmptyMessage>{translations.noPosts}</EmptyMessage>;
   }
 
   return (
