@@ -1,6 +1,8 @@
-import signupLocales from '../locales/signup.json';
-import { client } from './axios';
+import { jwtDecode } from 'jwt-decode';
 
+import signupLocales from '../locales/signup.json';
+import { setLanguage } from '../util/languageUtils';
+import { client } from './axios';
 // 닉네임 중복 검사 API
 export const checkNickname = async (nickname, language = 'ko') => {
   try {
@@ -34,6 +36,12 @@ export const postSignup = async (nickname, language) => {
     const accessToken = res.headers.authorization?.split(' ')[1];
     if (accessToken) {
       localStorage.setItem('accessToken', accessToken);
+
+      // 새로운 `language` 값으로 localStorage에 저장
+      const decoded = jwtDecode(accessToken);
+      if (decoded.language) {
+        setLanguage(decoded.language);
+      }
     }
 
     return { success: true, message: '' };
@@ -75,6 +83,12 @@ export const tokenRefresh = async () => {
     const newAccessToken = res.headers.authorization?.split(' ')[1];
     if (newAccessToken) {
       localStorage.setItem('accessToken', newAccessToken);
+
+      // 새로운 `language` 값으로 업데이트
+      const decoded = jwtDecode(newAccessToken);
+      if (decoded.language) {
+        setLanguage(decoded.language);
+      }
     }
 
     return newAccessToken;
