@@ -6,6 +6,7 @@ import deleteAccountLocales from '../locales/deleteAccount.json';
 import homeLocales from '../locales/home.json';
 import notificationLocales from '../locales/notification.json';
 import profileLocales from '../locales/profile.json';
+import searchLocales from '../locales/search.json';
 import settingLocales from '../locales/setting.json';
 import signupLocales from '../locales/signup.json';
 import userLocales from '../locales/user.json';
@@ -36,4 +37,5 @@ export const getTranslations = (lang = getLanguage()) => ({
   home: homeLocales[lang] || homeLocales['ko'],
   user: userLocales[lang] || userLocales['ko'],
   content: contentLocales[lang] || contentLocales['ko'],
+  search: searchLocales[lang] || searchLocales['ko'],
 });
