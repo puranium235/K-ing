@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -29,7 +30,10 @@ public class CurationDraftResponseDTO {
                     place.getId(),
                     place.getName(),
                     place.getAddress(),
-                    place.getImageUrl()
+                    Objects.requireNonNullElse(
+                            place.getImageUrl(),
+                            "https://king-s3-bucket.s3.us-east-1.amazonaws.com/uploads/default.jpg"
+                    )
             );
         }
     }
