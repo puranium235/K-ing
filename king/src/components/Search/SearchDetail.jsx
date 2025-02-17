@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import { SearchQueryState } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
-import { getContentTypeKor } from '../../util/getContentType';
+import { getContentTypeLocalized } from '../../util/getContentType';
 import BackButton from '../common/button/BackButton';
 import Loading from '../Loading/Loading';
 import SearchItem from './SearchItem';
@@ -48,7 +48,7 @@ const SearchDetail = () => {
       <St.FixedContainer>
         <St.Title>
           <BackButton />
-          {getContentTypeKor(type)} 전체보기
+          {getContentTypeLocalized(type)} 전체보기
         </St.Title>
         {type === 'content' && (
           <ContentGenreWrapper>

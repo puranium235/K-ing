@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import useGetFavoriteList from '../../hooks/archive/useGetFavoriteList';
 import { removeFavorite } from '../../lib/favorites';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 import GoUpButton from '../common/button/GoUpButton';
 import Nav from '../common/Nav';
@@ -16,6 +17,9 @@ const FavoritesDetail = () => {
   const { type } = useParams(); // "works" 또는 "people"
   const navigate = useNavigate();
   const lastElementRef = useRef(null);
+
+  const language = getLanguage();
+  const { archive: translations } = getTranslations(language);
 
   const { favoritesList, getNextData, isLoading, hasMore, mutate } = useGetFavoriteList(type);
 
@@ -36,6 +40,8 @@ const FavoritesDetail = () => {
     }
   };
 
+  const translatedType = type === 'works' ? translations.works : translations.people;
+
   if (isLoading && favoritesList.length === 0) return <Loading />;
 
   return (
@@ -44,7 +50,7 @@ const FavoritesDetail = () => {
         <St.Header>Archive</St.Header>
         <St.Title>
           <BackButton onBack={handleBackClick} />
-          <St.Label>{type === 'works' ? '작품' : '인물'} 전체보기</St.Label>
+          <St.Label>{translations.showAll.replace('{type}', translatedType)}</St.Label>
         </St.Title>
       </St.FixedContainer>
       <St.List>
@@ -60,11 +66,10 @@ const FavoritesDetail = () => {
           ))
         ) : (
           <St.NoDataMessage>
-            아직 즐겨찾기한 {type === 'works' ? '작품' : '인물'}이 없어요.
+            {translations.noFavorites.replace('{type}', translatedType)}
           </St.NoDataMessage>
         )}
       </St.List>
-      {/* <CustomGoUpButton /> */}
       <GoUpButton />
       <Nav />
     </StFavoritesDetailWrapper>

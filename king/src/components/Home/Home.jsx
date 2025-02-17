@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { IcCeleb, IcDrama, IcMovie, IcShow } from '../../assets/icons';
 import { getCurationDetail, getCurationList } from '../../lib/curation';
 import { SearchCategoryState, SearchQueryState } from '../../recoil/atom';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
 import TopNav from '../common/TopNav';
@@ -16,6 +17,8 @@ import Rank from './Rank';
 
 const Home = () => {
   const location = useLocation();
+  const language = getLanguage();
+  const { home: translations } = getTranslations(language);
 
   const [carouselList, setCarouselList] = useState([]);
   const [topCurations, setTopCurations] = useState([]);
@@ -27,10 +30,10 @@ const Home = () => {
   const navigate = useNavigate();
 
   const genreIcons = [
-    { icon: IcDrama, label: '드라마', contentType: 'drama' },
-    { icon: IcMovie, label: '영화', contentType: 'movie' },
-    { icon: IcShow, label: '예능', contentType: 'show' },
-    { icon: IcCeleb, label: '인물', contentType: 'cast' },
+    { icon: IcDrama, label: translations.drama, contentType: 'drama' },
+    { icon: IcMovie, label: translations.movie, contentType: 'movie' },
+    { icon: IcShow, label: translations.show, contentType: 'show' },
+    { icon: IcCeleb, label: translations.cast, contentType: 'cast' },
   ];
 
   useEffect(() => {
@@ -95,7 +98,7 @@ const Home = () => {
                   }
                 >
                   {' '}
-                  전체보기 {'>'}{' '}
+                  {translations.showAll} {'>'}{' '}
                 </span>
               </CurationHeader>
               <CardContainer>

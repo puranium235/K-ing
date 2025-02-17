@@ -182,6 +182,9 @@ const TabMenuWrapper = styled.div`
   position: ${({ $isFixed }) => ($isFixed ? 'fixed' : 'relative')};
   top: ${({ $isFixed }) => ($isFixed ? '0' : 'auto')};
   width: 100%;
+  max-width: 39rem;
+  left: 50%;
+  transform: translateX(-50%);
   background: ${({ theme }) => theme.colors.White};
   z-index: 1000;
   transition: all 0.3s ease-in-out;

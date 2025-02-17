@@ -9,7 +9,7 @@ import { addFavorite, removeFavorite } from '../../lib/favorites';
 import { ScrollPosition, SearchQueryState } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import { convertType } from '../../util/convertType';
-import { getContentTypeKor } from '../../util/getContentType';
+import { getContentTypeLocalized } from '../../util/getContentType';
 import BackButton from '../common/button/BackButton';
 import GoUpButton from '../common/button/GoUpButton';
 import Nav from '../common/Nav';
@@ -22,7 +22,6 @@ const Content = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [scrollPosition, setScrollPosition] = useRecoilState(ScrollPosition);
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
-  // const [favorites, setFavorites] = useState(false);
 
   const navigate = useNavigate();
 
@@ -92,7 +91,6 @@ const Content = () => {
       navigate(`/content/detail/${id}`);
     }
   };
-  // console.log(searchResultList);
 
   if (isLoading && searchResultList.length === 0) return <Loading />;
 
@@ -107,7 +105,7 @@ const Content = () => {
                 setScrollPosition(0);
               }}
             />
-            <p>{getContentTypeKor(contentType)}</p>
+            <p>{getContentTypeLocalized(contentType)}</p>
           </IconText>
           <SearchBar type={contentType.toUpperCase()} query={searchQuery} onSearch={handleSearch} />
         </FixedContainer>

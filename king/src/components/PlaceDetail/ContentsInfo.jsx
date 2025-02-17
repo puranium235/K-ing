@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { convertLowerCase } from '../../util/changeStrFormat';
-import { getContentTypeKor } from '../../util/getContentType';
+import { getContentTypeLocalized } from '../../util/getContentType';
 
 const ContentsInfo = ({ info }) => {
-  const typeKor = getContentTypeKor(convertLowerCase(info.type));
+  const typeKor = getContentTypeLocalized(convertLowerCase(info.type));
 
   return (
     <InfoContainer>

@@ -7,7 +7,8 @@ import styled from 'styled-components';
 import { IcSearch } from '../../assets/icons';
 import { getAutoKeyword } from '../../lib/search';
 import { ContentType } from '../../recoil/atom';
-import { getContentTypeKor } from '../../util/getContentType';
+import { getContentTypeLocalized } from '../../util/getContentType';
+import { getLanguage, getTranslations } from '../../util/languageUtils'; // ✅ 번역 유틸 추가
 
 const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
   const [keyword, setKeyword] = useState(query);
@@ -17,6 +18,8 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
   const setContentType = useSetRecoilState(ContentType);
 
   const navigate = useNavigate();
+  const language = getLanguage();
+  const { search: translations } = getTranslations(language);
 
   const handleSearchChange = useCallback(
     debounce(async (searchText) => {
@@ -72,7 +75,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
     <SWrapper>
       <input
         type="text"
-        placeholder={type === 'PLACE' ? '장소를 검색하세요.' : '검색어를 입력하세요.'}
+        placeholder={type === 'PLACE' ? translations.placeholder_place : translations.placeholder} // ✅ 번역 적용
         value={keyword}
         onChange={onChangeData}
         onKeyDown={handleKeyEnter}
@@ -85,7 +88,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
           <AutoSearchWrap>
             {autoCompleteOptions.map((option, index) => (
               <AutoSearchData key={index} onClick={(event) => handleOptionClick(option, event)}>
-                {option.name} <a>{getContentTypeKor(option.category.toLowerCase())}</a>
+                {option.name} <a>{getContentTypeLocalized(option.category.toLowerCase())}</a>
               </AutoSearchData>
             ))}
           </AutoSearchWrap>

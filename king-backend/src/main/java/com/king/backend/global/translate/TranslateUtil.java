@@ -1,4 +1,4 @@
-package com.king.backend.global.util;
+package com.king.backend.global.translate;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.translate.Translate;

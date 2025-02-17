@@ -11,7 +11,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.king.backend.domain.curation.entity.CurationListBookmark;
 import com.king.backend.domain.curation.repository.CurationListBookmarkRepository;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
-import com.king.backend.global.util.TranslateUtil;
+import com.king.backend.global.translate.TranslateService;
 import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.dto.request.CurationListSearchRequestDto;
 import com.king.backend.search.dto.response.CurationListSearchResponseDto;
@@ -24,9 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +35,7 @@ public class CurationSearchService {
     private final CursorUtil cursorUtil;
     private static final String INDEX_NAME = ElasticsearchConstants.CURATION_INDEX;
     private final ElasticsearchClient elasticsearchClient;
-    private final TranslateUtil translateUtil;
+    private final TranslateService translateService;
     private final CurationListBookmarkRepository curationListBookmarkRepository;
 
     /**
@@ -134,14 +132,19 @@ public class CurationSearchService {
 
             curationDTOs.forEach(dto -> dto.setBookmarked(bookmarkedIds.contains(dto.getId())));
 
-            List<String> originalText = curationDTOs.stream()
-                    .map(CurationListSearchResponseDto.CurationListItemDto::getTitle)
-                    .toList();
+            Map<String, String> originalText = new HashMap<>();
+            List<String> keys = new ArrayList<>();
 
-            List<String> translatedText = translateUtil.translateText(originalText, language);
+            curationDTOs.forEach((dto) -> {
+                String key = "curation:" + dto.getId() + ":" + language + ":title";
+                originalText.put(key, dto.getTitle());
+                keys.add(key);
+            });
+
+            Map<String, String> translatedText = translateService.getTranslatedText(originalText, language);
 
             for (int i = 0; i < curationDTOs.size(); i++) {
-                curationDTOs.get(i).setTitle(translatedText.get(i));
+                curationDTOs.get(i).setTitle(translatedText.get(keys.get(i)));
             }
 
             return response;

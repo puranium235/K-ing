@@ -3,10 +3,13 @@ import styled from 'styled-components';
 
 import useGetCurationList from '../../hooks/archive/useGetCurationList';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Loading from '../Loading/Loading';
 import CurationItem from './CurationItem';
 
 const CurationsList = () => {
+  const language = getLanguage();
+  const { archive: translations } = getTranslations(language);
   const lastElementRef = useRef(null);
 
   const { curationList, getNextData, isLoading, hasMore, mutate } = useGetCurationList();
@@ -18,7 +21,7 @@ const CurationsList = () => {
   if (isLoading && curationList === 0) return <Loading />;
 
   if (!curationList || curationList.length === 0) {
-    return <StNoDataMessage>등록된 큐레이션이 없습니다.</StNoDataMessage>;
+    return <StNoDataMessage>{translations.noCurations}</StNoDataMessage>;
   }
 
   return (

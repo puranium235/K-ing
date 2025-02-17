@@ -5,20 +5,23 @@ import styled from 'styled-components';
 import { IcNavigateNext } from '../../assets/icons';
 import { getFavorites, removeFavorite } from '../../lib/favorites';
 import { convertType } from '../../util/convertType';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Loading from '../Loading/Loading';
 import FavoriteItem from './FavoriteItem';
 
 const FavoritesList = ({ title, onTabChange }) => {
   const navigate = useNavigate();
+  const language = getLanguage();
+  const { archive: translations } = getTranslations(language);
+
   const [favoritesData, setFavoritesData] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchFavorites = async () => {
       setLoading(true);
-      const type = convertType(title === '작품' ? 'works' : 'people');
+      const type = convertType(title === translations.works ? 'works' : 'people');
       const data = await getFavorites(type);
       setFavoritesData(data || []);
-
       setLoading(false);
     };
     fetchFavorites();
@@ -26,7 +29,7 @@ const FavoritesList = ({ title, onTabChange }) => {
 
   // 북마크 삭제 함수
   const handleRemoveFavorite = async (targetId) => {
-    const type = convertType(title === '작품' ? 'works' : 'people');
+    const type = convertType(title === translations.works ? 'works' : 'people');
     const success = await removeFavorite(type, targetId);
 
     if (success) {
@@ -38,12 +41,22 @@ const FavoritesList = ({ title, onTabChange }) => {
   // 최대 5개까지만 렌더링
   const previewData = (favoritesData || []).slice(0, 5);
 
+  const translatedType = title === translations.works ? translations.works : translations.people;
+
   // 단위 계산 ('개' 또는 '명')
-  const unit = title === '작품' ? '개' : '명';
+  const unit = title === translations.works ? translations.unit_item : translations.unit_person;
+
+  // 전체 문장 구성
+  const itemsCountText = translations.itemsCount
+    .replace('{count}', favoritesData?.length || 0)
+    .replace('{unit}', unit)
+    .replace('{type}', title);
+
+  const showAllText = translations.showAll.replace('{type}', translatedType);
 
   // 전체보기 클릭 시 이동 처리
   const handleFavoriteClick = () => {
-    const type = title === '작품' ? 'works' : 'people'; // title에 따라 type 설정
+    const type = title === translations.works ? 'works' : 'people'; // title에 따라 type 설정
     onTabChange('Favorites'); // activeTab을 Favorites로 설정
     navigate(`/favorites/${type}`, { state: { type } });
   };
@@ -53,15 +66,11 @@ const FavoritesList = ({ title, onTabChange }) => {
       <St.Header>
         <St.Left>
           <St.Title>{title}</St.Title>
-          <St.Count>
-            {favoritesData?.length || 0}
-            {favoritesData?.length == 10 && '+'}
-            {unit}의 {title}
-          </St.Count>
+          <St.Count>{itemsCountText}</St.Count>
         </St.Left>
         {favoritesData.length > 0 && (
           <St.ShowAllButton onClick={handleFavoriteClick}>
-            전체보기 <IcNavigateNext />
+            {showAllText} <IcNavigateNext />
           </St.ShowAllButton>
         )}
       </St.Header>
@@ -75,19 +84,21 @@ const FavoritesList = ({ title, onTabChange }) => {
                 <FavoriteItem
                   key={item.favoriteId}
                   item={item}
-                  type={title === '작품' ? 'works' : 'people'}
-                  onRemove={handleRemoveFavorite} // ✅ prop으로 전달
+                  type={title === translations.works ? 'works' : 'people'}
+                  onRemove={handleRemoveFavorite} // prop으로 전달
                 />
               ))}
             </>
           ) : (
-            <St.NoDataMessage>아직 즐겨찾기한 {title}이 없어요.</St.NoDataMessage>
+            <St.NoDataMessage>
+              {translations.noFavorites.replace('{type}', translatedType)}
+            </St.NoDataMessage>
           )}
           {favoritesData.length > 3 && (
             <St.ShowAllButton2 onClick={handleFavoriteClick}>
               <IcNavigateNext />
               <br />
-              전체보기
+              {translations.showAllSimple}
             </St.ShowAllButton2>
           )}
         </St.List>

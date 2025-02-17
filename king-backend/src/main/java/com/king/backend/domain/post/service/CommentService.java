@@ -18,7 +18,7 @@ import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
-import com.king.backend.global.util.TranslateUtil;
+import com.king.backend.global.translate.TranslateService;
 import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -43,13 +41,17 @@ public class CommentService {
     private final RedisTemplate<String, String> redisStringTemplate;
     private static final String POST_LIKES_KEY = "post:likes";
     private final CursorUtil cursorUtil;
-    private final TranslateUtil translateUtil;
+    private final TranslateService translateService;
     private static final long MULTIPLIER = 1_000_000_000L;
     private final FcmTokenRepository fcmTokenRepository;
     private final FcmTokenService fcmTokenService;
 
     @Transactional
     public void uploadComment(Long postId, CommentUploadRequestDto reqDto) {
+        if (reqDto.getContent() == null || reqDto.getContent().trim().isEmpty()) {
+            throw new CustomException(CommentErrorCode.INVALID_COMMENT);
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(oauthUser.getName());
@@ -62,20 +64,19 @@ public class CommentService {
                 .post(post)
                 .writer(writer)
                 .build();
-
         Comment savedComment = commentRepository.save(comment);
 
         User postOwner = post.getWriter();
         User commentWriter = savedComment.getWriter();
-        // 게시글 작성자와 댓글 작성자가 다를 경우에만 알림 전송
-        if (!postOwner.getId().equals(commentWriter.getId())) {
+        log.info("{}의 글에 {}가 comment내용 {} 작성", postOwner.getNickname(), commentWriter.getNickname(), comment.getContent());
+        if (!postOwner.getId().equals(commentWriter.getId()) && postOwner.getContentAlarmOn()) {
             List<FcmToken> tokens = fcmTokenRepository.findByUser(postOwner);
             String title = "댓글 알림";
             String body = "당신의 게시글에 새 댓글이 달렸습니다.";
 
             for (FcmToken tokenEntity : tokens) {
                 try {
-                    fcmTokenService.sendMessageByToken(tokenEntity.getToken(), title, body);
+                    fcmTokenService.sendMessageByToken(tokenEntity.getToken(), title, body, postId);
                 } catch (FirebaseMessagingException e) {
                     log.error("푸시 알림 전송 실패 (토큰: {}): {}", tokenEntity.getToken(), e.getMessage());
                 }
@@ -126,15 +127,17 @@ public class CommentService {
             comments = commentRepository.findAllByPostOrderByIdAsc(post, PageRequest.of(0, size));
         } else {
             Long id = Long.parseLong(sortValues.get(0).toString());
-            comments = commentRepository.findAllByPostAndIdLessThanOrderByIdAsc(post, id, PageRequest.of(0, size));
+            comments = commentRepository.findAllByPostAndIdGreaterThanOrderByIdAsc(post, id, PageRequest.of(0, size));
         }
+
         String nextCursor = (comments.size() == size)
                 ? cursorUtil.encodeCursor(List.of(comments.get(comments.size() - 1).getId()))
                 : null;
 
         boolean original = reqDto.isOriginal();
 
-        List<String> originalTexts = new ArrayList<>();
+        Map<String, String> originalTexts = new HashMap<>();
+        List<String> keys = new ArrayList<>();
         List<CommentAllResponseDto.Comment.CommentBuilder> commentsBuilders = comments.stream()
                 .map(comment -> {
                     CommentAllResponseDto.Comment.CommentBuilder builder = CommentAllResponseDto.Comment.builder()
@@ -151,7 +154,10 @@ public class CommentService {
                         return builder;
                     }
 
-                    originalTexts.add(comment.getContent());
+                    String key = "comment:" + comment.getId() + ":" + language;
+                    originalTexts.put(key, comment.getContent());
+                    keys.add(key);
+
                     return builder;
                 })
                 .toList();
@@ -169,11 +175,11 @@ public class CommentService {
                     .build();
         }
 
-        List<String> translatedTexts = translateUtil.translateText(originalTexts, language);
+        Map<String, String> translatedTexts = translateService.getTranslatedText(originalTexts, language);
         List<CommentAllResponseDto.Comment> commentsDto = new ArrayList<>();
         for (int i = 0; i < commentsBuilders.size(); i++) {
             commentsDto.add(commentsBuilders.get(i)
-                    .content(translatedTexts.get(i))
+                    .content(translatedTexts.get(keys.get(i)))
                     .build());
         }
 

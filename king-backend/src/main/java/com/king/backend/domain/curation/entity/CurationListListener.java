@@ -1,10 +1,9 @@
 package com.king.backend.domain.curation.entity;
 
 import com.king.backend.search.service.SyncService;
-import jakarta.persistence.EntityListeners;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostRemove;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.PostUpdate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,8 +20,8 @@ public class CurationListListener {
         CurationListListener.syncService = syncService;
     }
 
-    @PrePersist
-    @PreUpdate
+    @PostPersist
+    @PostUpdate
     public void preSave(CurationList curationList) {
         syncService.updateCurationList(curationList);
     }
