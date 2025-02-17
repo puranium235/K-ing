@@ -1,3 +1,4 @@
+import { GridAlgorithm, MarkerClusterer } from '@googlemaps/markerclusterer';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -69,11 +70,13 @@ const GoogleMapView = ({
 }) => {
   const [center, setCenter] = useState({ lat: 37.5665, lng: 126.978 });
   const [mapInstance, setMapInstance] = useState(null);
-  const [markers, setMarkers] = useState([]);
   const [showSearchButton, setShowSearchButton] = useState(false);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
   const [activePlaceId, setActivePlaceId] = useState(places?.[0]?.placeId || null);
+  const [markers, setMarkers] = useState([]);
   const [preventFitBounds, setPreventFitBounds] = useState(false);
+  const [markerCluster, setMarkerCluster] = useState(null);
+  const [isMarkersLoading, setIsMarkersLoading] = useState(true);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
@@ -86,11 +89,40 @@ const GoogleMapView = ({
     }
   }, [places]);
 
+  // 🛠️ 위치 유효성 검사 함수
+  const isValidLatLng = (lat, lng) => {
+    return (
+      typeof lat === 'number' &&
+      typeof lng === 'number' &&
+      !isNaN(lat) &&
+      !isNaN(lng) &&
+      lat >= -90 &&
+      lat <= 90 &&
+      lng >= -180 &&
+      lng <= 180
+    );
+  };
+
+  const clearMarkers = () => {
+    markers.forEach((marker) => marker.setMap(null));
+    setMarkers([]);
+
+    // 기존 클러스터 제거
+    if (markerCluster) {
+      markerCluster.clearMarkers();
+    }
+  };
+
   const createMarker = useCallback(
-    (map, place) => {
+    (place) => {
+      // 🛠️ 유효한 좌표인지 확인
+      if (!isValidLatLng(place.lat, place.lng)) {
+        console.error('Invalid place coordinates:', place);
+        return null;
+      }
+
       const markerElement = new google.maps.marker.AdvancedMarkerElement({
-        position: { lat: place.lat, lng: place.lng },
-        map,
+        position: new google.maps.LatLng(place.lat, place.lng),
         zIndex: activePlaceId === place.placeId ? 10 : 1,
       });
 
@@ -136,16 +168,16 @@ const GoogleMapView = ({
       markerElement.content = container;
 
       google.maps.event.addListener(markerElement, 'click', () => {
-        handleMarkerClick(map, place);
+        handleMarkerClick(place);
       });
 
       return markerElement;
     },
-    [activePlaceId, onMarkerClick],
+    [activePlaceId],
   );
 
   const handleMarkerClick = useCallback(
-    (map, place) => {
+    (place) => {
       setPreventFitBounds(true);
       setActivePlaceId(place.placeId);
 
@@ -154,18 +186,18 @@ const GoogleMapView = ({
       }
 
       setTimeout(() => {
-        map.setCenter({ lat: place.lat, lng: place.lng });
-        map.setZoom(16);
+        mapInstance.setCenter({ lat: place.lat, lng: place.lng });
+        mapInstance.setZoom(16);
       }, 100);
     },
-    [onMarkerClick, activePlaceId],
+    [onMarkerClick, mapInstance],
   );
 
   useEffect(() => {
     if (mapInstance && nowActiveMarker !== 0) {
       const activePlace = places.find((place) => place.placeId === nowActiveMarker);
       if (activePlace) {
-        handleMarkerClick(mapInstance, activePlace);
+        handleMarkerClick(activePlace);
       }
     }
   }, [nowActiveMarker, mapInstance, places, handleMarkerClick]);
@@ -266,33 +298,111 @@ const GoogleMapView = ({
     );
   }, [mapInstance]);
 
+  // useEffect(() => {
+  //   if (mapInstance) {
+  //     // 기존 마커 제거
+  //     markers.forEach((marker) => marker.setMap(null));
+  //     if (places.length < 1) return;
+  //     // 새 마커 생성 및 추가
+  //     const bounds = new google.maps.LatLngBounds();
+
+  //     const newMarkers = places.map((place) => {
+  //       const markerElement = createMarker(mapInstance, place);
+  //       bounds.extend({ lat: place.lat, lng: place.lng });
+  //       return markerElement;
+  //     });
+
+  //     setMarkers(newMarkers);
+
+  //     if (!preventFitBounds) {
+  //       if (places.length > 1) {
+  //         mapInstance.fitBounds(bounds, { padding: 24 });
+  //       } else if (places.length === 1) {
+  //         const singleMarker = places[0];
+  //         mapInstance.setCenter({ lat: singleMarker.lat, lng: singleMarker.lng });
+  //         mapInstance.setZoom(16);
+  //       }
+  //     }
+  //   }
+  // }, [mapInstance, places, preventFitBounds, activePlaceId]);
+
   useEffect(() => {
     if (mapInstance) {
-      // 기존 마커 제거
-      markers.forEach((marker) => marker.setMap(null));
-      if (places.length < 1) return;
-      // 새 마커 생성 및 추가
-      const bounds = new google.maps.LatLngBounds();
+      setIsMarkersLoading(true);
+      clearMarkers();
 
-      const newMarkers = places.map((place) => {
-        const markerElement = createMarker(mapInstance, place);
-        bounds.extend({ lat: place.lat, lng: place.lng });
-        return markerElement;
-      });
+      setTimeout(() => {
+        const newMarkers = places.map(createMarker).filter((marker) => marker !== null);
+        const bounds = new google.maps.LatLngBounds();
 
-      setMarkers(newMarkers);
+        places.forEach((place) => {
+          bounds.extend(new google.maps.LatLng(place.lat, place.lng));
+        });
 
-      if (!preventFitBounds) {
-        if (places.length > 1) {
-          mapInstance.fitBounds(bounds, { padding: 24 });
-        } else if (places.length === 1) {
-          const singleMarker = places[0];
-          mapInstance.setCenter({ lat: singleMarker.lat, lng: singleMarker.lng });
-          mapInstance.setZoom(16);
+        if (!preventFitBounds) {
+          mapInstance.fitBounds(bounds);
         }
-      }
+
+        // 클러스터링 적용
+        const newCluster = new MarkerClusterer({
+          map: mapInstance,
+          markers: newMarkers,
+          algorithm: new GridAlgorithm({
+            gridSize: 50,
+            minimumClusterSize: 3,
+          }),
+          renderer: {
+            render: ({ count, position, markers }) => {
+              // 클러스터에 포함된 마커 숨김
+              markers.forEach((marker) => (marker.map = null));
+
+              const clusterDiv = document.createElement('div');
+              clusterDiv.innerHTML = `<div style="
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: rgba(0, 0, 255, 0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+                font-weight: bold;
+                color: white;
+              ">${count}</div>`;
+
+              const clusterMarker = new google.maps.marker.AdvancedMarkerElement({
+                position,
+                content: clusterDiv,
+              });
+
+              google.maps.event.addListener(clusterMarker, 'click', () => {
+                // 클러스터 클릭 시 확대
+                const clusterBounds = new google.maps.LatLngBounds();
+                markers.forEach((marker) => clusterBounds.extend(marker.position));
+                mapInstance.fitBounds(clusterBounds);
+              });
+
+              return clusterMarker;
+            },
+          },
+        });
+
+        setMarkerCluster(newCluster);
+        setMarkers(newMarkers);
+        setIsMarkersLoading(false);
+
+        if (!preventFitBounds) {
+          if (places.length > 1) {
+            mapInstance.fitBounds(bounds, { padding: 24 });
+          } else if (places.length === 1) {
+            const singleMarker = places[0];
+            mapInstance.setCenter({ lat: singleMarker.lat, lng: singleMarker.lng });
+            mapInstance.setZoom(16);
+          }
+        }
+      }, 100);
     }
-  }, [mapInstance, places, preventFitBounds, activePlaceId]);
+  }, [mapInstance, places, preventFitBounds, createMarker]);
 
   const handleMapLoad = useCallback((map) => {
     setMapInstance(map);
@@ -305,6 +415,7 @@ const GoogleMapView = ({
 
   return (
     <GoogleMapContainer>
+      {(!isLoaded || isMarkersLoading) && <Loading />}
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center || { lat: 37.5665, lng: 126.978 }}
