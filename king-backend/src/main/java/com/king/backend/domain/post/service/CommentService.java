@@ -50,6 +50,10 @@ public class CommentService {
 
     @Transactional
     public void uploadComment(Long postId, CommentUploadRequestDto reqDto) {
+        if (reqDto.getContent() == null || reqDto.getContent().trim().isEmpty()) {
+            throw new CustomException(CommentErrorCode.INVALID_COMMENT);
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(oauthUser.getName());
