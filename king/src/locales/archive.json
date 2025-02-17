@@ -7,7 +7,8 @@
     "showAll": "{type} 전체보기",
     "showAllSimple": "전체보기",
     "noFavorites": "아직 즐겨찾기한 {type}이 없어요.",
-    "itemsCount": "{count}{unit}의 {type}"
+    "itemsCount": "{count}{unit}의 {type}",
+    "noCurations": "등록된 큐레이션이 없습니다."
   },
   "en": {
     "works": "Works",
@@ -17,7 +18,8 @@
     "showAll": "Show All {type}",
     "showAllSimple": "Show All",
     "noFavorites": "You haven't favorited any {type} yet.",
-    "itemsCount": "{count} {type}"
+    "itemsCount": "{count} {type}",
+    "noCurations": "No curations available."
   },
   "ja": {
     "works": "作品",
@@ -27,9 +29,10 @@
     "showAll": "{type}をすべて表示",
     "showAllSimple": "すべて表示",
     "noFavorites": "まだお気に入りの {type} がありません。",
-    "itemsCount": "{count}{unit}の{type}"
+    "itemsCount": "{count}{unit}の{type}",
+    "noCurations": "登録されたキュレーションがありません。"
   },
-  "zh-TW": {
+  "zh": {
     "works": "作品",
     "people": "人物",
     "unit_item": "個",
@@ -37,6 +40,7 @@
     "showAll": "查看全部 {type}",
     "showAllSimple": "查看全部",
     "noFavorites": "你還沒有收藏任何{type}。",
-    "itemsCount": "{count}{unit}{type}"
+    "itemsCount": "{count}{unit}{type}",
+    "noCurations": "沒有可用的策展內容。"
   }
 }
