@@ -10,12 +10,16 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class RedisUtil {
+    private final RedisTemplate<String, String> redisStringTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisTemplate<String, byte[]> redisBinaryTemplate;
     private final ObjectMapper objectMapper;
@@ -28,6 +32,19 @@ public class RedisUtil {
     public String getValue(String key) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
         return (String) values.get(key);
+    }
+
+    public List<String> getValues(List<String> keys) {
+        List<String> values = redisStringTemplate.opsForValue().multiGet(keys);
+        return values != null ? values : new ArrayList<>();
+    }
+
+    public void setValues(Map<String, String> values, long expirationTime, TimeUnit timeUnit) {
+        redisTemplate.opsForValue().multiSet(values);
+
+        for (String key : values.keySet()) {
+            redisTemplate.expire(key, expirationTime, timeUnit);
+        }
     }
 
     /**

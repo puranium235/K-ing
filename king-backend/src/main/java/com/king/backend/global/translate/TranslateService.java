@@ -6,7 +6,6 @@ import com.king.backend.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,33 +19,39 @@ public class TranslateService {
     private final RedisUtil redisUtil;
 
     public Map<String, String> getTranslatedText(Map<String, String> originalText, String targetLanguage) {
+        if (targetLanguage == null) {
+            return originalText;
+        }
+
         if (!targetLanguage.matches("^(ko|en|ja|zh)$")) {
             throw new CustomException(UserErrorCode.INVALID_LANGUAGE);
         }
 
-        List<String> keys = new ArrayList<>();
-        List<String> values = new ArrayList<>();
+        List<String> redisKeys = originalText.keySet().stream().toList();
+        List<String> cachedText = redisUtil.getValues(redisKeys);
+
+        Map<String, String> textToTranslate = new HashMap<>();
         Map<String, String> translatedText = new HashMap<>();
 
-        for (Map.Entry<String, String> entry : originalText.entrySet()) {
-            String cached = redisUtil.getValue(entry.getKey());
+        for (int i = 0; i < redisKeys.size(); i++) {
+            String cached = cachedText.get(i);
+            String key = redisKeys.get(i);
 
             if (cached == null) {
-                keys.add(entry.getKey());
-                values.add(entry.getValue());
+                textToTranslate.put(key, originalText.get(key));
                 continue;
             }
 
-            translatedText.put(entry.getKey(), cached);
+            translatedText.put(key, cached);
         }
 
-        List<String> translatedValues = translateUtil.translateText(values, targetLanguage);
+        List<String> translatedValues = translateUtil.translateText(textToTranslate.values().stream().toList(), targetLanguage);
 
         for (int i = 0; i < translatedValues.size(); i++) {
-            String key = keys.get(i);
+            String key = redisKeys.get(i);
             String value = translatedValues.get(i);
             translatedText.put(key, value);
-            redisUtil.setValue(key, value, 7, TimeUnit.DAYS);
+            redisUtil.setValues(translatedText, 7, TimeUnit.DAYS);
         }
 
         return translatedText;
