@@ -1,5 +1,6 @@
 package com.king.backend.domain.fcm.controller;
 
+import com.king.backend.domain.fcm.dto.requestDto.FcmRequestDto;
 import com.king.backend.domain.fcm.service.FcmTokenService;
 import com.king.backend.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +15,14 @@ public class FcmTokenController {
     private final FcmTokenService fcmService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> registerToken(@RequestBody String token) {
-        fcmService.registerToken(token);
+    public ResponseEntity<ApiResponse<Void>> registerToken(@RequestBody FcmRequestDto reqDto) {
+        fcmService.registerToken(reqDto.getToken());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<Void>> deleteToken(@RequestBody String token){
-        fcmService.deleteToken(token);
+    public ResponseEntity<ApiResponse<Void>> deleteToken(@RequestBody FcmRequestDto reqDto){
+        fcmService.deleteToken(reqDto.getToken());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
     }
 }
