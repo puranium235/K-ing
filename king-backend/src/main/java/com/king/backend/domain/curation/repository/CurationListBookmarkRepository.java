@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface CurationListBookmarkRepository extends JpaRepository<CurationListBookmark, Long> {
@@ -27,4 +28,6 @@ public interface CurationListBookmarkRepository extends JpaRepository<CurationLi
                                             @Param("size") int size);
 
     void deleteAllByCurationList(CurationList curationList);
+
+    List<CurationListBookmark> findByUserIdAndCurationListIdIn(Long userId, Set<Long> curationListIds);
 }

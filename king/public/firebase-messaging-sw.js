@@ -24,13 +24,13 @@ const app = firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging(app);
 
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  console.log('[firebase-messaging-sw.js] Received background message ', payload.notification);
 
   // Customize notification here
-  const notificationTitle = payload.title;
+  const notificationTitle = payload.notification.title;
   const notificationOptions = {
-    body: payload.body,
-    icon: '/public/logo.png',
+    body: payload.notification.body,
+    icon: '/logo.png',
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -44,13 +44,22 @@ self.addEventListener('push', function (e) {
   const notificationTitle = resultData.title;
   const notificationOptions = {
     body: resultData.body,
-    icon: './logo.png',
+    icon: '/logo.png',
     data: {
       click_action: resultData.click_action,
     },
   };
 
-  e.waitUntil(self.registration.showNotification(notificationTitle, notificationOptions));
+  e.waitUntil(
+    self.registration
+      .showNotification(notificationTitle, notificationOptions)
+      .then(() => {
+        console.log('알림 성공');
+      })
+      .catch((error) => {
+        console.error('알림 실패:', error);
+      }),
+  );
 });
 
 self.addEventListener('notificationclick', function (event) {
@@ -58,7 +67,6 @@ self.addEventListener('notificationclick', function (event) {
 
   event.notification.close();
 
-  // 이동할 url
   // 아래의 event.notification.data는 위의 푸시 이벤트를 한 번 거쳐서 전달 받은 options.data에 해당한다.
   const urlToOpen = event.notification.data.click_action;
 

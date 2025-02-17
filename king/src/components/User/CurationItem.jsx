@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcLock } from '../../assets/icons';
@@ -8,9 +8,10 @@ import { truncateText } from '../../util/truncateText';
 const CurationItem = forwardRef(({ item }, ref) => {
   const { curationId, title, imageUrl, public: isPublic } = item;
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleCurationClick = () => {
-    navigate(`/curation/${curationId}`);
+    navigate(`/curation/${curationId}`, { state: { from: location } });
   };
 
   return (

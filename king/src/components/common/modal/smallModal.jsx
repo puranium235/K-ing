@@ -36,7 +36,7 @@ const StTitle = styled.div`
   align-items: center;
 
   width: 100%;
-  height: 5.6rem;
+  height: 4rem;
 
   border-radius: 2rem 2rem 0 0;
   background-color: ${({ theme }) => theme.colors.Navy};

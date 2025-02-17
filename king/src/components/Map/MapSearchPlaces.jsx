@@ -1,11 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import UpIcon from '../../assets/icons/up.png';
+import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
 import { searchMapView } from '../../lib/map';
 import { getPlaceDetail } from '../../lib/place';
-import { FilterOption, SearchQueryState, SearchRegionState } from '../../recoil/atom';
+import {
+  FilterOption,
+  SearchQueryState,
+  SearchRegionState,
+  SearchRelatedType,
+} from '../../recoil/atom';
+import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import CloseButton from '../common/button/CloseButton';
 import Loading from '../Loading/Loading';
 import ContentsInfo from '../PlaceDetail/ContentsInfo';
@@ -19,6 +26,7 @@ const MapSearchPlaces = () => {
   const query = useRecoilValue(SearchQueryState);
   const region = useRecoilValue(SearchRegionState);
   const [filterOption, setFilterOption] = useRecoilState(FilterOption);
+  const relatedType = useRecoilValue(SearchRelatedType);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [nowActiveMarker, setNowActiveMarker] = useState(0);
@@ -26,21 +34,46 @@ const MapSearchPlaces = () => {
   const [placeId, setPlaceId] = useState(0);
   const [placeData, setPlaceData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [filteredPlaces, setFilteredPlaces] = useState([]);
+  const [boundingBox, setBoundingBox] = useState({
+    swLat: 0.0,
+    swLng: 0.0,
+    neLat: 0.0,
+    neLng: 0.0,
+  });
 
   const filters = ['RESTAURANT', 'CAFE', 'PLAYGROUND', 'STORE', 'STAY'];
 
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
-        const data = await searchMapView(query, region);
+        const data = await searchMapView(query, region, relatedType, boundingBox);
         setPlaces(data);
+        setFilteredPlaces(data);
       } finally {
         setLoading(false);
       }
     };
 
     fetchPlaces();
-  }, [query, region]);
+  }, [boundingBox]);
+
+  const { placeList, getNextData, isLoading, hasMore } = useGetPlaceSearchResult({
+    query,
+    category: 'PLACE',
+    region: [region.province, region.district].filter(Boolean).join(' '),
+    placeTypeList: Object.keys(filterOption.categories).filter(
+      (key) => filterOption.categories[key],
+    ),
+    relatedType,
+    boundingBox,
+  });
+
+  const lastElementRef = useRef(null);
+
+  useEffect(() => {
+    catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
+  }, [isLoading]);
 
   useEffect(() => {
     if (placeId == 0) {
@@ -83,10 +116,20 @@ const MapSearchPlaces = () => {
     lng: parseFloat(place.lng.toFixed(4)),
   }));
 
-  const filteredPlaces = roundedPlaces.filter((place) => {
-    if (Object.values(filterOption.categories).every((value) => !value)) return true;
-    return filterOption.categories[place.type];
-  });
+  useEffect(() => {
+    const newFilteredPlaces = roundedPlaces.filter((place) => {
+      if (Object.values(filterOption.categories).every((value) => !value)) {
+        return true;
+      }
+      return filterOption.categories[place.type];
+    });
+
+    if (newFilteredPlaces.length === 0) {
+      setFilteredPlaces([]);
+    } else {
+      setFilteredPlaces(newFilteredPlaces);
+    }
+  }, [places, filterOption]);
 
   const handleMarkerClick = async (activePlace) => {
     setPlaceId(activePlace);
@@ -95,6 +138,15 @@ const MapSearchPlaces = () => {
   const handleFocusMarker = (placeId) => {
     setIsExpanded(false);
     setNowActiveMarker(placeId);
+  };
+
+  const handleReSearch = (bounds) => {
+    const swLat = parseFloat(bounds.getSouthWest().lat().toFixed(1));
+    const swLng = parseFloat(bounds.getSouthWest().lng().toFixed(1));
+    const neLat = parseFloat(bounds.getNorthEast().lat().toFixed(1));
+    const neLng = parseFloat(bounds.getNorthEast().lng().toFixed(1));
+    const newBoundingBox = { swLat, swLng, neLat, neLng };
+    setBoundingBox(newBoundingBox);
   };
 
   // console.log('마커 개수:', places.length);
@@ -111,6 +163,7 @@ const MapSearchPlaces = () => {
           places={filteredPlaces}
           isSearch={true}
           onMarkerClick={handleMarkerClick}
+          onReSearch={handleReSearch}
           nowActiveMarker={nowActiveMarker}
           $isExpanded={isExpanded}
         />
@@ -143,10 +196,15 @@ const MapSearchPlaces = () => {
                 onFilterChange={handleFilterChange}
               />
             </FilterContainer>
-            {filteredPlaces.length > 0 ? (
+            {placeList.length > 0 ? (
               <ListContainer>
-                {filteredPlaces.map((place) => (
-                  <ListItem key={place.placeId} place={place} handleFocus={handleFocusMarker} />
+                {placeList.map((place, index) => (
+                  <ListItem
+                    key={index}
+                    place={place}
+                    handleFocus={handleFocusMarker}
+                    ref={index === placeList.length - 1 ? lastElementRef : null}
+                  />
                 ))}
               </ListContainer>
             ) : (
@@ -275,7 +333,7 @@ const NoResultsContainer = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  height: 20rem;
+  height: 10rem;
 `;
 
 const NoResultsText = styled.p`

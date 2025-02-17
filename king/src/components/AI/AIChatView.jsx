@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import SendIcon from '../../assets/icons/chat-send.png';
 import KingIcon from '../../assets/icons/king_character.png';
-import RefreshIcon from '../../assets/icons/refresh.png';
 import { deleteChatHistory, getChatHistory, saveChatHistory } from '../../lib/chatbot';
 import {
   closeWebSocket,
@@ -11,21 +10,33 @@ import {
   isWebSocketConnected,
   sendMessageViaWebSocket,
 } from '../../lib/websocket';
-import { splitIntoSentences } from '../../util/chatbot';
+import { splitIntoMessages } from '../../util/chatbot';
 import BackButton from '../common/button/BackButton';
-import ButtonMessageBubbleComponent from './ButtonMessageBubbleComponent';
+import CurationRecommendButton from './CurationRecommendButton';
+import PlaceRecommendButton from './PlaceRecommendButton';
 import TypingIndicator from './TypingIndicator';
 import useStreamingMessages from './useStreamingMessages';
 
 const AIChatView = () => {
-  const { messages, isTyping, updateMessages, setMessages, setIsTyping } = useStreamingMessages();
   const [newMessage, setNewMessage] = useState('');
-  const [isBotSelected, setIsBotSelected] = useState(false);
+  const { messages, isTyping, updateMessages, setMessages, setIsTyping } = useStreamingMessages();
   const [currentApi, setCurrentApi] = useState('');
-  const [isComposing, setIsComposing] = useState(false); //맥북 한글입력 중복 방지,,
+  const [isBotSelected, setIsBotSelected] = useState(false);
+  const [selectedBot, setSelectedBot] = useState('');
+  const [hasSentInitialMessage, setHasSentInitialMessage] = useState(false);
 
+  const [isComposing, setIsComposing] = useState(false); //맥북 한글입력 중복 방지,,
   const messagesEndRef = useRef(null);
-  const socketRef = useRef(null);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowHeight(window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
 
@@ -49,6 +60,7 @@ const AIChatView = () => {
     setNewMessage('');
     setCurrentApi('');
     setIsBotSelected(false);
+    setSelectedBot('');
 
     await saveInitialMessage();
   };
@@ -98,7 +110,7 @@ const AIChatView = () => {
           }
 
           if (msg.role === 'assistant') {
-            newMessages = [...newMessages, ...splitIntoSentences(msg.content, 'assistant')];
+            newMessages = [...newMessages, ...splitIntoMessages(msg.content, 'assistant')];
           } else {
             newMessages.push({ text: msg.content, sender: msg.role });
           }
@@ -108,13 +120,16 @@ const AIChatView = () => {
           setCurrentApi(
             detectedBotType === chatT ? `${WS_BASE_URL}/ws/chatT` : `${WS_BASE_URL}/ws/chatF`,
           );
+          setSelectedBot(detectedBotType);
           setIsBotSelected(true);
+          setHasSentInitialMessage(true);
         }
 
         setMessages(newMessages);
       } else {
         saveInitialMessage();
         setIsBotSelected(false);
+        setHasSentInitialMessage(false);
       }
     };
 
@@ -127,24 +142,34 @@ const AIChatView = () => {
 
   // ✅ 챗봇 선택
   const handleOptionClick = async (option) => {
+    setSelectedBot(option);
+    setIsBotSelected(true);
+    setHasSentInitialMessage(false);
+
     const optionMessage = { text: option, sender: 'option', type: 'option' };
     setMessages((prev) => [...prev, optionMessage]);
     await saveChatHistory('option', option, 'option');
+  };
+
+  useEffect(() => {
+    if (!selectedBot || hasSentInitialMessage) return;
+    //console.log('💡 selectedBot 변경 감지:', selectedBot);
 
     let aiMessage;
-    if (option === chatT) {
+    if (selectedBot === chatT) {
       setCurrentApi(`${WS_BASE_URL}/ws/chatT`);
-      aiMessage = `안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.`;
-    } else if (option === chatF) {
+      aiMessage = `안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.\n 궁금한 걸 물어봐주세요!`;
+    } else if (selectedBot === chatF) {
       setCurrentApi(`${WS_BASE_URL}/ws/chatF`);
-      aiMessage = `안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다. 💫🎭`;
+      aiMessage = `안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다.\n 궁금한 걸 물어봐주세요!💫🎭`;
     }
-    setIsBotSelected(true);
 
     updateMessages(aiMessage);
     updateMessages('[END]');
-    await saveChatHistory('assistant', aiMessage, 'message');
-  };
+    saveChatHistory('assistant', aiMessage, 'message');
+
+    setHasSentInitialMessage(true);
+  }, [selectedBot]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && isBotSelected) {
@@ -157,17 +182,24 @@ const AIChatView = () => {
     }
   };
 
+  const getRemInPixels = (rem) => {
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+  };
+
+  const remValue = getRemInPixels(5);
+
   return (
     <ChatContainer>
       <Header>
         <BackButton />
-        K-ing 챗봇
+        <p>K-ing 챗봇</p>
         <RefreshButton onClick={handleRefresh}>
-          <img src={RefreshIcon} alt="Refresh" />
+          <p>새로운 대화</p>
+          {/* <img src={RefreshIcon} alt="Refresh" /> */}
         </RefreshButton>
       </Header>
 
-      <MessagesContainer>
+      <MessagesContainer style={{ height: `${windowHeight - remValue}px` }}>
         <IntroMessageContainer>
           <img src={KingIcon} />
           안녕하세요, 김싸피님
@@ -201,7 +233,11 @@ const AIChatView = () => {
                 )}
               </ChatBotContainer>
             ) : message.sender === 'recommend' ? (
-              <ButtonMessageBubbleComponent message={message} />
+              selectedBot === chatT ? (
+                <PlaceRecommendButton message={message} />
+              ) : (
+                <CurationRecommendButton message={message} />
+              )
             ) : (
               <MessageBubble
                 $sender={message.sender}
@@ -257,16 +293,28 @@ const Header = styled.div`
   padding: 1.4rem 2rem;
   width: 100%;
   box-sizing: border-box;
-  ${({ theme }) => theme.fonts.Title4};
+
+  p {
+    ${({ theme }) => theme.fonts.Title4};
+  }
 `;
 
 const RefreshButton = styled.button`
   display: flex;
   align-items: center;
+  gap: 1rem;
+  border-radius: 20px;
+  background-color: ${({ theme }) => theme.colors.MainBlue};
+  padding: 0.2rem 0.7rem;
+
+  p {
+    ${({ theme }) => theme.fonts.Body4};
+    color: white;
+  }
 
   img {
-    width: 1.6rem;
-    height: 1.6rem;
+    width: 1rem;
+    height: 1rem;
   }
 `;
 
@@ -287,7 +335,7 @@ const IntroMessageContainer = styled.div`
 
 const MessagesContainer = styled.div`
   width: 100%;
-  height: 100%;
+  //height: 100%;
   padding: 1rem 2rem;
   box-sizing: border-box;
   overflow-y: auto;
@@ -376,7 +424,7 @@ const InputContainer = styled.div`
   border-top: 1px solid #ddd;
   padding-bottom: 2rem;
 
-  /* position: fixed;
+  /* position: absolute;
   bottom: 0; */
 `;
 

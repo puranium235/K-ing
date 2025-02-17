@@ -19,7 +19,12 @@ public class GoogleUserDTO {
         GoogleUserDTO googleUserDTO = new GoogleUserDTO();
         googleUserDTO.setGoogleId(attribute.get("sub").toString());
         googleUserDTO.setEmail(attribute.get("email").toString());
-        googleUserDTO.setImageUrl(attribute.get("picture").toString());
+
+        if (attribute.containsKey("picture")) {
+            googleUserDTO.setImageUrl(attribute.get("picture").toString());
+        } else {
+            googleUserDTO.setImageUrl("https://king-s3-bucket.s3.us-east-1.amazonaws.com/uploads/default.jpg");
+        }
 
         return googleUserDTO;
     }

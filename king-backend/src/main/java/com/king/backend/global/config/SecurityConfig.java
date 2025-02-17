@@ -1,6 +1,7 @@
 package com.king.backend.global.config;
 
 import com.king.backend.domain.user.CustomLogoutFilter;
+import com.king.backend.domain.user.CustomOAuthFailureHandler;
 import com.king.backend.domain.user.CustomSuccessHandler;
 import com.king.backend.domain.user.jwt.JWTFilter;
 import com.king.backend.domain.user.jwt.JWTUtil;
@@ -20,7 +21,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -35,12 +41,16 @@ import java.util.List;
 public class SecurityConfig {
 
     private final OAuth2UserService oAuth2UserService;
+    private final OidcUserService oidcUserService;
     private final CustomSuccessHandler customSuccessHandler;
+    private final CustomOAuthFailureHandler customOAuthFailureHandler;
     private final JWTUtil jwtUtil;
-    private final TokenRepository tokenRepository;
 
     @Value("${client.url}")
     private String CLIENT_URL;
+
+    @Value(("{spring.security.oauth2.client.line.client-secret}"))
+    private String CLIENT_SECRET;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -82,8 +92,10 @@ public class SecurityConfig {
 
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                                .userService(oAuth2UserService))
-                        .successHandler(customSuccessHandler))
+                                .userService(oAuth2UserService)
+                                .oidcUserService(oidcUserService))
+                        .successHandler(customSuccessHandler)
+                        .failureHandler(customOAuthFailureHandler))
 
                 .cors((corsCustomizer) -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
                     @Override
@@ -105,6 +117,13 @@ public class SecurityConfig {
                 }));
 
         return http.build();
+    }
+
+    @Bean
+    public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
+        OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
+        idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> MacAlgorithm.HS256);
+        return idTokenDecoderFactory;
     }
 
     @Bean

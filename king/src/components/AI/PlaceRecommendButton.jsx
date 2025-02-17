@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { client } from '../../lib/axios';
 
-const ButtonMessageBubbleComponent = ({ message }) => {
+const PlaceRecommendButton = ({ message }) => {
   const navigate = useNavigate();
   const [placeId, setPlaceId] = useState(null);
   const [error, setError] = useState(null);
@@ -75,4 +75,4 @@ const MessageButton = styled.button`
   }
 `;
 
-export default ButtonMessageBubbleComponent;
+export default PlaceRecommendButton;

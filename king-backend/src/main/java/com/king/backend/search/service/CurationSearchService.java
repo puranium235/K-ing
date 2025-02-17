@@ -8,6 +8,8 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.king.backend.domain.curation.entity.CurationListBookmark;
+import com.king.backend.domain.curation.repository.CurationListBookmarkRepository;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.global.util.TranslateUtil;
 import com.king.backend.search.config.ElasticsearchConstants;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +38,7 @@ public class CurationSearchService {
     private static final String INDEX_NAME = ElasticsearchConstants.CURATION_INDEX;
     private final ElasticsearchClient elasticsearchClient;
     private final TranslateUtil translateUtil;
+    private final CurationListBookmarkRepository curationListBookmarkRepository;
 
     /**
      * 큐레이션 리스트 제목 검색 및 전체 조회 (커서 기반 페이지네이션)
@@ -87,7 +91,8 @@ public class CurationSearchService {
                                 doc.getOriginalId(),
                                 doc.getTitle(),
                                 doc.getImageUrl(),
-                                doc.getWriterNickname()
+                                doc.getWriterNickname(),
+                                false
                         );
                     })
                     .collect(Collectors.toList());
@@ -112,11 +117,22 @@ public class CurationSearchService {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-
+            Long userId = Long.parseLong(authUser.getName());
             String language = authUser.getLanguage();
 
             CurationListSearchResponseDto response = new CurationListSearchResponseDto(items, nextCursor);
             List<CurationListSearchResponseDto.CurationListItemDto> curationDTOs = response.getItems();
+
+            Set<Long> curationIds = curationDTOs.stream()
+                    .map(CurationListSearchResponseDto.CurationListItemDto::getId)
+                    .collect(Collectors.toSet());
+            List<CurationListBookmark> bookmarks =
+                    curationListBookmarkRepository.findByUserIdAndCurationListIdIn(userId, curationIds);
+            Set<Long> bookmarkedIds = bookmarks.stream()
+                    .map(b -> b.getCurationList().getId())
+                    .collect(Collectors.toSet());
+
+            curationDTOs.forEach(dto -> dto.setBookmarked(bookmarkedIds.contains(dto.getId())));
 
             List<String> originalText = curationDTOs.stream()
                     .map(CurationListSearchResponseDto.CurationListItemDto::getTitle)

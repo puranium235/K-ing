@@ -38,7 +38,7 @@ const UploadModal = ({ isShowing }) => {
       checkDraft();
       navigate(`/upload/post`);
     } else {
-      checkCurationDraft();
+      //checkCurationDraft();
       navigate(`/upload/curation`);
     }
   };

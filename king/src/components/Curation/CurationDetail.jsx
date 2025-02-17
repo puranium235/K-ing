@@ -157,6 +157,7 @@ const CurationDetail = () => {
             profileImage={curationData.writer.imageUrl}
           />
           <FunctionButton
+            shareable={curationData.public}
             bookmarked={curationData.bookmarked}
             onBookmarkClick={handleBookmarkClick}
           />

@@ -72,7 +72,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
     <SWrapper>
       <input
         type="text"
-        placeholder="검색어를 입력하세요."
+        placeholder={type === 'PLACE' ? '장소를 검색하세요.' : '검색어를 입력하세요.'}
         value={keyword}
         onChange={onChangeData}
         onKeyDown={handleKeyEnter}

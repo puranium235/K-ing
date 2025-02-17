@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import SendIcon from '/src/assets/icons/chat-send.png';
+import LockIcon from '/src/assets/icons/lock.png';
 import OptionIcon from '/src/assets/icons/option.png';
 
 import { IcComments, IcHeartTrue, IcLikes, IcMarker, IcMarker2 } from '../../assets/icons';
@@ -189,6 +190,11 @@ const FeedDetails = () => {
       </Location>
       <PostImageWrapper>
         <PostImage src={postInfo.imageUrl} alt="postImage" />
+        {!postInfo.public && (
+          <LockButton>
+            <img src={LockIcon} alt="isPublic" />
+          </LockButton>
+        )}
       </PostImageWrapper>
 
       <PostCount>
@@ -355,11 +361,26 @@ const Location = styled.span`
 
 const PostImageWrapper = styled.div`
   width: 100%;
-  /* height: 30rem;
 
+  position: relative;
+`;
+
+const LockButton = styled.div`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0.5rem;
+  border-radius: 50%;
   display: flex;
+  align-items: center;
+  justify-content: center;
 
-  border: 1px solid ${({ theme }) => theme.colors.Gray2}; */
+  img {
+    height: 1.8rem;
+    width: 1.8rem;
+  }
 `;
 
 const PostImage = styled.img`

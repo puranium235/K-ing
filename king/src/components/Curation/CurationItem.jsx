@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcBookmarkBlank, IcBookmarkFill } from '../../assets/icons';
@@ -8,6 +9,7 @@ import { addBookmark, removeBookmark } from '../../lib/bookmark';
 import { truncateText } from '../../util/truncateText';
 
 const CurationItem = forwardRef(({ item, onBookmarkChange }, ref) => {
+  const location = useLocation();
   const { id: curationId, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item;
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const navigate = useNavigate();
@@ -36,7 +38,7 @@ const CurationItem = forwardRef(({ item, onBookmarkChange }, ref) => {
   };
 
   const handleCurationClick = () => {
-    navigate(`/curation/${curationId}`);
+    navigate(`/curation/${curationId}`, { state: { from: location } });
   };
 
   return (

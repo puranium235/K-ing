@@ -1,8 +1,6 @@
 package com.king.backend.search.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -27,6 +25,8 @@ public class MapViewRequestDto {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Setter
+    @Getter
     public static class BoundingBox {
         private double swLat; // 남서쪽 위도
         private double swLng; // 남서쪽 경도

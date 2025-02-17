@@ -2,31 +2,21 @@ import { motion } from 'framer-motion';
 import React from 'react';
 import styled from 'styled-components';
 
-import { IcFootprintLeft, IcFootprintRight } from '../../assets/icons';
+import { IcFootL, IcFootR } from '../../assets/icons';
 
 // 색상 배열
-const footprintColors = [
-  '#E8E8F4',
-  '#E8E8F4',
-  '#E8E8F4',
-  '#CFCED3',
-  '#CFCED3',
-  '#CFCED3',
-  '#CFCED3',
-  '#3D3D3D',
-  '#3D3D3D',
-];
+const footprintColors = ['#E8E8F4', '#CFCED3', '#CFCED3', '#3D3D3D', '#3D3D3D'];
 
 // Styled SVG Components
-const StyledFootprintLeft = styled(IcFootprintLeft)`
+const StyledFootprintLeft = styled(IcFootL)`
   color: ${({ index }) => footprintColors[index] || '#191919'};
-  width: 24px;
+  width: 3rem;
   height: auto;
 `;
 
-const StyledFootprintRight = styled(IcFootprintRight)`
+const StyledFootprintRight = styled(IcFootR)`
   color: ${({ index }) => footprintColors[index] || '#191919'};
-  width: 26px;
+  width: 3rem;
   height: auto;
 `;
 
@@ -51,15 +41,11 @@ const Footprint = ({ delay, x, y, rotate, index }) => (
 
 const FootstepsAnimation = () => {
   const footprints = [
-    { x: -165, y: -130, rotate: 90, delay: 0 },
-    { x: -150, y: -100, rotate: 60, delay: 0.2 },
-    { x: -105, y: -140, rotate: 70, delay: 0.4 },
-    { x: -85, y: -110, rotate: 40, delay: 0.6 },
-    { x: -35, y: -160, rotate: 30, delay: 0.8 },
-    { x: 5, y: -140, rotate: 15, delay: 1.0 },
-    { x: 25, y: -220, rotate: 10, delay: 1.2 },
-    { x: 70, y: -215, rotate: -10, delay: 1.4 },
-    { x: 85, y: -300, rotate: 5, delay: 1.6 },
+    { x: -95, y: -180, rotate: 140, delay: 0 },
+    { x: -55, y: -160, rotate: 120, delay: 0.3 },
+    { x: 0, y: -220, rotate: 100, delay: 0.6 },
+    { x: 45, y: -220, rotate: 80, delay: 0.9 },
+    { x: 85, y: -300, rotate: 70, delay: 1.2 },
   ];
 
   return (
@@ -84,9 +70,8 @@ export default FootstepsAnimation;
 const FootstepsWrapper = styled.div`
   position: absolute;
   bottom: 10%;
-  left: 20%;
-  width: 25rem;
-  height: 30rem;
+  width: 20rem;
+  /* height: 35rem; */
   display: flex;
   flex-direction: column;
   align-items: center;
