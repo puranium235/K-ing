@@ -19,7 +19,11 @@ public class TranslateService {
     private final RedisUtil redisUtil;
 
     public Map<String, String> getTranslatedText(Map<String, String> originalText, String targetLanguage) {
-        if (targetLanguage == null || !targetLanguage.matches("^(ko|en|ja|zh)$")) {
+        if (targetLanguage == null) {
+            return originalText;
+        }
+
+        if (!targetLanguage.matches("^(ko|en|ja|zh)$")) {
             throw new CustomException(UserErrorCode.INVALID_LANGUAGE);
         }
 
