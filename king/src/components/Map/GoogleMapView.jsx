@@ -209,8 +209,8 @@ const GoogleMapView = ({
         bounds.getSouthWest(),
       ) / 2;
 
-    console.log('검색 중심 좌표:', { lat: center.lat(), lng: center.lng() });
-    console.log('검색 반지름 (미터):', radius);
+    // console.log('검색 중심 좌표:', { lat: center.lat(), lng: center.lng() });
+    // console.log('검색 반지름 (미터):', radius);
     if (onReSearch) {
       onReSearch(bounds);
     }

@@ -22,16 +22,13 @@ const useGetPlaceSearchResult = ({
       ? `&placeTypeList=${encodeURIComponent(placeTypeList.join(','))}`
       : '';
     const relatedTypeParam = relatedType ? `&relatedType=${encodeURIComponent(relatedType)}` : '';
+    // boundingBox 정보를 쿼리 파라미터 문자열로 생성
     const boundingBoxParam =
       boundingBox && boundingBox.swLat !== 0
-        ? `&boundingBox=${encodeURIComponent(
-            JSON.stringify({
-              swLat: boundingBox.swLat,
-              swLng: boundingBox.swLng,
-              neLat: boundingBox.neLat,
-              neLng: boundingBox.neLng,
-            }),
-          )}`
+        ? `&boundingBox.swLat=${encodeURIComponent(boundingBox.swLat)}` +
+          `&boundingBox.swLng=${encodeURIComponent(boundingBox.swLng)}` +
+          `&boundingBox.neLat=${encodeURIComponent(boundingBox.neLat)}` +
+          `&boundingBox.neLng=${encodeURIComponent(boundingBox.neLng)}`
         : '';
 
     return pageIndex === 0

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { forwardRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcBookmarkBlank, IcBookmarkFill, IcLock } from '../../assets/icons';
@@ -8,6 +8,7 @@ import { removeBookmark } from '../../lib/bookmark';
 import { truncateText } from '../../util/truncateText';
 
 const CurationItem = forwardRef(({ item, onRemove }, ref) => {
+  const location = useLocation();
   const {
     curationId,
     title,
@@ -42,7 +43,7 @@ const CurationItem = forwardRef(({ item, onRemove }, ref) => {
   };
 
   const handleCurationClick = () => {
-    navigate(`/curation/${curationId}`);
+    navigate(`/curation/${curationId}`, { state: { from: location } });
   };
 
   return (

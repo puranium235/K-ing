@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import NoResultImage from '/src/assets/icons/king_character_sorry.png';
@@ -110,15 +110,32 @@ const SearchKeyword = () => {
     navigate(`/map`);
   };
 
+  const resetFilter = () => {
+    setFilter({
+      categories: {
+        RESTAURANT: false,
+        CAFE: false,
+        PLAYGROUND: false,
+        STORE: false,
+        STAY: false,
+      },
+      province: '',
+      district: '',
+    });
+  };
+
   const handleGoBack = () => {
     const from = location.state?.from?.pathname;
 
     if (from && from.includes('/result')) {
+      // resetFilter();
       navigate('/search/result');
     } else if (relatedType === 'cast') {
+      // resetFilter();
       setSearchQuery('');
       navigate(`/content/cast/${contentId}`);
     } else {
+      // resetFilter();
       setSearchQuery('');
       navigate(`/content/detail/${contentId}`);
     }

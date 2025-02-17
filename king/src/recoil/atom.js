@@ -61,6 +61,11 @@ const CurationPlaceList = atom({
   default: [],
 });
 
+const CurationId = atom({
+  key: 'curationId',
+  default: 1,
+});
+
 const CurationPlaceUploadList = atom({
   key: 'CurationPlaceUploadList',
   default: [],
@@ -112,6 +117,7 @@ export {
   ContentId,
   ContentType,
   CurationDraftExist,
+  CurationId,
   CurationPlaceList,
   CurationPlaceUploadList,
   DraftExist,
