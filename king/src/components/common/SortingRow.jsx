@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import SortingIcon from '../../assets/icons/icon-sorting.png';
 import SortingModal from '../../components/common/SortingModal';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 
 const SortingRow = ({ onSortingChange }) => {
+  const [language, setLanguage] = useState(getLanguage());
+  const { review: reviewTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [value, setValue] = useState('최신순');
+  const [value, setValue] = useState(reviewTranslations.latest);
 
   const openModal = () => {
     setIsModalVisible(true);

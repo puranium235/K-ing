@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 
 /*
 ==사용법==
@@ -17,7 +19,21 @@ const closeModal = () => {
 */
 
 const SortingModal = ({ isModalVisible, onCloseClick, onOptionClick }) => {
-  const options = ['인기순', '가나다순', '최신순'];
+  const [language, setLanguage] = useState(getLanguage());
+  const { review: reviewTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
+  const options = [
+    reviewTranslations.popular,
+    reviewTranslations.alphabet,
+    reviewTranslations.latest,
+  ];
 
   return (
     <>
