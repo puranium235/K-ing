@@ -6,6 +6,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Slf4j
 @Aspect
 @Component
@@ -17,8 +19,8 @@ public class ExecutionTimeAspect {
         Object proceed = joinPoint.proceed();
         long end = System.nanoTime();
 
-        long duration = (end - start) / 1_000_000; // 밀리초(ms)
-        log.info("{} 실행시간: {}ms", joinPoint.getSignature(), duration);
+        long duration = (end - start) / 1_000_000;
+        log.info("{} 실행시간: {}ms (args: {})", joinPoint.getSignature().getName(), duration, Arrays.toString(joinPoint.getArgs()));
 
         return proceed;
     }
