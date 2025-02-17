@@ -37,17 +37,18 @@ messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// //웹 푸시 알림 노출
+//웹 푸시 알림 노출
 // self.addEventListener('push', function (e) {
 //   if (!e.data.json()) return;
 
 //   const resultData = e.data.json().notification;
+//   const fcmOptions = e.data.json().webpush;
 //   const notificationTitle = resultData.title;
 //   const notificationOptions = {
 //     body: resultData.body,
 //     icon: '/logo.png',
 //     data: {
-//       click_action: resultData.click_action,
+//       link: fcmOptions.link,
 //     },
 //   };
 
