@@ -1,12 +1,13 @@
 package com.king.backend.domain.post.controller;
 
-import com.king.backend.domain.post.dto.request.PostHomeRequestDto;
 import com.king.backend.domain.post.dto.request.PostFeedRequestDto;
+import com.king.backend.domain.post.dto.request.PostHomeRequestDto;
 import com.king.backend.domain.post.dto.request.PostUploadRequestDto;
 import com.king.backend.domain.post.dto.response.PostDetailResponseDto;
 import com.king.backend.domain.post.dto.response.PostFeedResponseDto;
 import com.king.backend.domain.post.dto.response.PostHomeResponseDto;
 import com.king.backend.domain.post.service.PostService;
+import com.king.backend.global.aop.LogExecutionTime;
 import com.king.backend.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,6 +38,7 @@ public class PostController {
     }
 
 
+    @LogExecutionTime
     @Operation(summary = "게시글 전체 목록(홈피드) 조회")
     @GetMapping("/home")
     public ResponseEntity<ApiResponse<PostHomeResponseDto>> getHomePosts(
@@ -55,10 +57,12 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(postService.getFeedPostsWithCursor(reqDto)));
     }
 
+    @LogExecutionTime
     @Operation(summary = "게시글 상세 조회")
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostDetailResponseDto>> getPostDetail(@PathVariable Long postId){
-        PostDetailResponseDto post = postService.getPostDetail(postId);
+    public ResponseEntity<ApiResponse<PostDetailResponseDto>> getPostDetail(@PathVariable Long postId,
+                                                                            @RequestParam(defaultValue = "false") boolean original){
+        PostDetailResponseDto post = postService.getPostDetail(postId, original);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(post));
     }
 
