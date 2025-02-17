@@ -5,6 +5,7 @@ import com.king.backend.domain.curation.dto.request.CurationRequestDTO;
 import com.king.backend.domain.curation.dto.response.CurationDetailResponseDTO;
 import com.king.backend.domain.curation.dto.response.CurationListResponseDTO;
 import com.king.backend.domain.curation.service.CurationService;
+import com.king.backend.global.aop.LogExecutionTime;
 import com.king.backend.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CurationController {
     private final CurationService curationService;
 
+    @LogExecutionTime
     @Operation(summary = "큐레이션 ID 조회 (이름 기반)")
     @GetMapping("/id")
     public ResponseEntity<ApiResponse<Long>> getCurationIdByTitle(@RequestParam String title) {
@@ -31,6 +33,7 @@ public class CurationController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(curationListId));
     }
 
+    @LogExecutionTime
     @Operation(summary = "큐레이션 상세 조회")
     @GetMapping("/{curationListId}")
     public ResponseEntity<ApiResponse<CurationDetailResponseDTO>> getCurationDetail(@PathVariable(value = "curationListId") Long curationListId) {
