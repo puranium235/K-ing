@@ -275,7 +275,7 @@ const ResultWrapper = styled.div`
   gap: 1rem;
 
   width: 100%;
-  padding-bottom: 1rem;
+  padding-bottom: 8rem;
 
   /* overflow-y: auto; */
   &::-webkit-scrollbar {
