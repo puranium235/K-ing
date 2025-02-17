@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { tokenRefresh } from '../../lib/auth';
 import { handleAllowNotification } from '../../service/handleAllowNotification';
+import { setLanguage } from '../../util/languageUtils';
 
 const Token = () => {
   const [token, setToken] = useState('');
@@ -20,6 +21,11 @@ const Token = () => {
         try {
           const decoded = jwtDecode(newToken);
           setRole(decoded.role); // "ROLE_PENDING", "ROLE_REGISTERED" 등
+
+          // ✅ 새로운 `language` 값으로 localStorage 업데이트
+          if (decoded.language) {
+            setLanguage(decoded.language);
+          }
 
           // ✅ role에 따라 페이지 이동
           if (decoded.role === 'ROLE_PENDING') {
