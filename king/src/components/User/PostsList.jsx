@@ -6,6 +6,7 @@ import useGetPostList from '../../hooks/user/useGetPostList';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import Loading from '../Loading/Loading';
 import PostItem from './PostItem';
+import SkeletonPost from './SkeletonPost';
 
 const PostsList = ({ userId }) => {
   const lastElementRef = useRef(null);
@@ -23,15 +24,26 @@ const PostsList = ({ userId }) => {
   }
 
   return (
-    <GridContainer>
-      {postList.map((post, index) => (
-        <PostItem
-          key={index}
-          item={post}
-          ref={index === postList.length - 1 ? lastElementRef : null}
-        />
-      ))}
-    </GridContainer>
+    <>
+      <GridContainer>
+        {postList.map((post, index) => (
+          <PostItem
+            key={index}
+            item={post}
+            ref={index === postList.length - 1 ? lastElementRef : null}
+          />
+        ))}
+      </GridContainer>
+      {isLoading && (
+        <SkeletonContainer>
+          {Array(3) // 3개씩 로딩
+            .fill(0)
+            .map((_, index) => (
+              <SkeletonPost key={index} />
+            ))}
+        </SkeletonContainer>
+      )}
+    </>
   );
 };
 
@@ -51,4 +63,11 @@ const EmptyMessage = styled.p`
   padding: 2rem;
   color: ${({ theme }) => theme.colors.Gray2};
   box-sizing: border-box;
+`;
+const SkeletonContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 2rem;
 `;

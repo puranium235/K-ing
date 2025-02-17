@@ -10,8 +10,8 @@ const useGetCurationList = () => {
     }
 
     return pageIndex === 0
-      ? `/curation?bookmarked=true&size=6`
-      : `/curation?bookmarked=true&size=6&cursor=${previousPageData.data.nextCursor}`;
+      ? `/curation?bookmarked=true&size=8`
+      : `/curation?bookmarked=true&size=8&cursor=${previousPageData.data.nextCursor}`;
   };
 
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(
@@ -26,7 +26,7 @@ const useGetCurationList = () => {
 
   const curations = data ? [].concat(...data.map((res) => res.data.curations)) : [];
   const isEmpty = data?.[0]?.data?.curations?.length === 0;
-  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data?.curations?.length < 6);
+  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data?.curations?.length < 8);
   const hasMore = !isEmpty && !isReachingEnd;
 
   return {
