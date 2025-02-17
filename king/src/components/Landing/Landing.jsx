@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import GoogleIcon from '../../assets/icons/ic_google.png';
 import LineIcon from '../../assets/icons/ic_line_88.png';
 import KingLogo from '../../assets/icons/king_logo.png';
-import { handleAllowNotification } from '../../service/handleAllowNotification';
 import FootstepsAnimation from './FootstepsAnimation';
 
 const Landing = () => {
@@ -15,7 +14,6 @@ const Landing = () => {
   const location = useLocation();
 
   const googleLogin = () => {
-    handleAllowNotification();
     window.location.href = API_BASE_URL + '/oauth2/authorization/google';
   };
 

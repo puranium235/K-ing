@@ -9,7 +9,8 @@ const SignupCompletePage = () => {
     alert(
       '다음의 실행 환경을 권장합니다.\n권장 테스트 환경 : PWA\n아이폰 : 공유 - 홈 화면에 추가\n안드로이드 : 우상단 메뉴 - 홈 화면에 추가',
     );
-    // handleAllowNotification();
+
+    handleAllowNotification();
     window.location.href = '/home';
   };
 
