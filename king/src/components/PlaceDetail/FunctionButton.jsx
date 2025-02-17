@@ -37,17 +37,15 @@ const FunctionButton = ({ dest }) => {
         <img src={RouteIcon} alt="FindRoute" />
         {placeTranslations.findRoute}
       </DirectionButton>
-
       {/* 길찾기 모달 */}
       <DeepLinkModal dest={dest} isModalVisible={link.isShowing} onClick={link.toggle} />
-
-      <ShareButton onClick={openShareModal}>
+      {/* <ShareButton onClick={openShareModal}>
         <img src={ShareIcon} alt="Share" />
         {placeTranslations.share}
       </ShareButton>
 
       {/* 공유 모달 */}
-      <ShareModal isModalVisible={isShareModalVisible} onClick={closeShareModal} />
+      {/* <ShareModal isModalVisible={isShareModalVisible} onClick={closeShareModal} /> */}
     </ButtonContainer>
   );
 };
