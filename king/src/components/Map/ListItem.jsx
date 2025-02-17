@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -8,12 +8,12 @@ import GoodIcon from '../../assets/icons/good.png';
 import LocationIcon from '../../assets/icons/location.png';
 import { getShortAddress } from '../../util/addressFormat';
 
-const ListItem = ({ place, handleFocus }) => {
+const ListItem = forwardRef(({ place, handleFocus }, ref) => {
   const { placeId, name, type, address, openHour, closedDay, imageUrl } = place;
   const isAlwaysOpen = closedDay === '연중무휴'; // 연중무휴 여부 확인
 
   return (
-    <ItemContainer onClick={() => handleFocus(placeId)}>
+    <ItemContainer onClick={() => handleFocus(placeId)} ref={ref}>
       <TitleRow>
         <Title>{name}</Title>
         <Desc>{type}</Desc>
@@ -48,7 +48,7 @@ const ListItem = ({ place, handleFocus }) => {
       {imageUrl && <Image src={imageUrl} alt={name} />}
     </ItemContainer>
   );
-};
+});
 
 const ItemContainer = styled.div`
   padding: 2.2rem;

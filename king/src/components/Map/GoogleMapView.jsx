@@ -59,7 +59,14 @@ const markerImages = {
   },
 };
 
-const GoogleMapView = ({ places, isSearch, nowActiveMarker, onMarkerClick, $isExpanded }) => {
+const GoogleMapView = ({
+  places,
+  isSearch,
+  nowActiveMarker,
+  onMarkerClick,
+  onReSearch,
+  $isExpanded,
+}) => {
   const [center, setCenter] = useState({ lat: 37.5665, lng: 126.978 });
   const [mapInstance, setMapInstance] = useState(null);
   const [markers, setMarkers] = useState([]);
@@ -204,6 +211,9 @@ const GoogleMapView = ({ places, isSearch, nowActiveMarker, onMarkerClick, $isEx
 
     console.log('검색 중심 좌표:', { lat: center.lat(), lng: center.lng() });
     console.log('검색 반지름 (미터):', radius);
+    if (onReSearch) {
+      onReSearch(bounds);
+    }
     setShowSearchButton(false);
   }, [mapInstance]);
 
@@ -257,10 +267,10 @@ const GoogleMapView = ({ places, isSearch, nowActiveMarker, onMarkerClick, $isEx
   }, [mapInstance]);
 
   useEffect(() => {
-    if (mapInstance && places.length > 0) {
+    if (mapInstance) {
       // 기존 마커 제거
       markers.forEach((marker) => marker.setMap(null));
-
+      if (places.length < 1) return;
       // 새 마커 생성 및 추가
       const bounds = new google.maps.LatLngBounds();
 

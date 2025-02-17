@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { logout } from '../../lib/auth';
+import { deleteFcmToken } from '../../lib/fcm';
 import { getLanguage, getTranslations } from '../../util/languageUtils';
 
 const AccountActions = () => {
@@ -28,7 +29,12 @@ const AccountActions = () => {
     const success = await logout();
     if (success) {
       localStorage.removeItem('accessToken');
-      window.location.replace('/');
+      const token = localStorage.setItem('fcmToken');
+      const res = await deleteFcmToken(token);
+      if (res.success) {
+        localStorage.removeItem('fcmToken');
+        window.location.replace('/');
+      }
     } else {
       alert(accountTranslations.logoutError);
     }
