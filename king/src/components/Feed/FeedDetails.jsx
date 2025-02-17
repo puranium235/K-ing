@@ -432,7 +432,6 @@ const PostCaption = styled.div`
 
 const CommentWrapper = styled.div`
   position: relative;
-  height: 18rem;
 
   width: 100%;
 
@@ -447,16 +446,14 @@ const CommentWrapper = styled.div`
 `;
 
 const CommentContainer = styled.div`
-  height: 11rem;
-
   overflow-y: auto;
 `;
 
 const NewCommentContainer = styled.div`
-  position: absolute;
+  /* position: absolute;
   bottom: 0;
   left: 0;
-  right: 0;
+  right: 0; */
 
   display: flex;
   justify-content: space-between;
