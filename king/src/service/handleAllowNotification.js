@@ -1,24 +1,19 @@
-import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getToken, onMessage } from 'firebase/messaging';
 
 import { postFcmToken } from '../lib/fcm';
+import { initFirebase } from './initFirebase';
 
 export const handleAllowNotification = async () => {
-  const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const messaging = getMessaging(app);
+  console.log(handleAllowNotification);
+  const messaging = initFirebase();
 
   try {
+    console.log('권한 요청중...');
     const permission = await Notification.requestPermission();
+    if (permission === 'denied') {
+      console.log('알림 설정 거부');
+      return;
+    }
 
     if (permission === 'granted') {
       const token = await getToken(messaging, {
@@ -26,25 +21,26 @@ export const handleAllowNotification = async () => {
       });
 
       if (token) {
-        console.log('token: ', token);
+        console.log('FCM Token:', token);
         localStorage.setItem('fcmToken', token);
-        //서버로 토큰을 전송하는 로직
         postFcmToken(token);
       } else {
-        alert('토큰 등록 싪패');
+        alert('Failed to register FCM token');
       }
     } else if (permission === 'denied') {
-      alert('웹 푸시 권한 거부');
+      alert('Notification permission denied');
     }
   } catch (error) {
-    console.error(error);
+    console.error('Error in notification permission:', error);
   }
 
   onMessage(messaging, (payload) => {
-    const notificationTitle = payload.notification.title;
+    console.log('Message received:', payload);
+    const notificationTitle = payload.body.title;
     const notificationOptions = {
-      body: payload.notification.body,
+      body: payload.data.body,
     };
+
     if (Notification.permission === 'granted') {
       new Notification(notificationTitle, notificationOptions);
     }
