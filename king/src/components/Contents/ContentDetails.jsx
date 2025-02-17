@@ -16,12 +16,16 @@ import { getContentDetails } from '../../lib/content';
 import { addFavorite, removeFavorite } from '../../lib/favorites';
 import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import { convertLowerCase } from '../../util/changeStrFormat';
-import { getContentTypeKor } from '../../util/getContentType';
+import { getContentTypeLocalized } from '../../util/getContentType';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import Loading from '../Loading/Loading';
 
 const ContentDetails = () => {
+  const language = getLanguage();
+  const { content: translations } = getTranslations(language);
+
   const { contentId } = useParams();
   const [contentInfo, setContentInfo] = useState(null);
   const [typeKor, setTypeKor] = useState('');
@@ -52,7 +56,7 @@ const ContentDetails = () => {
   const getDetails = async () => {
     const res = await getContentDetails(contentId);
     setContentInfo(res);
-    setTypeKor(getContentTypeKor(convertLowerCase(res.type)));
+    setTypeKor(getContentTypeLocalized(convertLowerCase(res.type)));
     setIsFavorited(res.favorite);
   };
 
@@ -113,7 +117,7 @@ const ContentDetails = () => {
       <DramaPageContainer>
         <IconText>
           <BackButton onBack={handleGoBack} />
-          <p> 세부정보</p>
+          <p>{translations.details}</p>
         </IconText>
         <Header>
           <img
@@ -147,7 +151,7 @@ const ContentDetails = () => {
           <Synopsis>
             <IconText>
               <IcPencil />
-              <p>소개</p>
+              <p>{translations.introduction}</p>
             </IconText>
             {contentInfo.description}
           </Synopsis>
@@ -155,7 +159,7 @@ const ContentDetails = () => {
 
         <IconText>
           <IcMan />
-          <p>등장인물</p>
+          <p>{translations.characters}</p>
         </IconText>
         <CastGrid>
           {[...contentInfo.relatedCasts]
@@ -185,7 +189,7 @@ const ContentDetails = () => {
         </CastGrid>
         <ActionButton onClick={handleClickPlaceInfo}>
           <IcMarker />
-          <p>촬영지 알아보기</p>
+          <p>{translations.filmingLocation}</p>
         </ActionButton>
       </DramaPageContainer>
 

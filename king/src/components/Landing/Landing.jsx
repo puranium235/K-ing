@@ -15,8 +15,11 @@ const Landing = () => {
   const location = useLocation();
 
   const googleLogin = () => {
-    handleAllowNotification();
     window.location.href = API_BASE_URL + '/oauth2/authorization/google';
+  };
+
+  const lineLogin = () => {
+    window.location.href = API_BASE_URL + '/oauth2/authorization/line';
   };
 
   const handleMasterToken = () => {
@@ -53,10 +56,10 @@ const Landing = () => {
           <img src={GoogleIcon} alt="구글 아이콘" />
           Continue with Google
         </St.SocialButton>
-        {/* <St.SocialButton $line>
+        <St.SocialButton $line onClick={lineLogin}>
           <img src={LineIcon} alt="라인 아이콘" />
           Continue with LINE
-        </St.SocialButton> */}
+        </St.SocialButton>
       </St.ButtonWrapper>
     </StLandingWrapper>
   );
