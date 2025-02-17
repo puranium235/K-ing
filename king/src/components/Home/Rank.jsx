@@ -6,9 +6,13 @@ import styled from 'styled-components';
 
 import { getKeywordRanking } from '../../lib/search';
 import { SearchQueryState } from '../../recoil/atom';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 
 const Rank = () => {
   const navigate = useNavigate();
+
+  const language = getLanguage();
+  const { home: translations } = getTranslations(language);
 
   const [activeButton, setActiveButton] = useState('실시간');
   const [period, setPeriod] = useState('realtime');
@@ -19,9 +23,9 @@ const Rank = () => {
   const setQuery = useSetRecoilState(SearchQueryState);
 
   const periodOptions = [
-    { label: '실시간', value: 'realtime' },
-    { label: '일별', value: 'daily' },
-    { label: '주간별', value: 'weekly' },
+    { label: translations.realtime, value: 'realtime' },
+    { label: translations.daily, value: 'daily' },
+    { label: translations.weekly, value: 'weekly' },
   ];
 
   //날짜 포맷
@@ -48,7 +52,7 @@ const Rank = () => {
   const getFilterText = () => {
     switch (period) {
       case 'realtime':
-        return '🔥 지금 인기있는🔥';
+        return translations.trendingNow;
       case 'daily':
         return formattedToday;
       case 'weekly':
@@ -96,7 +100,7 @@ const Rank = () => {
     <>
       <TrendingKeyword>
         <h3>
-          트렌딩 검색어 <span>TOP 8</span>
+          {translations.trendingSearch} <span>TOP 8</span>
         </h3>
         <div className="filter">
           <p>{getFilterText()}</p>

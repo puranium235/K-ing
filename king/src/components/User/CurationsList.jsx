@@ -4,11 +4,15 @@ import styled from 'styled-components';
 
 import useGetCurationList from '../../hooks/user/useGetCurationList';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Loading from '../Loading/Loading';
 import CurationItem from './CurationItem';
 import SkeletonCuration from './SkeletonCuration';
 
 const CurationsList = ({ userId }) => {
+  const language = getLanguage();
+  const { user: translations } = getTranslations(language);
+
   const lastElementRef = useRef(null);
 
   const { curationList, getNextData, isLoading, hasMore } = useGetCurationList(userId);
@@ -20,7 +24,7 @@ const CurationsList = ({ userId }) => {
   if (isLoading && curationList === 0) return <Loading />;
 
   if (!curationList || curationList.length === 0) {
-    return <EmptyMessage>등록된 큐레이션이 없습니다.</EmptyMessage>;
+    return <EmptyMessage>{translations.noPosts}</EmptyMessage>;
   }
 
   return (

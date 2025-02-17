@@ -16,11 +16,15 @@ import {
 import { getCelebDetails } from '../../lib/content';
 import { addFavorite, removeFavorite } from '../../lib/favorites';
 import { ContentId, ContentType, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import Loading from '../Loading/Loading';
 
 const CelebDetails = () => {
+  const language = getLanguage();
+  const { content: translations } = getTranslations(language);
+
   const location = useLocation();
   const { celebId } = useParams();
   const [celebInfo, setCelebInfo] = useState(null);
@@ -118,7 +122,7 @@ const CelebDetails = () => {
       <CelebPageContainer>
         <IconText>
           <BackButton onBack={handleGoBack} />
-          <p> 세부정보</p>
+          <p>{translations.details}</p>
         </IconText>
 
         <Header>
@@ -143,7 +147,9 @@ const CelebDetails = () => {
             )}
             <IconText>
               <IcTv />
-              <p>{celebInfo.participatingWorks} 작품</p>
+              <p>
+                {celebInfo.participatingWorks} {translations.work}
+              </p>
             </IconText>
           </TitleSection>
           <BookmarkWrapper>
@@ -157,7 +163,7 @@ const CelebDetails = () => {
         <Synopsis>
           <IconText>
             <IcSmallStar />
-            <p>대표 작품</p>
+            <p>{translations.representativeWorks}</p>
           </IconText>
           <WorkGrid>
             {[...celebInfo.relatedContents]
@@ -185,7 +191,7 @@ const CelebDetails = () => {
         <ListWrapper>
           <IconText>
             <IcPencil />
-            <p>작품 활동</p>
+            <p>{translations.workActivity}</p>
           </IconText>
           <WorkWrapper>
             {displayedWorks.map((work) => (
@@ -197,7 +203,7 @@ const CelebDetails = () => {
 
             {celebInfo.works?.length > 3 && (
               <ShowMoreButton onClick={() => setIsExpanded(!isExpanded)}>
-                {isExpanded ? '접기' : '더보기'}
+                {isExpanded ? translations.collapse : translations.showMore}
               </ShowMoreButton>
             )}
           </WorkWrapper>
@@ -205,8 +211,8 @@ const CelebDetails = () => {
         <ActionButton onClick={handleClickPlaceInfo}>
           <IcMarker />
           <PlaceText>
-            '{celebInfo.name.length > 5 ? ` ${celebInfo.name.slice(0, 5)}... ` : celebInfo.name}' 의
-            촬영지 알아보기
+            '{celebInfo.name.length > 5 ? ` ${celebInfo.name.slice(0, 5)}... ` : celebInfo.name}'{' '}
+            {translations.filmingLocationOf}
           </PlaceText>
         </ActionButton>
       </CelebPageContainer>
