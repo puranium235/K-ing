@@ -5,6 +5,15 @@ import { IcPosts, IcPostsWhite } from '../../assets/icons';
 import { IcArchiveBox, IcArchiveBoxWhite } from '../../assets/icons';
 
 const ProfileTabMenu = ({ activeTab, onTabChange }) => {
+  const handleScrollUp = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleTabClick = (tabId) => {
+    onTabChange(tabId);
+    handleScrollUp();
+  };
+
   return (
     <St.TabMenu>
       {[
@@ -23,7 +32,7 @@ const ProfileTabMenu = ({ activeTab, onTabChange }) => {
       ].map((tab) => {
         const isActive = activeTab === tab.id;
         return (
-          <St.TabButton key={tab.id} $isActive={isActive} onClick={() => onTabChange(tab.id)}>
+          <St.TabButton key={tab.id} $isActive={isActive} onClick={() => handleTabClick(tab.id)}>
             <St.IconWrapper>{isActive ? tab.activeIcon : tab.inactiveIcon}</St.IconWrapper>
             <St.Label $isActive={isActive}>{tab.label}</St.Label>
           </St.TabButton>
