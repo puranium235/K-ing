@@ -106,7 +106,7 @@ export const updatePost = async (postId, postInfo, image) => {
 // 댓글 생성
 export const createComment = async (postId, content) => {
   try {
-    const { data } = await client.post(`/post/${postId}/comment`, content);
+    const { data } = await client.post(`/post/${postId}/comment`, { content });
     return data;
   } catch (err) {
     console.error(err);
