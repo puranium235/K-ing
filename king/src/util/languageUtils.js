@@ -2,6 +2,7 @@ import accountLocales from '../locales/account.json';
 import archivelLocales from '../locales/archive.json';
 import commonLocales from '../locales/common.json';
 import contentLocales from '../locales/content.json';
+import curationLocales from '../locales/curation.json';
 import deleteAccountLocales from '../locales/deleteAccount.json';
 import homeLocales from '../locales/home.json';
 import mapLocales from '../locales/map.json';
@@ -44,4 +45,5 @@ export const getTranslations = (lang = getLanguage()) => ({
   map: mapLocales[lang] || mapLocales['ko'],
   place: placeLocales[lang] || placeLocales['ko'],
   review: reviewLocales[lang] || reviewLocales['ko'],
+  curation: curationLocales[lang] || curationLocales['ko'],
 });

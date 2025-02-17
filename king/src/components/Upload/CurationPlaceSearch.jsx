@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { useRef } from 'react';
-import { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
@@ -8,6 +6,7 @@ import styled from 'styled-components';
 import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
 import { CurationDraftExist, CurationPlaceUploadList, UseDraft } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import SearchBar from '../common/SearchBar';
 
 const CurationPlaceSearch = () => {
@@ -24,6 +23,16 @@ const CurationPlaceSearch = () => {
   });
   const setCurationDraftExist = useSetRecoilState(CurationDraftExist);
   const setUseDraft = useSetRecoilState(UseDraft);
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { curation: curationTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   useEffect(() => {
     if (CurationPlaceList.length > 0) {
@@ -85,9 +94,9 @@ const CurationPlaceSearch = () => {
       <StWrapper>
         <TopContainer>
           <IconText>
-            <p onClick={handleComplete}>완료</p>
+            <p onClick={handleComplete}>{curationTranslations.complete}</p>
           </IconText>
-          <h3>선택한 장소</h3>
+          <h3>{curationTranslations.selectedPlace}</h3>
           <SelectedPlaces>
             {selectedPlaces.map((place) => (
               <PlaceItem key={place.id}>
@@ -109,7 +118,7 @@ const CurationPlaceSearch = () => {
         <SearchPlaceWrapper>
           {placeList.map((place, index) => (
             <ShowItem key={place.id} ref={index === placeList.length - 1 ? lastElementRef : null}>
-              <img src={place.imageUrl} alt="장소" />
+              <img src={place.imageUrl} alt="place" />
               <p>{place.name}</p>
               <input
                 type="checkbox"
