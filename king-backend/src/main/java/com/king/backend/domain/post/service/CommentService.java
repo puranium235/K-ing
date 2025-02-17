@@ -18,7 +18,7 @@ import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
-import com.king.backend.global.util.TranslateUtil;
+import com.king.backend.global.translate.TranslateService;
 import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +41,7 @@ public class CommentService {
     private final RedisTemplate<String, String> redisStringTemplate;
     private static final String POST_LIKES_KEY = "post:likes";
     private final CursorUtil cursorUtil;
-    private final TranslateUtil translateUtil;
+    private final TranslateService translateService;
     private static final long MULTIPLIER = 1_000_000_000L;
     private final FcmTokenRepository fcmTokenRepository;
     private final FcmTokenService fcmTokenService;
@@ -134,7 +132,8 @@ public class CommentService {
 
         boolean original = reqDto.isOriginal();
 
-        List<String> originalTexts = new ArrayList<>();
+        Map<String, String> originalTexts = new HashMap<>();
+        List<String> keys = new ArrayList<>();
         List<CommentAllResponseDto.Comment.CommentBuilder> commentsBuilders = comments.stream()
                 .map(comment -> {
                     CommentAllResponseDto.Comment.CommentBuilder builder = CommentAllResponseDto.Comment.builder()
@@ -151,7 +150,10 @@ public class CommentService {
                         return builder;
                     }
 
-                    originalTexts.add(comment.getContent());
+                    String key = "comment:" + comment.getId() + ":" + language;
+                    originalTexts.put(key, comment.getContent());
+                    keys.add(key);
+
                     return builder;
                 })
                 .toList();
@@ -169,11 +171,11 @@ public class CommentService {
                     .build();
         }
 
-        List<String> translatedTexts = translateUtil.translateText(originalTexts, language);
+        Map<String, String> translatedTexts = translateService.getTranslatedText(originalTexts, language);
         List<CommentAllResponseDto.Comment> commentsDto = new ArrayList<>();
         for (int i = 0; i < commentsBuilders.size(); i++) {
             commentsDto.add(commentsBuilders.get(i)
-                    .content(translatedTexts.get(i))
+                    .content(translatedTexts.get(keys.get(i)))
                     .build());
         }
 

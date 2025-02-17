@@ -10,6 +10,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -18,9 +20,9 @@ public class RedisUtil {
     private final RedisTemplate<String, byte[]> redisBinaryTemplate;
     private final ObjectMapper objectMapper;
 
-    public void setValue(String key, String data) {
+    public void setValue(String key, String data, long time, TimeUnit timeUnit) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
-        values.set(key, data);
+        values.set(key, data, time, timeUnit);
     }
 
     public String getValue(String key) {
