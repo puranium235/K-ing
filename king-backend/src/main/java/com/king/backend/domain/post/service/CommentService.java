@@ -75,7 +75,7 @@ public class CommentService {
 
             for (FcmToken tokenEntity : tokens) {
                 try {
-                    fcmTokenService.sendMessageByToken(tokenEntity.getToken(), title, body);
+                    fcmTokenService.sendMessageByToken(tokenEntity.getToken(), title, body, postId);
                 } catch (FirebaseMessagingException e) {
                     log.error("푸시 알림 전송 실패 (토큰: {}): {}", tokenEntity.getToken(), e.getMessage());
                 }
