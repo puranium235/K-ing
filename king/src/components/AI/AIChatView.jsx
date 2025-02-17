@@ -11,6 +11,8 @@ import {
   sendMessageViaWebSocket,
 } from '../../lib/websocket';
 import { splitIntoMessages } from '../../util/chatbot';
+import { getUserIdFromToken } from '../../util/getUserIdFromToken';
+import { getUserInfoById } from '../../util/getUserInfoById';
 import BackButton from '../common/button/BackButton';
 import CurationRecommendButton from './CurationRecommendButton';
 import PlaceRecommendButton from './PlaceRecommendButton';
@@ -18,6 +20,8 @@ import TypingIndicator from './TypingIndicator';
 import useStreamingMessages from './useStreamingMessages';
 
 const AIChatView = () => {
+  const userId = getUserIdFromToken();
+
   const [newMessage, setNewMessage] = useState('');
   const [selectedBot, setSelectedBot] = useState('');
   const { messages, isTyping, updateMessages, setMessages, setIsTyping } =
@@ -29,6 +33,16 @@ const AIChatView = () => {
   const [isComposing, setIsComposing] = useState(false); //맥북 한글입력 중복 방지,,
   const messagesEndRef = useRef(null);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const [userInfo, setUserInfo] = useState('');
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const userInfo = await getUserInfoById(userId);
+      setUserInfo(userInfo.nickname);
+    };
+
+    getUserInfo();
+  }, [userId]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -204,7 +218,8 @@ const AIChatView = () => {
       <MessagesContainer style={{ height: `${windowHeight - remValue}px` }}>
         <IntroMessageContainer>
           <img src={KingIcon} />
-          안녕하세요, 김싸피님
+          안녕하세요,'
+          {userInfo.length > 10 ? ` ${userInfo.slice(0, 10)}... ` : userInfo}'님
           <br />
           궁금한 것을 물어보세요!
         </IntroMessageContainer>
