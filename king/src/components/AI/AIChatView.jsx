@@ -19,10 +19,11 @@ import useStreamingMessages from './useStreamingMessages';
 
 const AIChatView = () => {
   const [newMessage, setNewMessage] = useState('');
-  const { messages, isTyping, updateMessages, setMessages, setIsTyping } = useStreamingMessages();
+  const [selectedBot, setSelectedBot] = useState('');
+  const { messages, isTyping, updateMessages, setMessages, setIsTyping } =
+    useStreamingMessages(selectedBot);
   const [currentApi, setCurrentApi] = useState('');
   const [isBotSelected, setIsBotSelected] = useState(false);
-  const [selectedBot, setSelectedBot] = useState('');
   const [hasSentInitialMessage, setHasSentInitialMessage] = useState(false);
 
   const [isComposing, setIsComposing] = useState(false); //맥북 한글입력 중복 방지,,
@@ -107,6 +108,7 @@ const AIChatView = () => {
         data.forEach((msg) => {
           if (msg.type === 'option') {
             detectedBotType = msg.content;
+            setSelectedBot(detectedBotType);
           }
 
           if (msg.role === 'assistant') {
