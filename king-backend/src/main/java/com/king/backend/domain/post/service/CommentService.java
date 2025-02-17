@@ -62,13 +62,12 @@ public class CommentService {
                 .post(post)
                 .writer(writer)
                 .build();
-
         Comment savedComment = commentRepository.save(comment);
 
         User postOwner = post.getWriter();
         User commentWriter = savedComment.getWriter();
-        // 게시글 작성자와 댓글 작성자가 다를 경우에만 알림 전송
-        if (!postOwner.getId().equals(commentWriter.getId())) {
+        log.info("{}의 글에 {}가 comment내용 {} 작성", postOwner.getNickname(), commentWriter.getNickname(), comment.getContent());
+        if (!postOwner.getId().equals(commentWriter.getId()) && postOwner.getContentAlarmOn()) {
             List<FcmToken> tokens = fcmTokenRepository.findByUser(postOwner);
             String title = "댓글 알림";
             String body = "당신의 게시글에 새 댓글이 달렸습니다.";
@@ -126,8 +125,9 @@ public class CommentService {
             comments = commentRepository.findAllByPostOrderByIdAsc(post, PageRequest.of(0, size));
         } else {
             Long id = Long.parseLong(sortValues.get(0).toString());
-            comments = commentRepository.findAllByPostAndIdLessThanOrderByIdAsc(post, id, PageRequest.of(0, size));
+            comments = commentRepository.findAllByPostAndIdGreaterThanOrderByIdAsc(post, id, PageRequest.of(0, size));
         }
+
         String nextCursor = (comments.size() == size)
                 ? cursorUtil.encodeCursor(List.of(comments.get(comments.size() - 1).getId()))
                 : null;
