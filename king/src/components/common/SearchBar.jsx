@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { IcSearch } from '../../assets/icons';
 import { getAutoKeyword } from '../../lib/search';
 import { ContentType } from '../../recoil/atom';
-import { getContentTypeKor } from '../../util/getContentType';
+import { getContentTypeLocalized } from '../../util/getContentType';
 
 const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
   const [keyword, setKeyword] = useState(query);
@@ -85,7 +85,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
           <AutoSearchWrap>
             {autoCompleteOptions.map((option, index) => (
               <AutoSearchData key={index} onClick={(event) => handleOptionClick(option, event)}>
-                {option.name} <a>{getContentTypeKor(option.category.toLowerCase())}</a>
+                {option.name} <a>{getContentTypeLocalized(option.category.toLowerCase())}</a>
               </AutoSearchData>
             ))}
           </AutoSearchWrap>
