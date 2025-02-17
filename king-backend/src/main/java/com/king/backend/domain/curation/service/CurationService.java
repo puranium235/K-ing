@@ -20,6 +20,7 @@ import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.translate.TranslateService;
+import com.king.backend.global.util.RedisUtil;
 import com.king.backend.global.util.ValidationUtil;
 import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
@@ -46,6 +47,7 @@ public class CurationService {
     private final S3Service s3Service;
     private final PlaceRepository placeRepository;
     private final TranslateService translateService;
+    private final RedisUtil redisUtil;
 
     @Transactional(readOnly = true)
     public Long getCurationIdByTitle(String title) {
@@ -236,6 +238,7 @@ public class CurationService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(authUser.getName());
+        String language = authUser.getLanguage();
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
@@ -279,6 +282,10 @@ public class CurationService {
 
             curationListItemRepository.save(curationListItem);
         }
+
+        String baseKey = "curation:" + curation.getId() + ":" + language;
+        redisUtil.deleteValue(baseKey + ":title");
+        redisUtil.deleteValue(baseKey + ":description");
 
         boolean bookmarked = curationListBookmarkRepository.existsByCurationListIdAndUserId(curation.getId(), userId);
 

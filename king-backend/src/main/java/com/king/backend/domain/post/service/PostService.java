@@ -23,6 +23,7 @@ import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.errorcode.ImageErrorCode;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.translate.TranslateService;
+import com.king.backend.global.util.RedisUtil;
 import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
@@ -54,6 +55,7 @@ public class PostService {
     private final CursorUtil cursorUtil;
     private final TranslateService translateService;
     private final RedisTemplate<String, String> redisStringTemplate;
+    private final RedisUtil redisUtil;
     private static final String POST_LIKES_KEY = "post:likes";
     private static final long MULTIPLIER = 1_000_000_000L;
 
@@ -343,6 +345,7 @@ public class PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(user.getName());
+        String language = user.getLanguage();
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
@@ -381,6 +384,9 @@ public class PostService {
                     .build();
             postImageRepository.save(newPostImage);
         }
+
+        String key = "post:" + post.getId() + ":" + language;
+        redisUtil.deleteValue(key);
 
         return post.getId();
     }
