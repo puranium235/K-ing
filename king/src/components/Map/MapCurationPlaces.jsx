@@ -113,13 +113,13 @@ const MapCurationPlaces = () => {
               <ContentButtonWrapper>
                 {placeData.relatedContents?.length > 2 && (
                   <ShowMoreButton onClick={() => setisContentExpanded(!isContentExpanded)}>
-                    {isContentExpanded ? '접기' : '더보기'}
+                    {isContentExpanded ? mapTranslations.collapse : mapTranslations.showMore}
                   </ShowMoreButton>
                 )}
               </ContentButtonWrapper>
             </>
           ) : (
-            <ErrorMessage>장소 정보를 불러올 수 없습니다.</ErrorMessage>
+            <ErrorMessage>{mapTranslations.noplace}</ErrorMessage>
           )}
         </Content>
         <Bottom />

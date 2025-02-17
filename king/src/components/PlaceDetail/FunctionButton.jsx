@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import RouteIcon from '/src/assets/icons/route.png';
 import ShareIcon from '/src/assets/icons/send-outline.png';
 
 import useModal from '../../hooks/common/useModal';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import ShareModal from '../common/modal/ShareModal';
 import DeepLinkModal from './Modal/DeepLinkModal';
 
 const FunctionButton = ({ dest }) => {
   const link = useModal();
   const [isShareModalVisible, setIsShareModalVisible] = useState(false);
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { place: placeTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   const openShareModal = () => {
     setIsShareModalVisible(true);
@@ -24,7 +35,7 @@ const FunctionButton = ({ dest }) => {
     <ButtonContainer>
       <DirectionButton onClick={link.toggle}>
         <img src={RouteIcon} alt="FindRoute" />
-        길찾기
+        {placeTranslations.findRoute}
       </DirectionButton>
 
       {/* 길찾기 모달 */}
@@ -32,7 +43,7 @@ const FunctionButton = ({ dest }) => {
 
       <ShareButton onClick={openShareModal}>
         <img src={ShareIcon} alt="Share" />
-        공유
+        {placeTranslations.share}
       </ShareButton>
 
       {/* 공유 모달 */}
