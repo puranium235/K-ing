@@ -46,9 +46,10 @@ public class TranslateService {
         }
 
         List<String> translatedValues = translateUtil.translateText(textToTranslate.values().stream().toList(), targetLanguage);
+        List<String> keySet = textToTranslate.keySet().stream().toList();
 
         for (int i = 0; i < translatedValues.size(); i++) {
-            String key = redisKeys.get(i);
+            String key = keySet.get(i);
             String value = translatedValues.get(i);
             translatedText.put(key, value);
             redisUtil.setValues(translatedText, 7, TimeUnit.DAYS);
