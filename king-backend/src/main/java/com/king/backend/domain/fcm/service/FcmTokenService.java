@@ -45,13 +45,15 @@ public class FcmTokenService {
                 });
     }
 
-    public String sendMessageByToken(String token, String title, String body) throws FirebaseMessagingException {
+    public String sendMessageByToken(String token, String title, String body, Long postId) throws FirebaseMessagingException {
+        String link = "https://i12a507.p.ssafy.io/feed/" + postId;
         Message message = Message.builder()
                 .setToken(token)
                 .setNotification(Notification.builder()
                         .setTitle(title)
                         .setBody(body)
                         .build())
+                .putData("link", link)
                 .build();
         return FirebaseMessaging.getInstance().send(message);
     }
