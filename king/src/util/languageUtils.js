@@ -5,10 +5,12 @@ import contentLocales from '../locales/content.json';
 import deleteAccountLocales from '../locales/deleteAccount.json';
 import homeLocales from '../locales/home.json';
 import notificationLocales from '../locales/notification.json';
+import postLocales from '../locales/post.json';
 import profileLocales from '../locales/profile.json';
 import searchLocales from '../locales/search.json';
 import settingLocales from '../locales/setting.json';
 import signupLocales from '../locales/signup.json';
+import uploadModalLocales from '../locales/uploadmodal.json';
 import userLocales from '../locales/user.json';
 
 const LANGUAGE_KEY = 'language';
@@ -38,4 +40,6 @@ export const getTranslations = (lang = getLanguage()) => ({
   user: userLocales[lang] || userLocales['ko'],
   content: contentLocales[lang] || contentLocales['ko'],
   search: searchLocales[lang] || searchLocales['ko'],
+  post: postLocales[lang] || postLocales['ko'],
+  uploadModal: uploadModalLocales[lang] || uploadModalLocales['ko'],
 });
