@@ -27,11 +27,11 @@ messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload.notification);
 
   // Customize notification here
-  const notificationTitle = payload.data.title;
+  const notificationTitle = payload.notification.title;
   const notificationOptions = {
-    body: payload.data.body,
-    icon: '/logo.png',
-    data: payload.data.link,
+    body: payload.notification.body,
+    // icon: '/logo.png',
+    data: { link: payload.fcmOptions.link },
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -65,37 +65,31 @@ messaging.onBackgroundMessage((payload) => {
 // });
 
 self.addEventListener('notificationclick', function (event) {
+  console.log('[firebase-messaging-sw.js] 알림이 클릭되었습니다.');
+
   // event.preventDefault();
 
-  // event.notification.close();
-
   // 아래의 event.notification.data는 위의 푸시 이벤트를 한 번 거쳐서 전달 받은 options.data에 해당한다.
-  const urlToOpen = event.notification.data || 'https://i12a507.p.ssafy.io/';
+  const link =
+    event.notification.data.FCM_MSG.notification.click_action || 'https://i12a507.p.ssafy.io/';
   event.notification.close();
 
   // 클라이언트에 해당 사이트가 열려있는지 체크
-  const promiseChain = clients
-    .matchAll({
-      type: 'window',
-      includeUncontrolled: true,
-    })
-    .then(function (windowClients) {
-      let matchingClient = null;
-
-      for (let i = 0; i < windowClients.length; i++) {
-        const windowClient = windowClients[i];
-        if (windowClient.url.includes(urlToOpen)) {
-          matchingClient = windowClient;
-          break;
+  if (link) {
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+        // 이미 열린 창이 있는지 확인
+        for (let i = 0; i < windowClients.length; i++) {
+          const client = windowClients[i];
+          if (client.url === link && 'focus' in client) {
+            return client.focus();
+          }
         }
-      }
-
-      // 열려있다면 focus, 아니면 새로 open
-      if (matchingClient) {
-        return matchingClient.focus();
-      }
-      return clients.openWindow(urlToOpen);
-    });
-
-  event.waitUntil(promiseChain);
+        // 새 창을 열거나 이미 있는 창으로 이동
+        if (clients.openWindow) {
+          return clients.openWindow(link);
+        }
+      }),
+    );
+  }
 });

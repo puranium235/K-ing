@@ -35,13 +35,27 @@ export const handleAllowNotification = async () => {
 
   onMessage(messaging, (payload) => {
     console.log('Message received:', payload);
-    const notificationTitle = payload.data.title;
+
+    const notificationTitle = payload.notification?.title || '알림';
     const notificationOptions = {
-      body: payload.data.body,
+      body: payload.notification?.body || '',
+      // icon: payload.notification?.icon,
+      data: { link: payload.fcmOptions?.link || '/' },
     };
 
     if (Notification.permission === 'granted') {
-      new Notification(notificationTitle, notificationOptions);
+      try {
+        const notification = new Notification(notificationTitle, notificationOptions);
+
+        notification.onclick = function (event) {
+          event.preventDefault();
+          window.open(notificationOptions.data.link, '_blank');
+        };
+      } catch (error) {
+        console.error('알림 생성 중 오류 발생:', error);
+      }
+    } else {
+      console.warn('알림 권한이 허용되지 않았습니다.');
     }
   });
 };
