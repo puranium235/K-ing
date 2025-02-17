@@ -132,11 +132,12 @@ public class CommentService {
                 ? cursorUtil.encodeCursor(List.of(comments.get(comments.size() - 1).getId()))
                 : null;
 
+        boolean original = reqDto.isOriginal();
+
         List<String> originalTexts = new ArrayList<>();
         List<CommentAllResponseDto.Comment.CommentBuilder> commentsBuilders = comments.stream()
                 .map(comment -> {
-                    originalTexts.add(comment.getContent());
-                    return CommentAllResponseDto.Comment.builder()
+                    CommentAllResponseDto.Comment.CommentBuilder builder = CommentAllResponseDto.Comment.builder()
                             .commentId(comment.getId())
                             .createdAt(comment.getCreatedAt())
                             .writer(CommentAllResponseDto.Writer.builder()
@@ -144,8 +145,29 @@ public class CommentService {
                                     .nickname(comment.getWriter().getNickname())
                                     .imageUrl(comment.getWriter().getImageUrl())
                                     .build());
+
+                    if (original) {
+                        builder.content(comment.getContent());
+                        return builder;
+                    }
+
+                    originalTexts.add(comment.getContent());
+                    return builder;
                 })
                 .toList();
+
+        CommentAllResponseDto.CommentAllResponseDtoBuilder builder = CommentAllResponseDto.builder()
+                .isLiked(isLiked)
+                .likesCount(likesCount)
+                .commentsCount(commentsCount)
+                .nextCursor(nextCursor);
+
+        if (original) {
+            return builder.comments(commentsBuilders.stream()
+                    .map(CommentAllResponseDto.Comment.CommentBuilder::build)
+                    .toList())
+                    .build();
+        }
 
         List<String> translatedTexts = translateUtil.translateText(originalTexts, language);
         List<CommentAllResponseDto.Comment> commentsDto = new ArrayList<>();
@@ -155,12 +177,8 @@ public class CommentService {
                     .build());
         }
 
-        return CommentAllResponseDto.builder()
-                .isLiked(isLiked)
-                .likesCount(likesCount)
-                .commentsCount(commentsCount)
+        return builder
                 .comments(commentsDto)
-                .nextCursor(nextCursor)
                 .build();
     }
 }
