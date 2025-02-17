@@ -3,6 +3,7 @@ import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { ActiveArchiveTabState } from '../../recoil/atom';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Nav from '../common/Nav';
 import ArchiveTabMenu from './ArchiveTabMenu';
 import CurationsList from './CurationsList';
@@ -10,6 +11,8 @@ import FavoritesList from './FavoritesList';
 
 const Archive = () => {
   const [activeTab, setActiveTab] = useRecoilState(ActiveArchiveTabState);
+  const language = getLanguage();
+  const { archive: translations } = getTranslations(language);
 
   return (
     <StArchiveWrapper>
@@ -18,8 +21,8 @@ const Archive = () => {
       {activeTab === 'Curations' && <CurationsList />}
       {activeTab === 'Favorites' && (
         <>
-          <FavoritesList title="작품" onTabChange={setActiveTab} />
-          <FavoritesList title="인물" onTabChange={setActiveTab} />
+          <FavoritesList title={translations.works} onTabChange={setActiveTab} />
+          <FavoritesList title={translations.people} onTabChange={setActiveTab} />
         </>
       )}
       <Nav />

@@ -1,4 +1,5 @@
 import accountLocales from '../locales/account.json';
+import archivelLocales from '../locales/archive.json';
 import commonLocales from '../locales/common.json';
 import deleteAccountLocales from '../locales/deleteAccount.json';
 import notificationLocales from '../locales/notification.json';
@@ -28,4 +29,5 @@ export const getTranslations = (lang = getLanguage()) => ({
   setting: settingLocales[lang] || settingLocales['ko'],
   account: accountLocales[lang] || accountLocales['ko'],
   deleteAccount: deleteAccountLocales[lang] || deleteAccountLocales['ko'],
+  archive: archivelLocales[lang] || archivelLocales['ko'],
 });
