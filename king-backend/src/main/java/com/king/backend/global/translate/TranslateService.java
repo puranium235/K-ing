@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,10 @@ public class TranslateService {
         List<String> translatedValues = translateUtil.translateText(values, targetLanguage);
 
         for (int i = 0; i < translatedValues.size(); i++) {
-            translatedText.put(keys.get(i), translatedValues.get(i));
+            String key = keys.get(i);
+            String value = translatedValues.get(i);
+            translatedText.put(key, value);
+            redisUtil.setValue(key, value, 7, TimeUnit.DAYS);
         }
 
         return translatedText;
