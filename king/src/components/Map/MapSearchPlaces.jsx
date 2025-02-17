@@ -14,6 +14,7 @@ import {
   SearchRelatedType,
 } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import CloseButton from '../common/button/CloseButton';
 import Loading from '../Loading/Loading';
 import ContentsInfo from '../PlaceDetail/ContentsInfo';
@@ -46,6 +47,15 @@ const MapSearchPlaces = () => {
   });
 
   const filters = ['RESTAURANT', 'CAFE', 'PLAYGROUND', 'STORE', 'STAY'];
+  const [language, setLanguage] = useState(getLanguage());
+  const { map: mapTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -200,7 +210,7 @@ const MapSearchPlaces = () => {
             {/* 장소 관련 작품 정보 */}
             <IconText>
               <IcPencil />
-              <p>관련 작품</p>
+              <p>{mapTranslations.content}</p>
             </IconText>
             {displayRelatedContents.map((info) => (
               <ContentsInfo key={info.contentId} info={info} />
@@ -208,7 +218,7 @@ const MapSearchPlaces = () => {
             <ContentButtonWrapper>
               {placeData.relatedContents?.length > 2 && (
                 <ShowMoreButton onClick={() => setisContentExpanded(!isContentExpanded)}>
-                  {isContentExpanded ? '접기' : '더보기'}
+                  {isContentExpanded ? mapTranslations.collapse : mapTranslations.showMore}
                 </ShowMoreButton>
               )}
             </ContentButtonWrapper>

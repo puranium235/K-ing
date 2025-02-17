@@ -20,6 +20,7 @@ import StationMarker from '/src/assets/marker/station-marker.png';
 import StayMarker from '/src/assets/marker/stay-marker.png';
 import StoreMarker from '/src/assets/marker/store-marker.png';
 
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Loading from '../Loading/Loading';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -79,10 +80,20 @@ const GoogleMapView = ({
   const [isMarkersLoading, setIsMarkersLoading] = useState(true);
   const [currentLocationMarker, setCurrentLocationMarker] = useState(null);
 
+  const [language, setLanguage] = useState(getLanguage());
+  const { map: mapTranslations } = getTranslations(language);
+
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
   });
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   // 🛠️ 위치 유효성 검사 함수
   const isValidLatLng = (lat, lng) => {
@@ -230,7 +241,6 @@ const GoogleMapView = ({
 
   // 지도 이동 후 검색 버튼 표시
   const handleIdle = useCallback(() => {
-    const currentZoom = mapInstance.getZoom();
     if (!isMapInitialized) {
       setIsMapInitialized(true);
       return;
@@ -432,7 +442,8 @@ const GoogleMapView = ({
           {/* 이 지역에서 다시 검색 */}
           {showSearchButton && (
             <SearchButton onClick={handleSearch} $isMarkerFocus={activePlaceId}>
-              <img src={RefreshIcon} alt="here" />이 지역에서 검색
+              <img src={RefreshIcon} alt="here" />
+              {mapTranslations.search}
             </SearchButton>
           )}
         </>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import CafeIcon from '../../assets/icons/cafe.png';
@@ -11,14 +11,7 @@ import ShopIcon from '../../assets/icons/shop.png';
 import ShopDarkIcon from '../../assets/icons/shop_dark.png';
 import StayIcon from '../../assets/icons/stay.png';
 import StayDarkIcon from '../../assets/icons/stay_dark.png';
-
-const filterMap = {
-  RESTAURANT: '식당',
-  CAFE: '카페',
-  PLAYGROUND: '관광',
-  STORE: '상점',
-  STAY: '숙박',
-};
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 
 const filterIcons = {
   RESTAURANT: {
@@ -35,6 +28,25 @@ const filterIcons = {
 };
 
 const FilterButtons = ({ filters, activeFilter, onFilterChange }) => {
+  const [language, setLanguage] = useState(getLanguage());
+  const { map: mapTranslations } = getTranslations(language);
+
+  // filterMap을 동적으로 가져오기
+  const filterMap = {
+    RESTAURANT: mapTranslations.restaurant,
+    CAFE: mapTranslations.cafe,
+    PLAYGROUND: mapTranslations.playground,
+    STORE: mapTranslations.store,
+    STAY: mapTranslations.stay,
+  };
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
   return (
     <ButtonGroup>
       {filters.map((filter) => {
@@ -73,7 +85,7 @@ const FilterButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 70px;
+  width: auto;
   height: 32px;
   white-space: nowrap;
   padding: 8px;

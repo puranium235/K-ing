@@ -4,6 +4,7 @@ import commonLocales from '../locales/common.json';
 import contentLocales from '../locales/content.json';
 import deleteAccountLocales from '../locales/deleteAccount.json';
 import homeLocales from '../locales/home.json';
+import mapLocales from '../locales/map.json';
 import notificationLocales from '../locales/notification.json';
 import profileLocales from '../locales/profile.json';
 import searchLocales from '../locales/search.json';
@@ -38,4 +39,5 @@ export const getTranslations = (lang = getLanguage()) => ({
   user: userLocales[lang] || userLocales['ko'],
   content: contentLocales[lang] || contentLocales['ko'],
   search: searchLocales[lang] || searchLocales['ko'],
+  map: mapLocales[lang] || mapLocales['ko'],
 });

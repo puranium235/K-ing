@@ -6,6 +6,7 @@ import { IcPencil } from '../../assets/icons';
 import UpIcon from '../../assets/icons/up.png';
 import { getPlaceDetail } from '../../lib/place';
 import { CurationPlaceList } from '../../recoil/atom';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Bottom from '../common/Bottom';
 import CloseButton from '../common/button/CloseButton';
 import Loading from '../Loading/Loading';
@@ -17,6 +18,16 @@ import GoogleMapView from './GoogleMapView';
 const MapCurationPlaces = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const places = useRecoilValue(CurationPlaceList);
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { map: mapTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   const toggleBox = () => {
     setIsExpanded(!isExpanded);
@@ -94,7 +105,7 @@ const MapCurationPlaces = () => {
               {/* 장소 관련 작품 정보 */}
               <IconText>
                 <IcPencil />
-                <p>관련 작품</p>
+                <p>{mapTranslations.content}</p>
               </IconText>
               {displayRelatedContents.map((info) => (
                 <ContentsInfo key={info.contentId} info={info} />
