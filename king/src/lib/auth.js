@@ -3,6 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import signupLocales from '../locales/signup.json';
 import { setLanguage } from '../util/languageUtils';
 import { client } from './axios';
+import { deleteFcmToken } from './fcm';
 // 닉네임 중복 검사 API
 export const checkNickname = async (nickname, language = 'ko') => {
   try {

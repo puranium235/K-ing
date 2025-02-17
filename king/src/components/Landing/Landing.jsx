@@ -15,7 +15,6 @@ const Landing = () => {
   const location = useLocation();
 
   const googleLogin = () => {
-    handleAllowNotification();
     window.location.href = API_BASE_URL + '/oauth2/authorization/google';
   };
 
