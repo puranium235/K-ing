@@ -12,10 +12,10 @@ const CopyLinkModal = ({ curationId, isShowing, closeModal }) => {
         <StLinkShareWrapper>
           <AnimatedCharacter src={kingCharacter} alt="Uploading Character" />
           <StCopyLink>
-            <p>{`http://localhost:5173/curation/${curationId}`}</p>
+            <p>{`https://i12a507.p.ssafy.io/curation/${curationId}`}</p>
             <>
               <CopyToClipboard
-                text={`http://localhost:5173/curation/${curationId}`}
+                text={`https://i12a507.p.ssafy.io/curation/${curationId}`}
                 onCopy={() => alert('링크가 복사되었습니다')}
               >
                 <button onClick={closeModal}>복사</button>
