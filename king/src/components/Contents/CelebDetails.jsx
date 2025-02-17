@@ -236,6 +236,10 @@ const CelebPageContainer = styled.div`
   padding-bottom: 8rem;
 
   background-color: #fff;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Header = styled.div`

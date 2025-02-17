@@ -123,6 +123,10 @@ const StHomeWrapper = styled.div`
   text-align: center;
   padding: 2rem;
   padding-bottom: 8rem;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const GenreWrapper = styled.div`
