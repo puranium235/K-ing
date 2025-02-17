@@ -41,11 +41,11 @@ const Footprint = ({ delay, x, y, rotate, index }) => (
 
 const FootstepsAnimation = () => {
   const footprints = [
-    { x: -95, y: -180, rotate: 140, delay: 0 },
-    { x: -55, y: -160, rotate: 120, delay: 0.3 },
-    { x: 0, y: -220, rotate: 100, delay: 0.6 },
-    { x: 45, y: -220, rotate: 80, delay: 0.9 },
-    { x: 85, y: -300, rotate: 70, delay: 1.2 },
+    { x: -100, y: -200, rotate: 60, delay: 0 },
+    { x: -30, y: -220, rotate: 60, delay: 0.3 },
+    { x: -20, y: -320, rotate: 60, delay: 0.6 },
+    { x: 50, y: -340, rotate: 60, delay: 0.9 },
+    { x: 60, y: -440, rotate: 60, delay: 1.2 },
   ];
 
   return (
