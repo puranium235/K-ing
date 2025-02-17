@@ -186,8 +186,10 @@ const CurationUpload = ({ state }) => {
   };
 
   useEffect(() => {
-    setIsShareEnabled(!!image && placeIds.length > 0 && !!title && !!description);
-  }, [image, placeIds, title, description]);
+    setIsShareEnabled(
+      !!image && placeIds.length > 0 && placeList.length > 0 && !!title && !!description,
+    );
+  }, [image, placeIds, placeList, title, description]);
 
   const handleTitleChange = (event) => {
     const inputValue = event.target.value;
@@ -254,7 +256,7 @@ const CurationUpload = ({ state }) => {
   };
 
   const handleCurationClick = (id) => {
-    navigate(`/place/${id}`);
+    //navigate(`/place/${id}`);
   };
 
   const handlePlaceDelete = (id) => {

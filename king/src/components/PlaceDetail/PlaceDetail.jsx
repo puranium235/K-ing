@@ -57,11 +57,11 @@ const PlaceDetail = () => {
       />
 
       <Content>
-        {/* 길찾기, 공유 버튼 */}
-        <FunctionButton dest={placeData} />
-
         {/* 장소 상세 정보 */}
         <PlaceInfo placeData={placeData} />
+
+        {/* 길찾기, 공유 버튼 */}
+        <FunctionButton dest={placeData} />
 
         {/* 장소 관련 작품 정보 */}
         <IconText>
