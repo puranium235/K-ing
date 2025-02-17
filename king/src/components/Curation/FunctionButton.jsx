@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import ShareIcon from '/src/assets/icons/send-outline.png';
@@ -7,7 +8,8 @@ import { IcBookmark } from '../../assets/icons';
 import { IcBookmarkFillBlack } from '../../assets/icons';
 import ShareModal from '../common/modal/ShareModal';
 
-const FunctionButton = ({ bookmarked, onBookmarkClick }) => {
+const FunctionButton = ({ shareable, bookmarked, onBookmarkClick }) => {
+  const { curationId } = useParams();
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const openModal = () => {
@@ -20,12 +22,14 @@ const FunctionButton = ({ bookmarked, onBookmarkClick }) => {
 
   return (
     <ButtonContainer>
-      <ShareButton onClick={openModal}>
-        <img src={ShareIcon} alt="Share" />
-      </ShareButton>
+      {shareable && (
+        <ShareButton onClick={openModal}>
+          <img src={ShareIcon} alt="Share" />
+        </ShareButton>
+      )}
 
       {/* 공유 모달 */}
-      <ShareModal isModalVisible={isModalVisible} onClick={closeModal} />
+      <ShareModal isModalVisible={isModalVisible} onClick={closeModal} curationId={curationId} />
 
       <BookmarkButton onClick={onBookmarkClick}>
         {bookmarked ? <IcBookmarkFillBlack /> : <IcBookmark />}

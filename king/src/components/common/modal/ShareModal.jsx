@@ -1,15 +1,32 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const ShareModal = ({ isModalVisible, onClick }) => {
+import useModal from '../../../hooks/common/useModal';
+import CopyLinkModal from './CopyLinkModal';
+
+const ShareModal = ({ isModalVisible, onClick, curationId }) => {
+  const copy = useModal();
+
+  const handleShareLink = () => {
+    onClick();
+    copy.setShowing(true);
+  };
+
   return (
     <>
       <ModalBackground $isVisible={isModalVisible} onClick={onClick} />
 
       <ModalContainer $isVisible={isModalVisible}>
-        <OptionButton>링크 공유하기</OptionButton>
+        <OptionButton onClick={handleShareLink}>링크 공유하기</OptionButton>
         <OptionButton>앱 공유하기</OptionButton>
       </ModalContainer>
+      <StCopyLinkModalWrapper $showing={copy.isShowing}>
+        <CopyLinkModal
+          curationId={curationId}
+          isShowing={copy.isShowing}
+          closeModal={() => copy.setShowing(false)}
+        />
+      </StCopyLinkModalWrapper>
     </>
   );
 };
@@ -84,4 +101,20 @@ const OptionButton = styled.div`
     width: 1.2rem;
     height: 1.2rem;
   }
+`;
+
+const StCopyLinkModalWrapper = styled.div`
+  display: ${({ $showing }) => ($showing ? 'block' : 'none')};
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  justify-content: center;
+  align-items: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-color: rgba(0, 0, 0, 0.5);
 `;

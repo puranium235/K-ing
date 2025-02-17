@@ -56,8 +56,10 @@ const Header = ({ title }) => {
 
     if ((from && from.includes('upload')) || from.includes('update')) {
       navigate('/home');
-    } else {
+    } else if (from || !window.location.pathname.includes('/curation')) {
       navigate(-1);
+    } else {
+      navigate('/home');
     }
   };
 

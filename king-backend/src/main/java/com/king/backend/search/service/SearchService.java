@@ -296,7 +296,10 @@ public class SearchService {
                             String category = hit.source().getCategory();
                             return "CAST".equalsIgnoreCase(category) || "MOVIE".equalsIgnoreCase(category)||"SHOW".equalsIgnoreCase(category)||"DRAMA".equalsIgnoreCase(category);
                         })
-                        .map(hit -> hit.source().getCategory().toUpperCase() + "_" + hit.source().getOriginalId())
+                        .map(hit -> {
+                            String category = hit.source().getCategory().toUpperCase();
+                            return (category.equals("CAST") ? "CAST" : "CONTENT") + "_" + hit.source().getOriginalId();
+                        })
                         .collect(Collectors.toSet());
 
                 List<Favorite> favorites = favoriteRepository.findByUserIdAndTargetKeyIn(userId, targetKeys);
@@ -310,7 +313,7 @@ public class SearchService {
                             boolean isFavorite = false;
                             String category = doc.getCategory();
                             if ("CAST".equalsIgnoreCase(category) || "MOVIE".equalsIgnoreCase(category)||"SHOW".equalsIgnoreCase(category)||"DRAMA".equalsIgnoreCase(category)) {
-                                String key = category.toUpperCase() + "_" + doc.getOriginalId();
+                                String key = (category.equalsIgnoreCase("CAST") ? "CAST" : "CONTENT") + "_" + doc.getOriginalId();
                                 isFavorite = favoriteKeySet.contains(key);
                             }
                             SearchResponseDto.SearchResult result = new SearchResponseDto.SearchResult(

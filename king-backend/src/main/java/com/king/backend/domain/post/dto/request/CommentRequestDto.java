@@ -10,4 +10,5 @@ import org.springdoc.core.annotations.ParameterObject;
 public class CommentRequestDto {
     Integer size;
     String cursor;
+    boolean original = false;
 }

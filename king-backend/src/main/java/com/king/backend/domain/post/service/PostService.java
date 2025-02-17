@@ -297,20 +297,13 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailResponseDto getPostDetail(Long postId) {
+    public PostDetailResponseDto getPostDetail(Long postId, boolean original) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
         User writer = post.getWriter();
         String imageUrl = postImageRepository.findByPostId(postId).map(PostImage::getImageUrl).orElse(null);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-        String language = authUser.getLanguage();
-
-        String translatedContent = translateUtil.translateText(post.getContent(), language);
-
-        return PostDetailResponseDto.builder()
+        PostDetailResponseDto.PostDetailResponseDtoBuilder builder = PostDetailResponseDto.builder()
                 .postId(post.getId())
-                .content(translatedContent)
                 .createdAt(post.getCreatedAt())
                 .imageUrl(imageUrl)
                 .isPublic(post.isPublic())
@@ -322,7 +315,22 @@ public class PostService {
                 .place(PostDetailResponseDto.Place.builder()
                         .placeId(post.getPlace().getId())
                         .name(post.getPlace().getName())
-                        .build())
+                        .build());
+
+        if (original) {
+            return builder
+                    .content(post.getContent())
+                    .build();
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
+        String language = authUser.getLanguage();
+
+        String translatedContent = translateUtil.translateText(post.getContent(), language);
+
+        return builder
+                .content(translatedContent)
                 .build();
     }
 

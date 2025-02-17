@@ -1,17 +1,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import GoogleIcon from '../../assets/icons/ic_google.png';
 import LineIcon from '../../assets/icons/ic_line_88.png';
 import KingLogo from '../../assets/icons/king_logo.png';
+import { handleAllowNotification } from '../../service/handleAllowNotification';
 import FootstepsAnimation from './FootstepsAnimation';
 
 const Landing = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
+  const location = useLocation();
 
   const googleLogin = () => {
+    handleAllowNotification();
     window.location.href = API_BASE_URL + '/oauth2/authorization/google';
   };
 
@@ -25,7 +29,13 @@ const Landing = () => {
     alert(
       '다음의 실행 환경을 권장합니다.\n권장 테스트 환경 : PWA\n아이폰 : 공유 - 홈 화면에 추가\n안드로이드 : 우상단 메뉴 - 홈 화면에 추가',
     );
-    navigate('/home');
+    const from = location.state?.from?.pathname || '';
+
+    if (from.includes('/curation')) {
+      navigate(from, { replace: true });
+    } else {
+      navigate('/home');
+    }
   };
 
   return (

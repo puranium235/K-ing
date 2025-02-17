@@ -123,6 +123,10 @@ export const deleteAccount = async () => {
     const res = await client.delete('/user', {});
 
     localStorage.removeItem('accessToken');
+    if (localStorage.getItem('fcmToken')) {
+      await deleteFcmToken(localStorage.getItem('fcmToken'));
+      localStorage.removeItem('fcmToken');
+    }
 
     return {
       success: true,

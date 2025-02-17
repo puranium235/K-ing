@@ -23,8 +23,8 @@ import GoogleMapView from './GoogleMapView';
 import ListItem from './ListItem';
 
 const MapSearchPlaces = () => {
-  const query = useRecoilValue(SearchQueryState);
-  const region = useRecoilValue(SearchRegionState);
+  const [query, setQuery] = useRecoilState(SearchQueryState);
+  const [region, setRegion] = useRecoilState(SearchRegionState);
   const [filterOption, setFilterOption] = useRecoilState(FilterOption);
   const relatedType = useRecoilValue(SearchRelatedType);
 
@@ -68,8 +68,6 @@ const MapSearchPlaces = () => {
     relatedType,
     boundingBox,
   });
-
-  console.log(placeList);
 
   const lastElementRef = useRef(null);
 
@@ -149,6 +147,8 @@ const MapSearchPlaces = () => {
     const neLng = parseFloat(bounds.getNorthEast().lng().toFixed(1));
     const newBoundingBox = { swLat, swLng, neLat, neLng };
     setBoundingBox(newBoundingBox);
+    setQuery('');
+    setRegion('');
   };
 
   // console.log('마커 개수:', places.length);
