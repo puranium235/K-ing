@@ -1,9 +1,6 @@
 package com.king.backend.domain.fcm.service;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.*;
 import com.king.backend.domain.fcm.entity.FcmToken;
 import com.king.backend.domain.fcm.repository.FcmTokenRepository;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
@@ -58,7 +55,15 @@ public class FcmTokenService {
                         .setTitle(title)
                         .setBody(body)
                         .build())
-                .putData("link", link)
+                .setWebpushConfig(
+                        WebpushConfig.builder()
+                                .setFcmOptions(
+                                        WebpushFcmOptions.builder()
+                                                .setLink(link)
+                                                .build()
+                                )
+                                .build()
+                )
                 .build();
         return FirebaseMessaging.getInstance().send(message);
     }
