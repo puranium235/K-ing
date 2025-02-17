@@ -29,14 +29,6 @@ const AccountActions = () => {
     const success = await logout();
     if (success) {
       localStorage.removeItem('accessToken');
-      if (localStorage.getItem('fcmToken')) {
-        const token = localStorage.getItem('fcmToken');
-        const res = await deleteFcmToken(token);
-        if (res.success) {
-          localStorage.removeItem('fcmToken');
-        }
-      }
-
       window.location.replace('/');
     } else {
       alert(accountTranslations.logoutError);

@@ -3,73 +3,76 @@ import { useCallback, useState } from 'react';
 import { saveChatHistory } from '../../lib/chatbot';
 import { splitIntoMessages } from '../../util/chatbot';
 
-const useStreamingMessages = () => {
+const useStreamingMessages = (selectedBot) => {
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
 
-  const updateMessages = useCallback(async (receivedText) => {
-    if (receivedText === '[RESET]') {
-      setMessages([]);
-      setIsTyping(false);
-      return;
-    }
-
-    setMessages((prevMessages) => {
-      let localMessages = [...prevMessages];
-      const lastMessage = localMessages[localMessages.length - 1] || null;
-
-      const accumulatedText =
-        lastMessage && lastMessage.sender === 'assistant' && !lastMessage.isCompleted
-          ? lastMessage.text + receivedText
-          : receivedText;
-
-      if (receivedText === '[END]') {
+  const updateMessages = useCallback(
+    async (receivedText) => {
+      if (receivedText === '[RESET]') {
+        setMessages([]);
         setIsTyping(false);
-
-        const lastAssistantMessages = [];
-        for (let i = localMessages.length - 1; i >= 0; i--) {
-          if (localMessages[i].sender === 'assistant') {
-            lastAssistantMessages.unshift(localMessages[i].text);
-          } else {
-            break;
-          }
-        }
-
-        const lastAssistantMessage = lastAssistantMessages.join(' ');
-
-        if (lastAssistantMessage.includes('[추천]')) {
-          const recommendNameMatch = lastAssistantMessage.match(/\[추천\]\s+\[(.+?)\]/);
-          const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
-
-          if (recommendName) {
-            const recommendMessage = {
-              sender: 'recommend',
-              text: recommendName,
-              type: 'recommend',
-              isCompleted: true,
-            };
-
-            localMessages.push(recommendMessage);
-            saveRecommendationMessage(recommendName);
-          }
-        }
-
-        return localMessages.map((msg, index) =>
-          index === localMessages.length - 1 ? { ...msg, isCompleted: true } : msg,
-        );
+        return;
       }
 
-      const newMessages = splitIntoMessages(accumulatedText, 'assistant');
+      setMessages((prevMessages) => {
+        let localMessages = [...prevMessages];
+        const lastMessage = localMessages[localMessages.length - 1] || null;
 
-      if (lastMessage && lastMessage.sender === 'assistant' && !lastMessage.isCompleted) {
-        localMessages = [...localMessages.slice(0, -1), ...newMessages];
-      } else {
-        localMessages = [...localMessages, ...newMessages];
-      }
+        const accumulatedText =
+          lastMessage && lastMessage.sender === 'assistant' && !lastMessage.isCompleted
+            ? lastMessage.text + receivedText
+            : receivedText;
 
-      return localMessages;
-    });
-  }, []);
+        if (receivedText === '[END]') {
+          setIsTyping(false);
+
+          const lastAssistantMessages = [];
+          for (let i = localMessages.length - 1; i >= 0; i--) {
+            if (localMessages[i].sender === 'assistant') {
+              lastAssistantMessages.unshift(localMessages[i].text);
+            } else {
+              break;
+            }
+          }
+
+          const lastAssistantMessage = lastAssistantMessages.join(' ');
+
+          if (lastAssistantMessage.includes('[추천]')) {
+            const recommendNameMatch = lastAssistantMessage.match(/\[추천\]\s+\[(.+?)\]/);
+            const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
+
+            if (recommendName) {
+              const recommendMessage = {
+                sender: 'recommend',
+                text: recommendName,
+                type: 'recommend',
+                isCompleted: true,
+              };
+
+              localMessages.push(recommendMessage);
+              saveRecommendationMessage(recommendName);
+            }
+          }
+
+          return localMessages.map((msg, index) =>
+            index === localMessages.length - 1 ? { ...msg, isCompleted: true } : msg,
+          );
+        }
+
+        const newMessages = splitIntoMessages(accumulatedText, 'assistant', selectedBot);
+
+        if (lastMessage && lastMessage.sender === 'assistant' && !lastMessage.isCompleted) {
+          localMessages = [...localMessages.slice(0, -1), ...newMessages];
+        } else {
+          localMessages = [...localMessages, ...newMessages];
+        }
+
+        return localMessages;
+      });
+    },
+    [selectedBot],
+  );
 
   return { messages, isTyping, updateMessages, setMessages, setIsTyping };
 };

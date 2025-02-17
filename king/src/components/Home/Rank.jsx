@@ -78,12 +78,18 @@ const Rank = () => {
   }, [rankingsData, currentRankSet]);
 
   useEffect(() => {
+    setCurrentRankSet(0);
+
     const intervalId = setInterval(() => {
-      setCurrentRankSet((prev) => (prev === 0 ? 1 : 0));
+      if (rankingsData.length > 4) {
+        setCurrentRankSet((prev) => (prev === 0 ? 1 : 0));
+      } else {
+        setCurrentRankSet(0);
+      }
     }, 3000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [rankingsData]);
 
   const handleClickTrend = (keyword) => {
     setQuery(keyword);

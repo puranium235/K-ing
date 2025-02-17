@@ -4,7 +4,12 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
-import { SearchCategoryState, SearchPrevQuery, SearchQueryState } from '../../recoil/atom';
+import {
+  FilterOption,
+  SearchCategoryState,
+  SearchPrevQuery,
+  SearchQueryState,
+} from '../../recoil/atom';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
@@ -15,6 +20,7 @@ const SearchResult = () => {
   const setPrevQuery = useSetRecoilState(SearchPrevQuery);
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
+  const setFilter = useSetRecoilState(FilterOption);
 
   const { searchResultList, isLoading } = useGetSearchResult(searchQuery, searchCategory, '');
 
@@ -25,6 +31,18 @@ const SearchResult = () => {
   const navigate = useNavigate();
 
   const handleSearch = (query, category) => {
+    setFilter({
+      categories: {
+        RESTAURANT: false,
+        CAFE: false,
+        PLAYGROUND: false,
+        STORE: false,
+        STAY: false,
+      },
+      province: '',
+      district: '',
+    });
+
     setSearchQuery(query);
     setSearchCategory(category);
     setPrevQuery(query);

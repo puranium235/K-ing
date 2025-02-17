@@ -30,69 +30,66 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: '/logo.png',
+    // icon: '/logo.png',
+    data: { link: payload.fcmOptions.link },
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 //웹 푸시 알림 노출
-self.addEventListener('push', function (e) {
-  if (!e.data.json()) return;
+// self.addEventListener('push', function (e) {
+//   if (!e.data.json()) return;
 
-  const resultData = e.data.json().notification;
-  const notificationTitle = resultData.title;
-  const notificationOptions = {
-    body: resultData.body,
-    icon: '/logo.png',
-    data: {
-      click_action: resultData.click_action,
-    },
-  };
+//   const resultData = e.data.json().notification;
+//   const fcmOptions = e.data.json().webpush;
+//   const notificationTitle = resultData.title;
+//   const notificationOptions = {
+//     body: resultData.body,
+//     icon: '/logo.png',
+//     data: {
+//       link: fcmOptions.link,
+//     },
+//   };
 
-  e.waitUntil(
-    self.registration
-      .showNotification(notificationTitle, notificationOptions)
-      .then(() => {
-        console.log('알림 성공');
-      })
-      .catch((error) => {
-        console.error('알림 실패:', error);
-      }),
-  );
-});
+//   e.waitUntil(
+//     self.registration
+//       .showNotification(notificationTitle, notificationOptions)
+//       .then(() => {
+//         console.log('알림 성공');
+//       })
+//       .catch((error) => {
+//         console.error('알림 실패:', error);
+//       }),
+//   );
+// });
 
 self.addEventListener('notificationclick', function (event) {
-  event.preventDefault();
+  console.log('[firebase-messaging-sw.js] 알림이 클릭되었습니다.');
 
-  event.notification.close();
+  // event.preventDefault();
 
   // 아래의 event.notification.data는 위의 푸시 이벤트를 한 번 거쳐서 전달 받은 options.data에 해당한다.
-  const urlToOpen = 'https://i12a507.p.ssafy.io/';
+  const link =
+    event.notification.data.FCM_MSG.notification.click_action || 'https://i12a507.p.ssafy.io/';
+  event.notification.close();
 
   // 클라이언트에 해당 사이트가 열려있는지 체크
-  const promiseChain = clients
-    .matchAll({
-      type: 'window',
-      includeUncontrolled: true,
-    })
-    .then(function (windowClients) {
-      let matchingClient = null;
-
-      for (let i = 0; i < windowClients.length; i++) {
-        const windowClient = windowClients[i];
-        if (windowClient.url.includes(urlToOpen)) {
-          matchingClient = windowClient;
-          break;
+  if (link) {
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+        // 이미 열린 창이 있는지 확인
+        for (let i = 0; i < windowClients.length; i++) {
+          const client = windowClients[i];
+          if (client.url === link && 'focus' in client) {
+            return client.focus();
+          }
         }
-      }
-
-      // 열려있다면 focus, 아니면 새로 open
-      if (matchingClient) {
-        return matchingClient.focus();
-      }
-      return clients.openWindow(urlToOpen);
-    });
-
-  event.waitUntil(promiseChain);
+        // 새 창을 열거나 이미 있는 창으로 이동
+        if (clients.openWindow) {
+          return clients.openWindow(link);
+        }
+      }),
+    );
+  }
 });
