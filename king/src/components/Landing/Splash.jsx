@@ -11,7 +11,8 @@ const Splash = () => {
     <StSplashWrapper>
       <LogoImage src={KingLogo} alt="King Logo" />
 
-      <FootstepsAnimation />
+      {/* <St.Tagline>드라마의 발자취를 따라 주인공이 되어보세요.</St.Tagline> */}
+      {/* <FootstepsAnimation /> */}
     </StSplashWrapper>
   );
 };
@@ -47,3 +48,11 @@ const LogoImage = styled.img`
   position: relative; /* 요소를 독립적으로 배치하기 위해 */
   z-index: 2; /* 발자국보다 앞에 배치 */
 `;
+
+const St = {
+  Tagline: styled.p`
+    ${({ theme }) => theme.fonts.Body4}
+    color: ${({ theme }) => theme.colors.Gray2};
+    text-align: center;
+  `,
+};

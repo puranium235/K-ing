@@ -8,7 +8,7 @@ const UploadingModal = ({ isShowing }) => {
       <Overlay>
         <ModalBox>
           <AnimatedCharacter src={kingCharacter} alt="Uploading Character" />
-          <LoadingText>수정 중...</LoadingText>
+          <LoadingText>수정중...</LoadingText>
         </ModalBox>
       </Overlay>
     )

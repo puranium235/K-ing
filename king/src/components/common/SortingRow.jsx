@@ -50,6 +50,7 @@ const SortingButton = styled.button`
   display: flex;
   flex-direction: row;
   align-items: center;
+  white-space: nowrap;
   gap: 0.5rem;
   background: none;
   border: none;

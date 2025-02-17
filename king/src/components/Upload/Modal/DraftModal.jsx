@@ -3,6 +3,7 @@ import { styled } from 'styled-components';
 
 import kingCharacter from '/src/assets/icons/king_character.png';
 
+import { deleteCurationDraft } from '../../../lib/curation';
 import { deletePostDraft } from '../../../lib/post';
 import { UseDraft } from '../../../recoil/atom';
 import CancelButton from '../../common/button/CancelButton';
@@ -20,6 +21,7 @@ const DraftModal = ({ isShowing, handleCancel }) => {
   const handleCancelDraft = async () => {
     setUseDraft(false);
     await deletePostDraft();
+    await deleteCurationDraft();
     handleCancel();
   };
 

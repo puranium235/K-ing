@@ -7,6 +7,7 @@ import GoogleIcon from '../../assets/icons/ic_google.png';
 import LineIcon from '../../assets/icons/ic_line_88.png';
 import KingLogo from '../../assets/icons/king_logo.png';
 import { handleAllowNotification } from '../../service/handleAllowNotification';
+import FootstepsAnimation from './FootstepsAnimation';
 
 const Landing = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -35,6 +36,9 @@ const Landing = () => {
 
   return (
     <StLandingWrapper>
+      <FootstepsAnimationWrapper>
+        <FootstepsAnimation />
+      </FootstepsAnimationWrapper>
       <St.ContentWrapper>
         <St.TaglineWrapper>
           <St.Tagline>드라마의 발자취를 따라 주인공이 되어보세요.</St.Tagline>
@@ -72,13 +76,22 @@ const StLandingWrapper = styled.div`
   background-color: ${({ theme }) => theme.colors.White};
 `;
 
+const FootstepsAnimationWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  height: auto;
+  z-index: 1;
+`;
+
 const St = {
   ContentWrapper: styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.8rem; /* 아이콘과 텍스트 사이 간격 */
-    margin-top: 15%; /* 화면의 중앙에 가까운 위치 */
+    gap: 1rem; /* 아이콘과 텍스트 사이 간격 */
+    margin-top: -5%; /* 화면의 중앙에 가까운 위치 */
   `,
   IconWrapper: styled.div`
     font-size: 4rem;
@@ -101,6 +114,7 @@ const St = {
     gap: 1rem;
     width: 100%;
     max-width: 30rem; /* 버튼의 최대 너비 제한 */
+    z-index: 2;
   `,
   Tagline: styled.p`
     ${({ theme }) => theme.fonts.Body4}
@@ -141,7 +155,7 @@ const St = {
   `,
 
   LogoImage: styled.img`
-    width: 200px;
+    width: 15rem;
     height: auto;
     position: relative; /* 요소를 독립적으로 배치하기 위해 */
     z-index: 2; /* 발자국보다 앞에 배치 */

@@ -71,11 +71,6 @@ const CurationPlaceUploadList = atom({
   default: [],
 });
 
-export const isReturningFromPlaceUpload = atom({
-  key: 'isReturningFromPlaceUpload',
-  default: false,
-});
-
 const DraftExist = atom({
   key: 'draftExist',
   default: false,
@@ -83,6 +78,11 @@ const DraftExist = atom({
 
 const UseDraft = atom({
   key: 'useDraft',
+  default: false,
+});
+
+const AutoDraft = atom({
+  key: 'autoDraft',
   default: false,
 });
 
@@ -113,6 +113,7 @@ const ActiveArchiveTabState = atom({
 export {
   ActiveArchiveTabState,
   ActiveUserTabState,
+  AutoDraft,
   ContentId,
   ContentType,
   CurationDraftExist,

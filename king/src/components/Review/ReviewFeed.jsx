@@ -52,8 +52,13 @@ const ReviewFeed = () => {
         <SortingRow onSortingChange={handleSorting} />
       </LineContainer>
 
-      {images.length === 0 && isLoading ? (
+      {isLoading ? (
         <Loading />
+      ) : images.length === 0 ? (
+        <NoImageMessage>
+          <p>현재 인증샷이 없어요 📸</p>
+          <span>첫 번째 인증샷을 남겨보세요!</span>
+        </NoImageMessage>
       ) : (
         <ImageGridContainer>
           <ImageGrid images={images} lastElementRef={lastElementRef} />
@@ -77,6 +82,28 @@ const LineContainer = styled.div`
 
 const ImageGridContainer = styled.div`
   padding: 1rem;
+`;
+
+const NoImageMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.Gray0};
+  font-size: 1.2rem;
+
+  p {
+    font-weight: bold;
+    font-size: 1.4rem;
+  }
+
+  span {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    color: ${({ theme }) => theme.colors.Gray2};
+  }
 `;
 
 export default ReviewFeed;

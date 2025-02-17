@@ -6,6 +6,7 @@ import useGetCurationList from '../../hooks/user/useGetCurationList';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import Loading from '../Loading/Loading';
 import CurationItem from './CurationItem';
+import SkeletonCuration from './SkeletonCuration';
 
 const CurationsList = ({ userId }) => {
   const lastElementRef = useRef(null);
@@ -23,15 +24,23 @@ const CurationsList = ({ userId }) => {
   }
 
   return (
-    <GridContainer>
-      {curationList.map((curation, index) => (
-        <CurationItem
-          key={index}
-          item={curation}
-          ref={index === curationList.length - 1 ? lastElementRef : null}
-        />
-      ))}
-    </GridContainer>
+    <>
+      <GridContainer>
+        {curationList.map((curation, index) => (
+          <CurationItem
+            key={index}
+            item={curation}
+            ref={index === curationList.length - 1 ? lastElementRef : null}
+          />
+        ))}
+      </GridContainer>
+      {/* {isLoading && <LoadingMessage>Loading...</LoadingMessage>} */}
+      {/* ✅ 무한 스크롤로 데이터 불러올 때 스켈레톤 UI 표시 */}
+      {isLoading &&
+        Array(2)
+          .fill(0)
+          .map((_, index) => <SkeletonCuration key={index} />)}
+    </>
   );
 };
 
