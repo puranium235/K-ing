@@ -5,6 +5,7 @@ import com.king.backend.domain.post.dto.request.CommentUploadRequestDto;
 import com.king.backend.domain.post.dto.response.CommentAllResponseDto;
 import com.king.backend.domain.post.service.CommentService;
 import com.king.backend.domain.post.service.PostService;
+import com.king.backend.global.aop.LogExecutionTime;
 import com.king.backend.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,6 +40,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
     }
 
+    @LogExecutionTime
     @Operation(summary = "댓글 목록 조회")
     @GetMapping
     public ResponseEntity<ApiResponse<CommentAllResponseDto>> getComments(
