@@ -24,6 +24,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class CurationController {
     private final CurationService curationService;
 
+    @Operation(summary = "큐레이션 ID 조회 (이름 기반)")
+    @GetMapping("/id")
+    public ResponseEntity<ApiResponse<Long>> getCurationIdByTitle(@RequestParam String title) {
+        Long curationListId = curationService.getCurationIdByTitle(title);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(curationListId));
+    }
+
     @Operation(summary = "큐레이션 상세 조회")
     @GetMapping("/{curationListId}")
     public ResponseEntity<ApiResponse<CurationDetailResponseDTO>> getCurationDetail(@PathVariable(value = "curationListId") Long curationListId) {

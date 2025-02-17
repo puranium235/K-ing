@@ -7,9 +7,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CurationListRepository extends JpaRepository<CurationList, Long> {
+    Optional<CurationList> findByTitle(String title);
+
     @Query("SELECT c FROM CurationList c JOIN FETCH c.writer")
     List<CurationList> findAllWithWriter();
 

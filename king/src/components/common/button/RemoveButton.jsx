@@ -28,7 +28,6 @@ export const StRemoveButtonWrapper = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10; /* 버튼을 이미지보다 앞에 위치 */
 
   pointer-events: auto; /* 버튼만 클릭되도록 설정 */
 

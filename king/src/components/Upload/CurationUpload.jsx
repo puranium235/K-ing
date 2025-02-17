@@ -15,9 +15,9 @@ import {
   updateCuration,
 } from '../../lib/curation';
 import {
+  AutoDraft,
   CurationDraftExist,
   CurationPlaceUploadList,
-  isReturningFromPlaceUpload,
   UseDraft,
 } from '../../recoil/atom';
 import { convertHeicToJpeg } from '../../util/convertHeicToJpeg';
@@ -46,15 +46,15 @@ const CurationUpload = ({ state }) => {
   const [isShareEnabled, setIsShareEnabled] = useState(false);
 
   const isDraft = useRecoilValue(CurationDraftExist);
+  const setCurationDraftExist = useSetRecoilState(CurationDraftExist);
   const useDraft = useRecoilValue(UseDraft);
-
-  const isReturning = useRecoilValue(isReturningFromPlaceUpload);
-  const setIsReturning = useSetRecoilState(isReturningFromPlaceUpload);
+  const setUseDraft = useSetRecoilState(UseDraft);
+  const [autoDraft, setAutoDraft] = useRecoilState(AutoDraft);
 
   useEffect(() => {
-    console.log(placeList);
-
-    setPlaceIds(placeList.map((place) => place.placeId));
+    if (placeList.length > 0) {
+      setPlaceIds(placeList.map((place) => place.placeId));
+    }
   }, [placeList]);
 
   useEffect(() => {
@@ -63,86 +63,47 @@ const CurationUpload = ({ state }) => {
     }
   }, [isDraft]);
 
-  // const initData = async () => {
-  //   let res;
+  const initFlag = () => {
+    setPlaceList([]);
+    setAutoDraft(false);
+    setUseDraft(false);
+  };
 
-  //   if (curationId) {
-  //     res = await getCurationDetail(curationId);
-  //     setImage(res.imageUrl);
-  //   } else if (isDraft && useDraft) {
-  //     res = await getCurationDraft();
-  //     if (res.imageData) {
-  //       setImage(`data:image/jpeg;base64,${res.imageData}`);
-  //       setImageFile(convertToBlob(res.imageData, 'image/jpeg'));
-  //     }
-  //   } else {
-  //     return;
-  //   }
+  const initData = async () => {
+    let res;
 
-  //   setTitle(res.title ? res.title : '');
-  //   setDescription(res.description ? res.description : '');
-  //   if (res.places) {
-  //     setPlaceList(res.places);
-  //   }
-
-  //   toggle.setToggle(res.public);
-
-  //   if (isDraft && useDraft) {
-  //     await deleteCurationDraft();
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   initData();
-  // }, [useDraft, curationId]);
-
-  // useEffect(() => {
-  //   if (placeList.length > 0) {
-  //     setPlaceIds(placeList.map(place => place.placeId));
-  //   }
-  // }, [placeList]);
-
-  useEffect(() => {
-    // "장소 추가하기"에서 돌아온 경우 기존 리스트 유지
-    if (isReturning) {
-      setIsReturning(false); // 상태 초기화
+    if (curationId) {
+      res = await getCurationDetail(curationId);
+      setImage(res.imageUrl);
+    } else if ((isDraft && useDraft) || autoDraft) {
+      res = await getCurationDraft();
+      setAutoDraft(false);
+      if (res.imageData) {
+        setImage(`data:image/jpeg;base64,${res.imageData}`);
+        setImageFile(convertToBlob(res.imageData, 'image/jpeg'));
+      }
+    } else {
       return;
     }
 
-    const fetchData = async () => {
-      if (curationId) {
-        // 기존 큐레이션 데이터 가져오기
-        const res = await getCurationDetail(curationId);
-        setTitle(res.title || '');
-        setDescription(res.description || '');
-        setImage(res.imageUrl || '');
-        if (res.places) {
-          setPlaceList(res.places);
-        }
-      } else {
-        // 임시 저장된 데이터 불러오기
-        const res = await getCurationDraft();
-        setTitle(res.title || '');
-        setDescription(res.description || '');
-        if (res.imageData) {
-          setImage(`data:image/jpeg;base64,${res.imageData}`);
-          setImageFile(convertToBlob(res.imageData, 'image/jpeg'));
-        }
-        if (res.places) {
-          setPlaceList(res.places);
-        }
-      }
-    };
+    setTitle(res.title ? res.title : '');
+    setDescription(res.description ? res.description : '');
+    if (res.places && !autoDraft) {
+      setPlaceList(res.places);
+    }
 
-    fetchData();
+    toggle.setToggle(res.public);
 
-    // 일반적인 이동이면 placeList 초기화
-    return () => {
-      if (!location.pathname.includes('/upload/curation/place')) {
-        setPlaceList([]); // 장소 목록 초기화
-      }
-    };
-  }, [curationId, setPlaceList, location.pathname]);
+    if ((isDraft && useDraft) || autoDraft) {
+      await deleteCurationDraft();
+      setCurationDraftExist(false);
+      setAutoDraft(false);
+    }
+  };
+
+  useEffect(() => {
+    initData();
+  }, [useDraft, curationId]);
 
   const saveDraft = async () => {
     if (imageFile || placeIds.length > 0 || title || description) {
@@ -156,12 +117,13 @@ const CurationUpload = ({ state }) => {
       if (placeIds.length > 0) {
         draftInfo.placeIds = placeIds;
       }
-      console.log(imageFile);
+      //console.log(imageFile);
       const res = await postCurationDraft(draftInfo, imageFile);
       if (res.success) {
         alert('임시저장이 완료되었습니다.');
+        setCurationDraftExist(true);
+        initFlag();
         navigate(`/home`);
-        setPlaceList([]);
       }
     }
   };
@@ -173,7 +135,10 @@ const CurationUpload = ({ state }) => {
       if (description) draftInfo.description = description;
       if (placeIds.length > 0) draftInfo.placeIds = placeIds;
 
-      await postCurationDraft(draftInfo, imageFile); // 백그라운드 저장
+      const res = await postCurationDraft(draftInfo, imageFile); // 백그라운드 저장
+      if (res.success) {
+        setAutoDraft(true);
+      }
     }
   };
 
@@ -191,7 +156,7 @@ const CurationUpload = ({ state }) => {
       upload.setShowing(false);
 
       if (res.data) {
-        setPlaceList([]);
+        initFlag();
         navigate(`/curation/${res.data.curationListId}`, {
           state: { from: { pathname: 'upload' } },
         });
@@ -214,7 +179,7 @@ const CurationUpload = ({ state }) => {
       upload.setShowing(false);
 
       if (res.success) {
-        setPlaceList([]);
+        initFlag();
         navigate(`/curation/${curationId}`, { state: { from: { pathname: 'update' } } });
       }
     }
@@ -280,16 +245,6 @@ const CurationUpload = ({ state }) => {
       setImageFile(file);
       setImage(URL.createObjectURL(file));
     }
-
-    autoSaveDraft();
-  };
-
-  const handleTitleBlur = () => {
-    autoSaveDraft();
-  };
-
-  const handleDescBlur = () => {
-    autoSaveDraft();
   };
 
   const triggerFileInput = () => {
@@ -307,15 +262,19 @@ const CurationUpload = ({ state }) => {
   };
 
   const handleAddPlace = () => {
-    setIsReturning(true);
     navigate('/upload/curation/place');
+  };
+
+  const handelBack = () => {
+    initFlag();
+    navigate(-1);
   };
 
   return (
     <>
       <StUploadWrapper>
         <IconText>
-          <BackButton />
+          <BackButton onBack={handelBack} />
           <p>큐레이션 생성</p>
           {state === 'upload' ? (
             <ButtonWrapper>
@@ -326,14 +285,7 @@ const CurationUpload = ({ state }) => {
             </ButtonWrapper>
           ) : (
             <ButtonWrapper>
-              <TemporaryButton
-                onClick={() => {
-                  setPlaceList([]);
-                  navigate(-1);
-                }}
-              >
-                취소
-              </TemporaryButton>
+              <TemporaryButton onClick={handelBack}>취소</TemporaryButton>
               <SaveButton disabled={!isShareEnabled} onClick={handleUpdateCuration}>
                 저장
               </SaveButton>
@@ -360,7 +312,6 @@ const CurationUpload = ({ state }) => {
           placeholder="제목을 입력하세요."
           value={title}
           onChange={handleTitleChange}
-          onBlur={handleTitleBlur}
           maxLength={150}
         ></TitleInput>
         {title.length} / 50
@@ -368,7 +319,6 @@ const CurationUpload = ({ state }) => {
           placeholder="큐레이션을 간단하게 설명해주세요.(1000자 이내)"
           value={description}
           onChange={handleDescChange}
-          onBlur={handleDescBlur}
           maxLength={1000}
         ></DescInput>
         {description.length} / 1000
@@ -383,7 +333,14 @@ const CurationUpload = ({ state }) => {
       </StUploadWrapper>
 
       <PlaceWrapper>
-        <AddButton onClick={handleAddPlace}>+ 장소 추가하기</AddButton>
+        <AddButton
+          onClick={() => {
+            autoSaveDraft();
+            handleAddPlace();
+          }}
+        >
+          + 장소 추가하기
+        </AddButton>
         <PlaceList>
           {placeList.map((place) => (
             <CardContainer key={place.placeId} onClick={() => handleCurationClick(place.placeId)}>
@@ -417,6 +374,7 @@ const PlaceList = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 0.2rem;
   padding: 0 0.5rem;
+  margin-top: 2rem;
   margin-bottom: 10rem;
 `;
 
