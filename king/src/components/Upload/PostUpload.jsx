@@ -71,8 +71,8 @@ const PostUpload = ({ state }) => {
 
     if (postId) {
       //업데이트
-      res = await getPostDetail(postId);
-      setImage(res);
+      res = await getPostDetail(postId, true);
+      setImage(res.imageUrl);
     } else if (isDraft && useDraft) {
       //임시저장 불러오기
       res = await getPostDraft();
