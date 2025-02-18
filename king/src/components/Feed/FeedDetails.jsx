@@ -161,6 +161,10 @@ const FeedDetails = () => {
     }
   };
 
+  const handleUserClick = () => {
+    navigate(`/user/${writer.userId}`);
+  };
+
   if (!postInfo) {
     return (
       <LoadingWrapper>
@@ -188,7 +192,7 @@ const FeedDetails = () => {
           </OptionButton>
         )}
       </Header>
-      <UserInfo>
+      <UserInfo onClick={handleUserClick}>
         <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="default" />
         <UserName>{writer.nickname}</UserName>
       </UserInfo>
@@ -337,6 +341,7 @@ const UserInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
+  cursor: pointer;
 `;
 
 const Profile = styled.div`
@@ -365,6 +370,8 @@ const Location = styled.span`
 
   ${({ theme }) => theme.fonts.Body3};
   color: ${({ theme }) => theme.colors.Gray0};
+
+  cursor: pointer;
 
   svg {
     width: 2rem;
