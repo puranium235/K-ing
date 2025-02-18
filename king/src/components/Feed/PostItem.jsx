@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -10,6 +10,11 @@ const PostItem = forwardRef(({ post, column }, ref) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(post.liked);
   const [likesCount, setLikesCount] = useState(post.likesCnt);
+
+  useEffect(() => {
+    setIsLiked(post.liked);
+    setLikesCount(post.likesCnt);
+  }, [post]);
 
   const handleFeedClick = (id) => {
     navigate(`/feed/${id}`);
