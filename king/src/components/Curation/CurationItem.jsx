@@ -48,7 +48,7 @@ const CurationItem = forwardRef(({ item, onBookmarkChange }, ref) => {
         <St.GradientOverlay />
       </St.ImageWrapper>
       <St.Info>
-        <St.Author>@{truncateText(writerNickname, 15)}</St.Author>
+        <St.Author>{truncateText(writerNickname, 15)}</St.Author>
         <St.Title>{truncateText(title, 20)}</St.Title>
       </St.Info>
       <St.BookmarkButton className="drop-shadow" onClick={handleBookmarkClick}>
