@@ -266,7 +266,7 @@ public class SearchService {
                                             Optional<Place> placeOpt = placeRepository.findById(result.getId());
                                             if (placeOpt.isPresent()) {
                                                 Place place = placeOpt.get();
-                                                String imageUrl = googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+                                                String imageUrl = place.getImageUrl() == null ? String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion) : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
                                                 place.setImageUrl(imageUrl);
                                                 placeRepository.save(place);
                                                 result.setImageUrl(imageUrl);
