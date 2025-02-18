@@ -16,6 +16,7 @@ import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import { getRelativeDate } from '../../util/getRelativeDate';
 import { getUserIdFromToken } from '../../util/getUserIdFromToken';
 import { getUserInfoById } from '../../util/getUserInfoById';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 import OptionModal from '../common/OptionModal';
 import Loading from '../Loading/Loading';
@@ -36,6 +37,16 @@ const FeedDetails = () => {
   const [writer, setWriter] = useState(null);
   const [isOriginLan, setIsOriginLan] = useState(false);
   const [newComment, setNewComment] = useState('');
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { feed: feedTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   const { reactionList, commentList, getNextData, isLoading, hasMore, mutate } = useGetComments(
     postId,
@@ -138,11 +149,11 @@ const FeedDetails = () => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm('게시글을 삭제하시겠습니까?')) {
+    if (window.confirm(feedTranslations.askDelete)) {
       const res = await deletePost(postId);
       console.log(res);
       if (res.success) {
-        alert('게시글이 삭제되었습니다.');
+        alert(feedTranslations.alertDelete);
         navigate('/home');
       }
     } else {
@@ -165,7 +176,7 @@ const FeedDetails = () => {
       <Header>
         <IconText>
           <BackButton onBack={handleGoBack} />
-          <h3>Post</h3>
+          <h3>{feedTranslations.title}</h3>
         </IconText>
         {userId === String(writer?.userId) && (
           <OptionButton
@@ -217,7 +228,7 @@ const FeedDetails = () => {
       <PostCaption>{postInfo.content}</PostCaption>
 
       <CommentWrapper>
-        Comments
+        {feedTranslations.commentTitle}
         <CommentContainer>
           {commentList &&
             commentList.map((comment, index) => (
@@ -244,7 +255,7 @@ const FeedDetails = () => {
       <FooterWrapper>
         <PostDate>{getRelativeDate(postInfo.createdAt)}</PostDate>·
         <TranslateOption onClick={() => setIsOriginLan((prev) => !prev)}>
-          {isOriginLan ? 'See translation' : 'See original'}
+          {isOriginLan ? feedTranslations.seeTranslate : feedTranslations.seeOriginal}
         </TranslateOption>
       </FooterWrapper>
       <OptionModal

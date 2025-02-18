@@ -1,16 +1,28 @@
+import { useEffect, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import styled, { keyframes } from 'styled-components';
 
 import kingCharacter from '/src/assets/icons/king_character.png';
 
+import { getLanguage, getTranslations } from '../../../util/languageUtils';
 import SmallModal from '../../common/modal/smallModal';
 import CancelButton from '../button/CancelButton';
 import ConfirmButton from '../button/ConfirmButton';
 
 const CopyLinkModal = ({ curationId, isShowing, closeModal }) => {
+  const [language, setLanguage] = useState(getLanguage());
+  const { curation: curationTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
   return (
     isShowing && (
-      <SmallModal title="링크 공유하기" isShowing={isShowing}>
+      <SmallModal title={curationTranslations.shareModal} isShowing={isShowing}>
         <StLinkShareWrapper>
           <AnimatedCharacter src={kingCharacter} alt="Uploading Character" />
           <StCopyLink>
@@ -19,11 +31,11 @@ const CopyLinkModal = ({ curationId, isShowing, closeModal }) => {
           <ButtonWrapper>
             <CopyToClipboard
               text={`https://i12a507.p.ssafy.io/curation/${curationId}`}
-              onCopy={() => alert('링크가 복사되었습니다')}
+              onCopy={() => alert(curationTranslations.alertCopy)}
             >
-              <ConfirmButton btnName="복사" onClick={closeModal} />
+              <ConfirmButton btnName={curationTranslations.copy} onClick={closeModal} />
             </CopyToClipboard>
-            <CancelButton btnName="닫기" onClick={closeModal} />
+            <CancelButton btnName={curationTranslations.close} onClick={closeModal} />
           </ButtonWrapper>
         </StLinkShareWrapper>
       </SmallModal>

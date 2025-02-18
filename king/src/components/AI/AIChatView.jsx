@@ -13,6 +13,7 @@ import {
 import { splitIntoMessages } from '../../util/chatbot';
 import { getUserIdFromToken } from '../../util/getUserIdFromToken';
 import { getUserInfoById } from '../../util/getUserInfoById';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 import CurationRecommendButton from './CurationRecommendButton';
 import PlaceRecommendButton from './PlaceRecommendButton';
@@ -34,6 +35,16 @@ const AIChatView = () => {
   const messagesEndRef = useRef(null);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [userInfo, setUserInfo] = useState('');
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { chatbot: chatbotTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   useEffect(() => {
     const getUserInfo = async () => {
@@ -208,9 +219,9 @@ const AIChatView = () => {
     <ChatContainer>
       <Header>
         <BackButton />
-        <p>K-ing 챗봇</p>
+        <p>K-ing {chatbotTranslations.title}</p>
         <RefreshButton onClick={handleRefresh}>
-          <p>새로운 대화</p>
+          <p>{chatbotTranslations.newTalk}</p>
           {/* <img src={RefreshIcon} alt="Refresh" /> */}
         </RefreshButton>
       </Header>
@@ -218,10 +229,10 @@ const AIChatView = () => {
       <MessagesContainer style={{ height: `${windowHeight - remValue}px` }}>
         <IntroMessageContainer>
           <img src={KingIcon} />
-          안녕하세요,'
+          {chatbotTranslations.greeting},'
           {userInfo.length > 10 ? ` ${userInfo.slice(0, 10)}... ` : userInfo}'님
           <br />
-          궁금한 것을 물어보세요!
+          {chatbotTranslations.ask}
         </IntroMessageContainer>
 
         {messages.map((message, index) => (
@@ -281,7 +292,9 @@ const AIChatView = () => {
           onCompositionStart={() => setIsComposing(true)}
           onCompositionEnd={() => setIsComposing(false)}
           onKeyDown={handleKeyDown}
-          placeholder={isBotSelected ? '메시지를 입력하세요...' : '챗봇을 선택하세요!'}
+          placeholder={
+            isBotSelected ? chatbotTranslations.msgPlaceholder : chatbotTranslations.botPlaceholder
+          }
           disabled={!isBotSelected}
         />
         <SendButton onClick={isBotSelected ? sendMessage : null} disabled={!isBotSelected}>

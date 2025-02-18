@@ -102,7 +102,7 @@ const Home = () => {
                 </span>
               </CurationHeader>
               <CardContainer>
-                {placeList.map((place) => (
+                {placeList.slice(0, 4).map((place) => (
                   <CardListItem key={place.placeId} place={place} />
                 ))}
               </CardContainer>

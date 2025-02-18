@@ -20,7 +20,11 @@
     "alertDeleteSuccess": "삭제가 완료되었습니다.",
     "alertDeleteFailed": "삭제에 실패했습니다.",
     "edit": "수정하기",
-    "delete": "삭제하기"
+    "delete": "삭제하기",
+    "shareModal": "링크 공유하기",
+    "copy": "복사",
+    "close": "닫기",
+    "alertCopy": "링크가 복사되었습니다"
   },
   "en": {
     "title": "Create Curation",
@@ -43,7 +47,11 @@
     "alertDeleteSuccess": "Deletion completed successfully.",
     "alertDeleteFailed": "Failed to delete.",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "shareModal": "Share Link",
+    "copy": "Copy",
+    "close": "Close",
+    "alertCopy": "Link has been copied"
   },
   "ja": {
     "title": "キュレーション作成",
@@ -66,7 +74,11 @@
     "alertDeleteSuccess": "削除が完了しました。",
     "alertDeleteFailed": "削除に失敗しました。",
     "edit": "編集",
-    "delete": "削除"
+    "delete": "削除",
+    "shareModal": "リンクを共有",
+    "copy": "コピー",
+    "close": "閉じる",
+    "alertCopy": "リンクがコピーされました"
   },
   "zh": {
     "title": "创建策展",
@@ -89,6 +101,10 @@
     "alertDeleteSuccess": "删除已完成。",
     "alertDeleteFailed": "删除失败。",
     "edit": "编辑",
-    "delete": "删除"
+    "delete": "删除",
+    "shareModal": "分享链接",
+    "copy": "复制",
+    "close": "关闭",
+    "alertCopy": "链接已复制"
   }
 }
