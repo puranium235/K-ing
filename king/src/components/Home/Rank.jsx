@@ -114,7 +114,7 @@ const Rank = () => {
                   setPeriod(value);
                 }}
               >
-                {label}
+                {label.length > 10 ? ` ${label.slice(0, 10)}... ` : label}
               </StyledButton>
             ))}
           </FilterControls>
