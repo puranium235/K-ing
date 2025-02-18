@@ -1,14 +1,11 @@
 package com.king.backend.search.service;
 
-import co.elastic.clients.elasticsearch._types.analysis.*;
+import co.elastic.clients.elasticsearch._types.analysis.TokenFilter;
+import co.elastic.clients.elasticsearch._types.analysis.TokenFilterDefinition;
 import co.elastic.clients.elasticsearch._types.mapping.*;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.king.backend.domain.place.entity.PlaceCast;
-import com.king.backend.domain.place.entity.PlaceContent;
-import com.king.backend.global.util.RedisUtil;
 import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.repository.CastRepository;
 import com.king.backend.domain.content.entity.Content;
@@ -17,6 +14,7 @@ import com.king.backend.domain.curation.entity.CurationList;
 import com.king.backend.domain.curation.repository.CurationListRepository;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.repository.PlaceRepository;
+import com.king.backend.global.util.RedisUtil;
 import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.entity.CurationDocument;
 import com.king.backend.search.entity.SearchDocument;
@@ -255,7 +253,7 @@ public class SyncService implements CommandLineRunner {
                 "CURATION-" + curationList.getId(),
                 curationList.getTitle(),
                 curationList.getDescription(),
-                "@"+curationList.getWriter().getNickname(),
+                curationList.getWriter().getNickname(),
                 curationList.getImageUrl(),
                 curationList.getId(),
                 curationList.getCreatedAt(),
