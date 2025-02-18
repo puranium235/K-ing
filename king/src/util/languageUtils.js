@@ -44,13 +44,10 @@ export const getTranslations = (lang = getLanguage()) => ({
   user: userLocales[lang] || userLocales['ko'],
   content: contentLocales[lang] || contentLocales['ko'],
   search: searchLocales[lang] || searchLocales['ko'],
-<<<<<<< king/src/util/languageUtils.js
   post: postLocales[lang] || postLocales['ko'],
   uploadModal: uploadModalLocales[lang] || uploadModalLocales['ko'],
-=======
   map: mapLocales[lang] || mapLocales['ko'],
   place: placeLocales[lang] || placeLocales['ko'],
   review: reviewLocales[lang] || reviewLocales['ko'],
   curation: curationLocales[lang] || curationLocales['ko'],
->>>>>>> king/src/util/languageUtils.js
 });
