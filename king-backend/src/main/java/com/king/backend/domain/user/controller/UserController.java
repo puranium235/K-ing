@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -119,6 +120,8 @@ public class UserController {
 
         findUser.setNickname(nickname);
         findUser.setLanguage(language);
+        findUser.setCreatedAt(LocalDateTime.now());
+        findUser.setContentAlarmOn(true);
         findUser.setStatus("ROLE_REGISTERED");
 
         userRepository.save(findUser);
