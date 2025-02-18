@@ -3,8 +3,12 @@ import styled from 'styled-components';
 
 import KingLogo from '../assets/icons/king_logo.png';
 import { handleAllowNotification } from '../service/handleAllowNotification';
+import { getLanguage, getTranslations } from '../util/languageUtils';
 
 const SignupCompletePage = () => {
+  const language = getLanguage();
+  const { common: translations } = getTranslations(language);
+
   const handleLogin = async () => {
     alert(
       '다음의 실행 환경을 권장합니다.\n권장 테스트 환경 : PWA\n아이폰 : 공유 - 홈 화면에 추가\n안드로이드 : 우상단 메뉴 - 홈 화면에 추가',
@@ -17,12 +21,12 @@ const SignupCompletePage = () => {
     <StSignupCompletePageWrapper>
       <LogoImage src={KingLogo} alt="King Logo" />
       <St.ContentWrapper>
-        <Message>회원가입이 완료되었습니다.</Message>
+        <Message>{translations.signup_complete}</Message>
       </St.ContentWrapper>
       <St.ButtonWrapper>
         <ButtonContainer>
           <Button $primary onClick={handleLogin}>
-            홈으로 가기
+            {translations.go_home}
           </Button>
         </ButtonContainer>
       </St.ButtonWrapper>

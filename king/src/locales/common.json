@@ -6,7 +6,10 @@
     "next": "다음",
     "signup": "회원가입",
     "language": "언어",
-    "save": "저장"
+    "save": "저장",
+    "signup_complete": "회원가입이 완료되었습니다.",
+    "go_home": "홈으로 가기",
+    "leave_without_saving": "저장하지 않고 나가시겠습니까?"
   },
   "en": {
     "confirm": "Confirm",
@@ -15,7 +18,10 @@
     "next": "Next",
     "signup": "Sign Up",
     "language": "Language",
-    "save": "Save"
+    "save": "Save",
+    "signup_complete": "Signup completed.",
+    "go_home": "Go to Home",
+    "leave_without_saving": "Do you want to leave without saving?"
   },
   "ja": {
     "confirm": "確認",
@@ -24,7 +30,10 @@
     "next": "次へ",
     "signup": "登録",
     "language": "言語",
-    "save": "保存"
+    "save": "保存",
+    "signup_complete": "登録が完了しました。",
+    "go_home": "ホームへ",
+    "leave_without_saving": "保存せずに終了しますか？"
   },
   "zh": {
     "confirm": "确认",
@@ -33,6 +42,9 @@
     "next": "下一步",
     "signup": "注册",
     "language": "语言",
-    "save": "保存"
+    "save": "保存",
+    "signup_complete": "注册已完成。",
+    "go_home": "返回主页",
+    "leave_without_saving": "您确定要在不保存的情况下离开吗？"
   }
 }
