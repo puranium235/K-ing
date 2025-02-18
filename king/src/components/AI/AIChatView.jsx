@@ -137,7 +137,10 @@ const AIChatView = () => {
           }
 
           if (msg.role === 'assistant') {
-            newMessages = [...newMessages, ...splitIntoMessages(msg.content, 'assistant')];
+            newMessages = [
+              ...newMessages,
+              ...splitIntoMessages(msg.content, 'assistant', selectedBot),
+            ];
           } else {
             newMessages.push({ text: msg.content, sender: msg.role });
           }
