@@ -32,7 +32,7 @@ const SearchItem = forwardRef(({ item }, ref) => {
         <Image
           src={imageUrl || defaultImg}
           alt={name}
-          $defaultImage={imageUrl.includes('default.jpg')}
+          $defaultImage={imageUrl?.includes('default.jpg')}
         />
       </ImageWrapper>
       <Text>{name}</Text>
