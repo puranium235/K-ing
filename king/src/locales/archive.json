@@ -8,7 +8,11 @@
     "showAllSimple": "전체보기",
     "noFavorites": "아직 즐겨찾기한 {type}이 없어요.",
     "itemsCount": "{countDisplay}{unit}의 {type}",
-    "noCurations": "등록된 큐레이션이 없습니다."
+    "noCurations": "등록된 큐레이션이 없습니다.",
+    "noSearchResults": "검색 결과가 없습니다.",
+    "drama": "드라마",
+    "movie": "영화",
+    "show": "예능"
   },
   "en": {
     "works": "Works",
@@ -19,7 +23,11 @@
     "showAllSimple": "Show All",
     "noFavorites": "You haven't favorited any {type} yet.",
     "itemsCount": "{countDisplay} {type}",
-    "noCurations": "No curations available."
+    "noCurations": "No curations available.",
+    "noSearchResults": "No search results found.",
+    "drama": "Drama",
+    "movie": "Movie",
+    "show": "Show"
   },
   "ja": {
     "works": "作品",
@@ -30,7 +38,11 @@
     "showAllSimple": "すべて表示",
     "noFavorites": "まだお気に入りの {type} がありません。",
     "itemsCount": "{countDisplay}{unit}の{type}",
-    "noCurations": "登録されたキュレーションがありません。"
+    "noCurations": "登録されたキュレーションがありません。",
+    "noSearchResults": "検索結果がありません。",
+    "drama": "ドラマ",
+    "movie": "映画",
+    "show": "バラエティ"
   },
   "zh": {
     "works": "作品",
@@ -41,6 +53,10 @@
     "showAllSimple": "查看全部",
     "noFavorites": "你還沒有收藏任何{type}。",
     "itemsCount": "{countDisplay}{unit}{type}",
-    "noCurations": "沒有可用的策展內容。"
+    "noCurations": "沒有可用的策展內容。",
+    "noSearchResults": "沒有搜尋結果。",
+    "drama": "電視劇",
+    "movie": "電影",
+    "show": "綜藝"
   }
 }

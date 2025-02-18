@@ -12,6 +12,7 @@ import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult'
 import { ContentId, FilterOption, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
 import { ScrollPosition } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 import FilterButton from '../common/button/FilterButton';
 import GoUpButton from '../common/button/GoUpButton';
@@ -21,6 +22,9 @@ import SortingRow from '../common/SortingRow';
 import PlaceCard from '../Home/PlaceCard';
 
 const SearchKeyword = () => {
+  const language = getLanguage();
+  const { archive: translations } = getTranslations(language);
+
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname;
