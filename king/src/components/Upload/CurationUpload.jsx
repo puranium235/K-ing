@@ -17,8 +17,10 @@ import {
 import {
   AutoDraft,
   CurationDraftExist,
+  CurationImage,
   CurationPlaceUploadList,
   UseDraft,
+  UseUpdateData,
 } from '../../recoil/atom';
 import { convertHeicToJpeg } from '../../util/convertHeicToJpeg';
 import { convertToBlob } from '../../util/convertToBlob';
@@ -51,6 +53,8 @@ const CurationUpload = ({ state }) => {
   const useDraft = useRecoilValue(UseDraft);
   const setUseDraft = useSetRecoilState(UseDraft);
   const [autoDraft, setAutoDraft] = useRecoilState(AutoDraft);
+  const [isUpdateLoaded, setIsUpdateLoaded] = useRecoilState(UseUpdateData);
+  const [curationImage, setCurationImage] = useRecoilState(CurationImage);
 
   const [language, setLanguage] = useState(getLanguage());
   const { curation: curationTranslations } = getTranslations(language);
@@ -77,19 +81,22 @@ const CurationUpload = ({ state }) => {
   const initFlag = () => {
     setPlaceList([]);
     setAutoDraft(false);
-    setUseDraft(false);
+    setIsUpdateLoaded(false);
   };
 
   const initData = async () => {
     let res;
-
-    if (curationId) {
+    if (curationId && !isUpdateLoaded) {
       res = await getCurationDetail(curationId);
       setImage(res.imageUrl);
+      setCurationImage(res.imageUrl);
+      setIsUpdateLoaded(true);
     } else if ((isDraft && useDraft) || autoDraft) {
       res = await getCurationDraft();
       setAutoDraft(false);
-      if (res.imageData) {
+      if (isUpdateLoaded) {
+        setImage(curationImage);
+      } else if (res.imageData) {
         setImage(`data:image/jpeg;base64,${res.imageData}`);
         setImageFile(convertToBlob(res.imageData, 'image/jpeg'));
       }
@@ -177,7 +184,7 @@ const CurationUpload = ({ state }) => {
 
   const handleUpdateCuration = async () => {
     if (isShareEnabled) {
-      console.log(placeIds);
+      //console.log(placeIds);
       const curationInfo = {
         title,
         description,

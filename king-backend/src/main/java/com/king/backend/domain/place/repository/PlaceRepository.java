@@ -3,6 +3,7 @@ package com.king.backend.domain.place.repository;
 import com.king.backend.domain.place.entity.Place;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,7 +13,10 @@ import java.util.Optional;
 public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     Optional<Place> findByNameAndAddress(String name, String address);
-    Optional<Place> findByName(String name);
+
+    @Query("SELECT p FROM Place p WHERE REPLACE(p.name, ' ', '') = REPLACE(:name, ' ', '')")
+    Optional<Place> findByName(@Param("name") String name);
+
 
     @Override
     List<Place> findAll();

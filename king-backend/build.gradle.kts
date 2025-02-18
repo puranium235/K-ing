@@ -53,6 +53,8 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-openai")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("org.apache.commons:commons-text:1.10.0")
+
     implementation("io.projectreactor:reactor-core")
     implementation("com.google.firebase:firebase-admin:9.2.0")
 }
