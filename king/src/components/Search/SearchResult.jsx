@@ -56,10 +56,10 @@ const SearchResult = () => {
   useEffect(() => {
     if (searchResultList) {
       setContentList(
-        searchResultList.filter((item) => ['DRAMA', 'MOVIE', 'SHOW'].includes(item.category)),
+        searchResultList?.filter((item) => ['DRAMA', 'MOVIE', 'SHOW'].includes(item.category)),
       );
-      setCelebList(searchResultList.filter((item) => item.category === 'CAST'));
-      setPlaceList(searchResultList.filter((item) => item.category === 'PLACE'));
+      setCelebList(searchResultList?.filter((item) => item.category === 'CAST'));
+      setPlaceList(searchResultList?.filter((item) => item.category === 'PLACE'));
     }
   }, [isLoading]);
 
