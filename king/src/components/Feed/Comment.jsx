@@ -68,7 +68,7 @@ const UserProfile = styled.div`
   width: 100%;
 
   p {
-    max-width: 22rem;
+    max-width: 20rem;
     ${({ theme }) => theme.fonts.Title6};
     color: ${({ theme }) => theme.colors.Gray1};
   }

@@ -188,57 +188,62 @@ const FeedDetails = () => {
           </OptionButton>
         )}
       </Header>
-      <UserInfo>
-        <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="default" />
-        <UserName>{writer.nickname}</UserName>
-      </UserInfo>
+      <ContentWrapper>
+        <UserInfo>
+          <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="default" />
+          <UserName>{writer.nickname}</UserName>
+        </UserInfo>
 
-      <Location
-        onClick={() => {
-          navigate(`/place/${postInfo.place.placeId}`);
-        }}
-      >
-        <IcMarker2 />
-        {postInfo.place.name}
-      </Location>
-      <PostImageWrapper>
-        <PostImage src={postInfo.imageUrl} alt="postImage" />
-        {!postInfo.public && (
-          <LockButton>
-            <img src={LockIcon} alt="isPublic" />
-          </LockButton>
-        )}
-      </PostImageWrapper>
-
-      <PostCount>
-        <LikeCount>
-          {toggle.toggle ? (
-            <IcHeartTrue onClick={handleLikePost} />
-          ) : (
-            <IcLikes onClick={handleLikePost} />
+        <Location
+          onClick={() => {
+            navigate(`/place/${postInfo.place.placeId}`);
+          }}
+        >
+          <IcMarker2 />
+          {postInfo.place.name}
+        </Location>
+        <PostImageWrapper>
+          <PostImage src={postInfo.imageUrl} alt="postImage" />
+          {!postInfo.public && (
+            <LockButton>
+              <img src={LockIcon} alt="isPublic" />
+            </LockButton>
           )}
-          {reactionList && reactionList.likesCount}
-        </LikeCount>
-        <CommentCount>
-          <IcComments />
-          {reactionList && reactionList.commentsCount}
-        </CommentCount>
-      </PostCount>
+        </PostImageWrapper>
 
-      <PostCaption>{postInfo.content}</PostCaption>
+        <PostCount>
+          <LikeCount>
+            {toggle.toggle ? (
+              <IcHeartTrue onClick={handleLikePost} />
+            ) : (
+              <IcLikes onClick={handleLikePost} />
+            )}
+            {reactionList && reactionList.likesCount}
+          </LikeCount>
+          <CommentCount>
+            <IcComments />
+            {reactionList && reactionList.commentsCount}
+          </CommentCount>
+        </PostCount>
 
-      <CommentWrapper>
-        {feedTranslations.commentTitle}
-        <CommentContainer>
-          {commentList &&
-            commentList.map((comment, index) => (
-              <Comment
-                key={comment.commentId}
-                data={comment}
-                ref={index === commentList?.length - 1 ? lastElementRef : null}
-              />
-            ))}
-        </CommentContainer>
+        <PostCaption>{postInfo.content}</PostCaption>
+
+        <CommentWrapper>
+          {feedTranslations.commentTitle}
+          <CommentContainer>
+            {commentList &&
+              commentList.map((comment, index) => (
+                <Comment
+                  key={comment.commentId}
+                  data={comment}
+                  ref={index === commentList?.length - 1 ? lastElementRef : null}
+                />
+              ))}
+          </CommentContainer>
+        </CommentWrapper>
+      </ContentWrapper>
+
+      <FootWrapper>
         <NewCommentContainer>
           <Profile style={{ backgroundImage: `url(${userInfo.imageUrl})` }} alt="profile" />
           <CommentInput
@@ -251,13 +256,13 @@ const FeedDetails = () => {
             <img src={SendIcon} alt="sendBtn" />
           </SendButton>
         </NewCommentContainer>
-      </CommentWrapper>
-      <FooterWrapper>
-        <PostDate>{getRelativeDate(postInfo.createdAt)}</PostDate>·
-        <TranslateOption onClick={() => setIsOriginLan((prev) => !prev)}>
-          {isOriginLan ? feedTranslations.seeTranslate : feedTranslations.seeOriginal}
-        </TranslateOption>
-      </FooterWrapper>
+        <FooterWrapper>
+          <PostDate>{getRelativeDate(postInfo.createdAt)}</PostDate>·
+          <TranslateOption onClick={() => setIsOriginLan((prev) => !prev)}>
+            {isOriginLan ? feedTranslations.seeTranslate : feedTranslations.seeOriginal}
+          </TranslateOption>
+        </FooterWrapper>
+      </FootWrapper>
       <OptionModal
         isModalVisible={update.isShowing}
         onClick={() => {
@@ -280,28 +285,36 @@ const LoadingWrapper = styled.div`
   height: 100vh;
 `;
 
-const PostContainer = styled.div`
+const PostContainer = styled.div``;
+
+const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
 
-  padding: 0 2rem;
-
   gap: 1rem;
+
+  padding: 0 2rem;
+  padding-top: 1rem;
 `;
 
 const Header = styled.div`
-  position: relative;
-
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 
-  margin-top: 2rem;
-
+  padding: 2rem 2rem 1rem 2rem;
+  box-sizing: border-box;
   width: 100%;
+
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: ${({ theme }) => theme.colors.White};
 `;
 
 const IconText = styled.div`
@@ -323,7 +336,7 @@ const OptionButton = styled.button`
   display: flex;
   align-items: center;
   position: absolute;
-  right: 0;
+  right: 2rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -411,6 +424,7 @@ const PostCount = styled.div`
 
   gap: 1rem;
 `;
+
 const LikeCount = styled.div`
   display: flex;
   flex-direction: row;
@@ -426,6 +440,7 @@ const LikeCount = styled.div`
     cursor: pointer;
   }
 `;
+
 const CommentCount = styled.div`
   display: flex;
   flex-direction: row;
@@ -456,24 +471,33 @@ const CommentWrapper = styled.div`
   ::-webkit-scrollbar {
     display: none;
   }
+
+  margin-bottom: 6rem;
 `;
 
 const CommentContainer = styled.div`
   overflow-y: auto;
 `;
 
+const FootWrapper = styled.div`
+  width: 100%;
+  padding: 0 2rem;
+`;
+
 const NewCommentContainer = styled.div`
-  /* position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0; */
+  position: fixed;
+  bottom: 2rem;
+  z-index: 1000;
+
+  width: 88%;
+  background-color: ${({ theme }) => theme.colors.White};
 
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
 
-  margin-top: 1rem;
+  padding: 1rem 0;
 `;
 
 const CommentInput = styled.input`
@@ -505,13 +529,21 @@ const SendButton = styled.button`
 `;
 
 const FooterWrapper = styled.div`
+  position: fixed;
+  bottom: 0;
+  z-index: 1000;
+
+  width: 100%;
+
+  background-color: ${({ theme }) => theme.colors.White};
+
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
 
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  padding-bottom: 1rem;
 
   ${({ theme }) => theme.fonts.Body4};
   color: ${({ theme }) => theme.colors.Gray1};
