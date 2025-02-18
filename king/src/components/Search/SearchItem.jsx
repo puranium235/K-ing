@@ -56,6 +56,9 @@ const St = {
     min-width: 8.5rem;
     max-width: 8.5rem;
     width: 100%;
+
+    max-height: 15rem;
+
     background-color: ${({ theme }) => theme.colors.White};
   `,
 };
