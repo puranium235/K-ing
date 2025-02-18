@@ -14,6 +14,7 @@ import com.king.backend.domain.curation.repository.CurationListRepository;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
+import com.king.backend.domain.place.service.GooglePhotoService;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
@@ -48,6 +49,7 @@ public class CurationService {
     private final PlaceRepository placeRepository;
     private final TranslateService translateService;
     private final RedisUtil redisUtil;
+    private final GooglePhotoService googlePhotoService;
 
     @Transactional(readOnly = true)
     public Long getCurationIdByTitle(String title) {
@@ -77,7 +79,11 @@ public class CurationService {
         List<Place> places = curationListItemRepository.findByCurationListId(curationListId)
                 .stream()
                 .map(CurationListItem::getPlace)
-                .toList();
+                .peek((place) -> {
+                    String imageUrl = googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+                    place.setImageUrl(imageUrl);
+                    placeRepository.save(place);
+                }).toList();
 
         CurationDetailResponseDTO response = CurationDetailResponseDTO.fromEntity(curationList, bookmarked, places);
 
