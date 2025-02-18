@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
+import defaultImg from '/src/assets/icons/king_logo.png';
+
 import { ContentType } from '../../recoil/atom';
 
 const SearchItem = forwardRef(({ item }, ref) => {
@@ -27,7 +29,11 @@ const SearchItem = forwardRef(({ item }, ref) => {
   return (
     <St.Item onClick={handleClick} ref={ref}>
       <ImageWrapper>
-        <Image src={imageUrl} alt={name} $defaultImage={imageUrl.includes('default.jpg')} />
+        <Image
+          src={imageUrl || defaultImg}
+          alt={name}
+          $defaultImage={imageUrl.includes('default.jpg')}
+        />
       </ImageWrapper>
       <Text>{name}</Text>
     </St.Item>
