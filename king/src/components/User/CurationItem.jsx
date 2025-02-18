@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcLock } from '../../assets/icons';
-import { truncateText } from '../../util/truncateText';
 
 const CurationItem = forwardRef(({ item }, ref) => {
   const { curationId, title, imageUrl, public: isPublic } = item;
@@ -21,7 +20,7 @@ const CurationItem = forwardRef(({ item }, ref) => {
         <St.GradientOverlay />
       </St.ImageWrapper>
       <St.Info>
-        <St.Title>{truncateText(title, 20)}</St.Title>
+        <St.Title>{title}</St.Title>
       </St.Info>
       {!isPublic && (
         <St.LockIcon>
@@ -80,6 +79,12 @@ const St = {
     left: 0.8rem;
     color: ${({ theme }) => theme.colors.White};
     text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
+
+    width: 90%;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   `,
   Author: styled.p`
     ${({ theme }) => theme.fonts.Body6};

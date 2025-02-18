@@ -6,7 +6,6 @@ import styled from 'styled-components';
 
 import { IcBookmarkBlank, IcBookmarkFill } from '../../assets/icons';
 import { addBookmark, removeBookmark } from '../../lib/bookmark';
-import { truncateText } from '../../util/truncateText';
 
 const CurationItem = forwardRef(({ item, onBookmarkChange }, ref) => {
   const location = useLocation();
@@ -48,8 +47,8 @@ const CurationItem = forwardRef(({ item, onBookmarkChange }, ref) => {
         <St.GradientOverlay />
       </St.ImageWrapper>
       <St.Info>
-        <St.Author>@{truncateText(writerNickname, 15)}</St.Author>
-        <St.Title>{truncateText(title, 20)}</St.Title>
+        <St.Author>@{writerNickname}</St.Author>
+        <St.Title>{title}</St.Title>
       </St.Info>
       <St.BookmarkButton className="drop-shadow" onClick={handleBookmarkClick}>
         {bookmarked ? <IcBookmarkFill /> : <IcBookmarkBlank />}
@@ -79,6 +78,8 @@ const St = {
     overflow: hidden;
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
     background-color: ${({ theme }) => theme.colors.White};
+
+    cursor: pointer;
   `,
   ImageWrapper: styled.div`
     position: relative;
@@ -106,6 +107,12 @@ const St = {
     left: 0.8rem;
     color: ${({ theme }) => theme.colors.White};
     text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
+
+    width: 90%;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   `,
   Author: styled.p`
     max-width: 20rem;
