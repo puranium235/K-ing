@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import GoogleIcon from '/src/assets/icons/google.png';
 import NaverIcon from '/src/assets/icons/naver.png';
 
+import { getLanguage, getTranslations } from '../../../util/languageUtils';
+
 const DeepLinkModal = ({ dest, isModalVisible, onClick }) => {
+  const [language, setLanguage] = useState(getLanguage());
+  const { place: placeTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
   const handleGoogleNavigation = () => {
     //travelmode:driving,walking, 디폴트 사용자 관련성 높은 모드
     window.open(
@@ -26,10 +38,10 @@ const DeepLinkModal = ({ dest, isModalVisible, onClick }) => {
 
       <ModalContainer $isVisible={isModalVisible}>
         <OptionButton onClick={handleNaverNavigation}>
-          네이버 지도 <img src={NaverIcon} alt="Naver" />
+          {placeTranslations.naverMap} <img src={NaverIcon} alt="Naver" />
         </OptionButton>
         <OptionButton onClick={handleGoogleNavigation}>
-          구글 지도 <img src={GoogleIcon} alt="Google" />
+          {placeTranslations.googleMap} <img src={GoogleIcon} alt="Google" />
         </OptionButton>
       </ModalContainer>
     </Container>

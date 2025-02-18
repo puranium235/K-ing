@@ -2,10 +2,14 @@ import accountLocales from '../locales/account.json';
 import archivelLocales from '../locales/archive.json';
 import commonLocales from '../locales/common.json';
 import contentLocales from '../locales/content.json';
+import curationLocales from '../locales/curation.json';
 import deleteAccountLocales from '../locales/deleteAccount.json';
 import homeLocales from '../locales/home.json';
+import mapLocales from '../locales/map.json';
 import notificationLocales from '../locales/notification.json';
+import placeLocales from '../locales/place.json';
 import profileLocales from '../locales/profile.json';
+import reviewLocales from '../locales/review.json';
 import searchLocales from '../locales/search.json';
 import settingLocales from '../locales/setting.json';
 import signupLocales from '../locales/signup.json';
@@ -38,4 +42,8 @@ export const getTranslations = (lang = getLanguage()) => ({
   user: userLocales[lang] || userLocales['ko'],
   content: contentLocales[lang] || contentLocales['ko'],
   search: searchLocales[lang] || searchLocales['ko'],
+  map: mapLocales[lang] || mapLocales['ko'],
+  place: placeLocales[lang] || placeLocales['ko'],
+  review: reviewLocales[lang] || reviewLocales['ko'],
+  curation: curationLocales[lang] || curationLocales['ko'],
 });

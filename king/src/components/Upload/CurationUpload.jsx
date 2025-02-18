@@ -22,6 +22,7 @@ import {
 } from '../../recoil/atom';
 import { convertHeicToJpeg } from '../../util/convertHeicToJpeg';
 import { convertToBlob } from '../../util/convertToBlob';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 import RemoveButton from '../common/button/RemoveButton';
 import Nav from '../common/Nav';
@@ -50,6 +51,16 @@ const CurationUpload = ({ state }) => {
   const useDraft = useRecoilValue(UseDraft);
   const setUseDraft = useSetRecoilState(UseDraft);
   const [autoDraft, setAutoDraft] = useRecoilState(AutoDraft);
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { curation: curationTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   useEffect(() => {
     if (placeList.length > 0) {
@@ -120,7 +131,7 @@ const CurationUpload = ({ state }) => {
       //console.log(imageFile);
       const res = await postCurationDraft(draftInfo, imageFile);
       if (res.success) {
-        alert('임시저장이 완료되었습니다.');
+        alert(curationTranslations.alertDraftSaved);
         setCurationDraftExist(true);
         initFlag();
         navigate(`/home`);
@@ -186,8 +197,10 @@ const CurationUpload = ({ state }) => {
   };
 
   useEffect(() => {
-    setIsShareEnabled(!!image && placeIds.length > 0 && !!title && !!description);
-  }, [image, placeIds, title, description]);
+    setIsShareEnabled(
+      !!image && placeIds.length > 0 && placeList.length > 0 && !!title && !!description,
+    );
+  }, [image, placeIds, placeList, title, description]);
 
   const handleTitleChange = (event) => {
     const inputValue = event.target.value;
@@ -220,7 +233,7 @@ const CurationUpload = ({ state }) => {
       !file.name.toLowerCase().endsWith('.heic') &&
       !file.name.toLowerCase().endsWith('.gif')
     ) {
-      alert('지원하지 않는 이미지 형식입니다.');
+      alert(curationTranslations.alertUnsupportedFormat);
       event.target.type = '';
       event.target.type = 'file';
       return;
@@ -228,7 +241,7 @@ const CurationUpload = ({ state }) => {
 
     if (file.size > 5 * 1024 * 1024) {
       //5MB
-      alert('업로드 가능한 최대 용량은 5MB입니다. ');
+      alert(curationTranslations.alertMaxSizeExceeded);
       event.target.type = '';
       event.target.type = 'file';
       return;
@@ -254,7 +267,7 @@ const CurationUpload = ({ state }) => {
   };
 
   const handleCurationClick = (id) => {
-    navigate(`/place/${id}`);
+    //navigate(`/place/${id}`);
   };
 
   const handlePlaceDelete = (id) => {
@@ -275,19 +288,19 @@ const CurationUpload = ({ state }) => {
       <StUploadWrapper>
         <IconText>
           <BackButton onBack={handelBack} />
-          <p>큐레이션 생성</p>
+          <p>{curationTranslations.title}</p>
           {state === 'upload' ? (
             <ButtonWrapper>
-              <TemporaryButton onClick={saveDraft}>임시 저장</TemporaryButton>
+              <TemporaryButton onClick={saveDraft}>{curationTranslations.draft}</TemporaryButton>
               <SaveButton disabled={!isShareEnabled} onClick={shareCuration}>
-                발헹
+                {curationTranslations.upload}
               </SaveButton>
             </ButtonWrapper>
           ) : (
             <ButtonWrapper>
-              <TemporaryButton onClick={handelBack}>취소</TemporaryButton>
+              <TemporaryButton onClick={handelBack}>{curationTranslations.cancel}</TemporaryButton>
               <SaveButton disabled={!isShareEnabled} onClick={handleUpdateCuration}>
-                저장
+                {curationTranslations.save}
               </SaveButton>
             </ButtonWrapper>
           )}
@@ -305,25 +318,29 @@ const CurationUpload = ({ state }) => {
             ref={fileInputRef}
           />
           {image ? <IcImageUploadTrue /> : <IcImageUpload />}
-          {image ? <h3>사진 재업로드하기</h3> : <h3>사진 업로드하기</h3>}
-          <p>PNG, JPG 형식만 지원됩니다.</p>
+          {image ? (
+            <h3>{curationTranslations.reuploadPhoto}</h3>
+          ) : (
+            <h3>{curationTranslations.uploadPhoto}</h3>
+          )}
+          <p>{curationTranslations.photoDesc}</p>
         </ImageUploadWrapper>
         <TitleInput
-          placeholder="제목을 입력하세요."
+          placeholder={curationTranslations.titlePlaceholder}
           value={title}
           onChange={handleTitleChange}
           maxLength={150}
         ></TitleInput>
         {title.length} / 50
         <DescInput
-          placeholder="큐레이션을 간단하게 설명해주세요.(1000자 이내)"
+          placeholder={curationTranslations.descPlaceholder}
           value={description}
           onChange={handleDescChange}
           maxLength={1000}
         ></DescInput>
         {description.length} / 1000
         <PublicToggleWrapper>
-          <h3>공개</h3>
+          <h3>{curationTranslations.public}</h3>
           {toggle.toggle ? (
             <IcToggleTrue onClick={handleToggle} />
           ) : (
@@ -339,7 +356,7 @@ const CurationUpload = ({ state }) => {
             handleAddPlace();
           }}
         >
-          + 장소 추가하기
+          + {curationTranslations.addPlace}
         </AddButton>
         <PlaceList>
           {placeList.map((place) => (

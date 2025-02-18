@@ -20,6 +20,7 @@ import StationMarker from '/src/assets/marker/station-marker.png';
 import StayMarker from '/src/assets/marker/stay-marker.png';
 import StoreMarker from '/src/assets/marker/store-marker.png';
 
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Loading from '../Loading/Loading';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -67,27 +68,32 @@ const GoogleMapView = ({
   onMarkerClick,
   onReSearch,
   $isExpanded,
+  setIsExpanded,
 }) => {
   const [center, setCenter] = useState({ lat: 37.5665, lng: 126.978 });
   const [mapInstance, setMapInstance] = useState(null);
   const [showSearchButton, setShowSearchButton] = useState(false);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
   const [activePlaceId, setActivePlaceId] = useState(places?.[0]?.placeId || null);
-  const [markers, setMarkers] = useState([]);
-  const [preventFitBounds, setPreventFitBounds] = useState(false);
+  const [markers, setMarkers] = useState(new Map());
   const [markerCluster, setMarkerCluster] = useState(null);
   const [isMarkersLoading, setIsMarkersLoading] = useState(true);
+  const [currentLocationMarker, setCurrentLocationMarker] = useState(null);
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { map: mapTranslations } = getTranslations(language);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
   });
 
+  // 언어 변경 시 상태 업데이트
   useEffect(() => {
-    if (mapInstance && places.length > 0) {
-      mapInstance.setCenter({ lat: places[0].lat, lng: places[0].lng });
-    }
-  }, [places]);
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   // 🛠️ 위치 유효성 검사 함수
   const isValidLatLng = (lat, lng) => {
@@ -105,7 +111,7 @@ const GoogleMapView = ({
 
   const clearMarkers = () => {
     markers.forEach((marker) => marker.setMap(null));
-    setMarkers([]);
+    setMarkers(new Map());
 
     // 기존 클러스터 제거
     if (markerCluster) {
@@ -119,6 +125,13 @@ const GoogleMapView = ({
       if (!isValidLatLng(place.lat, place.lng)) {
         console.error('Invalid place coordinates:', place);
         return null;
+      }
+
+      // ✅ 기존 마커가 있으면 제거 후 새로운 Map 생성
+      const newMarkers = new Map(markers);
+      if (newMarkers.has(place.placeId)) {
+        newMarkers.get(place.placeId).setMap(null);
+        newMarkers.delete(place.placeId);
       }
 
       const markerElement = new google.maps.marker.AdvancedMarkerElement({
@@ -171,6 +184,9 @@ const GoogleMapView = ({
         handleMarkerClick(place);
       });
 
+      // ✅ 새로운 Map으로 마커 상태 업데이트
+      newMarkers.set(place.placeId, markerElement);
+      setMarkers(newMarkers); // ✅ React 상태 업데이트
       return markerElement;
     },
     [activePlaceId],
@@ -178,17 +194,24 @@ const GoogleMapView = ({
 
   const handleMarkerClick = useCallback(
     (place) => {
-      setPreventFitBounds(true);
+      //if (activePlaceId === place.placeId) return;
       setActivePlaceId(place.placeId);
 
       if (onMarkerClick) {
         onMarkerClick(place.placeId);
       }
 
-      setTimeout(() => {
-        mapInstance.setCenter({ lat: place.lat, lng: place.lng });
-        mapInstance.setZoom(16);
-      }, 100);
+      if (mapInstance) {
+        setTimeout(() => {
+          const currentZoom = mapInstance.getZoom();
+          mapInstance.setCenter({ lat: place.lat, lng: place.lng });
+          if (currentZoom > 16) {
+            mapInstance.setZoom(currentZoom);
+          } else {
+            mapInstance.setZoom(16);
+          }
+        }, 100);
+      }
     },
     [onMarkerClick, mapInstance],
   );
@@ -208,17 +231,13 @@ const GoogleMapView = ({
         if (activePlaceId) {
           setActivePlaceId(null);
           onMarkerClick(0);
+          setIsExpanded(false);
         }
       });
 
       return () => google.maps.event.removeListener(clickListener);
     }
   }, [mapInstance, activePlaceId, setActivePlaceId]);
-
-  // Reset preventFitBounds after map or places update
-  useEffect(() => {
-    setPreventFitBounds(false);
-  }, [mapInstance, places]);
 
   // 지도 이동 후 검색 버튼 표시
   const handleIdle = useCallback(() => {
@@ -261,6 +280,17 @@ const GoogleMapView = ({
 
         if (mapInstance) {
           mapInstance.panTo(newCenter);
+          const currentZoom = mapInstance.getZoom();
+          if (currentZoom > 16) {
+            mapInstance.setZoom(currentZoom);
+          } else {
+            mapInstance.setZoom(16);
+          }
+
+          // ✅ 기존 현재 위치 마커가 있으면 삭제
+          if (currentLocationMarker) {
+            currentLocationMarker.setMap(null);
+          }
 
           // 현재 위치 마커 추가
           const container = document.createElement('div');
@@ -287,44 +317,18 @@ const GoogleMapView = ({
 
           container.appendChild(innerCircle);
 
-          new google.maps.marker.AdvancedMarkerElement({
+          const newMarker = new google.maps.marker.AdvancedMarkerElement({
             position: { lat: latitude, lng: longitude },
             map: mapInstance,
             content: container,
           });
+
+          setCurrentLocationMarker(newMarker);
         }
       },
       (error) => console.error('Error fetching location:', error),
     );
-  }, [mapInstance]);
-
-  // useEffect(() => {
-  //   if (mapInstance) {
-  //     // 기존 마커 제거
-  //     markers.forEach((marker) => marker.setMap(null));
-  //     if (places.length < 1) return;
-  //     // 새 마커 생성 및 추가
-  //     const bounds = new google.maps.LatLngBounds();
-
-  //     const newMarkers = places.map((place) => {
-  //       const markerElement = createMarker(mapInstance, place);
-  //       bounds.extend({ lat: place.lat, lng: place.lng });
-  //       return markerElement;
-  //     });
-
-  //     setMarkers(newMarkers);
-
-  //     if (!preventFitBounds) {
-  //       if (places.length > 1) {
-  //         mapInstance.fitBounds(bounds, { padding: 24 });
-  //       } else if (places.length === 1) {
-  //         const singleMarker = places[0];
-  //         mapInstance.setCenter({ lat: singleMarker.lat, lng: singleMarker.lng });
-  //         mapInstance.setZoom(16);
-  //       }
-  //     }
-  //   }
-  // }, [mapInstance, places, preventFitBounds, activePlaceId]);
+  }, [mapInstance, currentLocationMarker]);
 
   useEffect(() => {
     if (mapInstance) {
@@ -332,21 +336,36 @@ const GoogleMapView = ({
       clearMarkers();
 
       setTimeout(() => {
-        const newMarkers = places.map(createMarker).filter((marker) => marker !== null);
-        const bounds = new google.maps.LatLngBounds();
+        // const newMarkers = places.map(createMarker).filter((marker) => marker !== null);
 
+        const newMarkers = new Map();
+        places.forEach((place) => {
+          const marker = createMarker(place);
+          if (marker) newMarkers.set(place.placeId, marker);
+        });
+
+        setMarkers(newMarkers);
+
+        const bounds = new google.maps.LatLngBounds();
         places.forEach((place) => {
           bounds.extend(new google.maps.LatLng(place.lat, place.lng));
         });
 
-        if (!preventFitBounds) {
+        if (places.length > 1) {
           mapInstance.fitBounds(bounds);
+        } else if (places.length === 1) {
+          mapInstance.setCenter(new google.maps.LatLng(places[0].lat, places[0].lng));
+          mapInstance.setZoom(16);
+        }
+
+        if (markerCluster) {
+          markerCluster.clearMarkers();
         }
 
         // 클러스터링 적용
         const newCluster = new MarkerClusterer({
           map: mapInstance,
-          markers: newMarkers,
+          markers: Array.from(newMarkers.values()),
           algorithm: new GridAlgorithm({
             gridSize: 50,
             minimumClusterSize: 3,
@@ -354,7 +373,7 @@ const GoogleMapView = ({
           renderer: {
             render: ({ count, position, markers }) => {
               // 클러스터에 포함된 마커 숨김
-              markers.forEach((marker) => (marker.map = null));
+              //markers.forEach((marker) => (marker.map = null));
 
               const clusterDiv = document.createElement('div');
               clusterDiv.innerHTML = `<div style="
@@ -388,21 +407,10 @@ const GoogleMapView = ({
         });
 
         setMarkerCluster(newCluster);
-        setMarkers(newMarkers);
         setIsMarkersLoading(false);
-
-        if (!preventFitBounds) {
-          if (places.length > 1) {
-            mapInstance.fitBounds(bounds, { padding: 24 });
-          } else if (places.length === 1) {
-            const singleMarker = places[0];
-            mapInstance.setCenter({ lat: singleMarker.lat, lng: singleMarker.lng });
-            mapInstance.setZoom(16);
-          }
-        }
       }, 100);
     }
-  }, [mapInstance, places, preventFitBounds, createMarker]);
+  }, [mapInstance, places, createMarker, activePlaceId]);
 
   const handleMapLoad = useCallback((map) => {
     setMapInstance(map);
@@ -434,7 +442,8 @@ const GoogleMapView = ({
           {/* 이 지역에서 다시 검색 */}
           {showSearchButton && (
             <SearchButton onClick={handleSearch} $isMarkerFocus={activePlaceId}>
-              <img src={RefreshIcon} alt="here" />이 지역에서 검색
+              <img src={RefreshIcon} alt="here" />
+              {mapTranslations.search}
             </SearchButton>
           )}
         </>
