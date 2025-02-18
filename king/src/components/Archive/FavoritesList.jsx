@@ -47,8 +47,10 @@ const FavoritesList = ({ title, onTabChange }) => {
   const unit = title === translations.works ? translations.unit_item : translations.unit_person;
 
   // 전체 문장 구성
+  const countDisplay = favoritesData?.length >= 10 ? '10+' : favoritesData?.length || 0;
+
   const itemsCountText = translations.itemsCount
-    .replace('{count}', favoritesData?.length || 0)
+    .replace('{countDisplay}', countDisplay) // ✅ 10+ 표시
     .replace('{unit}', unit)
     .replace('{type}', title);
 
