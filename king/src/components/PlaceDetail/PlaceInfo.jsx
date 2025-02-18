@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import BadIcon from '../../assets/icons/bad.png';
@@ -8,8 +8,19 @@ import LocationIcon from '../../assets/icons/location.png';
 import PenIcon from '../../assets/icons/pen.png';
 import PhoneIcon from '../../assets/icons/phone.png';
 import { formatDate } from '../../util/formatDate';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 
 const PlaceInfo = ({ placeData }) => {
+  const [language, setLanguage] = useState(getLanguage());
+  const { place: placeTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
   const { closedDay, address, openHour, phone, createdAt } = placeData;
   const isAlwaysOpen = closedDay === '연중무휴';
 
@@ -27,7 +38,7 @@ const PlaceInfo = ({ placeData }) => {
       </Details>
       {!isAlwaysOpen && (
         <Details>
-          <img src={ClockIcon} alt="Clock" /> &nbsp; {closedDay} 휴무
+          <img src={ClockIcon} alt="Clock" /> &nbsp; {closedDay} {placeTranslations.break}
         </Details>
       )}
       <Details>

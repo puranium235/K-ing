@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import Nav from '../../components/common/Nav';
 import useGetReviewFeed from '../../hooks/review/useGetReviewFeed';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import GoUpButton from '../common/button/GoUpButton';
 import Header from '../common/Header';
 import SortingRow from '../common/SortingRow';
@@ -20,10 +21,20 @@ const ReviewFeed = () => {
 
   const { images, getNextData, isLoading, hasMore } = useGetReviewFeed(placeId, sortBy);
 
+  const [language, setLanguage] = useState(getLanguage());
+  const { review: reviewTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
   const sortType = {
-    가나다순: 'latest',
-    인기순: 'popular',
-    최신순: 'latest',
+    [reviewTranslations.alphabet]: 'latest',
+    [reviewTranslations.popular]: 'popular',
+    [reviewTranslations.latest]: 'latest',
   };
 
   useEffect(() => {
@@ -56,8 +67,8 @@ const ReviewFeed = () => {
         <Loading />
       ) : images.length === 0 ? (
         <NoImageMessage>
-          <p>현재 인증샷이 없어요 📸</p>
-          <span>첫 번째 인증샷을 남겨보세요!</span>
+          <p>{reviewTranslations.noPhoto}</p>
+          <span>{reviewTranslations.desc}</span>
         </NoImageMessage>
       ) : (
         <ImageGridContainer>
