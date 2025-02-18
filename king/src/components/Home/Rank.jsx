@@ -114,7 +114,7 @@ const Rank = () => {
                   setPeriod(value);
                 }}
               >
-                {label.length > 10 ? ` ${label.slice(0, 10)}... ` : label}
+                {label}
               </StyledButton>
             ))}
           </FilterControls>
@@ -170,7 +170,12 @@ const TrendingKeyword = styled.div`
     gap: 10px;
     margin: 1rem;
     text-align: left;
+
     p {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
       cursor: pointer;
 
       ${({ theme }) => theme.fonts.Body4};
