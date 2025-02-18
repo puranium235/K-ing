@@ -20,11 +20,11 @@ const useGetCurationList = (query) => {
   useEffect(() => {
     mutate();
     setSize(1);
-  }, [query, mutate, setSize]);
+  }, [query]);
 
   const results = data ? [].concat(...data.map((res) => res.data.items)) : [];
   const isEmpty = data?.[0]?.data?.items?.length === 0;
-  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data?.items?.length < 15);
+  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data?.items?.length < 10);
   const hasMore = !isEmpty && !isReachingEnd;
 
   return {

@@ -4,7 +4,9 @@ import styled from 'styled-components';
 
 import useGetCurationList from '../../hooks/search/useGetCurationList';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import Loading from '../Loading/Loading';
 import CurationItem from './CurationItem';
+
 const CurationsList = ({ query }) => {
   const { curationList, getNextData, isLoading, hasMore, mutate } = useGetCurationList(query);
 
@@ -12,7 +14,9 @@ const CurationsList = ({ query }) => {
 
   useEffect(() => {
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
-  }, [isLoading]);
+  }, [isLoading, hasMore, lastElementRef]);
+
+  if (isLoading && curationList.length === 0) return <Loading />;
 
   return (
     <StCurationList>
