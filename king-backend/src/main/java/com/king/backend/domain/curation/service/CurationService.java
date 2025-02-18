@@ -33,6 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -60,10 +61,36 @@ public class CurationService {
 
     @Transactional(readOnly = true)
     public Long getCurationIdByTitle(String title) {
-        CurationList curationList = curationListRepository.findByTitle(title)
-                .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
+        List<CurationList> candidates = curationListRepository.findByTitleLike(title);
 
-        return curationList.getId();
+        if (candidates.isEmpty()) {
+            throw new CustomException(CurationErrorCode.CURATION_NOT_FOUND);
+        }
+
+        // 1. 입력값 띄어쓰기 제거
+        String sanitizedInput = title.replaceAll("\\s+", "");
+
+        // 2. 가장 유사한 제목 찾기 (Levenshtein Distance)
+        LevenshteinDistance levenshtein = new LevenshteinDistance();
+        CurationList bestMatch = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        for (CurationList curation : candidates) {
+            String sanitizedDbTitle = curation.getTitle().replaceAll("\\s+", ""); // DB 값 띄어쓰기 제거
+            int distance = levenshtein.apply(sanitizedInput, sanitizedDbTitle);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                bestMatch = curation;
+            } else if (distance == minDistance) {
+                // 유사도가 같다면 최신 데이터 선택 (예: createdAt 기준)
+                if (bestMatch == null || curation.getCreatedAt().isAfter(bestMatch.getCreatedAt())) {
+                    bestMatch = curation;
+                }
+            }
+        }
+
+        return bestMatch.getId();
     }
 
     @Transactional

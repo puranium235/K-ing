@@ -11,7 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface CurationListRepository extends JpaRepository<CurationList, Long> {
-    Optional<CurationList> findByTitle(String title);
+    @Query("SELECT c FROM CurationList c WHERE LOWER(REPLACE(c.title, ' ', '')) LIKE LOWER(CONCAT('%', REPLACE(:title, ' ', ''), '%'))")
+    List<CurationList> findByTitleLike(@Param("title") String title);
+
 
     @Query("SELECT c FROM CurationList c JOIN FETCH c.writer")
     List<CurationList> findAllWithWriter();
