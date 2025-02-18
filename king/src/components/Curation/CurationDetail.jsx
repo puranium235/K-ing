@@ -126,9 +126,13 @@ const CurationDetail = () => {
     }
   };
 
+  const handleHeader = () => {
+    document.querySelector('html').scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <Container>
-      <HeaderContainer>
+      <HeaderContainer onClick={handleHeader}>
         <Header title={curationData.title} />
         {isOptionVisible && (
           <OptionButton onClick={openModal}>
@@ -198,10 +202,16 @@ const Container = styled.div`
 `;
 
 const HeaderContainer = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 좌우 정렬 */
+  justify-content: space-between;
+
+  background-color: ${({ theme }) => theme.colors.White};
 `;
 
 const OptionButton = styled.button`

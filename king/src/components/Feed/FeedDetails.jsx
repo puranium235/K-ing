@@ -161,6 +161,10 @@ const FeedDetails = () => {
     }
   };
 
+  const handleHeader = () => {
+    document.querySelector('html').scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (!postInfo) {
     return (
       <LoadingWrapper>
@@ -173,7 +177,7 @@ const FeedDetails = () => {
 
   return (
     <PostContainer>
-      <Header>
+      <Header onClick={handleHeader}>
         <IconText>
           <BackButton onBack={handleGoBack} />
           <h3>{feedTranslations.title}</h3>
