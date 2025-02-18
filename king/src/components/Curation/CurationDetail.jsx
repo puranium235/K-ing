@@ -13,6 +13,7 @@ import { deleteCuration, getCurationDetail } from '../../lib/curation';
 import { CurationPlaceList } from '../../recoil/atom';
 import { formatDate } from '../../util/formatDate';
 import { getUserIdFromToken } from '../../util/getUserIdFromToken';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Bottom from '../common/Bottom';
 import Header from '../common/Header';
 import ImageHeader from '../common/ImageHeader';
@@ -31,6 +32,16 @@ const CurationDetail = () => {
   const [isOptionVisible, setIsOptionVisible] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { curation: curationTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   // 옵션 버튼
   const openModal = () => {
@@ -76,10 +87,10 @@ const CurationDetail = () => {
   const handleConfirmDelete = async () => {
     try {
       await deleteCuration(curationId); // DELETE API 호출
-      alert('삭제가 완료되었습니다.');
+      alert(curationTranslations.alertDeleteSuccess);
       navigate('/curation'); // 삭제 후 목록 페이지로 이동
     } catch (error) {
-      alert('삭제에 실패했습니다.');
+      alert(curationTranslations.alertDeleteFailed);
     } finally {
       setIsDeleteModalOpen(false);
     }

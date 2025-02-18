@@ -2,7 +2,7 @@ import { client } from './axios';
 
 export const postFcmToken = async (token) => {
   try {
-    const res = await client.post('/fcm', token);
+    const res = await client.post('/fcm', { token });
     return res;
   } catch (err) {
     console.error(err);

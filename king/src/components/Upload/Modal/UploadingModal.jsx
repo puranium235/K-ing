@@ -1,17 +1,29 @@
 // styled-components의 named export 정확히 사용
+import { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import kingCharacter from '/src/assets/icons/king_character.png';
 
+import { getLanguage, getTranslations } from '../../../util/languageUtils';
 import SmallModal from '../../common/modal/smallModal';
 
 const UploadingModal = ({ isShowing }) => {
+  const [language, setLanguage] = useState(getLanguage());
+  const { uploadModal: modalTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
   return (
     isShowing && (
-      <SmallModal title="게시글 업로드" isShowing={isShowing}>
+      <SmallModal title={modalTranslations.loadingTitle} isShowing={isShowing}>
         <StDraftModalWrapper>
           <AnimatedCharacter src={kingCharacter} alt="Uploading Character" />
-          <p>업로드 중...</p>
+          <p>{modalTranslations.loadingBody}...</p>
         </StDraftModalWrapper>
       </SmallModal>
     )

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 
 /*
 ==사용법==
@@ -17,13 +19,23 @@ const closeModal = () => {
 */
 
 const OptionModal = ({ isModalVisible, onClick, onUpdate, onDelete }) => {
+  const [language, setLanguage] = useState(getLanguage());
+  const { curation: curationTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
   return (
     <Container>
       <ModalBackground $isVisible={isModalVisible} onClick={onClick} />
 
       <ModalContainer $isVisible={isModalVisible}>
-        <OptionButton onClick={onUpdate}>수정하기</OptionButton>
-        <OptionButton onClick={onDelete}> 삭제하기</OptionButton>
+        <OptionButton onClick={onUpdate}>{curationTranslations.edit}</OptionButton>
+        <OptionButton onClick={onDelete}>{curationTranslations.delete}</OptionButton>
       </ModalContainer>
     </Container>
   );

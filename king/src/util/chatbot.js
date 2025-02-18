@@ -1,4 +1,4 @@
-export const splitIntoMessages = (message, sender) => {
+export const splitIntoMessages = (message, sender, selectedBot) => {
   const emojiRegex = /[\p{Emoji_Presentation}\u200D\u2600-\u2B55]/gu;
   const isEmojiOnly = (text) => emojiRegex.test(text) && text.replace(emojiRegex, '').trim() === '';
 
@@ -6,7 +6,7 @@ export const splitIntoMessages = (message, sender) => {
   //message = message.replace(/\[.*?\]/g, '').trim();
 
   const messages = [];
-  const maxLength = 100; // ✅ 너무 짧거나 길지 않도록 적절한 기준
+  const maxLength = selectedBot?.includes('T') ? 50 : 100; // ✅ 너무 짧거나 길지 않도록 적절한 기준
 
   let currentMessage = '';
 

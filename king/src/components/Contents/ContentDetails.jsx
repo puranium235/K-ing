@@ -218,6 +218,10 @@ const DramaPageContainer = styled.div`
   background-color: #fff;
 
   min-height: 80%;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Header = styled.div`

@@ -64,6 +64,10 @@ const St = {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    span {
+      cursor: pointer;
+    }
   `,
   Left: styled.div`
     display: flex;

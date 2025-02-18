@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
 import NoResultImage from '/src/assets/icons/king_character_sorry.png';
@@ -23,8 +23,20 @@ import PlaceCard from '../Home/PlaceCard';
 const SearchKeyword = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const from = location.state?.from?.pathname;
 
-  const [filter, setFilter] = useRecoilState(FilterOption);
+  const [filter, setFilter] = useState({
+    categories: {
+      RESTAURANT: false,
+      CAFE: false,
+      PLAYGROUND: false,
+      STORE: false,
+      STAY: false,
+    },
+    province: '',
+    district: '',
+  });
+  const [filterOption, setFilterOption] = useRecoilState(FilterOption);
   const [sortBy, setSortBy] = useState('createdAt');
 
   const [isProvinceActive, setIsProvinceActive] = useState(false);
@@ -86,6 +98,10 @@ const SearchKeyword = () => {
   };
 
   useEffect(() => {
+    setFilter(filterOption);
+  }, [filterOption]);
+
+  useEffect(() => {
     if (filter && filter.categories) {
       setIsProvinceActive(filter.province !== '');
       setIsCategoryActive(Object.values(filter.categories).some((value) => value));
@@ -107,35 +123,17 @@ const SearchKeyword = () => {
 
   const handleOpenMap = () => {
     setSearchQuery(searchQuery);
+    setFilterOption(filter);
     navigate(`/map`);
   };
 
-  const resetFilter = () => {
-    setFilter({
-      categories: {
-        RESTAURANT: false,
-        CAFE: false,
-        PLAYGROUND: false,
-        STORE: false,
-        STAY: false,
-      },
-      province: '',
-      district: '',
-    });
-  };
-
   const handleGoBack = () => {
-    const from = location.state?.from?.pathname;
-
     if (from && from.includes('/result')) {
-      // resetFilter();
       navigate('/search/result');
     } else if (relatedType === 'cast') {
-      // resetFilter();
       setSearchQuery('');
       navigate(`/content/cast/${contentId}`);
     } else {
-      // resetFilter();
       setSearchQuery('');
       navigate(`/content/detail/${contentId}`);
     }
@@ -275,7 +273,7 @@ const ResultWrapper = styled.div`
   gap: 1rem;
 
   width: 100%;
-  padding-bottom: 1rem;
+  padding-bottom: 8rem;
 
   /* overflow-y: auto; */
   &::-webkit-scrollbar {

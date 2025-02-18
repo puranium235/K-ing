@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
+import { IcPencil } from '../../assets/icons';
 import UpIcon from '../../assets/icons/up.png';
 import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
 import { searchMapView } from '../../lib/map';
@@ -13,6 +14,7 @@ import {
   SearchRelatedType,
 } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import CloseButton from '../common/button/CloseButton';
 import Loading from '../Loading/Loading';
 import ContentsInfo from '../PlaceDetail/ContentsInfo';
@@ -35,6 +37,8 @@ const MapSearchPlaces = () => {
   const [placeData, setPlaceData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filteredPlaces, setFilteredPlaces] = useState([]);
+  const [isContentExpanded, setisContentExpanded] = useState(false);
+  const [displayRelatedContents, setdisplayRelatedContents] = useState([]);
   const [boundingBox, setBoundingBox] = useState({
     swLat: 0.0,
     swLng: 0.0,
@@ -43,6 +47,15 @@ const MapSearchPlaces = () => {
   });
 
   const filters = ['RESTAURANT', 'CAFE', 'PLAYGROUND', 'STORE', 'STAY'];
+  const [language, setLanguage] = useState(getLanguage());
+  const { map: mapTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -89,6 +102,14 @@ const MapSearchPlaces = () => {
     fetchPlaceData();
   }, [placeId]);
 
+  useEffect(() => {
+    if (placeData?.relatedContents) {
+      setdisplayRelatedContents(
+        isContentExpanded ? placeData.relatedContents : placeData.relatedContents.slice(0, 2),
+      );
+    }
+  }, [placeData, isContentExpanded]);
+
   const toggleBox = () => {
     setIsExpanded(!isExpanded);
   };
@@ -133,6 +154,7 @@ const MapSearchPlaces = () => {
 
   const handleMarkerClick = async (activePlace) => {
     setPlaceId(activePlace);
+    setNowActiveMarker(activePlace);
   };
 
   const handleFocusMarker = (placeId) => {
@@ -181,13 +203,25 @@ const MapSearchPlaces = () => {
             <Title>{placeData.name}</Title>
             {placeData.imageUrl && <Image src={placeData.imageUrl} alt={placeData.name} />}
 
-            {placeData.relatedContents?.map((info) => (
+            {/* 장소 상세 정보 */}
+            <PlaceInfo placeData={placeData} />
+            {/* 길찾기, 공유 버튼 */}
+            <FunctionButton dest={placeData} />
+            {/* 장소 관련 작품 정보 */}
+            <IconText>
+              <IcPencil />
+              <p>{mapTranslations.content}</p>
+            </IconText>
+            {displayRelatedContents.map((info) => (
               <ContentsInfo key={info.contentId} info={info} />
             ))}
-
-            <FunctionButton dest={placeData} />
-
-            <PlaceInfo placeData={placeData} />
+            <ContentButtonWrapper>
+              {placeData.relatedContents?.length > 2 && (
+                <ShowMoreButton onClick={() => setisContentExpanded(!isContentExpanded)}>
+                  {isContentExpanded ? mapTranslations.collapse : mapTranslations.showMore}
+                </ShowMoreButton>
+              )}
+            </ContentButtonWrapper>
           </div>
         ) : (
           <>
@@ -211,7 +245,7 @@ const MapSearchPlaces = () => {
               </ListContainer>
             ) : (
               <NoResultsContainer>
-                <NoResultsText>검색 결과가 없습니다.</NoResultsText>
+                <NoResultsText>{mapTranslations.noresult}</NoResultsText>
               </NoResultsContainer>
             )}
           </>
@@ -280,8 +314,8 @@ const ContentSection = styled.div`
   height: ${(props) =>
     props.$isExpanded
       ? props.$isPlaceInfo
-        ? 'fit-content'
-        : '60rem'
+        ? '50rem'
+        : '50rem'
       : props.$isPlaceInfo
         ? '29rem'
         : '17rem'};
@@ -292,6 +326,43 @@ const ContentSection = styled.div`
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   z-index: 501;
+`;
+
+const ContentButtonWrapper = styled.ul`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+`;
+
+const ShowMoreButton = styled.button`
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: center;
+
+  ${({ theme }) => theme.fonts.Body4};
+  color: ${({ theme }) => theme.colors.Gray0};
+`;
+
+const IconText = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 1rem 0;
+
+  svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  p {
+    width: 100%;
+    padding: 0.5rem 0;
+    text-align: left;
+    ${({ theme }) => theme.fonts.Title4};
+  }
 `;
 
 const Title = styled.div`

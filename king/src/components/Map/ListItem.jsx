@@ -9,7 +9,7 @@ import LocationIcon from '../../assets/icons/location.png';
 import { getShortAddress } from '../../util/addressFormat';
 
 const ListItem = forwardRef(({ place, handleFocus }, ref) => {
-  const { placeId, name, type, address, openHour, closedDay, imageUrl } = place;
+  const { id: placeId, name, type, address, openHour, closedDay, imageUrl } = place;
   const isAlwaysOpen = closedDay === '연중무휴'; // 연중무휴 여부 확인
 
   return (

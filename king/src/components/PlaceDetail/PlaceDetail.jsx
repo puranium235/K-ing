@@ -6,6 +6,7 @@ import Nav from '/src/components/common/Nav';
 
 import { IcPencil } from '../../assets/icons';
 import { getPlaceDetail } from '../../lib/place';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import Bottom from '../common/Bottom';
 import DetailHeader from '../common/DetailHeader';
 import Loading from '../Loading/Loading';
@@ -20,6 +21,16 @@ const PlaceDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   const [displayRelatedContents, setdisplayRelatedContents] = useState([]);
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { place: placeTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   useEffect(() => {
     const fetchPlace = async () => {
@@ -57,16 +68,16 @@ const PlaceDetail = () => {
       />
 
       <Content>
-        {/* 길찾기, 공유 버튼 */}
-        <FunctionButton dest={placeData} />
-
         {/* 장소 상세 정보 */}
         <PlaceInfo placeData={placeData} />
+
+        {/* 길찾기, 공유 버튼 */}
+        <FunctionButton dest={placeData} />
 
         {/* 장소 관련 작품 정보 */}
         <IconText>
           <IcPencil />
-          <p>관련 작품</p>
+          <p>{placeTranslations.content}</p>
         </IconText>
         {displayRelatedContents.map((info) => (
           <ContentsInfo key={info.contentId} info={info} />
@@ -74,13 +85,13 @@ const PlaceDetail = () => {
         <ContentButtonWrapper>
           {placeData.relatedContents?.length > 2 && (
             <ShowMoreButton onClick={() => setIsExpanded(!isExpanded)}>
-              {isExpanded ? '접기' : '더보기'}
+              {isExpanded ? placeTranslations.collapse : placeTranslations.showMore}
             </ShowMoreButton>
           )}
         </ContentButtonWrapper>
 
         <BottomContainer>
-          <ActionButton onClick={handleRoute}>다른 팬의 인증샷이 궁금하다면?</ActionButton>
+          <ActionButton onClick={handleRoute}>{placeTranslations.actionButton}</ActionButton>
         </BottomContainer>
         <Bottom />
       </Content>
