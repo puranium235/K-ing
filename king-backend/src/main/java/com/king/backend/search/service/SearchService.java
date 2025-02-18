@@ -8,7 +8,10 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchPhrasePrefixQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
-import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.UpdateRequest;
+import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.entity.CastTranslation;
@@ -18,6 +21,9 @@ import com.king.backend.domain.content.entity.ContentTranslation;
 import com.king.backend.domain.content.repository.ContentRepository;
 import com.king.backend.domain.favorite.entity.Favorite;
 import com.king.backend.domain.favorite.repository.FavoriteRepository;
+import com.king.backend.domain.place.entity.Place;
+import com.king.backend.domain.place.repository.PlaceRepository;
+import com.king.backend.domain.place.service.GooglePhotoService;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.search.config.ElasticsearchConstants;
@@ -52,6 +58,8 @@ public class SearchService {
     private final FavoriteRepository favoriteRepository;
     private final CastRepository castRepository;
     private final ContentRepository contentRepository;
+    private final PlaceRepository placeRepository;
+    private final GooglePhotoService googlePhotoService;
 
     @Value("${spring.aws.s3-bucket}")
     private String awsBucketName;
@@ -252,6 +260,16 @@ public class SearchService {
                                                 Cast cast = castOpt.get();
                                                 CastTranslation trans = cast.getTranslation(language);
                                                 result.setName(trans.getName());
+                                            }
+                                        }
+                                        if ("PLACE".equalsIgnoreCase(result.getCategory())) {
+                                            Optional<Place> placeOpt = placeRepository.findById(result.getId());
+                                            if (placeOpt.isPresent()) {
+                                                Place place = placeOpt.get();
+                                                String imageUrl = googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+                                                place.setImageUrl(imageUrl);
+                                                placeRepository.save(place);
+                                                result.setImageUrl(imageUrl);
                                             }
                                         }
                                         // ===== end =====
@@ -641,19 +659,23 @@ public class SearchService {
             List<Hit<SearchDocument>> hits = searchResponse.hits().hits();
             List<MapViewResponseDto.PlaceDto> results = hits.stream()
                     .map(Hit::source)
-                    .map(doc -> new MapViewResponseDto.PlaceDto(
-                            doc.getOriginalId(),
-                            doc.getName(),
-                            doc.getType(),
-                            doc.getOpenHour(),
-                            doc.getBreakTime(),
-                            doc.getClosedDay(),
-                            doc.getAddress(),
-                            doc.getLocation() != null ? doc.getLocation().getLat() : 0,
-                            doc.getLocation() != null ? doc.getLocation().getLon() : 0,
-                            Objects.requireNonNullElse(doc.getImageUrl(),
-                                    String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion))
-                    ))
+                    .map((doc) -> {
+                        String imageUrl = doc.getImageUrl() == null ? String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion) : googlePhotoService.getRedirectedImageUrl(doc.getImageUrl());
+                        doc.setImageUrl(imageUrl);
+
+                        return new MapViewResponseDto.PlaceDto(
+                                doc.getOriginalId(),
+                                doc.getName(),
+                                doc.getType(),
+                                doc.getOpenHour(),
+                                doc.getBreakTime(),
+                                doc.getClosedDay(),
+                                doc.getAddress(),
+                                doc.getLocation() != null ? doc.getLocation().getLat() : 0,
+                                doc.getLocation() != null ? doc.getLocation().getLon() : 0,
+                                doc.getImageUrl()
+                                );
+                    })
                     .collect(Collectors.toList());
 
             long total = (searchResponse.hits().total() != null) ? searchResponse.hits().total().value() : 0;

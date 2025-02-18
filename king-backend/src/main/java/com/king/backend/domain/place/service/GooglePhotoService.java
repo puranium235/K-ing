@@ -31,6 +31,10 @@ public class GooglePhotoService {
     }
 
     public String getRedirectedImageUrl(String requestUrl) {
+        if (!requestUrl.startsWith("https://map")) {
+            return requestUrl;
+        }
+
         String updatedUrl = requestUrl.replaceAll("key=[^&]+", "key=" + API_KEY);
 
         ResponseEntity<Void> response = restTemplate.getForEntity(updatedUrl, Void.class);
