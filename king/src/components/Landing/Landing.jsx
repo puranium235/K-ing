@@ -50,7 +50,7 @@ const Landing = () => {
       </St.ContentWrapper>
 
       <St.ButtonWrapper>
-        <St.SocialButton onClick={handleMasterToken}>Master login</St.SocialButton>
+        {/* <St.SocialButton onClick={handleMasterToken}>Master login</St.SocialButton> */}
         <St.SocialButton $google onClick={googleLogin}>
           <img src={GoogleIcon} alt="구글 아이콘" />
           Continue with Google
