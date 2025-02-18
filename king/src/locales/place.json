@@ -11,7 +11,8 @@
     "googleMap": "구글 지도",
     "actionButton": "다른 팬의 인증샷이 궁금하다면?",
     "break": "휴무",
-    "openAllYear": "연중무휴"
+    "openAllYear": "연중무휴",
+    "nocontent": "관련 작품이 없습니다."
   },
   "en": {
     "findRoute": "Find Route",
@@ -23,9 +24,10 @@
     "noresult": "No search results found.",
     "naverMap": "Naver Map",
     "googleMap": "Google Map",
-    "actionButton": "Curious about other fans?",
+    "actionButton": "Curious about other fans' proof shots?",
     "break": "Closed",
-    "openAllYear": "Open all year"
+    "openAllYear": "Open all year",
+    "nocontent": "No related content available."
   },
   "ja": {
     "findRoute": "ルート検索",
@@ -39,7 +41,8 @@
     "googleMap": "グーグル マップ",
     "actionButton": "他のファンの認証ショットが気になりますか？",
     "break": "定休日",
-    "openAllYear": "年中無休"
+    "openAllYear": "年中無休",
+    "nocontent": "関連作品がありません。"
   },
   "zh": {
     "findRoute": "查找路線",
@@ -53,6 +56,7 @@
     "googleMap": "Google 地圖",
     "actionButton": "想看看其他粉絲的認證照嗎？",
     "break": "休息日",
-    "openAllYear": "全年無休"
+    "openAllYear": "全年無休",
+    "nocontent": "沒有相關作品。"
   }
 }
