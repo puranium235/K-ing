@@ -26,8 +26,6 @@ export const handleAllowNotification = async () => {
       } else {
         alert('Failed to register FCM token');
       }
-    } else if (permission === 'denied') {
-      alert('Notification permission denied');
     }
   } catch (error) {
     console.error('Error in notification permission:', error);
