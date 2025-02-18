@@ -60,7 +60,7 @@ export const updateNotificationSetting = async (isOn) => {
 
     return response.data;
   } catch (error) {
-    alert('알람 설정 변경 중 오류가 발생했습니다.');
+    // alert('알람 설정 변경 중 오류가 발생했습니다.');
     // console.error('알람 설정 업데이트 중 오류 발생:', error.response?.data || error.message);
     throw error;
   }
