@@ -34,11 +34,13 @@ const FeedDetails = () => {
 
   const [postInfo, setPostInfo] = useState(null);
   const [writer, setWriter] = useState(null);
-  const [isOriginLan, setIsOriginLan] = useState(true);
+  const [isOriginLan, setIsOriginLan] = useState(false);
   const [newComment, setNewComment] = useState('');
 
-  const { reactionList, commentList, getNextData, isLoading, hasMore, mutate } =
-    useGetComments(postId);
+  const { reactionList, commentList, getNextData, isLoading, hasMore, mutate } = useGetComments(
+    postId,
+    isOriginLan,
+  );
 
   //userInfo
   useEffect(() => {
@@ -69,14 +71,14 @@ const FeedDetails = () => {
   };
 
   const getPostInfo = async () => {
-    const res = await getPostDetail(postId);
+    const res = await getPostDetail(postId, isOriginLan);
     setPostInfo(res);
     setWriter(res.writer);
   };
 
   useEffect(() => {
     getPostInfo();
-  }, [postId]);
+  }, [postId, isOriginLan]);
 
   const handleLikePost = async () => {
     toggle.handleToggle();

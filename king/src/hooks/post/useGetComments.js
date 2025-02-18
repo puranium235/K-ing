@@ -3,13 +3,13 @@ import useSWRInfinite from 'swr/infinite';
 
 import { mainGetFetcher } from '../../lib/axios';
 
-const useGetComments = (postId) => {
+const useGetComments = (postId, isOriginLan) => {
   const getKey = (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.data.nextCursor) return null; // 마지막 페이지
 
     return pageIndex === 0
-      ? `/post/${postId}/comment?size=5`
-      : `/post/${postId}/comment?size=5&cursor=${previousPageData.data.nextCursor}`;
+      ? `/post/${postId}/comment?size=5&original=${isOriginLan}`
+      : `/post/${postId}/comment?size=5&original=${isOriginLan}&cursor=${previousPageData.data.nextCursor}`;
   };
 
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(

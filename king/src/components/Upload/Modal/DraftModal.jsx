@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { styled } from 'styled-components';
 
@@ -6,12 +7,23 @@ import kingCharacter from '/src/assets/icons/king_character.png';
 import { deleteCurationDraft } from '../../../lib/curation';
 import { deletePostDraft } from '../../../lib/post';
 import { UseDraft } from '../../../recoil/atom';
+import { getLanguage, getTranslations } from '../../../util/languageUtils';
 import CancelButton from '../../common/button/CancelButton';
 import ConfirmButton from '../../common/button/ConfirmButton';
 import SmallModal from '../../common/modal/smallModal';
 
 const DraftModal = ({ isShowing, handleCancel }) => {
   const setUseDraft = useSetRecoilState(UseDraft);
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { uploadModal: modalTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   const handleConfirmDraft = () => {
     setUseDraft(true);
@@ -27,18 +39,15 @@ const DraftModal = ({ isShowing, handleCancel }) => {
 
   return (
     isShowing && (
-      <SmallModal title="임시저장 불러오기" isShowing={isShowing}>
+      <SmallModal title={modalTranslations.draftTitle} isShowing={isShowing}>
         <StDraftModalWrapper>
           <StCommentWrapper>
             <img src={kingCharacter} />
-            <p>
-              임시저장된 컨텐츠를 <br />
-              불러오시겠습니까?
-            </p>
+            <p>{modalTranslations.draftBody}</p>
           </StCommentWrapper>
           <StBtnWrapper>
-            <CancelButton btnName="취소" onClick={handleCancelDraft} />
-            <ConfirmButton btnName="확인" onClick={handleConfirmDraft} />
+            <CancelButton btnName={modalTranslations.no} onClick={handleCancelDraft} />
+            <ConfirmButton btnName={modalTranslations.yes} onClick={handleConfirmDraft} />
           </StBtnWrapper>
         </StDraftModalWrapper>
       </SmallModal>

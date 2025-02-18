@@ -1,4 +1,5 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
@@ -6,10 +7,21 @@ import styled from 'styled-components';
 import { getCurationDraft } from '../../../lib/curation';
 import { getPostDraft } from '../../../lib/post';
 import { CurationDraftExist, DraftExist } from '../../../recoil/atom';
+import { getLanguage, getTranslations } from '../../../util/languageUtils';
 
 const UploadModal = ({ isShowing }) => {
   const navigate = useNavigate();
-  const options = ['인증샷 업로드', '큐레이션 발행'];
+  const [language, setLanguage] = useState(getLanguage());
+  const { uploadModal: modalTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
+  const options = [modalTranslations.postUpload, modalTranslations.curationUpload];
 
   // 게시글 임시저장
   const setDraftExist = useSetRecoilState(DraftExist);
@@ -34,7 +46,7 @@ const UploadModal = ({ isShowing }) => {
   };
 
   const onOptionClick = (option) => {
-    if (option === '인증샷 업로드') {
+    if (option === modalTranslations.postUpload) {
       checkDraft();
       navigate(`/upload/post`);
     } else {

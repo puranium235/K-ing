@@ -24,6 +24,7 @@ import {
 import { DraftExist, UseDraft } from '../../recoil/atom';
 import { convertHeicToJpeg } from '../../util/convertHeicToJpeg';
 import { convertToBlob } from '../../util/convertToBlob';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
@@ -48,6 +49,16 @@ const PostUpload = ({ state }) => {
 
   const isDraft = useRecoilValue(DraftExist);
   const useDraft = useRecoilValue(UseDraft);
+
+  const [language, setLanguage] = useState(getLanguage());
+  const { post: postTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   useEffect(() => {
     if (isDraft) {
@@ -99,7 +110,7 @@ const PostUpload = ({ state }) => {
 
       const res = await postDraft(draftInfo, imageFile);
       if (res.success) {
-        alert('임시저장이 완료되었습니다.');
+        alert(postTranslations.alertDraftSaved);
         navigate(`/home`);
       }
     }
@@ -185,7 +196,7 @@ const PostUpload = ({ state }) => {
 
     if (file.size > 5 * 1024 * 1024) {
       //5MB
-      alert('업로드 가능한 최대 용량은 5MB입니다. ');
+      alert(postTranslations.alertMaxSizeExceeded);
       event.target.type = '';
       event.target.type = 'file';
       return;
@@ -215,7 +226,7 @@ const PostUpload = ({ state }) => {
       <StUploadWrapper>
         <IconText>
           <BackButton />
-          <p>인증샷 업로드</p>
+          <p>{postTranslations.title}</p>
         </IconText>
 
         <ImageUploadWrapper
@@ -231,8 +242,12 @@ const PostUpload = ({ state }) => {
             ref={fileInputRef}
           />
           {image ? <IcImageUploadTrue /> : <IcImageUpload />}
-          {image ? <h3>사진 재업로드하기</h3> : <h3>사진 업로드하기</h3>}
-          <p>PNG, JPG 형식만 지원됩니다.</p>
+          {image ? (
+            <h3>{postTranslations.reuploadPhoto}</h3>
+          ) : (
+            <h3>{postTranslations.uploadPhoto}</h3>
+          )}
+          <p>{postTranslations.photoDesc}</p>
         </ImageUploadWrapper>
 
         <SearchPlaceWrapper>
@@ -244,13 +259,13 @@ const PostUpload = ({ state }) => {
         </SearchPlaceWrapper>
 
         <CaptionInput
-          placeholder="문구 추가.."
+          placeholder={postTranslations.titlePlaceholder}
           value={caption}
           onChange={handleCaptionChange}
         ></CaptionInput>
 
         <PublicToggleWrapper>
-          <h3>공개</h3>
+          <h3>{postTranslations.public}</h3>
           {toggle.toggle ? (
             <IcToggleTrue onClick={handleToggle} />
           ) : (
@@ -259,16 +274,18 @@ const PostUpload = ({ state }) => {
         </PublicToggleWrapper>
         {state === 'upload' ? (
           <ButtonWrapper>
-            <TemporaryButton onClick={saveDraft}>임시 저장</TemporaryButton>
+            <TemporaryButton onClick={saveDraft}>{postTranslations.draft}</TemporaryButton>
             <SaveButton disabled={!isShareEnabled} onClick={sharePost}>
-              공유
+              {postTranslations.upload}
             </SaveButton>
           </ButtonWrapper>
         ) : (
           <ButtonWrapper>
-            <TemporaryButton onClick={() => navigate(-1)}>취소</TemporaryButton>
+            <TemporaryButton onClick={() => navigate(-1)}>
+              {postTranslations.cancel}
+            </TemporaryButton>
             <SaveButton disabled={!isShareEnabled} onClick={handleUpdatePost}>
-              저장
+              {postTranslations.save}
             </SaveButton>
           </ButtonWrapper>
         )}
