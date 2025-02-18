@@ -1,10 +1,22 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import useModal from '../../../hooks/common/useModal';
+import { getLanguage, getTranslations } from '../../../util/languageUtils';
 import CopyLinkModal from './CopyLinkModal';
 
 const ShareModal = ({ isModalVisible, onClick, curationId }) => {
+  const [language, setLanguage] = useState(getLanguage());
+  const { curation: curationTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
+
   const copy = useModal();
 
   const handleShareLink = () => {
@@ -17,8 +29,8 @@ const ShareModal = ({ isModalVisible, onClick, curationId }) => {
       <ModalBackground $isVisible={isModalVisible} onClick={onClick} />
 
       <ModalContainer $isVisible={isModalVisible}>
-        <OptionButton onClick={handleShareLink}>링크 공유하기</OptionButton>
-        <OptionButton>앱 공유하기</OptionButton>
+        <OptionButton onClick={handleShareLink}>{curationTranslations.shareModal}</OptionButton>
+        {/* <OptionButton>앱 공유하기</OptionButton> */}
       </ModalContainer>
       <StCopyLinkModalWrapper $showing={copy.isShowing}>
         <CopyLinkModal

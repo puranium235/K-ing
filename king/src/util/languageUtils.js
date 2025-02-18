@@ -1,9 +1,11 @@
 import accountLocales from '../locales/account.json';
 import archivelLocales from '../locales/archive.json';
+import chatbotLocales from '../locales/chatbot.json';
 import commonLocales from '../locales/common.json';
 import contentLocales from '../locales/content.json';
 import curationLocales from '../locales/curation.json';
 import deleteAccountLocales from '../locales/deleteAccount.json';
+import feedLocales from '../locales/feed.json';
 import homeLocales from '../locales/home.json';
 import mapLocales from '../locales/map.json';
 import notificationLocales from '../locales/notification.json';
@@ -50,4 +52,6 @@ export const getTranslations = (lang = getLanguage()) => ({
   place: placeLocales[lang] || placeLocales['ko'],
   review: reviewLocales[lang] || reviewLocales['ko'],
   curation: curationLocales[lang] || curationLocales['ko'],
+  feed: feedLocales[lang] || feedLocales['ko'],
+  chatbot: chatbotLocales[lang] || chatbotLocales['ko'],
 });
