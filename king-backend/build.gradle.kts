@@ -33,6 +33,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
     implementation("org.elasticsearch.client:elasticsearch-rest-client:8.17.0")
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.4.2")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.6")

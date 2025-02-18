@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PlaceService {
     private final PlaceRepository placeRepository;
+    private final GooglePhotoService googlePhotoService;
 
     @Transactional
     public PlaceDetailResponseDto getPlaceDetail(Long id){
@@ -30,6 +31,10 @@ public class PlaceService {
         List<PlaceDetailResponseDto.RelatedContent> relatedContents = place.getPlaceContents().stream()
                 .map(this::mapToRelatedContents)
                 .collect(Collectors.toList());
+
+        String imageUrl = googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+        place.setImageUrl(imageUrl);
+        placeRepository.save(place);
 
         return new PlaceDetailResponseDto(
                 place.getId(),
