@@ -80,7 +80,9 @@ const Home = () => {
           onSearch={(query, category) => {
             setSearchQuery(query);
             setSearchCategory(category);
-            navigate('/search/result');
+            if (query) {
+              navigate('/search/result');
+            }
           }}
           onFocus={() => setIsSearchFocused(true)}
           onBlur={() => setIsSearchFocused(false)}
