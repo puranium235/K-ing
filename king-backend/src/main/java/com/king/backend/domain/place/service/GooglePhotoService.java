@@ -31,7 +31,7 @@ public class GooglePhotoService {
     }
 
     public String getRedirectedImageUrl(String requestUrl) {
-        if (!requestUrl.startsWith("https://map")) {
+        if (requestUrl == null || !requestUrl.startsWith("https://map")) {
             return requestUrl;
         }
 
