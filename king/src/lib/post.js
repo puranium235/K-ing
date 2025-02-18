@@ -63,9 +63,9 @@ export const createPost = async (postInfo, image) => {
 };
 
 // 게시글 조회
-export const getPostDetail = async (postId) => {
+export const getPostDetail = async (postId, isOriginLan) => {
   try {
-    const { data } = await client.get(`/post/${postId}`);
+    const { data } = await client.get(`/post/${postId}?original=${isOriginLan}`);
     return data.data;
   } catch (err) {
     console.error(err);
