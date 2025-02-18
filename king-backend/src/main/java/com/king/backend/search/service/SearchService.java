@@ -660,8 +660,6 @@ public class SearchService {
             List<MapViewResponseDto.PlaceDto> results = hits.stream()
                     .map(Hit::source)
                     .map((doc) -> {
-                        String imageUrl = doc.getImageUrl() == null ? String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion) : googlePhotoService.getRedirectedImageUrl(doc.getImageUrl());
-                        doc.setImageUrl(imageUrl);
 
                         return new MapViewResponseDto.PlaceDto(
                                 doc.getOriginalId(),
@@ -672,8 +670,7 @@ public class SearchService {
                                 doc.getClosedDay(),
                                 doc.getAddress(),
                                 doc.getLocation() != null ? doc.getLocation().getLat() : 0,
-                                doc.getLocation() != null ? doc.getLocation().getLon() : 0,
-                                doc.getImageUrl()
+                                doc.getLocation() != null ? doc.getLocation().getLon() : 0
                                 );
                     })
                     .collect(Collectors.toList());
