@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcDelete } from '../../assets/icons';
@@ -8,6 +8,8 @@ import { getRelativeCommentDate } from '../../util/getRelativeCommentDate';
 import { getUserIdFromToken } from '../../util/getUserIdFromToken';
 
 const Comment = forwardRef(({ data }, ref) => {
+  const navigate = useNavigate();
+
   const { postId } = useParams();
   const nowUserId = getUserIdFromToken();
 
@@ -25,12 +27,22 @@ const Comment = forwardRef(({ data }, ref) => {
     }
   };
 
+  const handleCommentUserClick = () => {
+    navigate(`/user/${userId}`);
+  };
+
   return (
     <CommentWrapper ref={ref}>
       <UserInfo>
         <UserProfile>
-          <Profile style={{ backgroundImage: `url(${imageUrl})` }} alt="profile" />
-          <p>{nickname}</p>
+          <Profile
+            style={{ backgroundImage: `url(${imageUrl})` }}
+            alt="profile"
+            onClick={handleCommentUserClick}
+          />
+          <p onClick={handleCommentUserClick} style={{ cursor: 'pointer' }}>
+            {nickname}
+          </p>
           <p id="date">{getRelativeCommentDate(createdAt)}</p>
         </UserProfile>
       </UserInfo>
@@ -88,6 +100,8 @@ const Profile = styled.div`
 
   background-size: cover;
   background-position: center;
+
+  cursor: pointer;
 `;
 
 const Caption = styled.div`
