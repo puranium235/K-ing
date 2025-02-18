@@ -8,7 +8,7 @@ import Loading from '../Loading/Loading';
 import CurationItem from './CurationItem';
 
 const CurationsList = ({ query }) => {
-  const { curationList, getNextData, isLoading, hasMore, mutate } = useGetCurationList(query);
+  const { curationList, getNextData, isLoading, hasMore } = useGetCurationList(query);
 
   const lastElementRef = useRef(null);
 
@@ -16,7 +16,7 @@ const CurationsList = ({ query }) => {
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
   }, [isLoading, hasMore, lastElementRef]);
 
-  if (isLoading && curationList.length === 0) return <Loading />;
+  if (isLoading && curationList.length !== 0) return <Loading />;
 
   return (
     <StCurationList>
@@ -26,7 +26,6 @@ const CurationsList = ({ query }) => {
             key={item.id}
             item={item}
             ref={index === curationList?.length - 1 ? lastElementRef : null}
-            onBookmarkChange={() => mutate()}
           />
         ))}
     </StCurationList>

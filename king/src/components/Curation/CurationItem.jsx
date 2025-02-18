@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
@@ -10,8 +10,12 @@ import { addBookmark, removeBookmark } from '../../lib/bookmark';
 const CurationItem = forwardRef(({ item, onBookmarkChange }, ref) => {
   const location = useLocation();
   const { id: curationId, title, imageUrl, writerNickname, bookmarked: initialBookmarked } = item;
-  const [bookmarked, setBookmarked] = useState(initialBookmarked);
+  const [bookmarked, setBookmarked] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setBookmarked(initialBookmarked);
+  }, [initialBookmarked]);
 
   const handleBookmarkClick = async (event) => {
     event.stopPropagation();
@@ -30,9 +34,6 @@ const CurationItem = forwardRef(({ item, onBookmarkChange }, ref) => {
     if (!success) {
       // 실패한 경우 상태를 원래대로 복구
       setBookmarked((prev) => !prev);
-    } else if (onBookmarkChange) {
-      // 성공하면 SWR 캐시 갱신
-      onBookmarkChange();
     }
   };
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { forwardRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { mutate } from 'swr/_internal';
 
 import { IcBookmarkBlank, IcBookmarkFill, IcLock } from '../../assets/icons';
 import { removeBookmark } from '../../lib/bookmark';
@@ -25,17 +26,6 @@ const CurationItem = forwardRef(({ item, onRemove }, ref) => {
     const success = await removeBookmark(curationId);
     if (success) {
       onRemove(curationId);
-      mutate((prevData) => {
-        if (!prevData) return [];
-
-        return prevData.map((page) => ({
-          ...page,
-          data: {
-            ...page.data,
-            curations: page.data.curations.filter((curation) => curation.curationId !== curationId),
-          },
-        }));
-      }, false);
     } else {
       setBookmarked(true); // 실패 시 다시 북마크 상태 복구
     }
