@@ -6,5 +6,5 @@ export const getContentTypeLocalized = (type) => {
   const language = getLanguage();
   const { content: translations } = getTranslations(language);
 
-  return CONTENT_TYPE.includes(type) ? translations[type] : translations.content;
+  return CONTENT_TYPE.includes(type) ? translations[type] : '';
 };

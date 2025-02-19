@@ -5,7 +5,7 @@ import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import { IcSearch } from '../../assets/icons';
-import { getAutoKeyword } from '../../lib/search';
+import { getAutoKeyword, getSearchResult } from '../../lib/search';
 import { ContentType } from '../../recoil/atom';
 import { getContentTypeLocalized } from '../../util/getContentType';
 import { getLanguage, getTranslations } from '../../util/languageUtils'; // ✅ 번역 유틸 추가
@@ -24,7 +24,11 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
   const handleSearchChange = useCallback(
     debounce(async (searchText) => {
       const res = await getAutoKeyword(searchText, type);
-      setAutoCompleteOptions(res.results);
+      if (searchText && res.results.length === 0) {
+        setAutoCompleteOptions([{ name: '검색결과가 없습니다.', category: '' }]);
+      } else {
+        setAutoCompleteOptions(res.results);
+      }
     }, 300),
     [type],
   );
@@ -37,7 +41,7 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
     }
   };
 
-  const handleOptionClick = (option) => {
+  const handleOptionClick = async (option) => {
     setContentType('autocom');
     setIsDropDown(false);
 
@@ -47,6 +51,8 @@ const SearchBar = ({ type, query, onSearch, onFocus, onBlur, onSet }) => {
       onSet(option);
       return;
     }
+
+    await getSearchResult({ query: option.name, category: option.category });
 
     if (option.category === 'CAST') {
       navigate(`/content/cast/${option.originalId}`);

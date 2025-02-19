@@ -24,14 +24,14 @@ const app = firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging(app);
 
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload.notification);
+  console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
   // Customize notification here
-  const notificationTitle = payload.notification.title;
+  const notificationTitle = payload.data.title;
   const notificationOptions = {
-    body: payload.notification.body,
-    // icon: '/logo.png',
-    data: { link: payload.fcmOptions.link },
+    body: payload.data.body,
+    icon: '/logo.png',
+    data: payload.data.link,
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -39,6 +39,21 @@ messaging.onBackgroundMessage((payload) => {
 
 //웹 푸시 알림 노출
 // self.addEventListener('push', function (e) {
+//   let payload = e.data.json();
+//   console.log(payload);
+//   // data를 통해 title과 body, link를 추출
+//   let title = payload.data.title;
+//   let body = payload.data.body;
+//   let link = payload.webpush?.fcmOptions?.link || '/';
+//   let options = {
+//     body,
+//     icon: 'https://king-s3-bucket.s3.us-east-1.amazonaws.com/uploads/default.jpg',
+//     data: { link },
+//   };
+//   e.waitUntil(self.registration.showNotification(title, options));
+// });
+// self.addEventListener('push', function (e) {
+//   console.log('웹푸시', e.data.json());
 //   if (!e.data.json()) return;
 
 //   const resultData = e.data.json().notification;
@@ -65,13 +80,13 @@ messaging.onBackgroundMessage((payload) => {
 // });
 
 self.addEventListener('notificationclick', function (event) {
-  console.log('[firebase-messaging-sw.js] 알림이 클릭되었습니다.');
+  console.log('[firebase-messaging-sw.js] 알림이 클릭되었습니다.', event);
 
   // event.preventDefault();
 
   // 아래의 event.notification.data는 위의 푸시 이벤트를 한 번 거쳐서 전달 받은 options.data에 해당한다.
-  const link =
-    event.notification.data.FCM_MSG.notification.click_action || 'https://i12a507.p.ssafy.io/';
+  const link = event.notification.data || 'https://i12a507.p.ssafy.io/';
+  console.log(link);
   event.notification.close();
 
   // 클라이언트에 해당 사이트가 열려있는지 체크

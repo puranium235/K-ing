@@ -91,7 +91,6 @@ const Header = ({ title }) => {
 };
 
 const Container = styled.div`
-  position: relative;
   width: 100%;
 `;
 

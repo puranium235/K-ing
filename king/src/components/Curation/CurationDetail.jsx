@@ -63,13 +63,14 @@ const CurationDetail = () => {
       }
     };
 
-    fetchCurationData();
+    fetchCurationData(curationData);
   }, [curationId, setPlaceList]);
 
   // 작성자가 아니면 헤더에 옵션 버튼이 보이지 않음
   useEffect(() => {
     if (curationData) {
       const currentUserId = Number(getUserIdFromToken());
+      console.log(curationData.writer.userId, currentUserId);
       setIsOptionVisible(currentUserId !== null && curationData.writer.userId === currentUserId);
     }
   }, [curationData]);
@@ -126,9 +127,13 @@ const CurationDetail = () => {
     }
   };
 
+  const handleHeader = () => {
+    document.querySelector('html').scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <Container>
-      <HeaderContainer>
+      <HeaderContainer onClick={handleHeader}>
         <Header title={curationData.title} />
         {isOptionVisible && (
           <OptionButton onClick={openModal}>
@@ -199,10 +204,16 @@ const Container = styled.div`
 `;
 
 const HeaderContainer = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 좌우 정렬 */
+  justify-content: space-between;
+
+  background-color: ${({ theme }) => theme.colors.White};
 `;
 
 const OptionButton = styled.button`

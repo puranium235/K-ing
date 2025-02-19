@@ -1,15 +1,41 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { IcComments, IcHeartTrue, IcLikes } from '../../assets/icons';
+import { likePost, unLikePost } from '../../lib/post';
 import { formatDate } from '../../util/formatDate';
 
 const PostItem = forwardRef(({ post, column }, ref) => {
   const navigate = useNavigate();
+  const [isLiked, setIsLiked] = useState(post.liked);
+  const [likesCount, setLikesCount] = useState(post.likesCnt);
+
+  useEffect(() => {
+    setIsLiked(post.liked);
+    setLikesCount(post.likesCnt);
+  }, [post]);
 
   const handleFeedClick = (id) => {
     navigate(`/feed/${id}`);
+  };
+
+  const handleLikeClick = async (event) => {
+    event.stopPropagation();
+
+    if (isLiked) {
+      const res = await unLikePost(post.postId);
+      if (res.success) {
+        setIsLiked(false);
+        setLikesCount((prev) => prev - 1);
+      }
+    } else {
+      const res = await likePost(post.postId);
+      if (res.success) {
+        setIsLiked(true);
+        setLikesCount((prev) => prev + 1);
+      }
+    }
   };
 
   return (
@@ -19,9 +45,9 @@ const PostItem = forwardRef(({ post, column }, ref) => {
       </ImageWrapper>
       <St.Info>
         <St.Action>
-          <IconText>
-            {post.liked ? <IcHeartTrue /> : <IcLikes />}
-            <p>{post.likesCnt}</p>
+          <IconText onClick={handleLikeClick}>
+            {isLiked ? <IcHeartTrue /> : <IcLikes />}
+            <p>{likesCount}</p>
           </IconText>
           <IconText>
             <IcComments />
