@@ -85,8 +85,7 @@ self.addEventListener('notificationclick', function (event) {
   // event.preventDefault();
 
   // 아래의 event.notification.data는 위의 푸시 이벤트를 한 번 거쳐서 전달 받은 options.data에 해당한다.
-  const link = event.notification.data || 'https://i12a507.p.ssafy.io/';
-  console.log(link);
+  const link = event.notification.data || `https://i12a507.p.ssafy.io/`;
   event.notification.close();
 
   // 클라이언트에 해당 사이트가 열려있는지 체크
@@ -94,14 +93,24 @@ self.addEventListener('notificationclick', function (event) {
     event.waitUntil(
       clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
         // 이미 열린 창이 있는지 확인
+        let foundWindowClient = null;
         for (let i = 0; i < windowClients.length; i++) {
           const client = windowClients[i];
-          if (client.url === link && 'focus' in client) {
-            return client.focus();
+          if (link.includes('ssafy') && 'focus' in client) {
+            foundWindowClient = client;
+            break;
+            // return client.focus();
           }
         }
+        if (foundWindowClient) {
+          return foundWindowClient.focus().then((focusedClient) => {
+            if ('navigate' in focusedClient) {
+              focusedClient.postMessage(link);
+            }
+          });
+        }
         // 새 창을 열거나 이미 있는 창으로 이동
-        if (clients.openWindow) {
+        else if (clients.openWindow) {
           return clients.openWindow(link);
         }
       }),
