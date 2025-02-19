@@ -59,10 +59,8 @@ public class FcmTokenService {
         log.info("link : {}", link);
         Message message = Message.builder()
                 .setToken(token)
-                .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .build())
+                .putData("title", title)
+                .putData("body", body)
                 .setWebpushConfig(
                         WebpushConfig.builder()
                                 .setFcmOptions(
@@ -87,7 +85,8 @@ public class FcmTokenService {
         tokenRecord.ifPresent(fcmTokenRepository::delete);
     }
 
-    @Scheduled(cron = "0 0 10,13,16 * * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "0 0 10,13,16 * * *", zone = "Asia/Seoul")
+    @Scheduled(fixedRate = 60000, zone = "Asia/Seoul")
     public void testPushNotification() {
         Optional<CurationList> optionalCuration = curationListRepository.findTopByIsPublicTrueOrderByCreatedAtDesc();
         if (optionalCuration.isEmpty()) {
