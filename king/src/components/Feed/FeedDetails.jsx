@@ -491,16 +491,16 @@ const CommentContainer = styled.div`
 `;
 
 const FootWrapper = styled.div`
-  width: 100%;
+  width: 88%;
   padding: 0 2rem;
 `;
 
 const NewCommentContainer = styled.div`
-  position: fixed;
+  position: sticky;
   bottom: 2rem;
   z-index: 1000;
 
-  width: 88%;
+  width: 100%;
   background-color: ${({ theme }) => theme.colors.White};
 
   display: flex;
@@ -540,7 +540,7 @@ const SendButton = styled.button`
 `;
 
 const FooterWrapper = styled.div`
-  position: fixed;
+  position: sticky;
   bottom: 0;
   z-index: 1000;
 

@@ -16,7 +16,7 @@ const CurationsList = ({ query }) => {
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
   }, [isLoading, hasMore, lastElementRef]);
 
-  if (isLoading && curationList.length !== 0) return <Loading />;
+  if (isLoading && curationList.length === 0) return <Loading />;
 
   return (
     <StCurationList>
