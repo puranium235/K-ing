@@ -24,12 +24,12 @@ const app = firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging(app);
 
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload.notification);
+  console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
   // Customize notification here
-  const notificationTitle = payload.notification.title;
+  const notificationTitle = payload.data.title;
   const notificationOptions = {
-    body: payload.notification.body,
+    body: payload.data.body,
     // icon: '/logo.png',
     data: { link: payload.fcmOptions.link },
   };
@@ -65,7 +65,7 @@ messaging.onBackgroundMessage((payload) => {
 // });
 
 self.addEventListener('notificationclick', function (event) {
-  console.log('[firebase-messaging-sw.js] 알림이 클릭되었습니다.');
+  console.log('[firebase-messaging-sw.js] 알림이 클릭되었습니다.', event);
 
   // event.preventDefault();
 

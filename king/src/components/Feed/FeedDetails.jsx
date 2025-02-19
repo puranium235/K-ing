@@ -476,7 +476,7 @@ const CommentWrapper = styled.div`
     display: none;
   }
 
-  margin-bottom: 6rem;
+  padding-bottom: 8rem;
 `;
 
 const CommentContainer = styled.div`
