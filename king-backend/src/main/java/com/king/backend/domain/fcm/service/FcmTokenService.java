@@ -87,7 +87,6 @@ public class FcmTokenService {
         tokenRecord.ifPresent(fcmTokenRepository::delete);
     }
 
-//    @Scheduled(cron = "초 분 시 * * *", zone = "Asia/Seoul")
     @Scheduled(cron = "0 0 10,13,16 * * *", zone = "Asia/Seoul")
     public void testPushNotification() {
         Optional<CurationList> optionalCuration = curationListRepository.findTopByIsPublicTrueOrderByCreatedAtDesc();
