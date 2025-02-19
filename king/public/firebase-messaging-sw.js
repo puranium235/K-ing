@@ -26,14 +26,12 @@ const messaging = firebase.messaging(app);
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-  const link =
-    payload.data && payload.data.link ? payload.data.link : 'https://i12a507.p.ssafy.io/';
   // Customize notification here
   const notificationTitle = payload.data.title;
   const notificationOptions = {
     body: payload.data.body,
     icon: '/logo.png',
-    data: { link },
+    data: payload.data.link,
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -87,7 +85,8 @@ self.addEventListener('notificationclick', function (event) {
   // event.preventDefault();
 
   // 아래의 event.notification.data는 위의 푸시 이벤트를 한 번 거쳐서 전달 받은 options.data에 해당한다.
-  const link = event.notification.data.link || 'https://i12a507.p.ssafy.io/';
+  const link = event.notification.data || 'https://i12a507.p.ssafy.io/';
+  console.log(link);
   event.notification.close();
 
   // 클라이언트에 해당 사이트가 열려있는지 체크
