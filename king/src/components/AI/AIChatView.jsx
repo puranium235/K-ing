@@ -66,12 +66,12 @@ const AIChatView = () => {
 
   const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
 
-  const chatT = '데이터 기반 장소 검색 T봇';
-  const chatF = '맞춤 큐레이션 추천 F봇';
+  const chatT = chatbotTranslations.chatT;
+  const chatF = chatbotTranslations.chatF;
 
   const saveInitialMessage = async () => {
     const initialMessage = {
-      text: '어떤 MBTI의 챗봇을 원하시나요?',
+      text: chatbotTranslations.initialMessage,
       sender: 'assistant',
       type: 'message',
     };
@@ -188,10 +188,10 @@ const AIChatView = () => {
     let aiMessage;
     if (selectedBot === chatT) {
       setCurrentApi(`${WS_BASE_URL}/ws/chatT`);
-      aiMessage = `안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.\n 궁금한 걸 물어봐주세요!`;
+      aiMessage = chatbotTranslations.chatTDesc;
     } else if (selectedBot === chatF) {
       setCurrentApi(`${WS_BASE_URL}/ws/chatF`);
-      aiMessage = `안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다.\n 궁금한 걸 물어봐주세요!💫🎭`;
+      aiMessage = chatbotTranslations.chatFDesc;
     }
 
     updateMessages(aiMessage);
