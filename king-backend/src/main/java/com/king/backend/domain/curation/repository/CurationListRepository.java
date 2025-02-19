@@ -55,4 +55,6 @@ public interface CurationListRepository extends JpaRepository<CurationList, Long
             @Param("size") int size,
             @Param("bookmarked") Boolean bookmarked,
             @Param("userId") Long userId);
+
+    Optional<CurationList> findTopByIsPublicTrueOrderByCreatedAtDesc();
 }

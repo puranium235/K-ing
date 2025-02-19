@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface FcmTokenRepository extends JpaRepository<FcmToken, Long> {
     List<FcmToken> findByUser(User user);
     Optional<FcmToken> findByUserAndToken(User user, String token);
+    List<FcmToken> findByUser_ContentAlarmOnTrue();
 }
