@@ -65,9 +65,9 @@ const ContentDetails = () => {
 
     if (from && (from.includes('/archive') || from.includes('/favorites'))) {
       navigate(-1);
-    }
-
-    if (contentType === 'search') {
+    } else if (from && from.includes('/keyword' && contentType !== 'search')) {
+      navigate(`/content/${contentType}`);
+    } else if (contentType === 'search') {
       navigate(`/search/result`);
     } else if (contentType === 'autocom') {
       navigate(`/home`);

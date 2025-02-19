@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import {
   FilterOption,
+  PlaceSearchQueryState,
   SearchCategoryState,
   SearchPrevQuery,
   SearchQueryState,
@@ -21,6 +22,7 @@ const SearchResult = () => {
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
   const setFilter = useSetRecoilState(FilterOption);
+  const placeQueryState = useRecoilValue(PlaceSearchQueryState);
 
   const { searchResultList, isLoading } = useGetSearchResult(searchQuery, searchCategory, '');
 
@@ -29,6 +31,12 @@ const SearchResult = () => {
   const [placeList, setPlaceList] = useState([]);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (placeQueryState) {
+      setSearchQuery(placeQueryState);
+    }
+  }, [placeQueryState, setSearchQuery]);
 
   const handleSearch = (query, category) => {
     setFilter({
@@ -42,9 +50,6 @@ const SearchResult = () => {
       province: '',
       district: '',
     });
-    if (query) {
-      setSearchQuery(query);
-    }
     setSearchCategory(category);
     setPrevQuery(query);
   };

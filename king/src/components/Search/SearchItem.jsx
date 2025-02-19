@@ -1,16 +1,20 @@
 import React from 'react';
 import { forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import defaultImg from '/src/assets/icons/king_logo.png';
 
-import { ContentType } from '../../recoil/atom';
+import { ContentType, SearchQueryState } from '../../recoil/atom';
+import { PlaceSearchQueryState } from '../../recoil/atom';
 
 const SearchItem = forwardRef(({ item }, ref) => {
   const { id, category, name, imageUrl } = item;
   const setContentType = useSetRecoilState(ContentType);
+
+  const setPlaceSearchState = useSetRecoilState(PlaceSearchQueryState);
+  const searchQuery = useRecoilValue(SearchQueryState);
 
   const navigate = useNavigate();
 
@@ -20,8 +24,10 @@ const SearchItem = forwardRef(({ item }, ref) => {
     if (category === 'PLACE') {
       navigate(`/place/${id}`);
     } else if (category === 'CAST') {
+      setPlaceSearchState(searchQuery);
       navigate(`/content/cast/${id}`);
     } else {
+      setPlaceSearchState(searchQuery);
       navigate(`/content/detail/${id}`);
     }
   };
