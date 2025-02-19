@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 
-const SettingHeader = ({ title }) => {
+const SettingHeader = ({ title, onBack }) => {
   const language = getLanguage();
   const { setting: settingTranslations } = getTranslations(language);
   const location = useLocation();
@@ -15,7 +15,7 @@ const SettingHeader = ({ title }) => {
 
   return (
     <StHeaderWrapper>
-      <BackButton />
+      <BackButton onBack={onBack} />
       <St.Header>{pageTitle}</St.Header>
     </StHeaderWrapper>
   );
