@@ -38,6 +38,7 @@ const useGetFeedList = () => {
     isLoading: isValidating,
     isError: error,
     hasMore,
+    mutate,
   };
 };
 

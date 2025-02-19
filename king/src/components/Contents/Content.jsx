@@ -92,7 +92,7 @@ const Content = () => {
     }
   };
 
-  if (isLoading && searchResultList.length === 0) return <Loading />;
+  if (isLoading && searchResultList.length !== 0) return <Loading />;
 
   return (
     <>

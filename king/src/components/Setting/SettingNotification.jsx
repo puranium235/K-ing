@@ -100,7 +100,7 @@ const St = {
     height: 1.6rem;
     background-color: white;
     border-radius: 50%;
-    transform: ${({ $isToggled }) => ($isToggled ? 'translateX(2rem)' : 'translateX(0)')};
+    transform: ${({ $isToggled }) => ($isToggled ? 'translateX(2rem)' : 'translateX(0.3rem)')};
     transition: transform 0.3s ease-in-out;
   `,
 };
