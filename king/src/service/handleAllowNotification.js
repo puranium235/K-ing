@@ -36,26 +36,44 @@ export const handleAllowNotification = async () => {
 
     const notificationTitle = payload.data?.title || '알림';
     const notificationOptions = {
-      body: payload.data?.body || '',
+      body: payload.data?.body,
       icon: '/logo.png',
-      // data: { link: payload.fcmOptions?.link || '/' },
+      data: payload.data?.link,
     };
 
-    if (Notification.permission === 'granted') {
-      try {
-        if (Notification.permission === 'granted' && document.visibilityState === 'visible') {
-          new Notification(notificationTitle, notificationOptions);
-
-          // notification.onclick = function (event) {
-          //   event.preventDefault();
-          //   window.open(notificationOptions.fcmOptions.link, '/');
-          // };
-        }
-      } catch (error) {
-        console.error('알림 생성 중 오류 발생:', error);
-      }
-    } else {
-      console.warn('알림 권한이 허용되지 않았습니다.');
+    if (!isMobile()) {
+      const notif = new Notification(notificationTitle, notificationOptions);
+      notif.onclick = (event) => {
+        event.preventDefault();
+        const link = payload.data?.link || 'https://i12a507.p.ssafy.io/';
+        window.location.href = link;
+        notif.close();
+      };
+    } else if (!isIOSAPP()) {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification(notificationTitle, notificationOptions);
+      });
     }
+
+    // if (Notification.permission === 'granted') {
+    //   try {
+    //     if (Notification.permission === 'granted' && document.visibilityState === 'visible') {
+    //       new Notification(notificationTitle, notificationOptions);
+
+    //       // notification.onclick = function (event) {
+    //       //   event.preventDefault();
+    //       //   window.open(notificationOptions.fcmOptions.link, '/');
+    //       // };
+    //     }
+    //   } catch (error) {
+    //     console.error('알림 생성 중 오류 발생:', error);
+    //   }
+    // } else {
+    //   console.warn('알림 권한이 허용되지 않았습니다.');
+    // }
   });
 };
+
+function isMobile() {
+  return /Mobi/i.test(navigator.userAgent);
+}
