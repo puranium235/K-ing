@@ -1,18 +1,12 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
-import { IcFootsteps, IcKing } from '../../assets/icons';
 import KingLogo from '../../assets/icons/king_logo.png';
-import KingLogoImsi from '../../assets/icons/king_logo_imsi.png';
-import FootstepsAnimation from './FootstepsAnimation';
 
 const Splash = () => {
   return (
     <StSplashWrapper>
       <LogoImage src={KingLogo} alt="King Logo" />
-
-      {/* <St.Tagline>드라마의 발자취를 따라 주인공이 되어보세요.</St.Tagline> */}
-      {/* <FootstepsAnimation /> */}
     </StSplashWrapper>
   );
 };
@@ -20,16 +14,16 @@ const Splash = () => {
 export default Splash;
 
 // 애니메이션 효과 추가
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
+// const fadeIn = keyframes`
+//   from {
+//     opacity: 0;
+//     transform: translateY(10px);
+//   }
+//   to {
+//     opacity: 1;
+//     transform: translateY(0);
+//   }
+// `;
 
 const StSplashWrapper = styled.div`
   display: flex;
@@ -38,21 +32,12 @@ const StSplashWrapper = styled.div`
   justify-content: center;
   height: 100%;
   background-color: ${({ theme }) => theme.colors.White};
-  animation: ${fadeIn} 1s ease-in-out;
 `;
 
 const LogoImage = styled.img`
   width: 15rem;
   height: auto;
-  margin-top: -10rem;
+  margin-top: -11rem;
   position: relative; /* 요소를 독립적으로 배치하기 위해 */
   z-index: 2; /* 발자국보다 앞에 배치 */
 `;
-
-const St = {
-  Tagline: styled.p`
-    ${({ theme }) => theme.fonts.Body4}
-    color: ${({ theme }) => theme.colors.Gray2};
-    text-align: center;
-  `,
-};
