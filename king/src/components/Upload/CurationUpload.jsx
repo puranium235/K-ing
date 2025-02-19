@@ -73,7 +73,7 @@ const CurationUpload = ({ state }) => {
   }, [placeList]);
 
   useEffect(() => {
-    if (isDraft) {
+    if (isDraft && !curationId) {
       create.setShowing(true);
     }
   }, [isDraft]);
@@ -115,11 +115,14 @@ const CurationUpload = ({ state }) => {
     if ((isDraft && useDraft) || autoDraft) {
       await deleteCurationDraft();
       setCurationDraftExist(false);
+      setIsUpdateLoaded(false);
       setAutoDraft(false);
+      setUseDraft(false);
     }
   };
 
   useEffect(() => {
+    //if (!useDraft) return;
     initData();
   }, [useDraft, curationId]);
 
