@@ -243,7 +243,12 @@ public class SearchService {
                                                 doc.getDetails(),   // 기본값; 아래에서 재설정함
                                                 Objects.requireNonNullElse(doc.getImageUrl(),
                                                         String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion)),
-                                                false
+                                                false,
+                                                doc.getType(),
+                                                doc.getOpenHour(),
+                                                doc.getBreakTime(),
+                                                doc.getClosedDay(),
+                                                doc.getAddress()
                                         );
                                         // ===== 엔티티 번역 처리 (CONTENT, CAST) =====
                                         if ("MOVIE".equalsIgnoreCase(result.getCategory())||"SHOW".equalsIgnoreCase(result.getCategory())||"DRAMA".equalsIgnoreCase(result.getCategory())) {
@@ -341,7 +346,12 @@ public class SearchService {
                                     doc.getDetails(),   // 기본값; 아래에서 재설정
                                     Objects.requireNonNullElse(doc.getImageUrl(),
                                             String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion)),
-                                    isFavorite
+                                    isFavorite,
+                                    doc.getType(),
+                                    doc.getOpenHour(),
+                                    doc.getBreakTime(),
+                                    doc.getClosedDay(),
+                                    doc.getAddress()
                             );
                             // ===== 엔티티 번역 처리 (CONTENT, CAST) =====
                             if ("MOVIE".equalsIgnoreCase(result.getCategory())||"SHOW".equalsIgnoreCase(result.getCategory())||"DRAMA".equalsIgnoreCase(result.getCategory())) {
