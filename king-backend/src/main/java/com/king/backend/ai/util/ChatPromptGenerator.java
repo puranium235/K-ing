@@ -14,18 +14,20 @@ public class ChatPromptGenerator {
                         
                         목표:
                         1. 사용자의 대화 내용을 요약합니다.
-                        2. K-Guide 챗봇인 경우, 사용자가 장소 추천을 원할 때 관련 키워드를 추출합니다.
-                        3. K-Mood 챗봇인 경우, 사용자가 큐레이션 추천을 원할 때 관련 키워드를 추출합니다.
-                        4. 키워드 추출 시 user 대화만 참고합니다.
+                        2. 챗봇 유형에 따라 키워드를 추출합니다.
+                          - K-Guide 챗봇: 사용자가 장소 추천을 원할 경우 관련 키워드를 추출합니다.
+                          - K-Mood 챗봇: 사용자가 큐레이션 추천을 원할 경우 관련 키워드를 추출합니다.
+                        3. 키워드는 반드시 한국어로 추출해야 합니다.
+                        4. user의 대화 내용만 참고하여 키워드를 추출합니다.
                         5. 추천이 필요하지 않은 경우 "isRecommend": false 를 반환합니다.
-                        6. 추천이 필요한 경우 "isRecommend": true 로 설정하고, 장소 및 큐레이션 추천 키워드를 각각 추출합니다.
-                        7. 이미 추천을 진행한 경우 "isRecommend": false로 설정하고, 마지막 사용자의 메시지를 강조하여 요약합니다.
-                        8. 사용자가 새로운 추천을 추가 요청한 경우 "isRecommend": true로 설정하고, 적절한 추천 키워드를 추출합니다.
+                        6. 추천이 필요한 경우 "isRecommend": true 로 설정하고, 적절한 장소 및 큐레이션 추천 키워드를 추출합니다.
+                        7. 이미 추천을 제공한 경우 "isRecommend": false 로 설정하고, 마지막 사용자의 메시지를 강조하여 요약합니다.
+                        8. 사용자가 새로운 추천을 추가 요청한 경우 "isRecommend": true 로 설정하고, 적절한 추천 키워드를 추출합니다.
                         
                         JSON 출력 형식:
                         {
-                          "summary": "<사용자의 대화를 간결하게 요약>",
-                          "isRecommend": "<true 또는 false>",
+                          "summary": "<사용자 대화 요약>",
+                          "isRecommend": true 또는 false,
                           "type": "<CAST, SHOW, MOVIE, DRAMA, CURATION 중 적절한 값>",
                           "keyword": "<추천이 필요하면 키워드, 없으면 빈 문자열>"
                         }
@@ -41,6 +43,10 @@ public class ChatPromptGenerator {
                         - 사용자가 특정 예능 촬영지를 원하면 "type": "SHOW", "keyword": "<예능 제목>"
                         K-Guide 챗봇의 규칙:
                         - 사용자가 특정 큐레이션을 원하면 "type": "CURATION", "keyword": "<큐레이션 주제>"
+                        
+                        주의 사항
+                        🚫 키워드는 무조건 한국어로 출력하세요.
+                        🚫 isRecommend 값은 반드시 대화 맥락에 따라 정확하게 설정하세요.
                         
                         </instruction>"""
         );
@@ -89,7 +95,7 @@ public class ChatPromptGenerator {
                         ✅ 이미 추천을 진행한 경우 "isRecommend": false로 설정하여 다시 추천하지 않음
                         ✅ 대신, 마지막 사용자 요청을 강조하여 요약
                         
-                        ✅ (3) 일상 대화인 경우
+                        ✅ (3) 추천이 필요 없는 경우
                         입력 대화 기록:
                             사용자: 오늘 날씨가 좋네요.
                         출력 JSON:
