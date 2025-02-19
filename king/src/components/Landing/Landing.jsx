@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -12,6 +12,7 @@ const Landing = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const location = useLocation();
+  const logoRef = useRef(null);
 
   const googleLogin = () => {
     window.location.href = API_BASE_URL + '/oauth2/authorization/google';
@@ -38,15 +39,13 @@ const Landing = () => {
 
   return (
     <StLandingWrapper>
-      <FootstepsAnimationWrapper>
-        <FootstepsAnimation />
-      </FootstepsAnimationWrapper>
+      <FootstepsAnimation logoRef={logoRef} />
       <St.ContentWrapper>
         <St.TaglineWrapper>
           <St.Tagline>드라마의 발자취를 따라 주인공이 되어보세요.</St.Tagline>
           <St.Title>촬영 배경지 큐레이션 서비스</St.Title>
         </St.TaglineWrapper>
-        <St.LogoImage src={KingLogo} alt="King Logo" />
+        <St.LogoImage ref={logoRef} src={KingLogo} alt="King Logo" />
       </St.ContentWrapper>
 
       <St.ButtonWrapper>
@@ -84,7 +83,7 @@ const FootstepsAnimationWrapper = styled.div`
   align-items: center;
   width: 80%;
   height: auto;
-  z-index: 1;
+  z-index: 0;
 `;
 
 const St = {
@@ -122,11 +121,13 @@ const St = {
     ${({ theme }) => theme.fonts.Body4}
     color: ${({ theme }) => theme.colors.Gray2};
     text-align: center;
+    z-index: 1;
   `,
   Title: styled.h1`
     ${({ theme }) => theme.fonts.Title2}
     font-weight: bold;
     text-align: center;
+    z-index: 1;
   `,
   SocialButton: styled.button`
     display: flex;
@@ -160,6 +161,8 @@ const St = {
     width: 15rem;
     height: auto;
     position: relative; /* 요소를 독립적으로 배치하기 위해 */
-    z-index: 2; /* 발자국보다 앞에 배치 */
+    z-index: 2;
+    /* border: solid red;
+    opacity: 0.05; */
   `,
 };
