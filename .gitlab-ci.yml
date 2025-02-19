@@ -1,0 +1,24 @@
+stages:
+  - build
+  - deploy
+
+frontend-build:
+  stage: build
+  image: node:22.13-alpine
+  tags:
+    - king-develop
+  cache:
+    paths:
+      - king/node_modules
+  script:
+    - echo [INFO] 프론트엔드 파일 빌드 중
+    - cd king
+    - echo $CLIENT_ENV >> .env
+    - npm install
+    - npm run build
+    - echo [INFO] 프론트엔드 파일 복사 중
+    - mkdir -p /app/king/dist
+    - cp -r dist/* /app/king/dist/
+  artifacts:
+    paths:
+      - king/dist
