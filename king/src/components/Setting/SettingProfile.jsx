@@ -1,3 +1,4 @@
+import { image } from 'framer-motion/client';
 import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -43,30 +44,31 @@ const SettingProfile = () => {
     } else {
       setIsDirty(false);
     }
-  }, [newNickname, newDescription, imageFile, nickname, description]);
+  }, [newNickname, newDescription, imageFile]);
 
   // 브라우저 뒤로가기 감지
-  useEffect(() => {
-    const handleBackButton = (event) => {
-      if (!isDirty) {
-        return;
-      }
-      const confirmLeave = window.confirm(common.leave_without_saving);
+  // useEffect(() => {
+  //   const handleBackButton = (event) => {
+  //     if (!isDirty) {
+  //       return;
+  //     }
+  //     const confirmLeave = window.confirm(common.leave_without_saving);
 
-      if (!confirmLeave) {
-        event.preventDefault();
-        return;
-      }
-    };
+  //     if (!confirmLeave) {
+  //       event.preventDefault();
+  //       return;
+  //     }
+  //   };
 
-    window.addEventListener('popstate', handleBackButton);
-    return () => window.removeEventListener('popstate', handleBackButton);
-  }, [isDirty]);
+  //   window.addEventListener('popstate', handleBackButton);
+  //   return () => window.removeEventListener('popstate', handleBackButton);
+  // }, [isDirty]);
 
   // `BackButton` 클릭 시 confirm 창 띄우기
   const handleBackClick = () => {
+    console.log(isDirty);
     if (isDirty) {
-      const confirmLeave = window.confirm('저장하지 않고 나가시겠습니까?');
+      const confirmLeave = window.confirm(common.leave_without_saving);
       if (!confirmLeave) return;
     }
     navigate(-1);
