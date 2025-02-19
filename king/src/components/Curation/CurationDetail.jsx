@@ -63,13 +63,14 @@ const CurationDetail = () => {
       }
     };
 
-    fetchCurationData();
+    fetchCurationData(curationData);
   }, [curationId, setPlaceList]);
 
   // 작성자가 아니면 헤더에 옵션 버튼이 보이지 않음
   useEffect(() => {
     if (curationData) {
       const currentUserId = Number(getUserIdFromToken());
+      console.log(curationData.writer.userId, currentUserId);
       setIsOptionVisible(currentUserId !== null && curationData.writer.userId === currentUserId);
     }
   }, [curationData]);
