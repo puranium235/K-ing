@@ -19,7 +19,7 @@ frontend-build:
     - echo [INFO] 프론트엔드 파일 복사 중
     - mkdir -p /app/king/dist
     - sleep 60
-    - cp -r dist/ app/king/dist/
+    - cp -r dist/ /app/king/dist/
     - sleep 60
   artifacts:
     paths:
