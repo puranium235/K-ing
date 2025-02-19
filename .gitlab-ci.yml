@@ -6,7 +6,7 @@ frontend-build:
   stage: build
   image: node:22.13-alpine
   tags:
-    - king-develop
+    - king-prod
   cache:
     paths:
       - king/node_modules
