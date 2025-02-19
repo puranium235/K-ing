@@ -80,11 +80,12 @@ const St = {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 2rem;
+    padding: 1.95rem 2rem;
     border-bottom: 0.1rem solid ${({ theme }) => theme.colors.Gray2};
     cursor: pointer;
   `,
   LanguageText: styled.p`
+    padding-left: 1rem;
     ${({ theme }) => theme.fonts.Body2};
   `,
   RadioButton: styled.div`
