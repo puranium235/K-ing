@@ -37,19 +37,19 @@ export const handleAllowNotification = async () => {
     const notificationTitle = payload.data?.title || '알림';
     const notificationOptions = {
       body: payload.data?.body || '',
-      // icon: payload.notification?.icon,
-      data: { link: payload.fcmOptions?.link || '/' },
+      icon: '/logo.png',
+      // data: { link: payload.fcmOptions?.link || '/' },
     };
 
     if (Notification.permission === 'granted') {
       try {
         if (Notification.permission === 'granted' && document.visibilityState === 'visible') {
-          const notification = new Notification(notificationTitle, notificationOptions);
+          new Notification(notificationTitle, notificationOptions);
 
-          notification.onclick = function (event) {
-            event.preventDefault();
-            window.open(notificationOptions.fcmOptions.link, '/');
-          };
+          // notification.onclick = function (event) {
+          //   event.preventDefault();
+          //   window.open(notificationOptions.fcmOptions.link, '/');
+          // };
         }
       } catch (error) {
         console.error('알림 생성 중 오류 발생:', error);

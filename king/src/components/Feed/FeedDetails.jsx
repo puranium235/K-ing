@@ -196,11 +196,12 @@ const FeedDetails = () => {
           </OptionButton>
         )}
       </Header>
-      <UserInfo onClick={handleUserClick}>
-        <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="default" />
-        <UserName>{writer.nickname}</UserName>
-      </UserInfo>
+
       <ContentWrapper>
+        <UserInfo onClick={handleUserClick}>
+          <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="default" />
+          <UserName>{writer.nickname}</UserName>
+        </UserInfo>
         <Location
           onClick={() => {
             navigate(`/place/${postInfo.place.placeId}`);

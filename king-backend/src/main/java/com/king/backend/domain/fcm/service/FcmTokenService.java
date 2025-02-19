@@ -61,15 +61,16 @@ public class FcmTokenService {
                 .setToken(token)
                 .putData("title", title)
                 .putData("body", body)
-                .setWebpushConfig(
-                        WebpushConfig.builder()
-                                .setFcmOptions(
-                                        WebpushFcmOptions.builder()
-                                                .setLink(link)
-                                                .build()
-                                )
-                                .build()
-                )
+                .putData("link",link)
+                // .setWebpushConfig(
+                //         WebpushConfig.builder()
+                //                 .setFcmOptions(
+                //                         WebpushFcmOptions.builder()
+                //                                 .setLink(link)
+                //                                 .build()
+                //                 )
+                //                 .build()
+                // )
                 .build();
         return FirebaseMessaging.getInstance().send(message);
     }
