@@ -200,7 +200,7 @@ const FeedDetails = () => {
         <Profile style={{ backgroundImage: `url(${writer.imageUrl})` }} alt="default" />
         <UserName>{writer.nickname}</UserName>
       </UserInfo>
-
+      <ContentWrapper>
         <Location
           onClick={() => {
             navigate(`/place/${postInfo.place.placeId}`);
