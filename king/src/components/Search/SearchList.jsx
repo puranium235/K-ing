@@ -3,13 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import SearchItem from './SearchItem';
 
 const SearchList = ({ title, data, type }) => {
+  const language = getLanguage();
+  const { archive: translations } = getTranslations(language);
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const unit = title === '인물' ? '명' : '개';
+  const unit = title === translations.people ? translations.unit_person : translations.unit_item;
 
   const handleSearchDetail = () => {
     if (type === 'PLACE') {
@@ -19,18 +23,24 @@ const SearchList = ({ title, data, type }) => {
     }
   };
 
+  // 10개 이상이면 '10+'로 표시
+  const countDisplay = data.length >= 10 ? '10+' : data.length || 0;
+
   return (
     <St.Section>
       <St.Header>
         <St.Left>
           <St.Title>{title}</St.Title>
           <St.Count>
-            {data.length}
-            {data.length == 10 && '+'}
-            {unit}의 {title}
+            {translations.itemsCount
+              .replace('{countDisplay}', countDisplay)
+              .replace('{unit}', unit)
+              .replace('{type}', title)}
           </St.Count>
         </St.Left>
-        <span onClick={handleSearchDetail}> 전체보기 {'>'} </span>
+        <span onClick={handleSearchDetail}>
+          {translations.showAllSimple} {'>'}{' '}
+        </span>
       </St.Header>
       <St.List>
         {data.length > 0 ? (
@@ -40,7 +50,7 @@ const SearchList = ({ title, data, type }) => {
             ))}
           </>
         ) : (
-          <St.NoDataMessage>검색 결과가 없습니다. 🥲</St.NoDataMessage>
+          <St.NoDataMessage>{translations.noSearchResults} 🥲</St.NoDataMessage>
         )}
       </St.List>
     </St.Section>

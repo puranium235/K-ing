@@ -14,6 +14,7 @@ import com.king.backend.domain.curation.repository.CurationListRepository;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
+import com.king.backend.domain.place.service.GooglePhotoService;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
@@ -26,11 +27,13 @@ import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -48,13 +51,46 @@ public class CurationService {
     private final PlaceRepository placeRepository;
     private final TranslateService translateService;
     private final RedisUtil redisUtil;
+    private final GooglePhotoService googlePhotoService;
+
+    @Value("${spring.aws.s3-bucket}")
+    private String awsBucketName;
+
+    @Value("${spring.aws.region}")
+    private String awsRegion;
 
     @Transactional(readOnly = true)
     public Long getCurationIdByTitle(String title) {
-        CurationList curationList = curationListRepository.findByTitle(title)
-                .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
+        List<CurationList> candidates = curationListRepository.findByTitleLike(title);
 
-        return curationList.getId();
+        if (candidates.isEmpty()) {
+            throw new CustomException(CurationErrorCode.CURATION_NOT_FOUND);
+        }
+
+        // 1. 입력값 띄어쓰기 제거
+        String sanitizedInput = title.replaceAll("\\s+", "");
+
+        // 2. 가장 유사한 제목 찾기 (Levenshtein Distance)
+        LevenshteinDistance levenshtein = new LevenshteinDistance();
+        CurationList bestMatch = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        for (CurationList curation : candidates) {
+            String sanitizedDbTitle = curation.getTitle().replaceAll("\\s+", ""); // DB 값 띄어쓰기 제거
+            int distance = levenshtein.apply(sanitizedInput, sanitizedDbTitle);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                bestMatch = curation;
+            } else if (distance == minDistance) {
+                // 유사도가 같다면 최신 데이터 선택 (예: createdAt 기준)
+                if (bestMatch == null || curation.getCreatedAt().isAfter(bestMatch.getCreatedAt())) {
+                    bestMatch = curation;
+                }
+            }
+        }
+
+        return bestMatch.getId();
     }
 
     @Transactional
@@ -77,7 +113,12 @@ public class CurationService {
         List<Place> places = curationListItemRepository.findByCurationListId(curationListId)
                 .stream()
                 .map(CurationListItem::getPlace)
-                .toList();
+                .peek((place) -> {
+                    String imageUrl = place.getImageUrl() == null ? String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion) : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+
+                    place.setImageUrl(imageUrl);
+                    placeRepository.save(place);
+                }).toList();
 
         CurationDetailResponseDTO response = CurationDetailResponseDTO.fromEntity(curationList, bookmarked, places);
 

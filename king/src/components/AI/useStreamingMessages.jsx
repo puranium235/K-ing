@@ -16,6 +16,10 @@ const useStreamingMessages = (selectedBot) => {
       }
 
       setMessages((prevMessages) => {
+        if (!receivedText.trim()) {
+          return prevMessages;
+        }
+
         let localMessages = [...prevMessages];
         const lastMessage = localMessages[localMessages.length - 1] || null;
 
@@ -36,9 +40,9 @@ const useStreamingMessages = (selectedBot) => {
             }
           }
 
-          const lastAssistantMessage = lastAssistantMessages.join(' ');
+          const lastAssistantMessage = lastAssistantMessages.join(' ').trim();
 
-          if (lastAssistantMessage.includes('[추천]')) {
+          if (lastAssistantMessage && lastAssistantMessage.includes('[추천]')) {
             const recommendNameMatch = lastAssistantMessage.match(/\[추천\]\s+\[(.+?)\]/);
             const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
 
@@ -60,7 +64,9 @@ const useStreamingMessages = (selectedBot) => {
           );
         }
 
-        const newMessages = splitIntoMessages(accumulatedText, 'assistant', selectedBot);
+        const newMessages = splitIntoMessages(accumulatedText, 'assistant', selectedBot).filter(
+          (msg) => msg.text.trim() !== '',
+        );
 
         if (lastMessage && lastMessage.sender === 'assistant' && !lastMessage.isCompleted) {
           localMessages = [...localMessages.slice(0, -1), ...newMessages];

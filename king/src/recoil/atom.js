@@ -91,6 +91,16 @@ const AutoDraft = atom({
   default: false,
 });
 
+const UseUpdateData = atom({
+  key: 'useUpdateData',
+  default: false,
+});
+
+const CurationImage = atom({
+  key: 'curationImage',
+  default: '',
+});
+
 const CurationDraftExist = atom({
   key: 'CurationDraftExist',
   default: false,
@@ -123,6 +133,7 @@ export {
   ContentType,
   CurationDraftExist,
   CurationId,
+  CurationImage,
   CurationPlaceList,
   CurationPlaceUploadList,
   DraftExist,
@@ -136,4 +147,5 @@ export {
   SearchRegionState,
   SearchRelatedType,
   UseDraft,
+  UseUpdateData,
 };

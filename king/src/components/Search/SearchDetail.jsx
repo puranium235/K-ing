@@ -8,15 +8,18 @@ import useGetSearchResult from '../../hooks/search/useGetSearchResult';
 import { SearchQueryState } from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import { getContentTypeLocalized } from '../../util/getContentType';
+import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
 import Loading from '../Loading/Loading';
 import SearchItem from './SearchItem';
 
 const SearchDetail = () => {
+  const language = getLanguage();
+  const { archive: translations } = getTranslations(language);
   const genres = [
-    { id: 'drama', name: '드라마', value: 'DRAMA' },
-    { id: 'movie', name: '영화', value: 'MOVIE' },
-    { id: 'show', name: '예능', value: 'SHOW' },
+    { id: 'drama', name: translations.drama, value: 'DRAMA' },
+    { id: 'movie', name: translations.movie, value: 'MOVIE' },
+    { id: 'show', name: translations.show, value: 'SHOW' },
   ];
 
   const { type } = useParams();
@@ -48,7 +51,9 @@ const SearchDetail = () => {
       <St.FixedContainer>
         <St.Title>
           <BackButton />
-          {getContentTypeLocalized(type)} 전체보기
+          {['ko', 'ja'].includes(language)
+            ? `${getContentTypeLocalized(type)} ${translations.showAllSimple}`
+            : `${translations.showAllSimple} ${getContentTypeLocalized(type)}`}
         </St.Title>
         {type === 'content' && (
           <ContentGenreWrapper>
@@ -79,7 +84,7 @@ const SearchDetail = () => {
           ))}
         </St.List>
       ) : (
-        <NoDataMessage>검색 결과가 없습니다. 🥲</NoDataMessage>
+        <NoDataMessage>{translations.noSearchResults} 🥲</NoDataMessage>
       )}
     </StFavoritesDetailWrapper>
   );

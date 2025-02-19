@@ -170,6 +170,7 @@ const CurationDetail = () => {
             name={curationData.writer.nickname}
             date={formatDate(curationData.createdAt)}
             profileImage={curationData.writer.imageUrl}
+            onClick={() => navigate(`/user/${curationData.writer.userId}`)}
           />
           <FunctionButton
             shareable={curationData.public}

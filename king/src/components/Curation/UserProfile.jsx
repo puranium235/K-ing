@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const UserProfile = ({ name, date, profileImage }) => {
+const UserProfile = ({ name, date, profileImage, onClick }) => {
   return (
     <ProfileContainer>
-      <ProfileImage src={profileImage} alt="Profile" />
+      <ProfileImage src={profileImage} alt="Profile" onClick={onClick} />
       <ProfileInfo>
-        <UserName>{name}</UserName>
+        <UserName onClick={onClick}>{name}</UserName>
         <Date>{date}</Date>
       </ProfileInfo>
     </ProfileContainer>
@@ -24,6 +24,7 @@ const ProfileImage = styled.img`
   height: 4rem;
   border-radius: 50%;
   object-fit: cover;
+  cursor: pointer;
 `;
 
 const ProfileInfo = styled.div`
@@ -36,6 +37,7 @@ const UserName = styled.span`
   ${({ theme }) => theme.fonts.Title6};
   color: ${({ theme }) => theme.colors.Gray0};
   margin-bottom: 0.5rem;
+  cursor: pointer;
 `;
 
 const Date = styled.span`

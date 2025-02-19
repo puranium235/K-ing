@@ -190,6 +190,7 @@ const MapSearchPlaces = () => {
           onReSearch={handleReSearch}
           nowActiveMarker={nowActiveMarker}
           $isExpanded={isExpanded}
+          setIsExpanded={setIsExpanded}
         />
       </MapSection>
 
@@ -199,7 +200,7 @@ const MapSearchPlaces = () => {
           <img src={UpIcon} />
         </UpButton>
         {placeData ? (
-          <div style={{ padding: '0 2rem' }}>
+          <Content>
             <Title>{placeData.name}</Title>
             {placeData.imageUrl && <Image src={placeData.imageUrl} alt={placeData.name} />}
 
@@ -212,9 +213,15 @@ const MapSearchPlaces = () => {
               <IcPencil />
               <p>{mapTranslations.content}</p>
             </IconText>
-            {displayRelatedContents.map((info) => (
-              <ContentsInfo key={info.contentId} info={info} />
-            ))}
+            <RelatedContent>
+              {displayRelatedContents.length > 0 ? (
+                displayRelatedContents.map((info) => (
+                  <ContentsInfo key={info.contentId} info={info} />
+                ))
+              ) : (
+                <p>{mapTranslations.nocontent}</p>
+              )}
+            </RelatedContent>
             <ContentButtonWrapper>
               {placeData.relatedContents?.length > 2 && (
                 <ShowMoreButton onClick={() => setisContentExpanded(!isContentExpanded)}>
@@ -222,7 +229,7 @@ const MapSearchPlaces = () => {
                 </ShowMoreButton>
               )}
             </ContentButtonWrapper>
-          </div>
+          </Content>
         ) : (
           <>
             <FilterContainer>
@@ -256,6 +263,19 @@ const MapSearchPlaces = () => {
     </Container>
   );
 };
+
+const RelatedContent = styled.div`
+  margin-bottom: 5rem;
+  p {
+    ${({ theme }) => theme.fonts.Body4};
+    color: ${({ theme }) => theme.colors.Gray0};
+  }
+`;
+
+const Content = styled.div`
+  padding: 0 2rem;
+  margin-bottom: 3rem;
+`;
 
 const Container = styled.div`
   height: 100%;

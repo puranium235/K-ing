@@ -79,9 +79,13 @@ const PlaceDetail = () => {
           <IcPencil />
           <p>{placeTranslations.content}</p>
         </IconText>
-        {displayRelatedContents.map((info) => (
-          <ContentsInfo key={info.contentId} info={info} />
-        ))}
+        <RelatedContent>
+          {displayRelatedContents.length > 0 ? (
+            displayRelatedContents.map((info) => <ContentsInfo key={info.contentId} info={info} />)
+          ) : (
+            <p>{placeTranslations.nocontent}</p>
+          )}
+        </RelatedContent>
         <ContentButtonWrapper>
           {placeData.relatedContents?.length > 2 && (
             <ShowMoreButton onClick={() => setIsExpanded(!isExpanded)}>
@@ -104,6 +108,14 @@ const PlaceDetail = () => {
 const Container = styled.div`
   width: 100%;
   height: 100%;
+`;
+
+const RelatedContent = styled.div`
+  margin-bottom: 5rem;
+  p {
+    ${({ theme }) => theme.fonts.Body4};
+    color: ${({ theme }) => theme.colors.Gray0};
+  }
 `;
 
 const Content = styled.div`

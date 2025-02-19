@@ -24,7 +24,7 @@ const CurationsList = ({ userId }) => {
   if (isLoading && curationList === 0) return <Loading />;
 
   if (!curationList || curationList.length === 0) {
-    return <EmptyMessage>{translations.noPosts}</EmptyMessage>;
+    return <EmptyMessage>{translations.noCurations}</EmptyMessage>;
   }
 
   return (
