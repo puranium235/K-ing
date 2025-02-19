@@ -11,6 +11,7 @@ import com.king.backend.global.exception.CustomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +23,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PlaceService {
     private final PlaceRepository placeRepository;
+    private final GooglePhotoService googlePhotoService;
+
+    @Value("${spring.aws.s3-bucket}")
+    private String awsBucketName;
+
+    @Value("${spring.aws.region}")
+    private String awsRegion;
 
     @Transactional
     public PlaceDetailResponseDto getPlaceDetail(Long id){
@@ -30,6 +38,11 @@ public class PlaceService {
         List<PlaceDetailResponseDto.RelatedContent> relatedContents = place.getPlaceContents().stream()
                 .map(this::mapToRelatedContents)
                 .collect(Collectors.toList());
+
+        String imageUrl = place.getImageUrl() == null ? String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion) : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+
+        place.setImageUrl(imageUrl);
+        placeRepository.save(place);
 
         return new PlaceDetailResponseDto(
                 place.getId(),

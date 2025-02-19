@@ -51,7 +51,8 @@ const SettingProfile = () => {
       if (!isDirty) {
         return;
       }
-      const confirmLeave = window.confirm('저장하지 않고 나가시겠습니까?');
+      const confirmLeave = window.confirm(common.leave_without_saving);
+
       if (!confirmLeave) {
         event.preventDefault();
         return;

@@ -11,6 +11,7 @@ import {
   SearchPrevQuery,
   SearchQueryState,
 } from '../../recoil/atom';
+import { getLanguage, getTranslations } from '../../util/languageUtils'; // ✅ 번역 유틸 추가
 import BackButton from '../common/button/BackButton';
 import Nav from '../common/Nav';
 import SearchBar from '../common/SearchBar';
@@ -18,6 +19,9 @@ import Loading from '../Loading/Loading';
 import SearchList from './SearchList';
 
 const SearchResult = () => {
+  const language = getLanguage();
+  const { common } = getTranslations(language);
+
   const setPrevQuery = useSetRecoilState(SearchPrevQuery);
   const [searchQuery, setSearchQuery] = useRecoilState(SearchQueryState);
   const [searchCategory, setSearchCategory] = useRecoilState(SearchCategoryState);
@@ -76,14 +80,14 @@ const SearchResult = () => {
         <Header>
           <IconText>
             <BackButton onBack={handleGoBack} />
-            <h3>통합검색</h3>
+            <h3>{common.search}</h3>
           </IconText>
           <SearchBar query={searchQuery} onSearch={handleSearch} />
         </Header>
         <ResultWrapper>
-          <SearchList title="작품" data={contentList} type="CONTENT" />
-          <SearchList title="인물" data={celebList} type="CAST" />
-          <SearchList title="장소" data={placeList} type="PLACE" />
+          <SearchList title={common.content} data={contentList} type="CONTENT" />
+          <SearchList title={common.person} data={celebList} type="CAST" />
+          <SearchList title={common.place} data={placeList} type="PLACE" />
         </ResultWrapper>
         <Nav />
       </StHomeWrapper>

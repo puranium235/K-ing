@@ -12,45 +12,45 @@ const LandingWrapper = () => {
     // Splash -> Landing으로 변경
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 700);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <Wrapper>
-      <Landing />
-    </Wrapper>
     // <Wrapper>
-    //   <AnimatePresence>
-    //     {showSplash ? (
-    //       <MotionSplash
-    //         key="splash"
-    //         initial={{ opacity: 1, scale: 1 }}
-    //         animate={{ opacity: 1, scale: 1 }}
-    //         exit={{ opacity: 0, scale: 0.95 }}
-    //         transition={{ duration: 0.5, ease: 'easeInOut' }}
-    //       >
-    //         <Splash />
-    //       </MotionSplash>
-    //     ) : (
-    //       <MotionLanding
-    //         key="landing"
-    //         initial={{ opacity: 0, scale: 1.05 }}
-    //         animate={{ opacity: 1, scale: 1 }}
-    //         transition={{ duration: 0.5, ease: 'easeInOut' }}
-    //       >
-    //         <Landing />
-    //       </MotionLanding>
-    //     )}
-    //   </AnimatePresence>
+    //   <Landing />
     // </Wrapper>
+    <Wrapper>
+      <AnimatePresence>
+        {showSplash ? (
+          <MotionSplash
+            key="splash"
+            initial={{ opacity: 1, scale: 1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+          >
+            <Splash />
+          </MotionSplash>
+        ) : (
+          <MotionLanding
+            key="landing"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+          >
+            <Landing />
+          </MotionLanding>
+        )}
+      </AnimatePresence>
+    </Wrapper>
   );
 };
 
 export default LandingWrapper;
 
-// 🔹 `motion.div`을 적용하여 애니메이션 추가
+// `motion.div`을 적용하여 애니메이션 추가
 const Wrapper = styled.div`
   position: relative;
   width: 100%;

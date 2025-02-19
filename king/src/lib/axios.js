@@ -39,12 +39,12 @@ client.interceptors.request.use(
         if (userRole === 'ROLE_PENDING' && (isNicknameCheckRequest || isSignupRequest)) {
           console.log('✅ ROLE_PENDING 사용자, 닉네임 중복 검사 & 회원가입 요청 허용');
         } else if (userRole !== 'ROLE_REGISTERED') {
-          console.warn('❌ 접근 불가: 해당 페이지는 ROLE_REGISTERED만 가능합니다.');
+          // console.warn('❌ 접근 불가: 해당 페이지는 ROLE_REGISTERED만 가능합니다.');
           window.location.replace('/');
           return Promise.reject('접근 권한 없음'); // 요청 중단
         }
       } catch (error) {
-        console.error('❌ 토큰 디코딩 실패:', error);
+        // console.error('❌ 토큰 디코딩 실패:', error);
       }
 
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -63,7 +63,7 @@ client.interceptors.response.use(
 
     // 닉네임 검사 API는 401 에러가 발생해도 무시
     if (originalRequest.url.includes('/user/nickname')) {
-      console.warn('⚠️ 닉네임 중복 검사 요청에서 401 발생 → 응답 유지');
+      // console.warn('⚠️ 닉네임 중복 검사 요청에서 401 발생 → 응답 유지');
       return Promise.reject(error); // 요청을 중단하지 않고 그대로 진행
     }
 
@@ -71,7 +71,7 @@ client.interceptors.response.use(
     if (error.response?.status === 401) {
       // 🔹 `/user/token-refresh` 요청에서 401이 발생한 경우 → 즉시 `/`로 이동
       if (originalRequest.url.includes('/user/token-refresh')) {
-        console.log('❌ Refresh token 만료됨 → 로그인 페이지로 이동');
+        // console.log('❌ Refresh token 만료됨 → 로그인 페이지로 이동');
         localStorage.removeItem('accessToken'); // 토큰 삭제
         window.location.replace('/');
         return Promise.reject(error);
@@ -85,7 +85,7 @@ client.interceptors.response.use(
       retryCount++;
 
       try {
-        console.log('🔄 AccessToken 만료: 재발급 시도');
+        // console.log('🔄 AccessToken 만료: 재발급 시도');
         const newAccessToken = await tokenRefresh();
 
         if (newAccessToken) {
@@ -93,7 +93,7 @@ client.interceptors.response.use(
           const userRole = decoded.role;
 
           if (userRole !== 'ROLE_REGISTERED') {
-            console.warn('❌ 접근 불가: ROLE_REGISTERED만 가능');
+            // console.warn('❌ 접근 불가: ROLE_REGISTERED만 가능');
             window.location.replace('/');
             return Promise.reject('접근 권한 없음');
           }
@@ -102,7 +102,7 @@ client.interceptors.response.use(
           return client(originalRequest);
         }
       } catch (refreshError) {
-        console.log('❌ 토큰 재발급 실패 → 로그인 페이지로 이동');
+        // console.log('❌ 토큰 재발급 실패 → 로그인 페이지로 이동');
         localStorage.removeItem('accessToken'); // 토큰 삭제
         navigate('/');
         return Promise.reject(refreshError);

@@ -29,6 +29,5 @@ public class MapViewResponseDto {
         private String address;
         private double lat;
         private double lng;
-        private String imageUrl;
     }
 }

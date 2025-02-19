@@ -16,7 +16,7 @@ const FeedsList = ({ columns }) => {
     catchLastScrollItem(isLoading, lastElementRef, getNextData, hasMore);
   }, [isLoading, hasMore, lastElementRef]);
 
-  if (isLoading && feedList.length === 0) return <Loading />;
+  if (isLoading && feedList.length !== 0) return <Loading />;
 
   return (
     <StList $columns={columns}>

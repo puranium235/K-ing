@@ -1,24 +1,19 @@
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { IcFootL, IcFootR } from '../../assets/icons';
 
 // 색상 배열
-const footprintColors = ['#E8E8F4', '#CFCED3', '#CFCED3', '#3D3D3D', '#3D3D3D'];
-
-// Styled SVG Components
-const StyledFootprintLeft = styled(IcFootL)`
-  color: ${({ index }) => footprintColors[index] || '#191919'};
-  width: 3rem;
-  height: auto;
-`;
-
-const StyledFootprintRight = styled(IcFootR)`
-  color: ${({ index }) => footprintColors[index] || '#191919'};
-  width: 3rem;
-  height: auto;
-`;
+const footprintColors = [
+  '#E8E8F4',
+  '#E8E8F4',
+  '#CFCED3',
+  '#CFCED3',
+  '#CFCED3',
+  '#3D3D3D',
+  '#3D3D3D',
+];
 
 // 개별 발자국 컴포넌트
 const Footprint = ({ delay, x, y, rotate, index }) => (
@@ -39,13 +34,33 @@ const Footprint = ({ delay, x, y, rotate, index }) => (
   </motion.div>
 );
 
-const FootstepsAnimation = () => {
+const FootstepsAnimation = ({ logoRef }) => {
+  const [position, setPosition] = useState({ top: '70%' });
+  const [top, setTop] = useState('70%');
+
+  useEffect(() => {
+    const updatePosition = () => {
+      if (!logoRef?.current) return;
+
+      const logoRect = logoRef.current.getBoundingClientRect();
+      setPosition({ top: `${logoRect.bottom + 20}px` }); // 로고 하단 기준으로 조정
+    };
+
+    // 처음 한 번 실행 후, 리사이즈 감지
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+
+    return () => window.removeEventListener('resize', updatePosition);
+  }, [logoRef]);
+
   const footprints = [
-    { x: -100, y: -200, rotate: 60, delay: 0 },
-    { x: -30, y: -220, rotate: 60, delay: 0.3 },
-    { x: -20, y: -320, rotate: 60, delay: 0.6 },
-    { x: 50, y: -340, rotate: 60, delay: 0.9 },
-    { x: 60, y: -440, rotate: 60, delay: 1.2 },
+    { x: -100, y: 100, rotate: 60, delay: 0 },
+    { x: -40, y: 90, rotate: 50, delay: 0.2 },
+    { x: -35, y: -10, rotate: 60, delay: 0.4 },
+    { x: 25, y: -20, rotate: 50, delay: 0.6 },
+    { x: 30, y: -110, rotate: 60, delay: 0.8 },
+    { x: 90, y: -120, rotate: 50, delay: 1.0 },
+    { x: 95, y: -210, rotate: 60, delay: 1.2 },
   ];
 
   return (
@@ -68,12 +83,27 @@ export default FootstepsAnimation;
 
 // 스타일 정의
 const FootstepsWrapper = styled.div`
-  position: absolute;
-  bottom: 10%;
-  width: 20rem;
-  /* height: 35rem; */
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 20rem;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
+`;
+
+// Styled SVG Components
+const StyledFootprintLeft = styled(IcFootL)`
+  color: ${({ index }) => footprintColors[index] || '#191919'};
+  width: 3rem;
+  height: auto;
+`;
+
+const StyledFootprintRight = styled(IcFootR)`
+  color: ${({ index }) => footprintColors[index] || '#191919'};
+  width: 3rem;
+  height: auto;
 `;
