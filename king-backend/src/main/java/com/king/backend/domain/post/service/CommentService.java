@@ -23,6 +23,7 @@ import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
@@ -45,6 +46,8 @@ public class CommentService {
     private static final long MULTIPLIER = 1_000_000_000L;
     private final FcmTokenRepository fcmTokenRepository;
     private final FcmTokenService fcmTokenService;
+    @Value("${client.url}")
+    private String CLIENT_URL;
 
     @Transactional
     public void uploadComment(Long postId, CommentUploadRequestDto reqDto) {
@@ -68,15 +71,30 @@ public class CommentService {
 
         User postOwner = post.getWriter();
         User commentWriter = savedComment.getWriter();
-        log.info("{}의 글에 {}가 comment내용 {} 작성", postOwner.getNickname(), commentWriter.getNickname(), comment.getContent());
         if (!postOwner.getId().equals(commentWriter.getId()) && postOwner.getContentAlarmOn()) {
             List<FcmToken> tokens = fcmTokenRepository.findByUser(postOwner);
-            String title = "댓글 알림";
-            String body = "당신의 게시글에 새 댓글이 달렸습니다.";
+            String language = postOwner.getLanguage();
+            String title;
+            String body;
+            if ("ko".equalsIgnoreCase(language)) {
+                title = "댓글 알림";
+                body = "새로운 댓글이 달렸어요!";
+            }
+            else if ("ja".equalsIgnoreCase(language)) {
+                title = "コメント通知";
+                body = "新しいコメントがありました！";
+            } else if ("zh".equalsIgnoreCase(language)) {
+                title = "评论提醒";
+                body = "有新的評論上來了！";
+            } else {
+                title = "Comment Alert";
+                body = "There's a new comment!";
+            }
+            String link = CLIENT_URL +"/feed/" + postId;
 
             for (FcmToken tokenEntity : tokens) {
                 try {
-                    fcmTokenService.sendMessageByToken(tokenEntity.getToken(), title, body, postId);
+                    fcmTokenService.sendMessageByToken(tokenEntity.getToken(), title, body, link);
                 } catch (FirebaseMessagingException e) {
                     log.error("푸시 알림 전송 실패 (토큰: {}): {}", tokenEntity.getToken(), e.getMessage());
                 }
@@ -170,8 +188,8 @@ public class CommentService {
 
         if (original) {
             return builder.comments(commentsBuilders.stream()
-                    .map(CommentAllResponseDto.Comment.CommentBuilder::build)
-                    .toList())
+                            .map(CommentAllResponseDto.Comment.CommentBuilder::build)
+                            .toList())
                     .build();
         }
 
