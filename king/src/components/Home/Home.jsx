@@ -68,7 +68,9 @@ const Home = () => {
     <>
       <StHomeWrapper>
         <TopNav />
-        <Carousel carouselList={topCurations} />
+        <CarouselWrapper>
+          <Carousel carouselList={topCurations} />
+        </CarouselWrapper>
         <GenreWrapper>
           {genreIcons.map((item) => (
             <GenreButton key={item.label} buttonInfo={item} />
@@ -124,7 +126,7 @@ const StHomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: start;
   text-align: center;
   padding: 2rem;
   padding-bottom: 8rem;
@@ -132,6 +134,12 @@ const StHomeWrapper = styled.div`
   ::-webkit-scrollbar {
     display: none;
   }
+`;
+
+const CarouselWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
 `;
 
 const GenreWrapper = styled.div`

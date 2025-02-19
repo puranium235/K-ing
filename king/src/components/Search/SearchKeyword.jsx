@@ -9,8 +9,13 @@ import NoResultImage from '/src/assets/icons/king_character_sorry.png';
 
 import { IcFilter, IcMap } from '../../assets/icons';
 import useGetPlaceSearchResult from '../../hooks/search/useGetPlaceSearchResult';
-import { ContentId, FilterOption, SearchQueryState, SearchRelatedType } from '../../recoil/atom';
-import { ScrollPosition } from '../../recoil/atom';
+import {
+  ContentId,
+  FilterOption,
+  ScrollPosition,
+  SearchQueryState,
+  SearchRelatedType,
+} from '../../recoil/atom';
 import { catchLastScrollItem } from '../../util/catchLastScrollItem';
 import { getLanguage, getTranslations } from '../../util/languageUtils';
 import BackButton from '../common/button/BackButton';
@@ -136,10 +141,10 @@ const SearchKeyword = () => {
       navigate('/search/result');
     } else if (relatedType === 'cast') {
       setSearchQuery('');
-      navigate(`/content/cast/${contentId}`);
+      navigate(`/content/cast/${contentId}`, { state: { from: location } });
     } else {
       setSearchQuery('');
-      navigate(`/content/detail/${contentId}`);
+      navigate(`/content/detail/${contentId}`, { state: { from: location } });
     }
   };
 

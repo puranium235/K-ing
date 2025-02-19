@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { forwardRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { mutate } from 'swr/_internal';
 
 import { IcBookmarkBlank, IcBookmarkFill, IcLock } from '../../assets/icons';
 import { removeBookmark } from '../../lib/bookmark';
-import { truncateText } from '../../util/truncateText';
 
 const CurationItem = forwardRef(({ item, onRemove }, ref) => {
   const location = useLocation();
@@ -26,17 +26,6 @@ const CurationItem = forwardRef(({ item, onRemove }, ref) => {
     const success = await removeBookmark(curationId);
     if (success) {
       onRemove(curationId);
-      mutate((prevData) => {
-        if (!prevData) return [];
-
-        return prevData.map((page) => ({
-          ...page,
-          data: {
-            ...page.data,
-            curations: page.data.curations.filter((curation) => curation.curationId !== curationId),
-          },
-        }));
-      }, false);
     } else {
       setBookmarked(true); // 실패 시 다시 북마크 상태 복구
     }
@@ -53,8 +42,8 @@ const CurationItem = forwardRef(({ item, onRemove }, ref) => {
         <St.GradientOverlay />
       </St.ImageWrapper>
       <St.Info>
-        <St.Author>@{truncateText(writerNickname, 15)}</St.Author>
-        <St.Title>{truncateText(title, 20)}</St.Title>
+        <St.Author>@{writerNickname}</St.Author>
+        <St.Title>{title}</St.Title>
       </St.Info>
       {!isPublic && (
         <St.LockIcon>
@@ -89,14 +78,6 @@ const StCurationItemWrapper = styled.div`
 `;
 
 const St = {
-  Item: styled.div`
-    position: relative;
-    width: 100%;
-    height: 24rem;
-    overflow: hidden;
-    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
-    background-color: ${({ theme }) => theme.colors.White};
-  `,
   ImageWrapper: styled.div`
     position: relative;
     width: 100%;
@@ -123,21 +104,29 @@ const St = {
     left: 0.8rem;
     color: ${({ theme }) => theme.colors.White};
     text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
+
+    width: 90%;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   `,
   Author: styled.p`
     ${({ theme }) => theme.fonts.Body6};
     margin: 0;
+
+    white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
   `,
   Title: styled.h3`
     margin: 0.4rem 0 0;
     padding-right: 0.5rem;
     ${({ theme }) => theme.fonts.Title7};
+
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
   `,
   BookmarkButton: styled.button`
     position: absolute;

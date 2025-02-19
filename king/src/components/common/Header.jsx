@@ -91,8 +91,13 @@ const Header = ({ title }) => {
 };
 
 const Container = styled.div`
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
   width: 100%;
+
+  background-color: ${({ theme }) => theme.colors.White};
 `;
 
 const StHeader = styled.div`
