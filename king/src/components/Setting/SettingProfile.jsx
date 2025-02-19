@@ -46,7 +46,7 @@ const SettingProfile = () => {
     }
   }, [newNickname, newDescription, imageFile]);
 
-  // 브라우저 뒤로가기 감지
+  // 브라우저 뒤로가기 감지 - 이걸 수정할 수 있는 날이 오면 좋겠는데...
   // useEffect(() => {
   //   const handleBackButton = (event) => {
   //     if (!isDirty) {
