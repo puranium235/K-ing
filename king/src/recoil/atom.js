@@ -36,6 +36,11 @@ const SearchQueryState = atom({
   default: '',
 });
 
+const PlaceSearchQueryState = atom({
+  key: 'placeSearchQueryState',
+  default: '',
+});
+
 const SearchRelatedType = atom({
   key: 'searchRelatedType',
   default: '',
@@ -122,6 +127,7 @@ export {
   CurationPlaceUploadList,
   DraftExist,
   FilterOption,
+  PlaceSearchQueryState,
   ProfileState,
   ScrollPosition,
   SearchCategoryState,
