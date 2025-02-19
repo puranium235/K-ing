@@ -42,20 +42,40 @@ const useStreamingMessages = (selectedBot) => {
 
           const lastAssistantMessage = lastAssistantMessages.join(' ').trim();
 
-          if (lastAssistantMessage && lastAssistantMessage.includes('[추천]')) {
-            const recommendNameMatch = lastAssistantMessage.match(/\[추천\]\s+\[(.+?)\]/);
-            const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
+          if (lastAssistantMessage) {
+            if (lastAssistantMessage.includes('[추천]')) {
+              const recommendNameMatch = lastAssistantMessage.match(/\[추천\]\s+\[(.+?)\]/);
+              const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
 
-            if (recommendName) {
-              const recommendMessage = {
-                sender: 'recommend',
-                text: recommendName,
-                type: 'recommend',
-                isCompleted: true,
-              };
+              if (recommendName) {
+                const recommendMessage = {
+                  sender: 'recommend',
+                  text: recommendName,
+                  type: 'recommend',
+                  isCompleted: true,
+                };
 
-              localMessages.push(recommendMessage);
-              saveRecommendationMessage(recommendName);
+                localMessages.push(recommendMessage);
+                saveRecommendationMessage(recommendName);
+              }
+            }
+
+            // [推荐] 태그 감지
+            if (lastAssistantMessage.includes('[推荐]')) {
+              const recommendNameMatch = lastAssistantMessage.match(/\[推荐\]\s+\[(.+?)\]/);
+              const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
+
+              if (recommendName) {
+                const recommendMessage = {
+                  sender: 'recommend',
+                  text: recommendName,
+                  type: 'recommend',
+                  isCompleted: true,
+                };
+
+                localMessages.push(recommendMessage);
+                saveRecommendationMessage(recommendName);
+              }
             }
           }
 

@@ -5,13 +5,17 @@ import com.king.backend.ai.util.AuthUtil;
 import com.king.backend.ai.util.ChatPromptGenerator;
 import com.king.backend.ai.util.JsonUtil;
 import com.king.backend.ai.util.SearchResultFormatter;
+import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,6 +23,7 @@ import reactor.core.scheduler.Schedulers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -29,18 +34,47 @@ public class ChatService {
     private final ChatHistoryService chatHistoryService;
     private final OpenAiChatModel chatModel;
     private final RagSearchService ragSearchService;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    // ✅ 사용자별 userLanguage 저장 (동시성 안전)
+    private static final Map<Long, String> userLanguages = new ConcurrentHashMap<>();
 
     public List<ChatHistory> getChatHistory() {
-        return chatHistoryService.findByUserId(AuthUtil.getUserId());
+        return AuthUtil.getUser()
+                .map(user -> chatHistoryService.findByUserId(Long.parseLong(user.getName())))
+                .orElseThrow(() -> new RuntimeException("User is not authenticated."));
     }
 
     public void deleteChatHistory() {
-        chatHistoryService.deleteByUserId(AuthUtil.getUserId());
+        AuthUtil.getUser().ifPresentOrElse(
+                user -> chatHistoryService.deleteByUserId(Long.parseLong(user.getName())),
+                () -> { throw new RuntimeException("User is not authenticated."); }
+        );
     }
 
     public void saveChatHistory(ChatHistory chatHistory) {
-        chatHistoryService.saveChatHistory(AuthUtil.getUserId(), chatHistory.getRole(), chatHistory.getContent(), chatHistory.getType());
+        AuthUtil.getUser().ifPresentOrElse(
+                user -> {
+                    Long userId = Long.parseLong(user.getName());
+                    chatHistoryService.saveChatHistory(
+                            userId,
+                            chatHistory.getRole(),
+                            chatHistory.getContent(),
+                            chatHistory.getType()
+                    );
+
+                    // ✅ 사용자별 Language 저장
+                    String language = user.getLanguage();
+                    if (language != null) {
+                        userLanguages.put(userId, language);
+                        log.info("✅ User {} Language 저장: {}", userId, language);
+                    }
+                },
+                () -> { throw new RuntimeException("User is not authenticated."); }
+        );
+    }
+
+    public String getUserLanguage(Long userId) {
+        return userLanguages.getOrDefault(userId, "korean");  // 기본값 설정
     }
 
     // 🎯 논리적 챗봇 스트리밍 응답 (Chat T)
@@ -61,6 +95,10 @@ public class ChatService {
         // 🔹 사용자 메시지 저장
         chatHistoryService.saveChatHistory(Long.valueOf(userId), "user", userMessage, "message");
         dialogueHistory.add(Map.of("role", "user", "content", userMessage));
+
+        // ✅ 5. 사용자 Language 불러오기
+        String userLanguage = getUserLanguage(Long.valueOf(userId));
+        log.debug("🔍 가져온 사용자 정보 - User ID: {}, Language: {}", userId, userLanguage);
 
         // ✅ 1. OpenAI를 사용하여 JSON 요약 생성
         String json = summary(dialogueHistory, ChatPromptGenerator::generatePrompt);
@@ -104,12 +142,18 @@ public class ChatService {
             retrievalData.put("summary", response.getSummary());
 
         }
-        // 전체 대화 내역 넣어 말어
+        // ✅ 5. 대화 내역 저장
         StringBuilder sb = new StringBuilder();
         for (Map<String, String> message : dialogueHistory) {
             sb.append(message.get("role")).append(": ").append(message.get("content")).append("\n");
         }
         retrievalData.put("history", sb.toString());
+
+        // ✅ 6. 유저 정보 추가
+        JSONObject userJson = new JSONObject();
+        userJson.put("language", userLanguage);
+        retrievalData.put("user", userJson.toString());
+
 
         // 🔹 OpenAI 프롬프트 생성
         String prompt = promptGenerator.apply(retrievalData);
