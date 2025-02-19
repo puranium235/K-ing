@@ -59,19 +59,18 @@ public class FcmTokenService {
         log.info("link : {}", link);
         Message message = Message.builder()
                 .setToken(token)
-                .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .build())
-                .setWebpushConfig(
-                        WebpushConfig.builder()
-                                .setFcmOptions(
-                                        WebpushFcmOptions.builder()
-                                                .setLink(link)
-                                                .build()
-                                )
-                                .build()
-                )
+                .putData("title", title)
+                .putData("body", body)
+                .putData("link",link)
+                // .setWebpushConfig(
+                //         WebpushConfig.builder()
+                //                 .setFcmOptions(
+                //                         WebpushFcmOptions.builder()
+                //                                 .setLink(link)
+                //                                 .build()
+                //                 )
+                //                 .build()
+                // )
                 .build();
         return FirebaseMessaging.getInstance().send(message);
     }
@@ -87,7 +86,8 @@ public class FcmTokenService {
         tokenRecord.ifPresent(fcmTokenRepository::delete);
     }
 
-    @Scheduled(cron = "0 0 10,13,16 * * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "0 0 10,13,16 * * *", zone = "Asia/Seoul")
+    @Scheduled(fixedRate = 60000, zone = "Asia/Seoul")
     public void testPushNotification() {
         Optional<CurationList> optionalCuration = curationListRepository.findTopByIsPublicTrueOrderByCreatedAtDesc();
         if (optionalCuration.isEmpty()) {

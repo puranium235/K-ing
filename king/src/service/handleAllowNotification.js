@@ -34,21 +34,23 @@ export const handleAllowNotification = async () => {
   onMessage(messaging, (payload) => {
     console.log('Message received:', payload);
 
-    const notificationTitle = payload.notification?.title || '알림';
+    const notificationTitle = payload.data?.title || '알림';
     const notificationOptions = {
-      body: payload.notification?.body || '',
-      // icon: payload.notification?.icon,
-      data: { link: payload.fcmOptions?.link || '/' },
+      body: payload.data?.body || '',
+      icon: '/logo.png',
+      // data: { link: payload.fcmOptions?.link || '/' },
     };
 
     if (Notification.permission === 'granted') {
       try {
-        const notification = new Notification(notificationTitle, notificationOptions);
+        if (Notification.permission === 'granted' && document.visibilityState === 'visible') {
+          new Notification(notificationTitle, notificationOptions);
 
-        notification.onclick = function (event) {
-          event.preventDefault();
-          window.open(notificationOptions.data.link, '_blank');
-        };
+          // notification.onclick = function (event) {
+          //   event.preventDefault();
+          //   window.open(notificationOptions.fcmOptions.link, '/');
+          // };
+        }
       } catch (error) {
         console.error('알림 생성 중 오류 발생:', error);
       }

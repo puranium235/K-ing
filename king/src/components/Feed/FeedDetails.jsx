@@ -161,11 +161,12 @@ const FeedDetails = () => {
     }
   };
 
-  const handleHeader = () => {
-    document.querySelector('html').scrollTo({ top: 0, behavior: 'smooth' });
-
   const handleUserClick = () => {
     navigate(`/user/${writer.userId}`);
+  };
+
+  const handleHeader = () => {
+    document.querySelector('html').scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (!postInfo) {
@@ -482,7 +483,7 @@ const CommentWrapper = styled.div`
     display: none;
   }
 
-  margin-bottom: 6rem;
+  padding-bottom: 8rem;
 `;
 
 const CommentContainer = styled.div`
