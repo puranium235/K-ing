@@ -54,6 +54,7 @@ const SearchResult = () => {
       province: '',
       district: '',
     });
+    setSearchQuery(query);
     setSearchCategory(category);
     setPrevQuery(query);
   };

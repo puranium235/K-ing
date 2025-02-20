@@ -188,7 +188,7 @@ public class SyncService implements CommandLineRunner {
                 .build());
         properties.put(ElasticsearchConstants.FIELD_CREATED_AT, new Property.Builder()
                 .date(new DateProperty.Builder()
-                        .format("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+                        .format("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
                         .build())
                 .build());
 
