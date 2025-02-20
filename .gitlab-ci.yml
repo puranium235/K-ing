@@ -39,8 +39,9 @@ backend-build:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $CI_COMMIT_SHA
     DOCKER_TLS_CERTDIR: "/certs"
+#    DOCKER_HOST: tcp://localhost:2375
   before_script:
-    - echo $DOCKER_HOST
+    - sleep 10
     - docker info
 #    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
   script:
@@ -48,7 +49,6 @@ backend-build:
     - cd king-backend
     - cat $FCM_KEY >> src/main/resources/fcm-key.json
     - cat $GOOGLE_TRANSLATE_KEY >> src/main/resources/translate-key.json
-    - sleep 30
     - echo [INFO] 도커허브에 업로드 중
     - docker build -t $IMAGE_NAME:$IMAGE_TAG .
     - docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
