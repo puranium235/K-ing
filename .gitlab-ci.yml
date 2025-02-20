@@ -37,6 +37,7 @@ backend-build:
   variables:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $CI_COMMIT_SHA
+    DOCKER_HOST: tcp://localhost:2375
   before_script:
     - docker info
 #    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
