@@ -103,17 +103,17 @@ const NoImageMessage = styled.div`
   height: 50vh;
   text-align: center;
   color: ${({ theme }) => theme.colors.Gray0};
-  font-size: 1.2rem;
+  /* font-size: 1.2rem; */
 
   p {
     font-weight: bold;
-    font-size: 1.4rem;
+    ${({ theme }) => theme.fonts.Title4}
   }
 
   span {
     margin-top: 0.5rem;
-    font-size: 1rem;
     color: ${({ theme }) => theme.colors.Gray2};
+    ${({ theme }) => theme.fonts.Body3}
   }
 `;
 

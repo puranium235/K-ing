@@ -1,9 +1,11 @@
 import { jwtDecode } from 'jwt-decode';
 
+import accountLocales from '../locales/account.json';
 import signupLocales from '../locales/signup.json';
-import { setLanguage } from '../util/languageUtils';
+import { getLanguage, setLanguage } from '../util/languageUtils';
 import { client } from './axios';
 import { deleteFcmToken } from './fcm';
+
 // 닉네임 중복 검사 API
 export const checkNickname = async (nickname, language = 'ko') => {
   try {
@@ -120,6 +122,7 @@ export const logout = async () => {
 
 // 회원 탈퇴 API 요청
 export const deleteAccount = async () => {
+  const language = getLanguage();
   try {
     const res = await client.delete('/user', {});
 
@@ -131,7 +134,7 @@ export const deleteAccount = async () => {
 
     return {
       success: true,
-      message: '계정이 삭제되었습니다.',
+      message: accountLocales[language]?.accountDeleted,
     };
   } catch (err) {
     console.error('❌ 계정 삭제 실패:', err.response ? err.response.data : err);
@@ -139,17 +142,17 @@ export const deleteAccount = async () => {
     if (err.response) {
       const { status } = err.response;
       if (status === 401) {
-        return { success: false, message: '권한이 없습니다. 다시 로그인해주세요.' };
+        return { success: false, message: accountLocales[language]?.unauthorized };
       } else if (status === 403) {
-        return { success: false, message: '계정 삭제 권한이 없습니다.' };
+        return { success: false, message: accountLocales[language]?.forbidden };
       } else if (status === 404) {
         return {
           success: false,
-          message: '회원탈퇴하려는 사용자를 찾을 수 없습니다.',
+          message: accountLocales[language]?.userNotFound,
         };
       }
 
-      return { success: false, message: '계정 삭제에 실패했습니다. 다시 시도해주세요.' };
+      return { success: false, message: accountLocales[language]?.deleteFailed };
     }
   }
 };

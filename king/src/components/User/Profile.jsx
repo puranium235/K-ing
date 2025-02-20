@@ -206,12 +206,12 @@ const RefreshButton = styled.button`
   margin-top: 1rem;
   padding: 0.8rem 1.5rem;
   font-size: 1.4rem;
-  background-color: ${({ theme }) => theme.colors.Primary || '#007bff'};
+  background-color: ${({ theme }) => theme.colors.Gray4};
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   &:hover {
-    background-color: ${({ theme }) => theme.colors.PrimaryDark || '#0056b3'};
+    background-color: ${({ theme }) => theme.colors.Gray2};
   }
 `;

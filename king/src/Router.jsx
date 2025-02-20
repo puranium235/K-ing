@@ -23,7 +23,6 @@ import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
 import LoadingPage from './pages/LoadingPage';
 import MapPage from './pages/MapPage';
-import MyPage from './pages/MyPage';
 import PlaceDetailPage from './pages/PlaceDetailPage';
 import PostUpdatePage from './pages/PostUpdatePage';
 import PostUploadPage from './pages/PostUploadPage';
@@ -60,7 +59,6 @@ const Router = () => {
               <Route path="/update/curation/:curationId" element={<CurationUpdatePage />} />
               <Route path="/archive" element={<ArchivePage />} />
               <Route path="/favorites/:type" element={<FavoritesDetailPage />} />
-              <Route path="/mypage" element={<MyPage />} />
               <Route path="/user/:userId" element={<UserPage />} />
               <Route path="/setting" element={<SettingPage />} />
               <Route path="/setting/:settingType" element={<SettingDetailPage />} />
