@@ -29,18 +29,12 @@ frontend-build:
 
 backend-build:
   stage: build
-  image: docker:latest
-  services:
-  - name: docker:dind
-    alias: docker
-    command: ["--tls=false"]
+  image: docker:27.5.1
   tags:
     - king-prod
   variables:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $CI_COMMIT_SHA
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
   before_script:
     - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
   script:
