@@ -37,9 +37,9 @@ backend-build:
   variables:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $CI_COMMIT_SHA
-    DOCKER_HOST: "unix:///runner/services/docker/docker.sock"
   before_script:
-    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
+    - docker info
+#    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
   script:
     - echo [INFO] 백엔드 파일 빌드 중
     - cd king-backend
