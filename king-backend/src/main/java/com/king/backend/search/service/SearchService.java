@@ -99,7 +99,7 @@ public class SearchService {
                             .query(originalQuery)
                             .functions(fn -> fn.scriptScore(ss -> ss
                                     .script(sc -> sc
-                                            .source("doc['name.ko'].value.startsWith(params.prefix) ? 2.0 : 1.0")
+                                            .source("doc['name.keyword'].value.startsWith(params.prefix) ? 2.0 : 1.0")
                                             .params(Collections.singletonMap("prefix", JsonData.of(query)))
                                     )
                             ))
