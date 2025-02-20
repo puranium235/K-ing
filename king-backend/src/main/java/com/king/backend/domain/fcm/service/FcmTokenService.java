@@ -1,6 +1,8 @@
 package com.king.backend.domain.fcm.service;
 
-import com.google.firebase.messaging.*;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
 import com.king.backend.domain.curation.entity.CurationList;
 import com.king.backend.domain.curation.repository.CurationListRepository;
 import com.king.backend.domain.fcm.entity.FcmToken;
@@ -86,8 +88,8 @@ public class FcmTokenService {
         tokenRecord.ifPresent(fcmTokenRepository::delete);
     }
 
-//    @Scheduled(cron = "0 0 10,13,16 * * *", zone = "Asia/Seoul")
-    @Scheduled(fixedRate = 60000, zone = "Asia/Seoul")
+//    @Scheduled(fixedRate = 60000, zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 10,11,12,13,14,15,16,17 * * *", zone = "Asia/Seoul")
     public void testPushNotification() {
         Optional<CurationList> optionalCuration = curationListRepository.findTopByIsPublicTrueOrderByCreatedAtDesc();
         if (optionalCuration.isEmpty()) {

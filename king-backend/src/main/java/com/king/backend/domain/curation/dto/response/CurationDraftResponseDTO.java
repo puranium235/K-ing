@@ -32,7 +32,7 @@ public class CurationDraftResponseDTO {
                     place.getAddress(),
                     Objects.requireNonNullElse(
                             place.getImageUrl(),
-                            "https://king-s3-bucket.s3.us-east-1.amazonaws.com/uploads/default.jpg"
+                            "https://d1qaf0hhk6y1ff.cloudfront.net/uploads/default.jpg"
                     )
             );
         }

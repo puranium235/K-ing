@@ -23,7 +23,7 @@ public class LineUserDTO {
         if (attribute.containsKey("picture")) {
             lineUserDTO.setImageUrl(attribute.get("picture").toString());
         } else {
-            lineUserDTO.setImageUrl("https://king-s3-bucket.s3.us-east-1.amazonaws.com/uploads/default.jpg");
+            lineUserDTO.setImageUrl("https://d1qaf0hhk6y1ff.cloudfront.net/uploads/default.jpg");
         }
 
         return lineUserDTO;

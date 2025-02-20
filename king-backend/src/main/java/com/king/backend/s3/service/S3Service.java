@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -40,9 +39,6 @@ public class S3Service {
 
     @Value("${spring.aws.s3-bucket}")
     private String bucketName;
-
-    @Value("${spring.aws.region}")
-    private String region;
 
     // 1. 사용자가 직접 업로드
     public String uploadFile(Object entity, MultipartFile file) {
@@ -89,7 +85,7 @@ public class S3Service {
 
         // 1) null이면 기본 이미지 url 반환
         if (imageUrl == null) {
-            String defaultImageUrl = String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", bucketName, region);
+            String defaultImageUrl = "https://d1qaf0hhk6y1ff.cloudfront.net/uploads/default.jpg";
             setEntityImage(entity, defaultImageUrl);
             log.info("imageUrl이 null이므로 default 이미지 반환");
             return defaultImageUrl;
@@ -172,14 +168,9 @@ public class S3Service {
         return folder + UUID.randomUUID() + "-" + originalFileName;
     }
 
-    // S3 URL 반환
+    // S3 우회 URL 반환
     public String getS3FileUrl(String filePath) {
-        GetUrlRequest request = GetUrlRequest.builder()
-                .bucket(bucketName)
-                .key(filePath)
-                .build();
-        URL url = s3Client.utilities().getUrl(request);
-        return url.toString();
+        return String.format("https://d1qaf0hhk6y1ff.cloudfront.net/%s", filePath);
     }
     
     // tmdb 이미지 대상 (cast, content)

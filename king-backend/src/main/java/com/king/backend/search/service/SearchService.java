@@ -36,7 +36,6 @@ import com.king.backend.search.errorcode.SearchErrorCode;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -58,12 +57,6 @@ public class SearchService {
     private final ContentRepository contentRepository;
     private final PlaceRepository placeRepository;
     private final GooglePhotoService googlePhotoService;
-
-    @Value("${spring.aws.s3-bucket}")
-    private String awsBucketName;
-
-    @Value("${spring.aws.region}")
-    private String awsRegion;
 
     /**
      * 자동완성 제안 가져오기
@@ -255,7 +248,7 @@ public class SearchService {
                                                 doc.getName(),      // 기본값; 아래에서 재설정함
                                                 doc.getDetails(),   // 기본값; 아래에서 재설정함
                                                 Objects.requireNonNullElse(doc.getImageUrl(),
-                                                        String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion)),
+                                                        "https://d1qaf0hhk6y1ff.cloudfront.net/uploads/default.jpg"),
                                                 false,
                                                 doc.getType(),
                                                 doc.getOpenHour(),
@@ -284,7 +277,7 @@ public class SearchService {
                                             Optional<Place> placeOpt = placeRepository.findById(result.getId());
                                             if (placeOpt.isPresent()) {
                                                 Place place = placeOpt.get();
-                                                String imageUrl = place.getImageUrl() == null ? String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion) : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+                                                String imageUrl = place.getImageUrl() == null ? "https://d1qaf0hhk6y1ff.cloudfront.net/uploads/default.jpg" : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
                                                 place.setImageUrl(imageUrl);
                                                 placeRepository.save(place);
                                                 result.setImageUrl(imageUrl);
@@ -358,7 +351,7 @@ public class SearchService {
                                     doc.getName(),      // 기본값; 아래에서 재설정
                                     doc.getDetails(),   // 기본값; 아래에서 재설정
                                     Objects.requireNonNullElse(doc.getImageUrl(),
-                                            String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion)),
+                                            "https://d1qaf0hhk6y1ff.cloudfront.net/uploads/default.jpg"),
                                     isFavorite,
                                     doc.getType(),
                                     doc.getOpenHour(),
@@ -388,7 +381,7 @@ public class SearchService {
                                 Optional<Place> placeOpt = placeRepository.findById(result.getId());
                                 if (placeOpt.isPresent()) {
                                     Place place = placeOpt.get();
-                                    String imageUrl = place.getImageUrl() == null ? String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion) : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+                                    String imageUrl = place.getImageUrl() == null ? "https://d1qaf0hhk6y1ff.cloudfront.net/uploads/default.jpg" : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
                                     place.setImageUrl(imageUrl);
                                     placeRepository.save(place);
                                     result.setImageUrl(imageUrl);

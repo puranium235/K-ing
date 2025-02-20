@@ -27,13 +27,12 @@ import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.apache.commons.text.similarity.LevenshteinDistance;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -52,12 +51,6 @@ public class CurationService {
     private final TranslateService translateService;
     private final RedisUtil redisUtil;
     private final GooglePhotoService googlePhotoService;
-
-    @Value("${spring.aws.s3-bucket}")
-    private String awsBucketName;
-
-    @Value("${spring.aws.region}")
-    private String awsRegion;
 
     @Transactional(readOnly = true)
     public Long getCurationIdByTitle(String title) {
@@ -114,7 +107,7 @@ public class CurationService {
                 .stream()
                 .map(CurationListItem::getPlace)
                 .peek((place) -> {
-                    String imageUrl = place.getImageUrl() == null ? String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion) : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+                    String imageUrl = place.getImageUrl() == null ? "https://d1qaf0hhk6y1ff.cloudfront.net/uploads/default.jpg" : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
 
                     place.setImageUrl(imageUrl);
                     placeRepository.save(place);
