@@ -25,4 +25,4 @@ frontend-build:
     - npm install
     - npm run build
     - echo [INFO] 프론트엔드 파일 복사 중
-    - rsync -avz -e "ssh -i $SSH_KEY" dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/king/dist
+    - rsync -avzR --delete -e "ssh -i $SSH_KEY" dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/king/dist
