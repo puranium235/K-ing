@@ -30,11 +30,15 @@ frontend-build:
 backend-build:
   stage: build
   image: docker:latest
+  services:
+    - docker:dind
   tags:
     - king-prod
   variables:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $CI_COMMIT_SHA
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: "tcp://docker:2376"
   before_script:
     - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
   script:
