@@ -93,7 +93,6 @@ const CurationUpload = ({ state }) => {
       setIsUpdateLoaded(true);
     } else if ((isDraft && useDraft) || autoDraft) {
       res = await getCurationDraft();
-      setAutoDraft(false);
       if (isUpdateLoaded) {
         setImage(curationImage);
       } else if (res.imageData) {
@@ -115,7 +114,6 @@ const CurationUpload = ({ state }) => {
     if ((isDraft && useDraft) || autoDraft) {
       await deleteCurationDraft();
       setCurationDraftExist(false);
-      setIsUpdateLoaded(false);
       setAutoDraft(false);
       setUseDraft(false);
     }

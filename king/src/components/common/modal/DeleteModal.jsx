@@ -1,19 +1,40 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import kingCharacter from '/src/assets/icons/king_character_sorry.png';
+
+import { getLanguage, getTranslations } from '../../../util/languageUtils';
+import CancelButton from '../../common/button/CancelButton';
+import ConfirmButton from '../../common/button/ConfirmButton';
 import SmallModal from '../../common/modal/smallModal';
 
-const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
-  if (!isOpen) return null; // 모달이 열려 있지 않으면 렌더링 안 함
+const DeleteModal = ({ isShowing, onClose, onConfirm }) => {
+  const [language, setLanguage] = useState(getLanguage());
+  const { uploadModal: modalTranslations } = getTranslations(language);
+
+  // 언어 변경 시 상태 업데이트
+  useEffect(() => {
+    const handleLanguageChange = () => setLanguage(getLanguage());
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
+  }, []);
 
   return (
-    <SmallModal>
-      <p>정말 삭제하시겠습니까?</p>
-      <ButtonGroup>
-        <button onClick={onConfirm}>확인</button>
-        <button onClick={onClose}>취소</button>
-      </ButtonGroup>
-    </SmallModal>
+    isShowing && (
+      <SmallModal title={modalTranslations.deleteTitle} isShowing={isShowing}>
+        <StDraftModalWrapper>
+          <StCommentWrapper>
+            <img src={kingCharacter} />
+            <p>{modalTranslations.deleteBody}</p>
+          </StCommentWrapper>
+          <StBtnWrapper>
+            <CancelButton btnName={modalTranslations.no} onClick={onClose} />
+            <ConfirmButton btnName={modalTranslations.yes} onClick={onConfirm} />
+          </StBtnWrapper>
+        </StDraftModalWrapper>
+      </SmallModal>
+    )
   );
 };
 
@@ -54,4 +75,37 @@ const ButtonGroup = styled.div`
     background: ${({ theme }) => theme.colors.Gray1};
     color: white;
   }
+`;
+
+const StDraftModalWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 1.5rem 2rem;
+`;
+
+const StCommentWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  margin: 1rem;
+
+  img {
+    width: 7rem;
+  }
+
+  & > p {
+    margin-left: 2rem;
+
+    color: ${({ theme }) => theme.colors.Gray1};
+    ${({ theme }) => theme.fonts.Body1};
+  }
+`;
+const StBtnWrapper = styled.div`
+  display: flex;
+  gap: 1rem;
 `;

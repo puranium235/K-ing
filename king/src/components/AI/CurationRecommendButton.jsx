@@ -26,7 +26,9 @@ const CurationRecommendButton = ({ message }) => {
 
   const handleClick = () => {
     if (curationId) {
-      navigate(`/curation/${curationId}`);
+      navigate(`/curation/${curationId}`, {
+        state: { from: { pathname: 'chatbot' } },
+      });
     } else {
       alert('큐레이션 정보를 불러올 수 없습니다.');
     }

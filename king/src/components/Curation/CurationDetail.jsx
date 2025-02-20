@@ -8,6 +8,7 @@ import MapIcon from '/src/assets/icons/map.png';
 import OptionIcon from '/src/assets/icons/option.png';
 import OptionModal from '/src/components/common/OptionModal';
 
+import useModal from '../../hooks/common/useModal';
 import { addBookmark, removeBookmark } from '../../lib/bookmark';
 import { deleteCuration, getCurationDetail } from '../../lib/curation';
 import { CurationPlaceList } from '../../recoil/atom';
@@ -32,6 +33,7 @@ const CurationDetail = () => {
   const [isOptionVisible, setIsOptionVisible] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const deleteModal = useModal();
 
   const [language, setLanguage] = useState(getLanguage());
   const { curation: curationTranslations } = getTranslations(language);
@@ -81,19 +83,20 @@ const CurationDetail = () => {
     navigate(`/curation/map`);
   };
 
-  const handleDeleteClick = () => {
-    setIsDeleteModalOpen(true);
+  const handleDeleteClick = async () => {
+    //setIsDeleteModalOpen(true);
+    deleteModal.setShowing(true);
   };
 
   const handleConfirmDelete = async () => {
     try {
       await deleteCuration(curationId); // DELETE API 호출
       alert(curationTranslations.alertDeleteSuccess);
-      navigate('/curation'); // 삭제 후 목록 페이지로 이동
     } catch (error) {
       alert(curationTranslations.alertDeleteFailed);
     } finally {
-      setIsDeleteModalOpen(false);
+      deleteModal.setShowing(false);
+      navigate('/curation'); // 삭제 후 목록 페이지로 이동
     }
   };
 
@@ -158,11 +161,13 @@ const CurationDetail = () => {
         )}
       </ImageContainer>
 
-      <DeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-      />
+      <StDeleteModalWrapper $showing={deleteModal.isShowing}>
+        <DeleteModal
+          isShowing={deleteModal.isShowing}
+          onClose={() => deleteModal.setShowing(false)}
+          onConfirm={handleConfirmDelete}
+        />
+      </StDeleteModalWrapper>
 
       {/* 큐레이션 설명 */}
       <Content>
@@ -196,6 +201,22 @@ const CurationDetail = () => {
     </Container>
   );
 };
+
+const StDeleteModalWrapper = styled.div`
+  display: ${({ $showing }) => ($showing ? 'block' : 'none')};
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  justify-content: center;
+  align-items: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-color: rgba(0, 0, 0, 0.5);
+`;
 
 const Container = styled.div`
   width: 100%;

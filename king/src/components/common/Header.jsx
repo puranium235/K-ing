@@ -58,6 +58,8 @@ const Header = ({ title }) => {
       navigate('/home');
     } else if (from || !window.location.pathname.includes('/curation')) {
       navigate(-1);
+    } else if (from && from.includes('/chatbot')) {
+      navigate(-1);
     } else {
       navigate('/home');
     }
