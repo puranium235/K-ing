@@ -28,5 +28,10 @@ public class SearchResponseDto {
         private String details;
         private String imageUrl;
         private boolean isFavorite;
+        private String type;
+        private String openHour;
+        private String breakTime;
+        private String closedDay;
+        private String address;
     }
 }
