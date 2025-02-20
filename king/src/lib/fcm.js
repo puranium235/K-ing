@@ -11,7 +11,7 @@ export const postFcmToken = async (token) => {
 
 export const deleteFcmToken = async (token) => {
   try {
-    const res = await client.delete('/fcm', token);
+    const res = await client.delete('/fcm', { token });
     return res;
   } catch (err) {
     console.error(err);
