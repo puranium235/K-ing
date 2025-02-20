@@ -71,7 +71,7 @@ public class SearchService {
      * 자동완성 제안 가져오기
      */
     public AutocompleteResponseDto getAutocompleteSuggestions(AutocompleteRequestDto requestDto) {
-        try{
+        try {
             String query = requestDto.getQuery();
 
             if (query != null && !query.trim().isEmpty()) {
@@ -116,7 +116,7 @@ public class SearchService {
                     .collect(Collectors.toList());
 
             return new AutocompleteResponseDto(results);
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new CustomException(SearchErrorCode.SEARCH_FAILED);
         }
 
@@ -172,8 +172,8 @@ public class SearchService {
         OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
         Long userId = Long.parseLong(user.getName());
         String language = user.getLanguage();
-        try{
-            if(requestDto.getCategory()==null||requestDto.getCategory().trim().isEmpty()){
+        try {
+            if (requestDto.getCategory() == null || requestDto.getCategory().trim().isEmpty()) {
                 BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);
                 List<SortOptions> sortOptions = buildSortOptions(requestDto);
 
@@ -199,7 +199,7 @@ public class SearchService {
                                                                                 .value("DRAMA")))
                                                                         .minimumShouldMatch("1")
                                                                 ))
-                                                                ,"cast", Query.of(q -> q.term(t -> t
+                                                                , "cast", Query.of(q -> q.term(t -> t
                                                                         .field(ElasticsearchConstants.FIELD_CATEGORY)
                                                                         .value("CAST")
                                                                 )),
@@ -246,7 +246,7 @@ public class SearchService {
                                                 false
                                         );
                                         // ===== 엔티티 번역 처리 (CONTENT, CAST) =====
-                                        if ("MOVIE".equalsIgnoreCase(result.getCategory())||"SHOW".equalsIgnoreCase(result.getCategory())||"DRAMA".equalsIgnoreCase(result.getCategory())) {
+                                        if ("MOVIE".equalsIgnoreCase(result.getCategory()) || "SHOW".equalsIgnoreCase(result.getCategory()) || "DRAMA".equalsIgnoreCase(result.getCategory())) {
                                             Optional<Content> contentOpt = contentRepository.findById(result.getId());
                                             if (contentOpt.isPresent()) {
                                                 Content content = contentOpt.get();
@@ -282,7 +282,7 @@ public class SearchService {
                 }
 
                 return new SearchResponseDto(combinedResults, total, null);
-            }else {
+            } else {
                 BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);
                 List<SortOptions> sortOptions = buildSortOptions(requestDto);
                 List<Object> searchAfterValues = buildSearchAfterValues(requestDto.getCursor());
@@ -312,7 +312,7 @@ public class SearchService {
                 Set<String> targetKeys = hits.stream()
                         .filter(hit -> {
                             String category = hit.source().getCategory();
-                            return "CAST".equalsIgnoreCase(category) || "MOVIE".equalsIgnoreCase(category)||"SHOW".equalsIgnoreCase(category)||"DRAMA".equalsIgnoreCase(category);
+                            return "CAST".equalsIgnoreCase(category) || "MOVIE".equalsIgnoreCase(category) || "SHOW".equalsIgnoreCase(category) || "DRAMA".equalsIgnoreCase(category);
                         })
                         .map(hit -> {
                             String category = hit.source().getCategory().toUpperCase();
@@ -330,7 +330,7 @@ public class SearchService {
                             SearchDocument doc = hit.source();
                             boolean isFavorite = false;
                             String category = doc.getCategory();
-                            if ("CAST".equalsIgnoreCase(category) || "MOVIE".equalsIgnoreCase(category)||"SHOW".equalsIgnoreCase(category)||"DRAMA".equalsIgnoreCase(category)) {
+                            if ("CAST".equalsIgnoreCase(category) || "MOVIE".equalsIgnoreCase(category) || "SHOW".equalsIgnoreCase(category) || "DRAMA".equalsIgnoreCase(category)) {
                                 String key = (category.equalsIgnoreCase("CAST") ? "CAST" : "CONTENT") + "_" + doc.getOriginalId();
                                 isFavorite = favoriteKeySet.contains(key);
                             }
@@ -344,7 +344,7 @@ public class SearchService {
                                     isFavorite
                             );
                             // ===== 엔티티 번역 처리 (CONTENT, CAST) =====
-                            if ("MOVIE".equalsIgnoreCase(result.getCategory())||"SHOW".equalsIgnoreCase(result.getCategory())||"DRAMA".equalsIgnoreCase(result.getCategory())) {
+                            if ("MOVIE".equalsIgnoreCase(result.getCategory()) || "SHOW".equalsIgnoreCase(result.getCategory()) || "DRAMA".equalsIgnoreCase(result.getCategory())) {
                                 Optional<Content> contentOpt = contentRepository.findById(result.getId());
                                 if (contentOpt.isPresent()) {
                                     Content content = contentOpt.get();
@@ -360,6 +360,18 @@ public class SearchService {
                                     result.setName(trans.getName());
                                 }
                             }
+
+                            if ("PLACE".equalsIgnoreCase(result.getCategory())) {
+                                Optional<Place> placeOpt = placeRepository.findById(result.getId());
+                                if (placeOpt.isPresent()) {
+                                    Place place = placeOpt.get();
+                                    String imageUrl = place.getImageUrl() == null ? String.format("https://%s.s3.%s.amazonaws.com/uploads/default.jpg", awsBucketName, awsRegion) : googlePhotoService.getRedirectedImageUrl(place.getImageUrl());
+                                    place.setImageUrl(imageUrl);
+                                    placeRepository.save(place);
+                                    result.setImageUrl(imageUrl);
+                                }
+                            }
+
                             // ===== end =====
                             return result;
                         })
@@ -379,7 +391,7 @@ public class SearchService {
 
                 return new SearchResponseDto(results, total, nextCursor);
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             throw new CustomException(SearchErrorCode.SEARCH_FAILED);
         }
     }
@@ -635,6 +647,7 @@ public class SearchService {
 
     /**
      * 지도 보기를 위한 장소 목록 가져오기
+     *
      * @param requestDto 지도 보기 요청 DTO
      * @return 지도에 표시할 장소 목록과 적용된 필터
      */
@@ -671,7 +684,7 @@ public class SearchService {
                                 doc.getAddress(),
                                 doc.getLocation() != null ? doc.getLocation().getLat() : 0,
                                 doc.getLocation() != null ? doc.getLocation().getLon() : 0
-                                );
+                        );
                     })
                     .collect(Collectors.toList());
 
@@ -752,11 +765,11 @@ public class SearchService {
                     .field("location") // SearchDocument의 위치 필드 (예: GeoPoint 타입)
                     .boundingBox(b -> b.trbl(builder ->
                                     builder.topRight(builder1 ->
-                                            builder1.latlon(builder2 ->
-                                                    builder2.lon(bb.getNeLng()).lat(bb.getNeLat())))
+                                                    builder1.latlon(builder2 ->
+                                                            builder2.lon(bb.getNeLng()).lat(bb.getNeLat())))
                                             .bottomLeft(builder1 ->
                                                     builder1.latlon(builder2 -> builder2.lat(bb.getSwLat()).lon(bb.getSwLng())))
-                                    )
+                            )
                     )
             ));
         }
