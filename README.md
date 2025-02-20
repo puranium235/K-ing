@@ -16,12 +16,17 @@
 
 ### 로그인
 
-### 메인화면
+### 검색 / 랭킹
+
+### 게시글 
+
+### 큐레이션
 
 ### 번역
 <p align="center">
-  <img src="/uploads/2ae282a33af32b0ce33f380b7de4daa8/70DB0766-BE22-418F-95F5-73AFB69DF381.gif" width="45%"/>
-  <img src="/uploads/d5c6f839a9f77fcfc2720ff54cda3d6e/79EAEE65-7CC8-4D0E-B20F-8B4CFCC5604D.gif" width="45%"/>
+  <img src="/uploads/188d6d3b7c35ac35a54bd4641d63826a/35B4B491-F709-4570-B46E-8FFF8FDC3D4E.gif" width="30%"/>
+  <img src="/uploads/2ae282a33af32b0ce33f380b7de4daa8/70DB0766-BE22-418F-95F5-73AFB69DF381.gif" width="30%"/>
+  <img src="/uploads/d5c6f839a9f77fcfc2720ff54cda3d6e/79EAEE65-7CC8-4D0E-B20F-8B4CFCC5604D.gif" width="30%"/>
 </p>
 
 ### T/F 챗봇
