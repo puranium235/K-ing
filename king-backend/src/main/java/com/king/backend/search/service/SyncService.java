@@ -191,6 +191,9 @@ public class SyncService implements CommandLineRunner {
                         .format("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
                         .build())
                 .build());
+        properties.put("isPublic", new Property.Builder()
+                .boolean_(new BooleanProperty.Builder().build())
+                .build());
 
         TokenFilterDefinition autocompleteFilterDefinition = TokenFilterDefinition.of(tf -> tf
                 .ngram(ng -> ng
