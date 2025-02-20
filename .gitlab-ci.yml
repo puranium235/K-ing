@@ -36,14 +36,14 @@ backend-build:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $CI_COMMIT_SHA
     DOCKER_HOST: unix:///var/run/docker.sock
-  before_script:
-    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
   script:
     - echo [INFO] 백엔드 파일 빌드 중
     - cd king-backend
     - cat $FCM_KEY >> src/main/resources/fcm-key.json
     - cat $GOOGLE_TRANSLATE_KEY >> src/main/resources/translate-key.json
     - echo [INFO] 도커허브에 업로드 중
+    - unset DOCKER_HOST
+    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
     - docker build -t $IMAGE_NAME:$IMAGE_TAG .
     - docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
     - docker push $IMAGE_NAME:$IMAGE_TAG
