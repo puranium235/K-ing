@@ -1,31 +1,31 @@
-stages:
-  - build
-  - deploy
-
-frontend-build:
-  stage: build
-  image: node:22.13-alpine
-  tags:
-    - king-prod
-  before_script:
-    - apk add --no-cache openssh-client rsync
-    - eval $(ssh-agent -s)
-    - chmod 400 "$SSH_KEY"
-    - ssh-add "$SSH_KEY"
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
-  cache:
-    paths:
-      - king/node_modules
-  script:
-    - echo [INFO] 프론트엔드 파일 빌드 중
-    - cd king
-    - cat $CLIENT_ENV >> .env
-    - npm install
-    - npm run build
-    - echo [INFO] 프론트엔드 파일 복사 중
-    - rsync -avz --delete -e "ssh -i $SSH_KEY" --rsync-path="mkdir -p /home/ubuntu/app/king/dist && rsync" dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/king/dist/
+#stages:
+#  - build
+#  - deploy
+#
+#frontend-build:
+#  stage: build
+#  image: node:22.13-alpine
+#  tags:
+#    - king-prod
+#  before_script:
+#    - apk add --no-cache openssh-client rsync
+#    - eval $(ssh-agent -s)
+#    - chmod 400 "$SSH_KEY"
+#    - ssh-add "$SSH_KEY"
+#    - mkdir -p ~/.ssh
+#    - chmod 700 ~/.ssh
+#    - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+#  cache:
+#    paths:
+#      - king/node_modules
+#  script:
+#    - echo [INFO] 프론트엔드 파일 빌드 중
+#    - cd king
+#    - cat $CLIENT_ENV >> .env
+#    - npm install
+#    - npm run build
+#    - echo [INFO] 프론트엔드 파일 복사 중
+#    - rsync -avz --delete -e "ssh -i $SSH_KEY" --rsync-path="mkdir -p /home/ubuntu/app/king/dist && rsync" dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/king/dist/
 
 backend-build:
   stage: build
@@ -40,7 +40,6 @@ backend-build:
     IMAGE_TAG: $CI_COMMIT_SHA
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - systemctl status docker
     - echo $DOCKER_HOST
     - docker info
 #    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
