@@ -4,15 +4,13 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchPhrasePrefixQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.JsonData;
 import com.king.backend.domain.cast.entity.Cast;
 import com.king.backend.domain.cast.entity.CastTranslation;
 import com.king.backend.domain.cast.repository.CastRepository;
@@ -89,19 +87,43 @@ public class SearchService {
                     .field(ElasticsearchConstants.FIELD_NAME)
                     .query(query)
                     .maxExpansions(10)
-                    .boost(2.0F)
+                    .boost(10.0F)
             );
 
             BoolQuery boolQuery = buildAutocompleteBoolQuery(query, category, mppQuery, fuzzyQuery);
 
+            // function_score로 래핑하여, name.keyword 필드가 query로 시작하면 추가 점수를 부여하는 스크립트를 적용
+            Query originalQuery = boolQuery._toQuery();
+            Query functionScoreQuery = Query.of(q -> q
+                    .functionScore(fs -> fs
+                            .query(originalQuery)
+                            .functions(fn -> fn.scriptScore(ss -> ss
+                                    .script(sc -> sc
+                                            .source("doc['name.keyword'].value.startsWith(params.prefix) ? 2.0 : 1.0")
+                                            .params(Collections.singletonMap("prefix", JsonData.of(query)))
+                                    )
+                            ))
+                            .boostMode(FunctionBoostMode.Multiply)
+                    )
+            );
+
             SearchRequest searchRequest = SearchRequest.of(request -> request
                     .index(ElasticsearchConstants.SEARCH_INDEX)
-                    .query(boolQuery._toQuery())
+                    .query(functionScoreQuery)
                     .size(10)
                     .from(0)
                     .source(source -> source
                             .filter(f -> f.excludes("_class")))
             );
+
+//            SearchRequest searchRequest = SearchRequest.of(request -> request
+//                    .index(ElasticsearchConstants.SEARCH_INDEX)
+//                    .query(boolQuery._toQuery())
+//                    .size(10)
+//                    .from(0)
+//                    .source(source -> source
+//                            .filter(f -> f.excludes("_class")))
+//            );
 
             SearchResponse<SearchDocument> searchResponse = elasticsearchClient.search(searchRequest, SearchDocument.class);
 
