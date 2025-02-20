@@ -7,20 +7,21 @@ frontend-build:
   image: node:22.13-alpine
   tags:
     - king-prod
+  before_script:
+    - apk add --no-cache openssh-client rsync
+    - eval $(ssh-agent -s)
+    - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
   cache:
     paths:
       - king/node_modules
   script:
     - echo [INFO] 프론트엔드 파일 빌드 중
     - cd king
-    - echo $CLIENT_ENV >> .env
+    - cat $CLIENT_ENV >> .env
     - npm install
     - npm run build
     - echo [INFO] 프론트엔드 파일 복사 중
-    - sleep 60
-    - mkdir -p /app/king/dist
-    - cp -r dist/ /app/king/dist/
-    - sleep 60
-  artifacts:
-    paths:
-      - king/dist
+    - rsync -avz -e "ssh -i $SSH_KEY" dist/ $EC2_HOST:/home/ubuntu/app/king/dist
