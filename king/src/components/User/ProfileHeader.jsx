@@ -70,7 +70,7 @@ const St = {
   Description: styled.p`
     ${({ theme }) => theme.fonts.Body5};
     color: ${({ theme }) => theme.colors.Gray1};
-    word-break: break-word; /* ✅ 줄바꿈 처리 */
+    word-break: break-word; /* 줄바꿈 처리 */
   `,
 
   SettingsButton: styled.button`
@@ -79,7 +79,6 @@ const St = {
     right: 1rem;
     background: none;
     border: none;
-    font-size: 1.8rem;
     cursor: pointer;
   `,
 };
