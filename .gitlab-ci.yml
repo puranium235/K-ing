@@ -40,6 +40,8 @@ backend-build:
     IMAGE_TAG: $CI_COMMIT_SHA
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
+    - systemctl status docker
+    - echo $DOCKER_HOST
     - docker info
 #    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
   script:
