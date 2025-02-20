@@ -77,3 +77,10 @@ export const handleAllowNotification = async () => {
 function isMobile() {
   return /Mobi/i.test(navigator.userAgent);
 }
+
+function isIOSAPP() {
+  // iOS 디바이스인지 확인
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  return isIOS;
+}
