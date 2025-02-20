@@ -50,8 +50,9 @@
 **촬영지 알아보기**를 클릭하여 해당 컨텐츠가 촬영된 장소를 확인할 수 있습니다.
 
 <p align="center">
-  <img src="/readme/map.gif" width="40%"/>
-  <img src="/readme/content.gif" width="40%"/>
+  <img src="/readme/autocomplete.gif" width="30%"/>
+  <img src="/readme/map.gif" width="30%"/>
+  <img src="/readme/content.gif" width="30%"/>
 </p>
 
 ### 정렬 / 필터링
@@ -62,6 +63,14 @@
 <p align="center">
   <img src="/readme/sorting.gif" width="40%"/>
   <img src="/readme/filter.gif" width="40%"/>
+</p>
+
+### DeepLink 길찾기
+
+네이버 지도와 구글 지도로 장소를 길찾기할 수 있습니다.
+
+<p align="center">
+  <img src="/readme/deeplink.gif" width="40%"/>
 </p>
 
 ### SNS 기능
