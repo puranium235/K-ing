@@ -29,15 +29,15 @@ frontend-build:
 
 backend-build:
   stage: build
-  image: docker:27.5.1
+  image: docker:24.0.5
   services:
-    - name: docker:27.5.1-dind
-      alias: docker
+    - docker:24.0.5-dind
   tags:
     - king-prod
   variables:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $CI_COMMIT_SHA
+    DOCKER_HOST: "unix:///runner/services/docker/docker.sock"
   before_script:
     - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
   script:
