@@ -26,3 +26,24 @@ frontend-build:
     - npm run build
     - echo [INFO] 프론트엔드 파일 복사 중
     - rsync -avz --delete -e "ssh -i $SSH_KEY" --rsync-path="mkdir -p /home/ubuntu/app/king/dist && rsync" dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/king/dist/
+
+backend-build:
+  stage: build
+  image: docker:latest
+  tags:
+    - king-prod
+  variables:
+    IMAGE_NAME: $REGISTRY_USER/king-backend
+    IMAGE_TAG: $$I_COMMIT_SHA
+  before_script:
+    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
+  script:
+    - echo [INFO] 백엔드 파일 빌드 중
+    - cd king-backend
+    - cat $FCM_KEY >> src/main/resources/fcm-key.json
+    - cat $GOOGLE_TRANSLATE_KEY >> src/main/resources/translate-key.json
+    - echo [INFO] 도커허브에 업로드 중
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:latest
