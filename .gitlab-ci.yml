@@ -31,13 +31,13 @@ backend-build:
   stage: build
   image: docker:24.0.5
   services:
-    - docker:24.0.5-dind
+    - name: docker:24.0.5-dind
+      alias: docker
   tags:
     - king-prod
   variables:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $CI_COMMIT_SHA
-    DOCKER_HOST: tcp://localhost:2375
   before_script:
     - docker info
 #    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
