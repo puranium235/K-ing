@@ -7,7 +7,9 @@
     "loadingTitle": "게시글 업로드",
     "loadingBody": "업로드 중",
     "postUpload": "인증샷 업로드",
-    "curationUpload": "큐레이션 발행"
+    "curationUpload": "큐레이션 발행",
+    "deleteTitle": "삭제하기",
+    "deleteBody": "정말 삭제하시겠습니까?"
   },
   "en": {
     "draftTitle": "Load Draft",
@@ -16,8 +18,10 @@
     "no": "No",
     "loadingTitle": "Uploading Post",
     "loadingBody": "Uploading",
-    "postUpload": "Upload Post",
-    "curationUpload": "Publish Curation"
+    "postUpload": "Upload Proof Shot",
+    "curationUpload": "Publish Curation",
+    "deleteTitle": "Delete",
+    "deleteBody": "Are you sure you want to delete?"
   },
   "ja": {
     "draftTitle": "ドラフトの読み込み",
@@ -27,7 +31,9 @@
     "loadingTitle": "投稿のアップロード",
     "loadingBody": "アップロード中",
     "postUpload": "認証ショットのアップロード",
-    "curationUpload": "キュレーションの発行"
+    "curationUpload": "キュレーションの発行",
+    "deleteTitle": "削除",
+    "deleteBody": "本当に削除しますか？"
   },
   "zh": {
     "draftTitle": "加载草稿",
@@ -36,7 +42,9 @@
     "no": "取消",
     "loadingTitle": "上传帖子",
     "loadingBody": "正在上传",
-    "postUpload": "上传证明照片",
-    "curationUpload": "发布策划"
+    "postUpload": "上传认证照片",
+    "curationUpload": "发布策展",
+    "deleteTitle": "删除",
+    "deleteBody": "您确定要删除吗？"
   }
 }
