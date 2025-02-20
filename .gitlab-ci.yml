@@ -35,6 +35,8 @@ backend-build:
   variables:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $$I_COMMIT_SHA
+  services:
+    - docker:dind
   before_script:
     - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
   script:
