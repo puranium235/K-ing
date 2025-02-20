@@ -29,9 +29,9 @@ frontend-build:
 
 backend-build:
   stage: build
-  image: docker:27.5.0
+  image: docker:27.5.1
   services:
-    - name: $CI_REGISTRY/group/project/docker:dind
+    - name: docker:27.5.1-dind
       alias: docker
   tags:
     - king-prod
