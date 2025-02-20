@@ -52,10 +52,10 @@ public class CurationDocument {
     /**
      * 생성일시 (최신순 정렬 기준)
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "UTC")
     @Field(type = FieldType.Date,
             format = DateFormat.date_optional_time,
-            pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
+            pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private OffsetDateTime createdAt;
 
     /**
