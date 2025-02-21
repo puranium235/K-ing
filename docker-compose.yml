@@ -15,6 +15,7 @@ services:
       LANG: C.UTF-8
     command: --skip-character-set-client-handshake
     volumes:
+      - ./initdb:/docker-entrypoint-initdb.d
       - mysql-data:/var/lib/mysql
     expose:
       - "3306"
