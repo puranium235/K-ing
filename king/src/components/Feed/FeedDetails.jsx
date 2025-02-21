@@ -484,7 +484,7 @@ const CommentWrapper = styled.div`
     display: none;
   }
 
-  padding-bottom: 8rem;
+  padding-bottom: 1rem;
 `;
 
 const CommentContainer = styled.div`
