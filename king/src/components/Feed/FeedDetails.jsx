@@ -256,7 +256,8 @@ const FeedDetails = () => {
           <Profile style={{ backgroundImage: `url(${userInfo.imageUrl})` }} alt="profile" />
           <CommentInput
             type="text"
-            placeholder={`${writer.nickname.length > 7 ? `${writer.nickname.slice(0, 7)}...` : `${writer.nickname}`}님에게 댓글 추가..`}
+            const
+            placeholder={feedTranslations.commentInput}
             value={newComment}
             onChange={handleCommentChange}
           />
