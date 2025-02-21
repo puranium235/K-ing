@@ -32,18 +32,15 @@ backend-build:
   image: docker:24.0.5
   services:
     - name: docker:24.0.5-dind
-#      alias: docker
   tags:
     - king-prod
   variables:
     IMAGE_NAME: $REGISTRY_USER/king-backend
     IMAGE_TAG: $CI_COMMIT_SHA
     DOCKER_TLS_CERTDIR: "/certs"
-#    DOCKER_HOST: tcp://localhost:2375
   before_script:
-    - sleep 10
-    - docker info
-#    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
+    - sleep 1
+    - echo $REGISTRY_KEY | docker login --username $REGISTRY_USER --password-stdin
   script:
     - echo [INFO] 백엔드 파일 빌드 중
     - cd king-backend
