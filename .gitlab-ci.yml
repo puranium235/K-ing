@@ -1,31 +1,31 @@
-#stages:
-#  - build
-#  - deploy
-#
-#frontend-build:
-#  stage: build
-#  image: node:22.13-alpine
-#  tags:
-#    - king-prod
-#  before_script:
-#    - apk add --no-cache openssh-client rsync
-#    - eval $(ssh-agent -s)
-#    - chmod 400 "$SSH_KEY"
-#    - ssh-add "$SSH_KEY"
-#    - mkdir -p ~/.ssh
-#    - chmod 700 ~/.ssh
-#    - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
-#  cache:
-#    paths:
-#      - king/node_modules
-#  script:
-#    - echo [INFO] 프론트엔드 파일 빌드 중
-#    - cd king
-#    - cat $CLIENT_ENV >> .env
-#    - npm install
-#    - npm run build
-#    - echo [INFO] 프론트엔드 파일 복사 중
-#    - rsync -avz --delete -e "ssh -i $SSH_KEY" --rsync-path="mkdir -p /home/ubuntu/app/king/dist && rsync" dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/king/dist/
+stages:
+  - build
+  - deploy
+
+frontend-build:
+  stage: build
+  image: node:22.13-alpine
+  tags:
+    - king-prod
+  before_script:
+    - apk add --no-cache openssh-client rsync
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_KEY"
+    - ssh-add "$SSH_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+  cache:
+    paths:
+      - king/node_modules
+  script:
+    - echo [INFO] 프론트엔드 파일 빌드 중
+    - cd king
+    - cat $CLIENT_ENV >> .env
+    - npm install
+    - npm run build
+    - echo [INFO] 프론트엔드 파일 전송중
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" --rsync-path="mkdir -p /home/ubuntu/app/king/dist && rsync" dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/king/dist/
 
 backend-build:
   stage: build
@@ -51,3 +51,24 @@ backend-build:
     - docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
     - docker push $IMAGE_NAME:$IMAGE_TAG
     - docker push $IMAGE_NAME:latest
+
+backend-deploy:
+  stage: deploy
+  tags:
+    - king-prod
+  before_script:
+    - apk add --no-cache openssh-client rsync
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_KEY"
+    - ssh-add "$SSH_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+  script:
+    - echo [INFO] 환경변수 복사중
+    - cat $SERVER_ENV >> .env
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" rsync" nginx.conf $EC2_USER@$EC2_HOST:/home/ubuntu/app/
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" rsync" docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/app/
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" rsync" .env $EC2_USER@$EC2_HOST:/home/ubuntu/app/
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" rsync" initdb/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/initdb/
+    - - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d"
