@@ -67,7 +67,7 @@ services:
     container_name: springboot
     restart: always
     env_file:
-      - root.env
+      - .env
     depends_on:
       mysql:
         condition: service_healthy
