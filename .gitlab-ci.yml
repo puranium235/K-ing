@@ -83,7 +83,7 @@ backend-deploy:
     - rsync -avz --delete -e "ssh -i $SSH_KEY" initdb/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/initdb/
     - - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d springboot"
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
       changes:
         - king-backend/**/*
       when: always
