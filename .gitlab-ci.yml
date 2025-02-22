@@ -67,8 +67,8 @@ backend-deploy:
   script:
     - echo [INFO] 환경변수 복사중
     - cat $SERVER_ENV >> .env
-    - rsync -avz --delete -e "ssh -i $SSH_KEY" rsync" nginx.conf $EC2_USER@$EC2_HOST:/home/ubuntu/app/
-    - rsync -avz --delete -e "ssh -i $SSH_KEY" rsync" docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/app/
-    - rsync -avz --delete -e "ssh -i $SSH_KEY" rsync" .env $EC2_USER@$EC2_HOST:/home/ubuntu/app/
-    - rsync -avz --delete -e "ssh -i $SSH_KEY" rsync" initdb/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/initdb/
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" nginx.conf $EC2_USER@$EC2_HOST:/home/ubuntu/app/
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/app/
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" .env $EC2_USER@$EC2_HOST:/home/ubuntu/app/
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" initdb/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/initdb/
     - - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d"
