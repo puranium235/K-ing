@@ -76,10 +76,10 @@ backend-deploy:
     - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
   script:
     - echo [INFO] 환경변수 복사중
-    - cat $SERVER_ENV >> .env
-    - pwd
-    - ls
-    - cat .env
+    - cat $SERVER_ENV >> $(pwd)/.env
+    - ls -a
+    - find . -name .env
+    - ls -l .env
     - rsync -avz --delete -e "ssh -i $SSH_KEY" nginx.conf $EC2_USER@$EC2_HOST:/home/ubuntu/app/
     - rsync -avz --delete -e "ssh -i $SSH_KEY" docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/app/
     - rsync -avz --delete -e "ssh -i $SSH_KEY" .env $EC2_USER@$EC2_HOST:/home/ubuntu/app/
