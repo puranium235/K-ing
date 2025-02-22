@@ -63,13 +63,11 @@ services:
       - king
 
   springboot:
-    build:
-      context: ./king-backend
-      dockerfile: ./Dockerfile
+    image: puranium235/king-backend:latest
     container_name: springboot
     restart: always
     env_file:
-      - root.env
+      - .env
     depends_on:
       mysql:
         condition: service_healthy
@@ -102,6 +100,7 @@ services:
 
 volumes:
   mysql-data:
+    external: true
   redis-data:
   elastic-data:
 
