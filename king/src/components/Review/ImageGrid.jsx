@@ -17,7 +17,7 @@ const ImageGrid = ({ images, lastElementRef }) => {
           ref={index === images.length - 1 ? lastElementRef : null}
           onClick={() => handleImageClick(image.postId)}
         >
-          <Image src={image.imageUrl} alt={`image-${index}`} />
+          <Image src={image.imageUrl} loading="lazy" alt={`image-${index}`} />
         </GridItem>
       ))}
     </GridContainer>
