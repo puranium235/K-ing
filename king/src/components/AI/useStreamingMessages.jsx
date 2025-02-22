@@ -60,9 +60,27 @@ const useStreamingMessages = (selectedBot) => {
               }
             }
 
-            // [推荐] 태그 감지
-            if (lastAssistantMessage.includes('[推荐]')) {
+            // 중국어 [推荐] 태그 감지
+            else if (lastAssistantMessage.includes('[推荐]')) {
               const recommendNameMatch = lastAssistantMessage.match(/\[推荐\]\s+\[(.+?)\]/);
+              const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
+
+              if (recommendName) {
+                const recommendMessage = {
+                  sender: 'recommend',
+                  text: recommendName,
+                  type: 'recommend',
+                  isCompleted: true,
+                };
+
+                localMessages.push(recommendMessage);
+                saveRecommendationMessage(recommendName);
+              }
+            }
+
+            // 일본어 [推荐] 태그 감지
+            else if (lastAssistantMessage.includes('[推薦]')) {
+              const recommendNameMatch = lastAssistantMessage.match(/\[推薦\]\s+\[(.+?)\]/);
               const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
 
               if (recommendName) {

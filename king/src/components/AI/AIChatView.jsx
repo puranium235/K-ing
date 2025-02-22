@@ -233,7 +233,8 @@ const AIChatView = () => {
         <IntroMessageContainer>
           <img src={KingIcon} />
           {chatbotTranslations.greeting},'
-          {userInfo.length > 10 ? ` ${userInfo.slice(0, 10)}... ` : userInfo}'님
+          {userInfo.length > 10 ? ` ${userInfo.slice(0, 10)}... ` : userInfo}'
+          {chatbotTranslations.honorific}
           <br />
           {chatbotTranslations.ask}
         </IntroMessageContainer>
