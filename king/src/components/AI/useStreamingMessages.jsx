@@ -17,6 +17,8 @@ const useStreamingMessages = (selectedBot) => {
 
       setMessages((prevMessages) => {
         if (!receivedText.trim()) {
+          console.log(prevMessages);
+
           return prevMessages;
         }
 
@@ -41,6 +43,9 @@ const useStreamingMessages = (selectedBot) => {
           }
 
           const lastAssistantMessage = lastAssistantMessages.join(' ').trim();
+          if (!lastAssistantMessage || lastAssistantMessage.length === 0) {
+            return localMessages;
+          }
 
           if (lastAssistantMessage) {
             if (lastAssistantMessage.includes('[추천]')) {
