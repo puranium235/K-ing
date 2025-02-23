@@ -19,7 +19,9 @@ public class JsonUtil {
      */
     public static ChatSummary validateJson(String json) {
         try {
-            return objectMapper.readValue(json, ChatSummary.class);
+            // 백틱과 불필요한 개행 문자 제거
+            String cleanedJson = json.replaceAll("```json|```", "").trim();
+            return objectMapper.readValue(cleanedJson, ChatSummary.class);
         } catch (JsonProcessingException e) {
             System.out.println("JSON이 유효하지 않습니다: " + e.getMessage());
             return null;

@@ -139,7 +139,9 @@ const AIChatView = () => {
           if (msg.role === 'assistant') {
             newMessages = [
               ...newMessages,
-              ...splitIntoMessages(msg.content, 'assistant', selectedBot),
+              ...splitIntoMessages(msg.content, 'assistant', selectedBot).filter(
+                (msg) => msg.text.trim() !== '',
+              ),
             ];
           } else {
             newMessages.push({ text: msg.content, sender: msg.role });
@@ -166,6 +168,7 @@ const AIChatView = () => {
     fetchChatHistory();
   }, []);
 
+  // ✅ messages가 변경될 때 마지막 메시지로 스크롤
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
