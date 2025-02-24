@@ -106,5 +106,4 @@ volumes:
 
 networks:
   king:
-    driver: bridge
     external: true
