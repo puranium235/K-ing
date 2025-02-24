@@ -11,14 +11,12 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    user: "$UID:$GID"
     ports:
       - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
-      -
 volumes:
   prometheus-data:
   grafana-data:
