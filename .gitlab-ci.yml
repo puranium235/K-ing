@@ -88,7 +88,7 @@ backend-deploy:
         - king-backend/**/*
       when: always
 
-monitoring:
+monitoring-restart:
   stage: deploy
   tags:
     - king-prod
@@ -102,7 +102,6 @@ monitoring:
     - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
   script:
     - echo [INFO] 설정파일 복사중
-    - cat $SERVER_ENV >> .env
     - rsync -avz --delete -e "ssh -i $SSH_KEY" prometheus.yml $EC2_USER@$EC2_HOST:/home/ubuntu/app/
     - rsync -avz --delete -e "ssh -i $SSH_KEY" monitoring-docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/app/
     - - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "cd /home/ubuntu/app && docker-compose -f monitoring-docker-compose.yml pull && docker-compose -f monitoring-docker-compose.yml up -d"
@@ -113,7 +112,29 @@ monitoring:
         - prometheus.yml
       when: always
 
-nginx:
+nginx-restart:
+  stage: deploy
+  tags:
+    - king-prod
+  before_script:
+    - apk add --no-cache openssh-client rsync
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_KEY"
+    - ssh-add "$SSH_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+  script:
+    - echo [INFO] 설정파일 복사중
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" nginx.conf $EC2_USER@$EC2_HOST:/home/ubuntu/app/
+    - - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d nginx"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      changes:
+        - nginx.conf
+      when: always
+
+docker-restart:
   stage: deploy
   tags:
     - king-prod
@@ -129,9 +150,12 @@ nginx:
     - echo [INFO] 설정파일 복사중
     - cat $SERVER_ENV >> .env
     - rsync -avz --delete -e "ssh -i $SSH_KEY" nginx.conf $EC2_USER@$EC2_HOST:/home/ubuntu/app/
-    - - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d nginx"
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/app/
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" .env $EC2_USER@$EC2_HOST:/home/ubuntu/app/
+    - rsync -avz --delete -e "ssh -i $SSH_KEY" initdb/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/initdb/
+    - - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d"
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
       changes:
-        - nginx.conf
+        - docker-compose.yml
       when: always
