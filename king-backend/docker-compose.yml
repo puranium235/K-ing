@@ -59,25 +59,25 @@ services:
     networks:
       - king
 
-  springboot:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: springboot
-    restart: always
-    env_file:
-      - .env
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      elastic:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
-    networks:
-      - king
+#  springboot:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: springboot
+#    restart: always
+#    env_file:
+#      - .env
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
+#      redis:
+#        condition: service_healthy
+#      elastic:
+#        condition: service_healthy
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - king
 
 volumes:
   mysql-data:

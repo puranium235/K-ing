@@ -27,7 +27,7 @@ frontend-build:
     - echo [INFO] 프론트엔드 파일 전송중
     - rsync -avz --delete -e "ssh -i $SSH_KEY" --rsync-path="mkdir -p /home/ubuntu/app/king/dist && rsync" dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/king/dist/
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
       changes:
         - king/**/*
       when: always
@@ -57,7 +57,7 @@ backend-build:
     - docker push $IMAGE_NAME:$IMAGE_TAG
     - docker push $IMAGE_NAME:latest
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
       changes:
         - king-backend/**/*
       when: always
@@ -85,8 +85,8 @@ backend-deploy:
     - rsync -avz --delete -e "ssh -i $SSH_KEY" .env $EC2_USER@$EC2_HOST:/home/ubuntu/app/
     - rsync -avz --delete -e "ssh -i $SSH_KEY" initdb/ $EC2_USER@$EC2_HOST:/home/ubuntu/app/initdb/
     - - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d springboot"
-#  rules:
-#    - if: '$CI_COMMIT_BRANCH == "develop"'
-#      changes:
-#        - king-backend/**/*
-#      when: always
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      changes:
+        - king-backend/**/*
+      when: always
