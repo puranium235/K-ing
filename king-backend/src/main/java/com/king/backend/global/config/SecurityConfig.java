@@ -72,6 +72,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/user/token-refresh").permitAll()
+                        .requestMatchers("/actuator").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/user/signup").hasRole("PENDING")
                         .requestMatchers("/user/nickname").hasAnyRole("PENDING", "REGISTERED")
                         .anyRequest().hasRole("REGISTERED"))
@@ -129,6 +131,8 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
+                "/actuator",
+                "/actuator/**",
                 "/v3/api-docs/**",
                 "/configuration/**",
                 "/webjars/**",
