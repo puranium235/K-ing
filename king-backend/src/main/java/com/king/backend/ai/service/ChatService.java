@@ -161,7 +161,7 @@ public class ChatService {
         // 🔹 OpenAI 스트리밍 호출 (Flux<String> 반환)
         Flux<String> responseStream = chatModel.stream(new Prompt(new UserMessage(prompt),
                         OpenAiChatOptions.builder()
-                                .model("gpt-4o")
+                                .model("gpt-4o-mini")
                                 .temperature(0.7)
                                 .streamUsage(true)  // 🚀 스트리밍 활성화
                                 .build()))
@@ -204,7 +204,7 @@ public class ChatService {
     public String summary(List<Map<String, String>> dialogueHistory, Function<List<Map<String, String>>, String> promptGenerator) {
         String prompt = promptGenerator.apply(dialogueHistory);
         ChatResponse chatResponse = chatModel.call(new Prompt(new UserMessage(prompt),
-                OpenAiChatOptions.builder().model("gpt-4o").temperature(0.7).build()));
+                OpenAiChatOptions.builder().model("gpt-4o-mini").temperature(0.7).build()));
 
         String gptResponse = chatResponse.getResults().get(0).getOutput().getText();
 
