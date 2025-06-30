@@ -4,6 +4,9 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+**/.env
+**/k-ing-448601-58f4fc4c4f5a.json
+**/k-ing-963ce-firebase-adminsdk-fbsvc-99ffa5aeba.json
 
 ### STS ###
 .apt_generated
@@ -18,7 +21,7 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
+**/.idea
 *.iws
 *.iml
 *.ipr
