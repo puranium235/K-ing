@@ -82,7 +82,7 @@ public class UserController {
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .path("/")
-                .maxAge(REFRESHTOKEN_EXPIRES_IN)
+                .maxAge(REFRESHTOKEN_EXPIRES_IN / 1000)
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
@@ -135,7 +135,7 @@ public class UserController {
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .path("/")
-                .maxAge(REFRESHTOKEN_EXPIRES_IN)
+                .maxAge(REFRESHTOKEN_EXPIRES_IN / 1000)
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
