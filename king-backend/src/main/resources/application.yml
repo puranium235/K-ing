@@ -3,13 +3,13 @@ client:
 spring:
   application:
     name: king-backend
-  ai:
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      chat:
-        options:
-          model: gpt-4o-mini
-          temperature: 0.7
+#  ai:
+#    openai:
+#      api-key: ${OPENAI_API_KEY}
+#      chat:
+#        options:
+#          model: gpt-4o-mini
+#          temperature: 0.7
   translate:
     google-translate-key: ${GOOGLE_TRANSLATE_KEY}
   place:
@@ -45,6 +45,7 @@ spring:
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
+    show-sql: true
     open-in-view: false #  추가
     properties:
       hibernate:
