@@ -79,37 +79,47 @@ cookie.setHttpOnly(true);
 
 ---
 
-### 4. CustomLogoutFilter — NPE 위험
+### 4. ~~CustomLogoutFilter — NPE 위험~~ (수정 완료)
 
 **파일**: `CustomLogoutFilter.java:44-45`
 
 ```java
+// Before
 Cookie[] cookies = request.getCookies();
 for (Cookie cookie : cookies) {  // cookies가 null이면 NPE!
+
+// After
+Cookie[] cookies = request.getCookies();
+if (cookies == null) {
+    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    return;
+}
+for (Cookie cookie : cookies) {
 ```
 
-`request.getCookies()`는 쿠키가 없으면 `null`을 반환한다.
-
-**수정 방향**: `if (cookies == null)` null 체크 추가
+- `request.getCookies()` null 체크 추가로 NPE 방지
 
 ---
 
-### 5. CustomLogoutFilter — 토큰이 없어도 삭제 실행
+### 5. ~~CustomLogoutFilter — 토큰이 없어도 삭제 실행~~ (수정 완료)
 
 **파일**: `CustomLogoutFilter.java:71-76`
 
 ```java
-boolean exist = tokenRepository.existsById(userId);
+// Before
 if (!exist) {
     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     // return이 없음! → 아래 deleteById가 실행됨
 }
-tokenRepository.deleteById(userId);
+
+// After
+if (!exist) {
+    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    return;
+}
 ```
 
-`exist`가 false여도 `return`이 없어서 `deleteById`가 호출된다.
-
-**수정 방향**: `if (!exist)` 블록에 `return;` 추가
+- `return;` 추가로 토큰 미존재 시 불필요한 deleteById 호출 방지
 
 ---
 
