@@ -3,6 +3,7 @@ package com.king.backend.domain.user.service;
 import com.king.backend.domain.user.dto.domain.GoogleUserDTO;
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
+import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,10 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
                 userRepository.save(userEntity);
             }
+        }
+
+        if (userEntity == null) {
+            throw new CustomException(UserErrorCode.OAUTH2_LOGIN_FAILED);
         }
 
         OAuth2UserDTO oAuth2UserDTO = new OAuth2UserDTO();
