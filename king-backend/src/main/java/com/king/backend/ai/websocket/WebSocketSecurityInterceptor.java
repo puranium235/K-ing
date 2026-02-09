@@ -41,15 +41,16 @@ public class WebSocketSecurityInterceptor implements HandshakeInterceptor {
             String token = httpRequest.getParameter("token");  // ✅ WebSocket URL에서 토큰 추출
             log.info("🔑 WebSocket 인증 요청: {}", token);
 
+            Claims claims;
             try {
-                jwtUtil.validToken(token);
+                claims = jwtUtil.validToken(token);
                 log.info("✅ JWT 인증 성공: {}", token);
             } catch (Exception e) {
                 log.error("❌ JWT 인증 실패: {}", e.getMessage());
                 return false;
             }
 
-            String userId = jwtUtil.getUserId(token);
+            String userId = jwtUtil.getUserId(claims);
             attributes.put("userId", userId);
             log.info("✅ WebSocket 인증 성공 - 사용자 ID: {}", userId);
         }

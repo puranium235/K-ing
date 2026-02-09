@@ -1,6 +1,7 @@
 package com.king.backend.domain.user.jwt;
 
 import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,22 +42,23 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String accessToken = authorization.substring(7);
 
+        Claims claims;
         try {
-            jwtUtil.validToken(accessToken);
+            claims = jwtUtil.validToken(accessToken);
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "accessToken이 유효하지 않습니다");
             return;
         }
 
-        String type = jwtUtil.getType(accessToken);
+        String type = jwtUtil.getType(claims);
         if (!type.equals("accessToken")) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "accessToken이 유효하지 않습니다");
             return;
         }
 
-        String userId = jwtUtil.getUserId(accessToken);
-        String role = jwtUtil.getRole(accessToken);
-        String language = jwtUtil.getLanguage(accessToken);
+        String userId = jwtUtil.getUserId(claims);
+        String role = jwtUtil.getRole(claims);
+        String language = jwtUtil.getLanguage(claims);
 
         OAuth2UserDTO oAuth2UserDTO = new OAuth2UserDTO();
         oAuth2UserDTO.setName(userId);

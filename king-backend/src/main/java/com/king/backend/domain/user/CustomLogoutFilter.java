@@ -2,6 +2,7 @@ package com.king.backend.domain.user;
 
 import com.king.backend.domain.user.jwt.JWTUtil;
 import com.king.backend.domain.user.repository.TokenRepository;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -58,20 +59,21 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
+        Claims claims;
         try {
-            jwtUtil.validToken(refreshToken);
+            claims = jwtUtil.validToken(refreshToken);
         } catch (ExpiredJwtException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        String type = jwtUtil.getType(refreshToken);
+        String type = jwtUtil.getType(claims);
         if (!type.equals("refreshToken")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        Long userId = Long.parseLong(jwtUtil.getUserId(refreshToken));
+        Long userId = Long.parseLong(jwtUtil.getUserId(claims));
         boolean exist = tokenRepository.existsById(userId);
         if (!exist) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

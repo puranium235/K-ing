@@ -16,6 +16,7 @@ import com.king.backend.domain.user.service.UserService;
 import com.king.backend.domain.user.util.UserUtil;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -54,19 +55,20 @@ public class UserController {
             throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
+        Claims claims;
         try {
-            jwtUtil.validToken(oldRefreshToken);
+            claims = jwtUtil.validToken(oldRefreshToken);
         } catch (Exception e) {
             throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
-        if (!jwtUtil.getType(oldRefreshToken).equals("refreshToken")) {
+        if (!jwtUtil.getType(claims).equals("refreshToken")) {
             throw new CustomException(UserErrorCode.INVALID_TOKEN);
         }
 
-        String userId = jwtUtil.getUserId(oldRefreshToken);
-        String language = jwtUtil.getLanguage(oldRefreshToken);
-        String role = jwtUtil.getRole(oldRefreshToken);
+        String userId = jwtUtil.getUserId(claims);
+        String language = jwtUtil.getLanguage(claims);
+        String role = jwtUtil.getRole(claims);
 
         Optional<TokenEntity> token = tokenService.findTokenById(Long.parseLong(userId));
         if (token.isEmpty() || !token.get().getRefreshToken().equals(oldRefreshToken)) {

@@ -36,20 +36,20 @@ public class JWTUtil {
         }
     }
 
-    public String getType(String token) {
-        return validToken(token).get("type", String.class);
+    public String getType(Claims claims) {
+        return claims.get("type", String.class);
     }
 
-    public String getUserId(String token) {
-        return validToken(token).get("userId", String.class);
+    public String getUserId(Claims claims) {
+        return claims.get("userId", String.class);
     }
 
-    public String getLanguage(String token) {
-        return validToken(token).get("language", String.class);
+    public String getLanguage(Claims claims) {
+        return claims.get("language", String.class);
     }
 
-    public String getRole(String token) {
-        return validToken(token).get("role", String.class);
+    public String getRole(Claims claims) {
+        return claims.get("role", String.class);
     }
 
     public String createJwt(String type, String userId, String language, String role, Long expireMs) {
