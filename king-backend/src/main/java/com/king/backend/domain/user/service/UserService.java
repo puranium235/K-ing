@@ -1,9 +1,9 @@
 package com.king.backend.domain.user.service;
 
 import com.king.backend.domain.user.dto.domain.AuthResult;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.dto.request.PatchUserRequestDTO;
 import com.king.backend.domain.user.dto.request.SignUpRequestDTO;
+import com.king.backend.domain.user.dto.response.NicknameResponseDTO;
 import com.king.backend.domain.user.dto.response.SignUpResponseDTO;
 import com.king.backend.domain.user.dto.response.UserProfileResponseDTO;
 import com.king.backend.domain.user.entity.TokenEntity;
@@ -14,12 +14,11 @@ import com.king.backend.domain.user.repository.TokenRepository;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.domain.user.util.UserUtil;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.SecurityUtil;
 import com.king.backend.s3.service.S3Service;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -79,25 +78,39 @@ public class UserService {
         return issueTokens(userId, language, role, null);
     }
 
-    public AuthResult<SignUpResponseDTO> signup(SignUpRequestDTO signUpRequestDTO) {
-        String nickname = signUpRequestDTO.getNickname();
+    private String validateAndTrimNickname(String nickname, Long excludeUserId) {
         if (!UserUtil.isValidNickname(nickname)) {
             throw new CustomException(UserErrorCode.INVALID_NICKNAME);
         }
-        nickname = nickname.trim();
+        String trimmed = nickname.trim();
 
-        userRepository.findByNickname(nickname)
+        userRepository.findByNickname(trimmed)
                 .ifPresent((user) -> {
-                    throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
+                    if (excludeUserId == null || !user.getId().equals(excludeUserId)) {
+                        throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
+                    }
                 });
+
+        return trimmed;
+    }
+
+    public NicknameResponseDTO checkNicknameDuplication(String nickname) {
+        String trimmed = validateAndTrimNickname(nickname, null);
+
+        NicknameResponseDTO response = new NicknameResponseDTO();
+        response.setNickname(trimmed);
+        return response;
+    }
+
+    public AuthResult<SignUpResponseDTO> signup(SignUpRequestDTO signUpRequestDTO) {
+        String nickname = validateAndTrimNickname(signUpRequestDTO.getNickname(), null);
 
         String language = signUpRequestDTO.getLanguage();
         if (!UserUtil.isValidLanguage(language)) {
             throw new CustomException(UserErrorCode.INVALID_LANGUAGE);
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
 
         User findUser = userRepository.findByIdAndStatus(userId, "ROLE_PENDING")
                 .orElseThrow(() -> new CustomException(UserErrorCode.NOT_PENDING_USER));
@@ -131,10 +144,7 @@ public class UserService {
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-
-        Long requestUserId = Long.parseLong(authUser.getName());
+        Long requestUserId = SecurityUtil.getCurrentUserId();
 
         if (userId == requestUserId) {
             return UserProfileResponseDTO.fromSelfEntity(user);
@@ -144,10 +154,7 @@ public class UserService {
     }
 
     public void deleteUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-
-        Long userId = Long.parseLong(authUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
 
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
@@ -156,26 +163,14 @@ public class UserService {
     }
 
     public AuthResult<UserProfileResponseDTO> patchUser(PatchUserRequestDTO userRequestDTO, MultipartFile imageFile) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(authUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
+        String oldLanguage = user.getLanguage();
+
         if (userRequestDTO.getNickname() != null) {
-            String nickname = userRequestDTO.getNickname().trim();
-
-            if (!UserUtil.isValidNickname(nickname)) {
-                throw new CustomException(UserErrorCode.INVALID_NICKNAME);
-            }
-
-            userRepository.findByNickname(nickname)
-                    .ifPresent((findUser) -> {
-                        if (!findUser.getId().equals(userId)) {
-                            throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
-                        }
-                    });
-
+            String nickname = validateAndTrimNickname(userRequestDTO.getNickname(), userId);
             user.setNickname(nickname);
         }
 
@@ -193,7 +188,7 @@ public class UserService {
             String description = userRequestDTO.getDescription();
 
             if (!UserUtil.isValidDescription(description)) {
-                throw new CustomException(UserErrorCode.INVALD_VALUE);
+                throw new CustomException(UserErrorCode.INVALID_VALUE);
             }
 
             user.setDescription(description);
@@ -210,7 +205,13 @@ public class UserService {
 
         userRepository.save(user);
 
-        return issueTokens(userId.toString(), user.getLanguage(), "ROLE_REGISTERED",
-                UserProfileResponseDTO.fromSelfEntity(user));
+        UserProfileResponseDTO responseDTO = UserProfileResponseDTO.fromSelfEntity(user);
+
+        boolean languageChanged = !oldLanguage.equals(user.getLanguage());
+        if (languageChanged) {
+            return issueTokens(userId.toString(), user.getLanguage(), "ROLE_REGISTERED", responseDTO);
+        }
+
+        return new AuthResult<>(null, null, 0, responseDTO);
     }
 }

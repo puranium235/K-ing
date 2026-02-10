@@ -6,10 +6,10 @@ public class UserUtil {
     }
 
     public static boolean isValidLanguage(String language) {
-        return language.matches("^(ko|en|ja|zh)$");
+        return language != null && language.matches("^(ko|en|ja|zh)$");
     }
 
     public static boolean isValidDescription(String description) {
-        return description.length() <= 150;
+        return description == null || description.length() <= 150;
     }
 }

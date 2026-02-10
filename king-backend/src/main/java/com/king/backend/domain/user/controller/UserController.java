@@ -6,11 +6,7 @@ import com.king.backend.domain.user.dto.request.SignUpRequestDTO;
 import com.king.backend.domain.user.dto.response.NicknameResponseDTO;
 import com.king.backend.domain.user.dto.response.UserProfileResponseDTO;
 import com.king.backend.domain.user.dto.response.SignUpResponseDTO;
-import com.king.backend.domain.user.errorcode.UserErrorCode;
-import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.domain.user.service.UserService;
-import com.king.backend.domain.user.util.UserUtil;
-import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "유저", description = "유저 가입, 로그인, 토큰 관리, 유저 정보 조회 및 수정")
 public class UserController {
 
-    private final UserRepository userRepository;
     private final UserService userService;
 
     private <T> ResponseEntity<ApiResponse<T>> buildAuthResponse(AuthResult<T> result, HttpStatus status) {
@@ -59,19 +54,7 @@ public class UserController {
     @Operation(summary = "닉네임 중복 조회")
     @GetMapping("/nickname")
     public ResponseEntity<ApiResponse<NicknameResponseDTO>> getNicknameDuplication(@RequestParam(value = "nickname", required = false) String nickname) {
-        if (!UserUtil.isValidNickname(nickname)) {
-            throw new CustomException(UserErrorCode.INVALID_NICKNAME);
-        }
-        nickname = nickname.trim();
-
-        userRepository.findByNickname(nickname)
-                .ifPresent((user) -> {
-                    throw new CustomException(UserErrorCode.DUPLICATED_NICKNAME);
-                });
-
-        NicknameResponseDTO response = new NicknameResponseDTO();
-        response.setNickname(nickname);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResponse.success(userService.checkNicknameDuplication(nickname)));
     }
 
     @Operation(summary = "유저 정보 조회")
@@ -104,6 +87,9 @@ public class UserController {
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
 
         AuthResult<UserProfileResponseDTO> result = userService.patchUser(patchUserRequestDTO, imageFile);
-        return buildAuthResponse(result, HttpStatus.OK);
+        if (result.getAccessToken() != null) {
+            return buildAuthResponse(result, HttpStatus.OK);
+        }
+        return ResponseEntity.ok(ApiResponse.success(result.getData()));
     }
 }
