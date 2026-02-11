@@ -183,12 +183,18 @@ tasks.test {
 }
 
 tasks.register<Test>("testBugfix") {
+    group = "verification"
+    description = "Runs only @Tag(\"bugfix\") tests"
     useJUnitPlatform {
         includeTags("bugfix")
     }
     reports.junitXml.required.set(true)
 }
 ```
+
+> **주의**: `tasks.register`로 등록한 태스크는 `group`과 `description`을 명시하지 않으면
+> `./gradlew tasks --group=verification`에 표시되지 않는다.
+> `--all` 옵션으로는 보이지만, 그룹 필터링에서 누락되므로 반드시 설정할 것.
 
 ### 7-2. GitHub Actions CI 워크플로우
 
@@ -269,6 +275,8 @@ tasks.test {
 
 // bugfix 테스트만 실행 (머지 후 버그 수정 검증)
 tasks.register<Test>("testBugfix") {
+    group = "verification"
+    description = "Runs only @Tag(\"bugfix\") tests"
     useJUnitPlatform {
         includeTags("bugfix")
     }

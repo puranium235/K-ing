@@ -138,11 +138,16 @@ tasks.test {
 
 // ./gradlew testBugfix → bugfix만 실행
 tasks.register<Test>("testBugfix") {
+    group = "verification"                          // ← 이거 없으면 tasks --group=verification에 안 보임
+    description = "Runs only @Tag(\"bugfix\") tests"
     useJUnitPlatform {
         includeTags("bugfix")
     }
 }
 ```
+
+> **삽질 기록**: `tasks.register`로 등록한 태스크는 `group`을 명시하지 않으면
+> `./gradlew tasks --group=verification`에 표시되지 않는다. `--all`로는 보인다.
 
 ### 리팩토링 완료 후
 

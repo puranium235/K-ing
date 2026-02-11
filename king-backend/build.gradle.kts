@@ -67,6 +67,8 @@ tasks.test {
 }
 
 tasks.register<Test>("testBugfix") {
+    group = "verification"
+    description = "Runs only @Tag(\"bugfix\") tests"
     useJUnitPlatform {
         includeTags("bugfix")
     }
