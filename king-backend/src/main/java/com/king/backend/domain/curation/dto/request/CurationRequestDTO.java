@@ -8,7 +8,9 @@ import java.util.List;
 
 @Getter
 @Setter
-public class CurationRequestDTO {
+public class
+
+CurationRequestDTO {
     @Schema(description = "큐레이션 제목", example = "내가 보려고 만든 큐레이션", maxLength = 50)
     String title;
 

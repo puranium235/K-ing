@@ -9,17 +9,15 @@ import com.king.backend.domain.content.entity.ContentTranslation;
 import com.king.backend.domain.content.errorcode.ContentErrorCode;
 import com.king.backend.domain.content.repository.ContentRepository;
 import com.king.backend.domain.favorite.repository.FavoriteRepository;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.SecurityUtil;
 import com.king.backend.s3.service.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,12 +34,10 @@ public class ContentService {
 
     @Transactional
     public ContentDetailResponseDto getContentDetail(Long id){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-        String language = user.getLanguage();
+        String language = SecurityUtil.getCurrentLanguage();
         log.info("user language : {}", language);
 
         Content content = contentRepository.findById(id).orElseThrow(() -> new CustomException(ContentErrorCode.CONTENT_NOT_FOUND));

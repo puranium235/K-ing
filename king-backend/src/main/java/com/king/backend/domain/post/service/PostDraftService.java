@@ -6,15 +6,13 @@ import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.post.dto.request.PostDraftRequestDto;
 import com.king.backend.domain.post.dto.response.PostDraftResponseDto;
 import com.king.backend.domain.post.errorcode.PostErrorCode;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.global.errorcode.ImageErrorCode;
 import com.king.backend.global.errorcode.RedisErrorCode;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.util.RedisUtil;
+import com.king.backend.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -85,13 +83,7 @@ public class PostDraftService {
     }
 
     private String getDraftKey() {
-        Long userId = getCurrentUserId();
+        Long userId = SecurityUtil.getCurrentUserId();
         return "post:draft:user" + userId;
-    }
-
-    private Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
-        return Long.parseLong(user.getName());
     }
 }

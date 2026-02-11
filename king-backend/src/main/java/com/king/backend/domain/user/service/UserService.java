@@ -117,7 +117,6 @@ public class UserService {
 
         findUser.setNickname(nickname);
         findUser.setLanguage(language);
-        findUser.setCreatedAt(LocalDateTime.now());
         findUser.setContentAlarmOn(true);
         findUser.setStatus("ROLE_REGISTERED");
 

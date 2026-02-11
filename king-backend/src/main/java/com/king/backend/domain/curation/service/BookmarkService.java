@@ -6,18 +6,15 @@ import com.king.backend.domain.curation.entity.CurationListBookmark;
 import com.king.backend.domain.curation.errorcode.CurationErrorCode;
 import com.king.backend.domain.curation.repository.CurationListBookmarkRepository;
 import com.king.backend.domain.curation.repository.CurationListRepository;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +26,7 @@ public class BookmarkService {
 
     @Transactional
     public void postBookmark(BookmarkRequestDTO requestDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(authUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
@@ -47,7 +42,6 @@ public class BookmarkService {
         }
 
         CurationListBookmark curationListBookmark = new CurationListBookmark();
-        curationListBookmark.setCreatedAt(LocalDateTime.now());
         curationListBookmark.setCurationList(curationList);
         curationListBookmark.setUser(user);
 
@@ -56,9 +50,7 @@ public class BookmarkService {
 
     @Transactional
     public void deleteBookmark(BookmarkRequestDTO requestDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(authUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 

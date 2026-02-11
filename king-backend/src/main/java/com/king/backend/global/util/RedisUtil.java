@@ -64,6 +64,16 @@ public class RedisUtil {
         }
     }
 
+    public <T> void setJsonValue(String key, T data, long time, TimeUnit timeUnit) {
+        try {
+            String jsonData = objectMapper.writeValueAsString(data);
+            ValueOperations<String, Object> values = redisTemplate.opsForValue();
+            values.set(key, jsonData, time, timeUnit);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
+        }
+    }
+
     public <T> T getJsonValue(String key, Class<T> clazz) {
         String jsonData = getValue(key);
         if (jsonData == null) return null;
@@ -86,7 +96,14 @@ public class RedisUtil {
         if (data == null || data.length == 0) {
             throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
         }
-        redisBinaryTemplate.opsForValue().set(key, data); // `byte[]` 그대로 저장
+        redisBinaryTemplate.opsForValue().set(key, data);
+    }
+
+    public void setBinaryValue(String key, byte[] data, long time, TimeUnit timeUnit) {
+        if (data == null || data.length == 0) {
+            throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
+        }
+        redisBinaryTemplate.opsForValue().set(key, data, time, timeUnit);
     }
 
     public byte[] getBinaryValue(String key) {

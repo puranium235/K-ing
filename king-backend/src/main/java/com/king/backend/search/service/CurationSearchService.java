@@ -10,8 +10,8 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.king.backend.domain.curation.entity.CurationListBookmark;
 import com.king.backend.domain.curation.repository.CurationListBookmarkRepository;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.global.translate.TranslateService;
+import com.king.backend.global.util.SecurityUtil;
 import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.dto.request.CurationListSearchRequestDto;
 import com.king.backend.search.dto.response.CurationListSearchResponseDto;
@@ -19,8 +19,6 @@ import com.king.backend.search.entity.CurationDocument;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -113,10 +111,8 @@ public class CurationSearchService {
                 nextCursor = cursorUtil.encodeCursor(lastSortValues);
             }
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-            Long userId = Long.parseLong(authUser.getName());
-            String language = authUser.getLanguage();
+            Long userId = SecurityUtil.getCurrentUserId();
+            String language = SecurityUtil.getCurrentLanguage();
 
             CurationListSearchResponseDto response = new CurationListSearchResponseDto(items, nextCursor);
             List<CurationListSearchResponseDto.CurationListItemDto> curationDTOs = response.getItems();

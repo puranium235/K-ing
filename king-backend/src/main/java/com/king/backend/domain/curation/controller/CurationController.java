@@ -52,7 +52,7 @@ public class CurationController {
     public ResponseEntity<ApiResponse<CurationDetailResponseDTO>> postCurations(
             @RequestPart(value = "curation") CurationRequestDTO requestDTO,
             @RequestPart(value = "imageFile", required = true) MultipartFile imageFile) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(curationService.postCuration(requestDTO, imageFile)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(curationService.postCuration(requestDTO, imageFile)));
     }
 
     @Operation(summary = "큐레이션 수정")

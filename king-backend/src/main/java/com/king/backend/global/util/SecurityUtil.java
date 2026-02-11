@@ -15,4 +15,8 @@ public class SecurityUtil {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (OAuth2UserDTO) authentication.getPrincipal();
     }
+
+    public static String getCurrentLanguage() {
+        return getCurrentUser().getLanguage();
+    }
 }

@@ -16,7 +16,7 @@ import java.time.OffsetDateTime;
 @Table(name = "curation_list")
 @Getter
 @Setter
-@EntityListeners(CurationListListener.class)
+@EntityListeners({CurationListListener.class, org.springframework.data.jpa.domain.support.AuditingEntityListener.class})
 public class CurationList {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

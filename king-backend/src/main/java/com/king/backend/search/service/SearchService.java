@@ -22,8 +22,8 @@ import com.king.backend.domain.favorite.repository.FavoriteRepository;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.place.service.GooglePhotoService;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.SecurityUtil;
 import com.king.backend.search.config.ElasticsearchConstants;
 import com.king.backend.search.dto.request.AutocompleteRequestDto;
 import com.king.backend.search.dto.request.MapViewRequestDto;
@@ -36,8 +36,6 @@ import com.king.backend.search.errorcode.SearchErrorCode;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -174,10 +172,8 @@ public class SearchService {
             rankingService.incrementKeywordCount(query.trim());
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(user.getName());
-        String language = user.getLanguage();
+        Long userId = SecurityUtil.getCurrentUserId();
+        String language = SecurityUtil.getCurrentLanguage();
         try {
             if (requestDto.getCategory() == null || requestDto.getCategory().trim().isEmpty()) {
                 BoolQuery.Builder boolQueryBuilder = buildSearchBoolQuery(requestDto);

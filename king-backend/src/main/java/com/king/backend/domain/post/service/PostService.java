@@ -16,7 +16,6 @@ import com.king.backend.domain.post.repository.CommentRepository;
 import com.king.backend.domain.post.repository.LikeRepository;
 import com.king.backend.domain.post.repository.PostImageRepository;
 import com.king.backend.domain.post.repository.PostRepository;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
@@ -24,6 +23,7 @@ import com.king.backend.global.errorcode.ImageErrorCode;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.translate.TranslateService;
 import com.king.backend.global.util.RedisUtil;
+import com.king.backend.global.util.SecurityUtil;
 import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
@@ -31,8 +31,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,9 +63,7 @@ public class PostService {
 
     @Transactional
     public Long uploadPost(PostUploadRequestDto reqDto, MultipartFile imageFile) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(user.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User writer = userRepository.findById(userId).orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         Place place = placeRepository.findById(reqDto.getPlaceId())
@@ -103,10 +99,8 @@ public class PostService {
     }
 
     public PostHomeResponseDto getHomePostsWithCursor(PostHomeRequestDto reqDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(user.getName());
-        String language = user.getLanguage();
+        Long userId = SecurityUtil.getCurrentUserId();
+        String language = SecurityUtil.getCurrentLanguage();
 
         String cursor = reqDto.getCursor();
         int size = Optional.ofNullable(reqDto.getSize()).orElse(10);
@@ -191,9 +185,7 @@ public class PostService {
             }
         } else if ("myPage".equals(reqDto.getFeedType())) {
             Long userId = reqDto.getUserId();
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-            Long authId = Long.parseLong(authUser.getName());
+            Long authId = SecurityUtil.getCurrentUserId();
 
             if (userId == null) {
                 throw new CustomException(UserErrorCode.USER_NOT_FOUND);
@@ -326,9 +318,7 @@ public class PostService {
                     .build();
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-        String language = authUser.getLanguage();
+        String language = SecurityUtil.getCurrentLanguage();
 
         String key = "post:" + post.getId() + ":" + language;
         Map<String, String> originalText = new HashMap<>();
@@ -342,10 +332,8 @@ public class PostService {
 
     @Transactional
     public Long updatePost(Long postId, PostUploadRequestDto reqDto, MultipartFile imageFile) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(user.getName());
-        String language = user.getLanguage();
+        Long userId = SecurityUtil.getCurrentUserId();
+        String language = SecurityUtil.getCurrentLanguage();
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
@@ -393,9 +381,7 @@ public class PostService {
 
     @Transactional
     public void deletePost(Long postId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(user.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));

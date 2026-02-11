@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @Table(name = "user")
+@EntityListeners(org.springframework.data.jpa.domain.support.AuditingEntityListener.class)
 @SQLDelete(sql = "UPDATE user SET status = 'ROLE_DELETED' WHERE id = ?")
 @NoArgsConstructor
 @AllArgsConstructor

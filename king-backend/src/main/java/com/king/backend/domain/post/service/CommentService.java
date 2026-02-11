@@ -13,12 +13,12 @@ import com.king.backend.domain.post.errorcode.CommentErrorCode;
 import com.king.backend.domain.post.errorcode.PostErrorCode;
 import com.king.backend.domain.post.repository.CommentRepository;
 import com.king.backend.domain.post.repository.PostRepository;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.translate.TranslateService;
+import com.king.backend.global.util.SecurityUtil;
 import com.king.backend.search.util.CursorUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -55,9 +53,7 @@ public class CommentService {
             throw new CustomException(CommentErrorCode.INVALID_COMMENT);
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User writer = userRepository.findById(userId).orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
@@ -104,9 +100,7 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(Long commentId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
@@ -119,10 +113,8 @@ public class CommentService {
     }
 
     public CommentAllResponseDto getComments(Long postId, CommentRequestDto reqDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
-        String language = oauthUser.getLanguage();
+        Long userId = SecurityUtil.getCurrentUserId();
+        String language = SecurityUtil.getCurrentLanguage();
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 

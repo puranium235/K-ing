@@ -15,26 +15,23 @@ import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
 import com.king.backend.domain.place.service.GooglePhotoService;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.translate.TranslateService;
 import com.king.backend.global.util.RedisUtil;
+import com.king.backend.global.util.SecurityUtil;
 import com.king.backend.global.util.ValidationUtil;
 import com.king.backend.s3.service.S3Service;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.LevenshteinDistance;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.OffsetDateTime;
 import java.util.*;
 
 @Service
@@ -88,11 +85,8 @@ public class CurationService {
 
     @Transactional
     public CurationDetailResponseDTO getCurationDetail(Long curationListId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
-
-        Long userId = Long.parseLong(user.getName());
-        String language = user.getLanguage();
+        Long userId = SecurityUtil.getCurrentUserId();
+        String language = SecurityUtil.getCurrentLanguage();
 
         CurationList curationList = curationListRepository.findById(curationListId)
                 .orElseThrow(() -> new CustomException(CurationErrorCode.CURATION_NOT_FOUND));
@@ -139,11 +133,8 @@ public class CurationService {
         String cursor = requestDTO.getCursor();
         Long cursorId = (cursor != null) ? Long.parseLong(cursorUtil.decodeCursor(cursor).get(0).toString()) : null;
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-
-        Long authId = Long.parseLong(authUser.getName());
-        String language = authUser.getLanguage();
+        Long authId = SecurityUtil.getCurrentUserId();
+        String language = SecurityUtil.getCurrentLanguage();
 
         boolean bookmarked = Optional.ofNullable(requestDTO.getBookmarked()).orElse(false);
 
@@ -184,8 +175,6 @@ public class CurationService {
                     .map((result) -> {
                         CurationList curationList = (CurationList) result[0];
                         boolean userBookmark = (boolean) result[1];
-                        log.info("{}, {}", curationList, userBookmark);
-
                         String key = "curation:" + curationList.getId() + ":" + language + ":title";
                         originalText.put(key, curationList.getTitle());
                         keys.add(key);
@@ -218,15 +207,13 @@ public class CurationService {
 
     @Transactional
     public CurationDetailResponseDTO postCuration(CurationRequestDTO requestDTO, MultipartFile imageFile) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(authUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         if (!ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getTitle(), 50)
                 || !ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getDescription(), 1000)
-                || requestDTO.getPlaceIds().isEmpty()) {
+                || requestDTO.getPlaceIds() == null || requestDTO.getPlaceIds().isEmpty()) {
             throw new CustomException(CurationErrorCode.INVALID_VALUE);
         }
 
@@ -237,18 +224,17 @@ public class CurationService {
         curation.setPublic(requestDTO.isPublic());
         curation.setImageUrl(imageUrl);
         curation.setWriter(user);
-        curation.setCreatedAt(OffsetDateTime.now());
 
         curationListRepository.save(curation);
 
-        for (Long placeId : requestDTO.getPlaceIds()) {
+        List<Long> placeIds = requestDTO.getPlaceIds();
+        if (placeIds.size() != new HashSet<>(placeIds).size()) {
+            throw new CustomException(CurationErrorCode.DUPLICATED_PLACE);
+        }
+
+        for (Long placeId : placeIds) {
             Place place = placeRepository.findById(placeId)
                     .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
-
-            curationListItemRepository.findByCurationListAndPlace(curation, place)
-                    .ifPresent((item) -> {
-                        throw new CustomException(CurationErrorCode.DUPLICATED_PLACE);
-                    });
 
             CurationListItem curationListItem = new CurationListItem();
             curationListItem.setCurationList(curation);
@@ -269,10 +255,8 @@ public class CurationService {
 
     @Transactional
     public CurationDetailResponseDTO putCuration(Long curationId, CurationRequestDTO requestDTO, MultipartFile imageFile) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(authUser.getName());
-        String language = authUser.getLanguage();
+        Long userId = SecurityUtil.getCurrentUserId();
+        String language = SecurityUtil.getCurrentLanguage();
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
@@ -285,7 +269,7 @@ public class CurationService {
 
         if (!ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getTitle(), 50)
                 || !ValidationUtil.checkNotNullAndLengthLimit(requestDTO.getDescription(), 1000)
-                || requestDTO.getPlaceIds().isEmpty()) {
+                || requestDTO.getPlaceIds() == null || requestDTO.getPlaceIds().isEmpty()) {
             throw new CustomException(CurationErrorCode.INVALID_VALUE);
         }
 
@@ -301,14 +285,14 @@ public class CurationService {
 
         curationListItemRepository.deleteAllByCurationList(curation);
 
-        for (Long placeId : requestDTO.getPlaceIds()) {
+        List<Long> placeIds = requestDTO.getPlaceIds();
+        if (placeIds.size() != new HashSet<>(placeIds).size()) {
+            throw new CustomException(CurationErrorCode.DUPLICATED_PLACE);
+        }
+
+        for (Long placeId : placeIds) {
             Place place = placeRepository.findById(placeId)
                     .orElseThrow(() -> new CustomException(PlaceErrorCode.PLACE_NOT_FOUND));
-
-            curationListItemRepository.findByCurationListAndPlace(curation, place)
-                    .ifPresent((item) -> {
-                        throw new CustomException(CurationErrorCode.DUPLICATED_PLACE);
-                    });
 
             CurationListItem curationListItem = new CurationListItem();
             curationListItem.setCurationList(curation);
@@ -333,9 +317,7 @@ public class CurationService {
 
     @Transactional
     public void deleteCuration(Long curationId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO authUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(authUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findByIdAndStatus(userId, "ROLE_REGISTERED")
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 

@@ -13,16 +13,14 @@ import com.king.backend.domain.favorite.dto.response.FavoriteResponseDto;
 import com.king.backend.domain.favorite.entity.Favorite;
 import com.king.backend.domain.favorite.errorcode.FavoriteErrorCode;
 import com.king.backend.domain.favorite.repository.FavoriteRepository;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
 import com.king.backend.domain.user.entity.User;
 import com.king.backend.domain.user.errorcode.UserErrorCode;
 import com.king.backend.domain.user.repository.UserRepository;
 import com.king.backend.global.exception.CustomException;
+import com.king.backend.global.util.SecurityUtil;
 import com.king.backend.search.util.CursorUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -41,9 +39,7 @@ public class FavoriteService {
     private final CursorUtil cursorUtil;
 
     public void addFavorite(String type, Long targetId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
@@ -69,9 +65,7 @@ public class FavoriteService {
     }
 
     public void removeFavorite(String type, Long targetId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
@@ -95,9 +89,7 @@ public class FavoriteService {
         List<Object> sortValues = (cursor != null) ? cursorUtil.decodeCursor(cursor) : null;
         String type = reqDto.getType();
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO oauthUser = (OAuth2UserDTO) authentication.getPrincipal();
-        Long userId = Long.parseLong(oauthUser.getName());
+        Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
         String language = user.getLanguage();

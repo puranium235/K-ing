@@ -6,21 +6,20 @@ import com.king.backend.domain.curation.errorcode.CurationErrorCode;
 import com.king.backend.domain.place.entity.Place;
 import com.king.backend.domain.place.errorcode.PlaceErrorCode;
 import com.king.backend.domain.place.repository.PlaceRepository;
-import com.king.backend.domain.post.errorcode.PostErrorCode;
-import com.king.backend.domain.user.dto.domain.OAuth2UserDTO;
+
 import com.king.backend.global.errorcode.ImageErrorCode;
 import com.king.backend.global.errorcode.RedisErrorCode;
 import com.king.backend.global.exception.CustomException;
 import com.king.backend.global.util.RedisUtil;
+import com.king.backend.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +48,7 @@ public class CurationDraftService {
         String draftKey = getDraftKey();
         String imageKey = draftKey + ":image";
 
-        redisUtil.setJsonValue(draftKey, reqDto);
+        redisUtil.setJsonValue(draftKey, reqDto, 7, TimeUnit.DAYS);
 
         if(imageFile != null && !imageFile.isEmpty()) {
             long maxFileSize = 5 * 1024 * 1024;
@@ -58,7 +57,7 @@ public class CurationDraftService {
             }
             try {
                 byte[] imageBytes = imageFile.getBytes();
-                redisUtil.setBinaryValue(imageKey, imageBytes);
+                redisUtil.setBinaryValue(imageKey, imageBytes, 7, TimeUnit.DAYS);
             } catch (IOException e) {
                 throw new CustomException(RedisErrorCode.REDIS_SAVE_FAILED);
             }
@@ -110,13 +109,7 @@ public class CurationDraftService {
     }
 
     private String getDraftKey() {
-        Long userId = getCurrentUserId();
+        Long userId = SecurityUtil.getCurrentUserId();
         return "curation:draft:user" + userId;
-    }
-
-    private Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2UserDTO user = (OAuth2UserDTO) authentication.getPrincipal();
-        return Long.parseLong(user.getName());
     }
 }
