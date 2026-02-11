@@ -59,6 +59,16 @@ dependencies {
     implementation("com.google.firebase:firebase-admin:9.2.0")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+tasks.test {
+    useJUnitPlatform {
+        excludeTags("bugfix")
+    }
+    reports.junitXml.required.set(true)
+}
+
+tasks.register<Test>("testBugfix") {
+    useJUnitPlatform {
+        includeTags("bugfix")
+    }
+    reports.junitXml.required.set(true)
 }
