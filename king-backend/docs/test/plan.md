@@ -13,41 +13,146 @@
 
 ---
 
-## 2. 테스트 대상
+## 2. 테스트 대상 — 분기/경계값 분석
 
-### 플로우 1: 인증
+### 2-1. `JWTUtil`
 
-| 대상 | 주요 검증 포인트 | 유형 |
-|------|-----------------|------|
-| `UserService.tokenRefresh()` | refreshToken 검증 → accessToken 재발급 로직 | 리팩토링 |
-| `UserService.tokenRefresh()` — maxAge | 쿠키 maxAge 밀리초→초 변환 | 버그 수정 |
-| `CustomLogoutFilter` | 로그아웃 흐름 (토큰 삭제, 쿠키 무효화) | 리팩토링 |
-| `CustomLogoutFilter` — NPE | Authorization 헤더 null 시 NPE 방지 | 버그 수정 |
-| `JWTUtil` | Claims 파싱 (이중 파싱 제거 후 동일 동작) | 리팩토링 |
-| `OAuth2UserService` | 유저 조회/생성 (기존 유저 반환, 신규 유저 생성) | 리팩토링 |
-| `OAuth2UserService` — NPE | userEntity null 시 NPE 방지 | 버그 수정 |
+#### `validToken(token)`
 
-### 플로우 2: 유저 라이프사이클
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | 정상 | 유효한 토큰 | Claims 반환 | — |
+| 2 | catch ExpiredJwtException | 만료된 토큰 (`expireMs = -1000`) | `ACCESSTOKEN_EXPIRED` 예외 | — |
+| 3 | catch Exception | 잘못된 문자열 (`"invalid"`) | `INVALID_TOKEN` 예외 | — |
+| 4 | 경계값 | `expireMs = 0` (즉시 만료) | 예외 | — |
+| 5 | 경계값 | `token = null` | `INVALID_TOKEN` 예외 | — |
+| 6 | 경계값 | `token = ""` (빈 문자열) | `INVALID_TOKEN` 예외 | — |
 
-| 대상 | 주요 검증 포인트 | 유형 |
-|------|-----------------|------|
-| `UserService.signup()` | 회원가입 (PENDING→REGISTERED, 닉네임 설정) | 리팩토링 |
-| `UserService.patchUser()` | 프로필 수정 + 닉네임 검증 (validateAndTrimNickname) | 리팩토링 |
-| `UserService.patchUser()` — 조건부 토큰 | language 변경 시에만 토큰 재발급 | 리팩토링 |
-| `UserService.deleteUser()` | 회원탈퇴 (상태 변경 + 토큰 삭제) | 리팩토링 |
-| `UserService.checkNicknameDuplication()` | 닉네임 중복검사 (Controller→Service 이동 후) | 리팩토링 |
+#### getter 메서드 (`getUserId`, `getRole`, `getLanguage`, `getType`)
 
-### 플로우 3: 큐레이션
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 7-10 | 정상 | 유효한 토큰 | 각 claim 값 반환 | — |
 
-| 대상 | 주요 검증 포인트 | 유형 |
-|------|-----------------|------|
-| `CurationService.postCuration()` | 큐레이션 생성 + placeIds 검증 | 리팩토링 |
-| `CurationService.postCuration()` — placeIds 중복 | HashSet 비교로 중복 체크 | 리팩토링 |
-| `CurationService.postCuration()` — placeIds null | NPE 방지 | 버그 수정 |
-| `CurationService.putCuration()` | 큐레이션 수정 | 리팩토링 |
-| `CurationService.getCurationDetail()` | 상세 조회 (번역, 북마크 여부 포함) | 리팩토링 |
-| `BookmarkService.postBookmark()` | 북마크 등록 | 리팩토링 |
-| `BookmarkService.deleteBookmark()` | 북마크 해제 | 리팩토링 |
+---
+
+### 2-2. `CustomLogoutFilter.doFilter()`
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | URI 불일치 | `/api/user/profile` | filterChain 통과 | — |
+| 2 | 메서드 불일치 | GET `/api/user/logout` | filterChain 통과 | — |
+| 3 | cookies null | `getCookies() = null` | NPE (**bugfix: 400 반환**) | `bugfix` |
+| 4 | 쿠키에 refreshToken 없음 | 다른 이름의 쿠키만 존재 | 400 | — |
+| 5 | 경계값 | 빈 쿠키 배열 `new Cookie[]{}` | 400 | — |
+| 6 | 토큰 만료 | `ExpiredJwtException` 발생 | 400 | — |
+| 7 | type 불일치 | `type = "accessToken"` | 400 | — |
+| 8 | Redis에 없음 | `existsById = false` | 400 세팅 후 return 누락 → 삭제+200도 실행 | — |
+| 9 | 정상 로그아웃 | 유효한 refreshToken + Redis 존재 | 토큰 삭제, 쿠키 무효화, 200 | — |
+
+---
+
+### 2-3. `OAuth2UserService.loadUser()`
+
+> `super.loadUser()`가 HTTP 호출을 하므로 단위 테스트에서 직접 호출 불가.
+> Repository 동작 패턴과 NPE 논리적 결함만 검증.
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | google + 기존 유저 | `findByGoogleId` → User 반환 | save 호출 안 함 | — |
+| 2 | google + 신규 유저 | `findByGoogleId` → null | 새 User 생성, save 호출 | — |
+| 3 | google 아닌 provider | `registrationId ≠ "google"` | userEntity = null → **NPE** | `bugfix` |
+
+---
+
+### 2-4. `UserService`
+
+#### `getUserById(id)`
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | 정상 — 본인 | `userId == requestUserId` | `fromSelfEntity` (알림/언어 포함) | — |
+| 2 | 정상 — 타인 | `userId != requestUserId` | `fromEntity` (알림/언어 null) | — |
+| 3 | 유저 없음 | `findByIdAndStatus` → empty | `USER_NOT_FOUND` 예외 | — |
+| 4 | 경계값 | `id = "abc"` (숫자 아님) | `USER_NOT_FOUND` 예외 (NumberFormatException) | — |
+| 5 | 경계값 | `id = ""` (빈 문자열) | `USER_NOT_FOUND` 예외 | — |
+
+#### `patchUser(dto, imageFile)`
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | 닉네임만 변경 | `nickname != null`, 나머지 null | 닉네임 저장, 토큰 재발급 | — |
+| 2 | language 변경 | `language != null` | language 저장, 토큰 재발급 | — |
+| 3 | 닉네임 중복 | `findByNickname` → 다른 유저 | `DUPLICATED_NICKNAME` 예외 | — |
+| 4 | 닉네임 본인 것 | `findByNickname` → 본인 | 통과 (예외 없음) | — |
+| 5 | 잘못된 닉네임 | `isValidNickname = false` | `INVALID_NICKNAME` 예외 | — |
+| 6 | 경계값 — 닉네임 | 공백만 (`"   "`) → trim 후 빈 문자열 | `INVALID_NICKNAME` 예외 | — |
+| 7 | 경계값 — 닉네임 길이 | 50자 (통과) vs 51자 (실패) | 50자 통과, 51자 `INVALID_NICKNAME` | — |
+| 8 | 잘못된 language | `isValidLanguage = false` (예: `"fr"`) | `INVALID_LANGUAGE` 예외 | — |
+| 9 | 경계값 — description | 150자 (통과) vs 151자 (실패) | 150자 통과, 151자 `INVALD_VALUE` | — |
+| 10 | 유저 없음 | `findByIdAndStatus` → empty | `USER_NOT_FOUND` 예외 | — |
+
+#### `deleteUser()`
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | 정상 | 유저 존재 | delete + tokenDelete + 204 + 쿠키 무효화 | — |
+| 2 | 유저 없음 | `findByIdAndStatus` → empty | `USER_NOT_FOUND` 예외 | — |
+
+---
+
+### 2-5. `CurationService`
+
+#### `postCuration(dto, imageFile)`
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | 정상 | 유효한 title, description, placeIds | CurationList + Item 저장 | — |
+| 2 | title 검증 실패 | `title = null` | `INVALID_VALUE` 예외 | — |
+| 3 | 경계값 — title | 50자 (통과) vs 51자 (실패) | 50자 통과, 51자 `INVALID_VALUE` | — |
+| 4 | 경계값 — description | 1000자 (통과) vs 1001자 (실패) | 1000자 통과, 1001자 `INVALID_VALUE` | — |
+| 5 | placeIds null | `getPlaceIds() = null` | **NPE** (.isEmpty() 호출) | `bugfix` |
+| 6 | 경계값 — placeIds | 빈 리스트 `[]` | `INVALID_VALUE` 예외 | — |
+| 7 | 중복 장소 | 같은 placeId 2번 | `DUPLICATED_PLACE` 예외 | — |
+| 8 | 존재하지 않는 장소 | `findById` → empty | `PLACE_NOT_FOUND` 예외 | — |
+
+#### `putCuration(id, dto, imageFile)`
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | 정상 | 본인 큐레이션 + 유효한 입력 | 기존 항목 삭제 → 새 항목 저장 | — |
+| 2 | 본인 아님 | `writer != user` | `FORBIDDEN_CURATION` 예외 | — |
+| 3 | 큐레이션 없음 | `findById` → empty | `CURATION_NOT_FOUND` 예외 | — |
+
+#### `deleteCuration(id)`
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | 정상 | 본인 큐레이션 | bookmark + item + curation 삭제 | — |
+| 2 | 본인 아님 | `writer != user` | `FORBIDDEN_CURATION` 예외 | — |
+| 3 | 큐레이션 없음 | `findById` → empty | `CURATION_NOT_FOUND` 예외 | — |
+
+---
+
+### 2-6. `BookmarkService`
+
+#### `postBookmark(dto)`
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | 정상 — public 큐레이션 | `isPublic = true` | Bookmark 저장 | — |
+| 2 | 비공개 + 본인 | `isPublic = false`, writer == user | Bookmark 저장 | — |
+| 3 | 비공개 + 타인 | `isPublic = false`, writer != user | `CURATION_NOT_FOUND` 예외 | — |
+| 4 | 이미 북마크됨 | `existsByCurationListIdAndUserId = true` | `DUPLICATED_BOOKMARK` 예외 | — |
+| 5 | 큐레이션 없음 | `findById` → empty | `CURATION_NOT_FOUND` 예외 | — |
+
+#### `deleteBookmark(dto)`
+
+| # | 분기/경계 | 조건 | 기대 결과 | 태그 |
+|---|----------|------|-----------|------|
+| 1 | 정상 | 북마크 존재 | Bookmark 삭제 | — |
+| 2 | 비공개 + 타인 | `isPublic = false`, writer != user | `CURATION_NOT_FOUND` 예외 | — |
+| 3 | 북마크 없음 | `findByCurationListAndUser` → empty | `NOT_BOOKMARKED` 예외 | — |
 
 ---
 
