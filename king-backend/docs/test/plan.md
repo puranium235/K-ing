@@ -61,7 +61,7 @@
 |---|----------|------|-----------|------|
 | 1 | google + 기존 유저 | `findByGoogleId` → User 반환 | save 호출 안 함 | — |
 | 2 | google + 신규 유저 | `findByGoogleId` → null | 새 User 생성, save 호출 | — |
-| 3 | google 아닌 provider | `registrationId ≠ "google"` | userEntity = null → **NPE** | `bugfix` |
+| 3 | google 아닌 provider | `registrationId ≠ "google"` | userEntity = null → **NPE** | `bugfix` → **단위 테스트 제외** (super.loadUser()가 HTTP 호출하여 mock 불가. @WebMvcTest/통합 테스트에서 검증) |
 
 ---
 
