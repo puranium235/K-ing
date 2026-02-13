@@ -10,7 +10,8 @@
     "chatTDesc": "안녕하세요! 저는 K-Guide, 한국 콘텐츠 속 촬영지를 정확하게 찾아드리는 챗봇입니다.\n 궁금한 걸 물어봐주세요!",
     "chatF": "맞춤 큐레이션 추천 F봇",
     "chatFDesc": "안녕하세요! 저는 K-Mood, 감성을 담은 맞춤 큐레이션을 추천하는 챗봇입니다.\n 궁금한 걸 물어봐주세요!💫🎭",
-    "initialMessage": "어떤 MBTI의 챗봇을 원하시나요?"
+    "initialMessage": "어떤 MBTI의 챗봇을 원하시나요?",
+    "honorific": "님"
   },
   "en": {
     "title": "Chatbot",
@@ -23,11 +24,12 @@
     "chatTDesc": "Hello! I'm K-Guide, a chatbot that accurately finds filming locations from Korean content.\n Ask me anything!",
     "chatF": "Curation Recommendation F-Bot",
     "chatFDesc": "Hello! I'm K-Mood, a chatbot that recommends personalized curations with emotions.\n Ask me anything!💫🎭",
-    "initialMessage": "Which MBTI chatbot do you prefer?"
+    "initialMessage": "Which MBTI chatbot do you prefer?",
+    "honorific": ""
   },
   "ja": {
-    "title": "チャットボット",
-    "newTalk": "新しいチャットボット",
+    "title": "ボット",
+    "newTalk": "新規ボット",
     "greeting": "こんにちは",
     "ask": "何でも聞いてください！",
     "msgPlaceholder": "メッセージを入力してください...",
@@ -36,7 +38,8 @@
     "chatTDesc": "こんにちは！私はK-Guide、韓国コンテンツの撮影場所を正確に見つけるチャットボットです。\n 何でも聞いてください！",
     "chatF": "キュレーション推薦 F ボット",
     "chatFDesc": "こんにちは！私はK-Mood、感性を込めたカスタムキュレーションを推薦するチャットボットです。\n 何でも聞いてください！💫🎭",
-    "initialMessage": "どのMBTIチャットボットを選びますか？"
+    "initialMessage": "どのMBTIチャットボットを選びますか？",
+    "honorific": "さん"
   },
   "zh": {
     "title": "聊天机器人",
@@ -49,6 +52,7 @@
     "chatTDesc": "你好！我是K-Guide，一个可以准确找到韩剧、电影拍摄地点的聊天机器人。\n 有什么问题都可以问我！",
     "chatF": "策划推荐 F 机器人",
     "chatFDesc": "你好！我是K-Mood，一个推荐充满感性的个性化策展的聊天机器人。\n 有什么问题都可以问我！💫🎭",
-    "initialMessage": "你喜欢哪种MBTI聊天机器人？"
+    "initialMessage": "你喜欢哪种MBTI聊天机器人？",
+    "honorific": "先生/女士"
   }
 }

@@ -18,25 +18,17 @@ const useGetReviewFeed = (placeId, sortedBy = 'popular') => {
   );
 
   useEffect(() => {
-    mutate();
     setSize(1);
   }, [mutate, setSize]);
 
-  const images = data
-    ? data.flatMap((res) =>
-        res.data.posts.map((post) => ({
-          postId: post.postId,
-          imageUrl: post.imageUrl,
-        })),
-      )
-    : [];
+  const posts = data ? data.flatMap((res) => res.data.posts) : [];
 
-  const isEmpty = data?.[0]?.data?.posts.length === 0;
-  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data.posts?.length < 15);
+  const isEmpty = posts.length === 0;
+  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.data.posts?.length < 10);
   const hasMore = !isEmpty && !isReachingEnd;
 
   return {
-    images,
+    posts,
     getNextData: () => {
       if (!isValidating) {
         setSize(size + 1);

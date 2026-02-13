@@ -17,6 +17,8 @@ const useStreamingMessages = (selectedBot) => {
 
       setMessages((prevMessages) => {
         if (!receivedText.trim()) {
+          console.log(prevMessages);
+
           return prevMessages;
         }
 
@@ -41,6 +43,9 @@ const useStreamingMessages = (selectedBot) => {
           }
 
           const lastAssistantMessage = lastAssistantMessages.join(' ').trim();
+          if (!lastAssistantMessage || lastAssistantMessage.length === 0) {
+            return localMessages;
+          }
 
           if (lastAssistantMessage) {
             if (lastAssistantMessage.includes('[추천]')) {
@@ -60,9 +65,27 @@ const useStreamingMessages = (selectedBot) => {
               }
             }
 
-            // [推荐] 태그 감지
-            if (lastAssistantMessage.includes('[推荐]')) {
+            // 중국어 [推荐] 태그 감지
+            else if (lastAssistantMessage.includes('[推荐]')) {
               const recommendNameMatch = lastAssistantMessage.match(/\[推荐\]\s+\[(.+?)\]/);
+              const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
+
+              if (recommendName) {
+                const recommendMessage = {
+                  sender: 'recommend',
+                  text: recommendName,
+                  type: 'recommend',
+                  isCompleted: true,
+                };
+
+                localMessages.push(recommendMessage);
+                saveRecommendationMessage(recommendName);
+              }
+            }
+
+            // 일본어 [推荐] 태그 감지
+            else if (lastAssistantMessage.includes('[推薦]')) {
+              const recommendNameMatch = lastAssistantMessage.match(/\[推薦\]\s+\[(.+?)\]/);
               const recommendName = recommendNameMatch ? recommendNameMatch[1] : null;
 
               if (recommendName) {

@@ -19,7 +19,7 @@ const ReviewFeed = () => {
   const lastElementRef = useRef(null);
   const scrollPosition = useRef(null);
 
-  const { images, getNextData, isLoading, hasMore } = useGetReviewFeed(placeId, sortBy);
+  const { posts, getNextData, isLoading, hasMore } = useGetReviewFeed(placeId, sortBy);
 
   const [language, setLanguage] = useState(getLanguage());
   const { review: reviewTranslations } = getTranslations(language);
@@ -65,14 +65,14 @@ const ReviewFeed = () => {
 
       {isLoading ? (
         <Loading />
-      ) : images.length === 0 ? (
+      ) : posts.length === 0 ? (
         <NoImageMessage>
           <p>{reviewTranslations.noPhoto}</p>
           <span>{reviewTranslations.desc}</span>
         </NoImageMessage>
       ) : (
         <ImageGridContainer>
-          <ImageGrid images={images} lastElementRef={lastElementRef} />
+          <ImageGrid images={posts} lastElementRef={lastElementRef} />
         </ImageGridContainer>
       )}
 

@@ -235,21 +235,21 @@ const CurationUpload = ({ state }) => {
 
     if (!file) return;
 
-    if (
-      !file.name.toLowerCase().endsWith('.jpg') &&
-      !file.name.toLowerCase().endsWith('.png') &&
-      !file.name.toLowerCase().endsWith('.heic') &&
-      !file.name.toLowerCase().endsWith('.gif')
-    ) {
-      alert(curationTranslations.alertUnsupportedFormat);
-      event.target.type = '';
-      event.target.type = 'file';
-      return;
-    }
+    // if (
+    //   !file.name.toLowerCase().endsWith('.jpg') &&
+    //   !file.name.toLowerCase().endsWith('.png') &&
+    //   !file.name.toLowerCase().endsWith('.heic') &&
+    //   !file.name.toLowerCase().endsWith('.gif')
+    // ) {
+    //   alert('지원하지 않는 이미지 형식입니다.');
+    //   event.target.type = '';
+    //   event.target.type = 'file';
+    //   return;
+    // }
 
     if (file.size > 5 * 1024 * 1024) {
       //5MB
-      alert(curationTranslations.alertMaxSizeExceeded);
+      alert(postTranslations.alertMaxSizeExceeded);
       event.target.type = '';
       event.target.type = 'file';
       return;
@@ -257,7 +257,7 @@ const CurationUpload = ({ state }) => {
 
     if (file.name.endsWith('.heic') || file.name.endsWith('.heif')) {
       //heic 이미지 처리
-      const newFile = convertHeicToJpeg(file);
+      const newFile = await convertHeicToJpeg(file);
       if (newFile) {
         setImageFile(newFile);
         setImage(URL.createObjectURL(newFile));

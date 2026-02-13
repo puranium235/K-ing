@@ -76,6 +76,7 @@ spring:
 fcm:
   service-account-file: ${FIREBASE_SERVICE_ACCOUNT_FILE}
 server:
+  url: ${SERVER_BASE_URL}
   port: 8080
   forward-headers-strategy: framework
   servlet:
@@ -88,3 +89,9 @@ logging:
     root: info
     org.springframework: warn
     org.springframework.security: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
