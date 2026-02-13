@@ -185,7 +185,77 @@ void tearDown() {
 
 ---
 
-## 6. 테스트 작성 패턴 — Given-When-Then
+## 6. 분기 테스트 & 경계값 테스트
+
+### 분기 테스트 (Branch Testing)
+
+코드의 **if/else, try/catch, switch** 등 분기마다 최소 하나의 테스트를 작성한다.
+모든 분기를 통과하는 테스트 세트를 만들면 **분기 커버리지 100%**가 된다.
+
+#### 예시: `validToken()`의 분기 분석
+
+```java
+public Claims validToken(String token) {
+    try {
+        return Jwts.parser()...parseSignedClaims(token)...;  // ← 분기 1: 정상
+    } catch (ExpiredJwtException e) {
+        throw new CustomException(ACCESSTOKEN_EXPIRED);       // ← 분기 2: 만료
+    } catch (Exception e) {
+        throw new CustomException(INVALID_TOKEN);             // ← 분기 3: 기타 에러
+    }
+}
+```
+
+3개 분기 → 최소 3개 테스트:
+
+| 분기 | 입력 | 기대 결과 |
+|------|------|-----------|
+| 정상 | 유효한 토큰 | Claims 반환 |
+| 만료 | 만료된 토큰 (`expireMs = -1000`) | `ACCESSTOKEN_EXPIRED` 예외 |
+| 기타 에러 | 잘못된 문자열 (`"invalid"`) | `INVALID_TOKEN` 예외 |
+
+### 경계값 테스트 (Boundary Value Testing)
+
+값의 **경계**에서 버그가 발생하기 쉽다. 경계 근처의 값을 테스트한다.
+
+#### 원칙: 경계 ± 1
+
+| 조건 | 테스트할 값 |
+|------|------------|
+| `length <= 50` | 49 (통과), **50 (경계)**, 51 (실패) |
+| `expireMs > 0` | -1 (만료), **0 (경계)**, 1 (유효) |
+| `list.isEmpty()` | 빈 리스트 (경계), 1개 리스트 |
+| `value == null` | null (경계), 빈 문자열, 정상 문자열 |
+
+#### 예시: JWT 만료 경계값
+
+```java
+// 경계: expireMs = 0 → 생성 즉시 만료
+@Test
+void validToken_만료시간_0_경계값() {
+    String token = jwtUtil.createJwt("accessToken", "1", "ko", "ROLE_REGISTERED", 0L);
+    assertThatThrownBy(() -> jwtUtil.validToken(token))
+            .isInstanceOf(CustomException.class);
+}
+```
+
+### 분기 + 경계값을 조합하는 방법
+
+1. 코드에서 **모든 분기(if/else/catch)를 찾는다**
+2. 각 분기의 **조건식에서 경계값을 식별**한다
+3. 분기마다 **정상값 1개 + 경계값 1~2개** 테스트를 작성한다
+
+```
+분기: if (token == null)
+  → 테스트: null 전달 (경계), 빈 문자열 전달, 정상 토큰 전달
+
+분기: catch (ExpiredJwtException)
+  → 테스트: expireMs = -1000 (확실히 만료), expireMs = 0 (경계)
+```
+
+---
+
+## 7. 테스트 작성 패턴 — Given-When-Then
 
 ```java
 @Test
