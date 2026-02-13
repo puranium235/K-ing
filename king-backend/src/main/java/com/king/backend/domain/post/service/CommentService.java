@@ -1,9 +1,9 @@
 package com.king.backend.domain.post.service;
 
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.king.backend.domain.fcm.entity.FcmToken;
-import com.king.backend.domain.fcm.repository.FcmTokenRepository;
-import com.king.backend.domain.fcm.service.FcmTokenService;
+//import com.google.firebase.messaging.FirebaseMessagingException;
+//import com.king.backend.domain.fcm.entity.FcmToken;
+//import com.king.backend.domain.fcm.repository.FcmTokenRepository;
+//import com.king.backend.domain.fcm.service.FcmTokenService;
 import com.king.backend.domain.post.dto.request.CommentRequestDto;
 import com.king.backend.domain.post.dto.request.CommentUploadRequestDto;
 import com.king.backend.domain.post.dto.response.CommentAllResponseDto;
@@ -44,8 +44,8 @@ public class CommentService {
     private final CursorUtil cursorUtil;
     private final TranslateService translateService;
     private static final long MULTIPLIER = 1_000_000_000L;
-    private final FcmTokenRepository fcmTokenRepository;
-    private final FcmTokenService fcmTokenService;
+//    private final FcmTokenRepository fcmTokenRepository;
+//    private final FcmTokenService fcmTokenService;
     @Value("${client.url}")
     private String CLIENT_URL;
 
@@ -72,7 +72,7 @@ public class CommentService {
         User postOwner = post.getWriter();
         User commentWriter = savedComment.getWriter();
         if (!postOwner.getId().equals(commentWriter.getId()) && postOwner.getContentAlarmOn()) {
-            List<FcmToken> tokens = fcmTokenRepository.findByUser(postOwner);
+//            List<FcmToken> tokens = fcmTokenRepository.findByUser(postOwner);
             String language = postOwner.getLanguage();
             String title;
             String body;
@@ -92,13 +92,13 @@ public class CommentService {
             }
             String link = CLIENT_URL +"/feed/" + postId;
 
-            for (FcmToken tokenEntity : tokens) {
-                try {
-                    fcmTokenService.sendMessageByToken(tokenEntity.getToken(), title, body, link);
-                } catch (FirebaseMessagingException e) {
-                    log.error("푸시 알림 전송 실패 (토큰: {}): {}", tokenEntity.getToken(), e.getMessage());
-                }
-            }
+//            for (FcmToken tokenEntity : tokens) {
+//                try {
+//                    fcmTokenService.sendMessageByToken(tokenEntity.getToken(), title, body, link);
+//                } catch (FirebaseMessagingException e) {
+//                    log.error("푸시 알림 전송 실패 (토큰: {}): {}", tokenEntity.getToken(), e.getMessage());
+//                }
+//            }
         }
     }
 
